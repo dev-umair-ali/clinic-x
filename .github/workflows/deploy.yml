@@ -22,24 +22,26 @@ jobs:
           script: |
             # Go to project folder on EC2
             cd /home/ubuntu/Clinicx-main || exit 1
-            echo "📁 Changed directory to /home/ubuntu/clinicx-main"
+            echo "📁 Changed directory to /home/ubuntu/Clinicx-main"
 
             # Pull latest code
             git pull origin main
 
-            # Install dependencies exactly as per lock file
+            # Install dependencies
             npm install
 
-            # Build Next.js
+            # Build Next.js (static export)
             npm run build
             npm run export
 
-            # Backup previous build
-            rm -rf out.old
-            mv out out.old || true
+            # Move new build to Nginx web root
+            sudo rm -rf /var/www/clinicx
+            sudo mv out /var/www/clinicx
 
-            # Ensure new build is in place
-            mv out out
+            # Fix permissions
+            sudo chown -R www-data:www-data /var/www/clinicx
 
-            # Reload Nginx to serve updated site
+            # Reload Nginx
             sudo systemctl reload nginx || sudo systemctl restart nginx
+
+            echo "🚀 Deployment complete! App should be live."
