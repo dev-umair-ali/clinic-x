@@ -13,35 +13,45 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy & Build on EC2
+      - name: Deploy & Restart on EC2
         uses: appleboy/ssh-action@v1.1.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            # Go to project folder on EC2
-            cd /home/ubuntu/Clinicx-main || exit 1
-            echo "📁 Changed directory to /home/ubuntu/Clinicx-main"
+            echo "Starting deployment on EC2..."
 
-            # Pull latest code
+            # Move to your app directory
+            cd /home/ubuntu/Clinicx-main || exit 1
+
+            echo "Pulling latest code..."
             git pull origin main
 
-            # Install dependencies
-            npm install
+            echo "Installing dependencies..."
+            npm install --legacy-peer-deps
 
-            # Build Next.js (static export)
+            echo "Building Next.js app..."
             npm run build
-            npm run export
 
-            # Move new build to Nginx web root
-            sudo rm -rf /var/www/clinicx
-            sudo mv out /var/www/clinicx
+            echo "🔁 Restarting app with PM2..."
+            # Ensure PM2 is installed
+            if ! command -v pm2 &> /dev/null
+            then
+              sudo npm install -g pm2
+            fi
 
-            # Fix permissions
-            sudo chown -R www-data:www-data /var/www/clinicx
+            # Stop old process if it exists
+            pm2 delete clinicx || true
 
-            # Reload Nginx
-            sudo systemctl reload nginx || sudo systemctl restart nginx
+            # Start the app in production mode
+            pm2 start "npm run start" --name clinicx
 
-            echo "🚀 Deployment complete! App should be live."
+            # Save PM2 process list & startup setup
+            pm2 save
+            pm2 startup systemd -u ubuntu --hp /home/ubuntu
+
+            echo "Reloading Nginx..."
+            sudo nginx -t && sudo systemctl reload nginx
+
+            echo "Deployment complete! Visit your EC2 public IP."
