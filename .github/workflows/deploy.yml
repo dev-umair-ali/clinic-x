@@ -21,7 +21,7 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           script: |
             # Go to project folder on EC2
-            cd /home/ubuntu/clinicx-main || exit 1
+            cd /home/ubuntu/Clinicx-main || exit 1
             echo "📁 Changed directory to /home/ubuntu/clinicx-main"
 
             # Pull latest code
