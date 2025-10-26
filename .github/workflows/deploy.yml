@@ -1,0 +1,45 @@
+name: Deploy Next.js App to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy & Build on EC2
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            # Go to project folder on EC2
+            cd /home/ubuntu/clinicx-main || exit 1
+            echo "📁 Changed directory to /home/ubuntu/clinicx-main"
+
+            # Pull latest code
+            git pull origin main
+
+            # Install dependencies exactly as per lock file
+            npm install
+
+            # Build Next.js
+            npm run build
+            npm run export
+
+            # Backup previous build
+            rm -rf out.old
+            mv out out.old || true
+
+            # Ensure new build is in place
+            mv out out
+
+            # Reload Nginx to serve updated site
+            sudo systemctl reload nginx || sudo systemctl restart nginx
