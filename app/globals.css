@@ -1,0 +1,140 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------- BASE THEME VARIABLES ---------- */
+@layer base {
+  :root {
+    /* Light mode colors */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+    --radius: 0.5rem;
+
+    /* Sidebar (light mode) */
+    --sidebar-background: 174 80% 20%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 0 0% 100%;
+    --sidebar-primary-foreground: 174 80% 20%;
+    --sidebar-accent: 174 80% 15%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 174 80% 10%;
+    --sidebar-ring: 174 80% 20%;
+
+    /* Gradient */
+    --gradient-start: 167 69% 24%;
+    --gradient-end: 168 69% 38%;
+
+    /* Dashboard colors */
+    --custom-dashboard-green-DEFAULT: 160 83% 39%;
+    --custom-dashboard-green-dark: 160 92% 25%;
+    --custom-dashboard-green-light: 160 70% 89%;
+    --custom-dashboard-blue-DEFAULT: 217 91% 60%;
+    --custom-dashboard-orange-DEFAULT: 25 95% 53%;
+    --custom-dashboard-purple-DEFAULT: 252 95% 67%;
+    --custom-dashboard-red-DEFAULT: 0 84% 60%;
+  }
+
+  /* ---------- ENHANCED DARK MODE ---------- */
+  .dark {
+    --background: 222.2 84% 4.9%; /* Rich dark background */
+    --foreground: 210 40% 98%; /* High contrast text */
+    --card: 222.2 84% 4.9%; /* Same as background for seamless look */
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 174 80% 35%; /* Enhanced teal primary */
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%; /* Better secondary */
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%; /* Improved muted */
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%; /* Darker destructive */
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%; /* Enhanced borders */
+    --input: 217.2 32.6% 17.5%; /* Better inputs */
+    --ring: 212.7 26.8% 83.9%; /* Light ring for focus */
+
+    /* Enhanced Sidebar (dark mode) */
+    --sidebar-background: 222.2 84% 4.9%; /* Match main background */
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 174 80% 35%; /* Enhanced sidebar primary */
+    --sidebar-primary-foreground: 222.2 84% 4.9%;
+    --sidebar-accent: 217.2 32.6% 17.5%; /* Better sidebar accent */
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 217.2 32.6% 17.5%; /* Enhanced sidebar border */
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+/* ---------- BASE ELEMENTS ---------- */
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground transition-colors duration-300;
+  }
+}
+
+/* ---------- BEAUTIFUL CUSTOM SCROLLBAR ---------- */
+::-webkit-scrollbar {
+  width: 8px; /* a little thicker for better look */
+  height: 8px; /* for horizontal scrollbars */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* keep it clean */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1DA68F; /* your green */
+  border-radius: 8px;
+  border: 2px solid transparent; /* creates spacing effect */
+  background-clip: content-box; /* keeps the rounded edge effect */
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #159b7d; /* darker green on hover */
+}
+
+/* ---------- SIDEBAR GRADIENT ---------- */
+.bg-sidebar-gradient {
+  background: linear-gradient(
+    94.25deg,
+    hsl(var(--gradient-start)),
+    hsl(var(--gradient-end))
+  );
+}
+
+/* ---------- ACTIVE MENU ---------- */
+.menu-active-gradient {
+  background: linear-gradient(94.25deg, #1da68f 0%, #27debf 100%);
+  color: white;
+  padding: 9px 13.5px;
+  border-radius: 16px;
+  width: 186px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 13.5px;
+}
