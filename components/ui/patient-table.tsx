@@ -1,14 +1,13 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
-import { MoreHorizontal,  Edit, Eye, UserX, Search } from "lucide-react";
+import { MoreHorizontal, Edit, Eye, UserX, Search } from "lucide-react";
 import type { Patient } from "@/lib/slices/patientSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { deletePatient, fetchPatients } from "@/lib/slices/patientSlice";
+import { updatePatientStatus, fetchPatients } from "@/lib/slices/patientSlice";
 import type { RootState, AppDispatch } from "@/lib/store";
 import { useRouter } from "next/navigation";
-import { Trash2, X } from "lucide-react"
-
+import moment from "moment";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,6 +26,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface PatientTableProps {
   patients: Patient[];
@@ -40,7 +40,8 @@ export function PatientTable({ patients }: PatientTableProps) {
   const [sortBy, setSortBy] = useState("name");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10); // default
-
+  const [updatingPatientStatus, setUpdatingPatientStatus] = useState<string | null>(null);
+  const [updatingPatientId, setUpdatingPatientId] = useState<string | null>(null);
   // Reset to first page when search term changes
   useEffect(() => {
     setCurrentPage(1);
@@ -66,12 +67,10 @@ export function PatientTable({ patients }: PatientTableProps) {
   const sortedPatients = useMemo(() => {
     return [...filteredPatients].sort((a, b) => {
       if (sortBy === "name") {
-        const aFullName = `${a.firstName || ""} ${
-          a.lastName || ""
-        }`.toLowerCase();
-        const bFullName = `${b.firstName || ""} ${
-          b.lastName || ""
-        }`.toLowerCase();
+        const aFullName = `${a.firstName || ""} ${a.lastName || ""
+          }`.toLowerCase();
+        const bFullName = `${b.firstName || ""} ${b.lastName || ""
+          }`.toLowerCase();
         return aFullName.localeCompare(bFullName);
       }
       if (sortBy === "age") return a.age - b.age;
@@ -85,21 +84,24 @@ export function PatientTable({ patients }: PatientTableProps) {
   const endIndex = startIndex + itemsPerPage;
   const paginatedPatients = sortedPatients.slice(startIndex, endIndex);
 
-  const handleDelete = async (patientId: string) => {
-    try {
-      await dispatch(deletePatient(patientId)).unwrap();
-      await dispatch(fetchPatients());
-    } catch (error: any) {
-      console.error("Error deleting patient:", error);
-    }
-  };
 
-  const handleDeactivate = async (patientId: string) => {
+
+  const handleUpdatePatientStatus = async (patientId: string, patientStatus: string) => {
+    // Toggle status: if active -> inactive, if inactive -> active
+    const newStatus = patientStatus === "active" ? "inactive" : "active";
     try {
-      await dispatch(deletePatient(patientId)).unwrap();
-      await dispatch(fetchPatients());
+      setUpdatingPatientStatus(patientId);
+      const response = await dispatch(updatePatientStatus({id: patientId, status: newStatus}));
+      if (response.meta.requestStatus === "fulfilled") {
+        toast.success("Patient status updated successfully!");
+        await dispatch(fetchPatients());
+        setUpdatingPatientStatus(null);
+        setUpdatingPatientId(null);
+      }
     } catch (error: any) {
-      console.error("Error deactivating patient:", error);
+      toast.error("Failed to update patient status. Please try again.");
+      setUpdatingPatientStatus(null);
+      setUpdatingPatientId(null);
     }
   };
 
@@ -136,7 +138,6 @@ export function PatientTable({ patients }: PatientTableProps) {
                 "AGE",
                 "GENDER",
                 "DOCTOR",
-                "CLINIC",
                 "LAST VISIT",
                 "STATUS",
                 "ACTION",
@@ -160,7 +161,7 @@ export function PatientTable({ patients }: PatientTableProps) {
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <img
-                      src={patient.avatar || "/placeholder.svg"}
+                      src={patient.profilePicture || "/placeholder.svg?height=80&width=80"}
                       alt={`${patient.firstName} ${patient.lastName}`}
                       className="h-9 w-9 rounded-full mr-3 object-cover"
                     />
@@ -177,7 +178,7 @@ export function PatientTable({ patients }: PatientTableProps) {
 
                 {/* Age */}
                 <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
-                  {patient.age} years
+                  {patient.age} Years
                 </td>
 
                 {/* Gender */}
@@ -187,23 +188,23 @@ export function PatientTable({ patients }: PatientTableProps) {
 
                 {/* Doctor */}
                 <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
-                  Dr. Sarah Johnson
-                </td>
-
-                {/* Clinic */}
-                <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
-                  Downtown Clinic
+                  {(patient.assignedDoctor as any)?.[0]?.firstName + " " + (patient.assignedDoctor as any)?.[0]?.lastName || "No doctor assigned"}
                 </td>
 
                 {/* Last Visit */}
                 <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
-                  15/01/2024
+                  {moment(patient.lastVisit).format("DD/MM/YYYY HH:mm") === "Invalid date" ? "No last visit" : moment(patient.lastVisit).format("DD/MM/YYYY HH:mm")}
                 </td>
 
                 {/* Status */}
                 <td className="px-6 py-4">
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
-                    Active
+                <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${patient.status === "active"
+                          ? "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200"
+                          : "bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200"
+                        }`}
+                    >
+                    {patient.status === "active" ? "Active" : "Inactive"}
                   </span>
                 </td>
 
@@ -239,82 +240,61 @@ export function PatientTable({ patients }: PatientTableProps) {
                         <Edit className="mr-2 h-4 w-4" /> Edit
                       </DropdownMenuItem>
                       {canRemovePatient && (
-                        <>
-                          {/* Deactivate */}
-                          {/* <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <DropdownMenuItem
-                                onSelect={(e) => e.preventDefault()}
-                                className="cursor-pointer"
-                              >
-                                <UserX className="mr-2 h-4 w-4" /> Deactivate
-                              </DropdownMenuItem>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>
-                                  Deactivate Patient?
-                                </AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  This will deactivate {patient.firstName}{" "}
-                                  {patient.lastName}.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => handleDeactivate(patient.id)}
-                                >
-                                  Deactivate
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog> */}
-
-                          {/* Delete */}
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <DropdownMenuItem
                                 onSelect={(e) => e.preventDefault()}
-                                className="cursor-pointer text-red-600 dark:text-red-400"
+                                className="flex items-center text-red-600 focus:text-red-600 dark:text-red-400 cursor-pointer hover:bg-red-50 dark:hover:bg-red-900/20"
                               >
-                                <Trash2 className="mr-2 h-4 w-4" /> Deactivate
+                                <UserX className="mr-2 h-4 w-4" />
+                                {patient.status === "active"
+                                  ? "Deactivate"
+                                  : "Activate"}
                               </DropdownMenuItem>
                             </AlertDialogTrigger>
-
-                            <AlertDialogContent className="sm:max-w-md rounded-lg">
-                              <AlertDialogHeader className="flex items-center gap-2">
-                                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-red-100">
-                                  <X className="w-4 h-4 text-red-600" />
+                            <AlertDialogContent className="max-w-md dark:bg-gray-900 dark:text-gray-200">
+                              <AlertDialogHeader className="flex flex-row items-center gap-3 space-y-0">
+                                <div className="h-8 w-8 rounded-full bg-red-100 dark:bg-red-900 flex items-center justify-center">
+                                  <UserX className="h-4 w-4 text-red-600 dark:text-red-400" />
                                 </div>
                                 <AlertDialogTitle className="text-lg font-semibold">
-                                  Deactivate Patient
+                                  {patient.status === "active"
+                                    ? "Deactivate Patient"
+                                    : "Activate Patient"}
                                 </AlertDialogTitle>
                               </AlertDialogHeader>
-
-                              <AlertDialogDescription className="text-gray-600">
-                                Are you sure you want to deactivate{" "}
-                                <span className="font-medium">
-                                  {patient.firstName} {patient.lastName}
-                                </span>
-                                ?
+                              <AlertDialogDescription className="text-gray-600 dark:text-gray-400 mt-4">
+                                Are you sure you want to{" "}
+                                {patient.status === "active"
+                                  ? "deactivate"
+                                  : "activate"}{" "}
+                                {patient.firstName} {patient.lastName}?
+                                {patient.status === "active"
+                                  ? " This will prevent them from seeing new patients."
+                                  : " This will allow them to see new patients again."}
                               </AlertDialogDescription>
-
-                              <AlertDialogFooter className="mt-4 flex justify-end gap-3">
-                                <AlertDialogCancel className="px-6 py-2 rounded-md bg-gray-100 text-gray-900 hover:bg-gray-200">
+                              <AlertDialogFooter className="mt-6 gap-3">
+                                <AlertDialogCancel
+                                  disabled={updatingPatientStatus === patient.id}
+                                  className="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 border-0"
+                                >
                                   Cancel
                                 </AlertDialogCancel>
                                 <AlertDialogAction
-                                  onClick={() => handleDelete(patient.id)}
-                                  className="px-6 py-2 rounded-md bg-red-600 text-white hover:bg-red-700"
-                                >
-                                  Yes, Deactivate Patient
+                                  onClick={() => handleUpdatePatientStatus(patient.id, patient.status)}
+                                  disabled={updatingPatientStatus === patient.id}
+                                  className={`flex-1 text-white ${patient.status === "active"
+                                      ? "bg-red-600 hover:bg-red-700"
+                                      : "bg-green-600 hover:bg-green-700"
+                                    }`}>
+                                  Yes, {patient.status === "active"
+                                    ? "Deactivate"
+                                    : "Activate"} Patient
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
                           </AlertDialog>
-                        </>
-                      )}
+                        )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </td>
@@ -344,11 +324,10 @@ export function PatientTable({ patients }: PatientTableProps) {
                   <button
                     key={pageNum}
                     onClick={() => setCurrentPage(pageNum)}
-                    className={`w-8 h-8 text-sm rounded ${
-                      currentPage === pageNum
+                    className={`w-8 h-8 text-sm rounded ${currentPage === pageNum
                         ? "bg-[#1DA68F] text-white"
                         : "border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    }`}
+                      }`}
                   >
                     {pageNum}
                   </button>

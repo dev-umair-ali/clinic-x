@@ -89,7 +89,7 @@ export default function LoginPage() {
           {/* Welcome */}
           <div>
             <h2 className="text-lg font-semibold text-foreground">Welcome back</h2>
-            <p className="text-sm text-muted-foreground">Sign in to MY account to continue</p>
+            <p className="text-sm text-muted-foreground">Sign in to your account to continue</p>
           </div>
 
           {/* Error */}

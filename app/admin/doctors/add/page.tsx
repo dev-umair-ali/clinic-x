@@ -16,7 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ArrowLeft, Camera, Eye, EyeOff, Plus, Trash2 } from "lucide-react";
 import type { AppDispatch } from "@/lib/store";
-import { toast } from "sonner";
+import { toast, ToastContainer } from "react-toastify";
 import {
   Select,
   SelectContent,
@@ -60,7 +60,6 @@ export default function AddDoctorPage() {
     timeZone: "Asia/Karachi",
     profilePicture: "",
     availableDays: [
-      { day: "Sunday", from: "09:00", to: "17:00" },
       { day: "Monday", from: "09:00", to: "17:00" },
       { day: "Tuesday", from: "09:00", to: "17:00" },
       { day: "Wednesday", from: "09:00", to: "17:00" },
@@ -74,7 +73,6 @@ export default function AddDoctorPage() {
   const [imageUploading, setImageUploading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [selectedDays, setSelectedDays] = useState<string[]>([
-    "Sunday",
     "Monday",
     "Tuesday",
     "Wednesday",
@@ -146,7 +144,8 @@ export default function AddDoctorPage() {
     const token = localStorage.getItem('clinic-ai-token');
 
     if (!token) {
-      throw new Error('No authentication token found. Please login again.');
+      toast.error('No authentication token found. Please login again.');
+      return "";
     }
 
     const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}api/upload/image`, {
@@ -157,13 +156,13 @@ export default function AddDoctorPage() {
       body: formData,
     });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || 'Failed to upload image');
-    }
 
     const result = await response.json();
-    return result.fileUrl || result.profilePicture || result.data?.fileUrl;
+    if (result.success === true) {
+      toast.success(result.message || 'Image uploaded successfully!');
+      return result.fileUrl || result.profilePicture || result.data?.fileUrl;
+    } 
+    return "";
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -261,7 +260,7 @@ export default function AddDoctorPage() {
     try {
 
       // Filter availableDays to only include selected days
-      const filteredAvailableDays = formData.availableDays.filter(daySlot => 
+      const filteredAvailableDays = formData.availableDays.filter(daySlot =>
         selectedDays.includes(daySlot.day)
       );
 
@@ -275,11 +274,9 @@ export default function AddDoctorPage() {
         timeZone: formData.timeZone,
         availableDays: filteredAvailableDays,
       };
-      await dispatch(createDoctorInCollection(doctorData)).unwrap();
+      const response = await dispatch(createDoctorInCollection(doctorData));
 
-      const doctorSuccessMsg = "Doctor added successfully!";
-      toast.success(doctorSuccessMsg);
-
+      if(response.meta.requestStatus === 'fulfilled') {
       // Refresh the doctor list to show the new doctor
       await dispatch(fetchDoctors());
 
@@ -309,36 +306,32 @@ export default function AddDoctorPage() {
         assignedClinic: "",
         languages: [],
       });
-
+  
       // Reset image states
       setProfileImage(null);
       setImageFile(null);
+      setLoading(false);
 
+      toast.success("Doctor added successfully!");
+  
       // Redirect immediately after success
       router.push("/admin/doctors");
-    } catch (err: any) {
-      // Log detailed error for debugging
-      // Show specific error messages based on error type
-      if (err.response?.status === 409) {
-        toast.error("A doctor with this email already exists.");
-      } else if (err.response?.status === 400) {
-        toast.error("Invalid data provided. Please check your input.");
-      } else if (err.response?.status === 500) {
-        toast.error("Server error. Please try again later.");
-      } else if (err.code === "NETWORK_ERROR") {
-        toast.error("Network error. Please check your connection.");
-      } else {
-        toast.error(
-          err.message || "Failed to create doctor. Please try again."
-        );
-      }
-    } finally {
+    } else {
+      toast.error(response.payload as string);
       setLoading(false);
+      return;
+    }
+
+    } catch (err: any) {
+      toast.error(err);
+      setLoading(false);
+      return;
     }
   };
 
   return (
     <ProtectedRoute allowedRoles={["admin"]}>
+      <ToastContainer />
       <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 min-h-screen">
         <div className="max-w-7xl mx-auto p-6">
           {/* Header */}
@@ -534,102 +527,102 @@ export default function AddDoctorPage() {
                     </div>
                   </div>
 
-                   <div>
-                     <Label
-                       htmlFor="phone"
-                       className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                     >
-                       Phone Number *
-                     </Label>
-                     <Input
-                       id="phone"
-                       name="phone"
-                       type="text"
-                       value={formData.phone}
-                       onChange={handleChange}
-                       placeholder="(555) 123-4567"
-                       className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-                       required
-                     />
-                   </div>
+                  <div>
+                    <Label
+                      htmlFor="phone"
+                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
+                      Phone Number *
+                    </Label>
+                    <Input
+                      id="phone"
+                      name="phone"
+                      type="text"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      placeholder="(555) 123-4567"
+                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      required
+                    />
+                  </div>
 
-                   <div>
-                     <Label
-                       htmlFor="age"
-                       className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                     >
-                       Age *
-                     </Label>
-                     <Input
-                       id="age"
-                       name="age"
-                       type="number"
-                       value={formData.age}
-                       onChange={handleChange}
-                       placeholder="35"
-                       min="18"
-                       max="100"
-                       className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-                       required
-                     />
-                   </div>
+                  <div>
+                    <Label
+                      htmlFor="age"
+                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
+                      Age *
+                    </Label>
+                    <Input
+                      id="age"
+                      name="age"
+                      type="number"
+                      value={formData.age}
+                      onChange={handleChange}
+                      placeholder="35"
+                      min="18"
+                      max="100"
+                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      required
+                    />
+                  </div>
 
-                   <div>
-                     <Label
-                       htmlFor="dateOfBirth"
-                       className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                     >
-                       Date of Birth *
-                     </Label>
-                     <Input
-                       id="dateOfBirth"
-                       name="dateOfBirth"
-                       type="date"
-                       value={formData.dateOfBirth}
-                       onChange={handleChange}
-                       className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-                       required
-                     />
-                   </div>
+                  <div>
+                    <Label
+                      htmlFor="dateOfBirth"
+                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
+                      Date of Birth *
+                    </Label>
+                    <Input
+                      id="dateOfBirth"
+                      name="dateOfBirth"
+                      type="date"
+                      value={formData.dateOfBirth}
+                      onChange={handleChange}
+                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      required
+                    />
+                  </div>
 
-                   <div>
-                     <Label
-                       htmlFor="gender"
-                       className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                     >
-                       Gender *
-                     </Label>
-                     <Select
-                       value={formData.gender}
-                       onValueChange={(value) =>
-                         setFormData({ ...formData, gender: value })
-                       }
-                     >
-                       <SelectTrigger className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                         <SelectValue placeholder="Select gender" />
-                       </SelectTrigger>
-                       <SelectContent className="dark:bg-gray-700 dark:border-gray-600">
-                         <SelectItem
-                           value="male"
-                           className="dark:text-white dark:hover:bg-gray-600"
-                         >
-                           Male
-                         </SelectItem>
-                         <SelectItem
-                           value="female"
-                           className="dark:text-white dark:hover:bg-gray-600"
-                         >
-                           Female
-                         </SelectItem>
-                         <SelectItem
-                           value="other"
-                           className="dark:text-white dark:hover:bg-gray-600"
-                         >
-                           Other
-                         </SelectItem>
-                       </SelectContent>
-                     </Select>
-                   </div>
+                  <div>
+                    <Label
+                      htmlFor="gender"
+                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
+                      Gender *
+                    </Label>
+                    <Select
+                      value={formData.gender}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, gender: value })
+                      }
+                    >
+                      <SelectTrigger className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        <SelectValue placeholder="Select gender" />
+                      </SelectTrigger>
+                      <SelectContent className="dark:bg-gray-700 dark:border-gray-600">
+                        <SelectItem
+                          value="male"
+                          className="dark:text-white dark:hover:bg-gray-600"
+                        >
+                          Male
+                        </SelectItem>
+                        <SelectItem
+                          value="female"
+                          className="dark:text-white dark:hover:bg-gray-600"
+                        >
+                          Female
+                        </SelectItem>
+                        <SelectItem
+                          value="other"
+                          className="dark:text-white dark:hover:bg-gray-600"
+                        >
+                          Other
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
 
 
@@ -710,7 +703,7 @@ export default function AddDoctorPage() {
                     />
                   </div>
 
-                 
+
 
                   <div>
                     <Label
@@ -883,38 +876,6 @@ export default function AddDoctorPage() {
 
                   <div>
                     <Label
-                      htmlFor="yearsExperience"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                    >
-                      Years of Experience
-                    </Label>
-                    <Select
-                      value={formData.experience}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, experience: value })
-                      }
-                    >
-                      <SelectTrigger className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                        <SelectValue placeholder="15" />
-                      </SelectTrigger>
-                      <SelectContent className="dark:bg-gray-700 dark:border-gray-600">
-                        {Array.from({ length: 50 }, (_, i) => i + 1).map(
-                          (year) => (
-                            <SelectItem
-                              key={year}
-                              value={year.toString()}
-                              className="dark:text-white dark:hover:bg-gray-600"
-                            >
-                              {year}
-                            </SelectItem>
-                          )
-                        )}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <Label
                       htmlFor="address"
                       className="text-sm font-medium text-gray-700 dark:text-gray-300"
                     >
@@ -996,7 +957,6 @@ export default function AddDoctorPage() {
                   <div className="flex flex-wrap gap-3 mb-6 p-3  ">
                     {[
                       { label: "Select All", value: "Select All" },
-                      { label: "Sun", value: "Sunday" },
                       { label: "Mon", value: "Monday" },
                       { label: "Tue", value: "Tuesday" },
                       { label: "Wed", value: "Wednesday" },
@@ -1021,7 +981,6 @@ export default function AddDoctorPage() {
                                 setSelectedDays([]);
                               } else {
                                 setSelectedDays([
-                                  "Sunday",
                                   "Monday",
                                   "Tuesday",
                                   "Wednesday",
@@ -1048,7 +1007,6 @@ export default function AddDoctorPage() {
 
                   <div className="space-y-4">
                     {[
-                      "Sunday",
                       "Monday",
                       "Tuesday",
                       "Wednesday",
