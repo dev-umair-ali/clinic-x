@@ -14,8 +14,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ArrowLeft, Camera, Eye, EyeOff, Plus, Trash2 } from "lucide-react";
 import type { AppDispatch, RootState } from "@/lib/store";
-import { toast } from "sonner";
 import type { Doctor } from "@/lib/slices/doctorSlice";
+import { toast } from "react-toastify";
 import {
   Select,
   SelectContent,
@@ -24,6 +24,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import moment from "moment";
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css'; // Import the CSS
 
 interface AvailableDay {
   day: string;
@@ -79,7 +82,6 @@ export default function EditDoctorPage() {
   const [imageUploading, setImageUploading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [selectedDays, setSelectedDays] = useState<string[]>([
-    "Sunday",
     "Monday",
     "Tuesday",
     "Wednesday",
@@ -103,6 +105,14 @@ export default function EditDoctorPage() {
   // Populate form data when single doctor is loaded
   useEffect(() => {
     if (doctor && doctor.id === doctorId) {
+      setSelectedDays(doctor.availableDays?.map((day) => day.day as string) || [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ]);
       setPatient(doctor);
       setFormData({
         firstName: doctor.firstName || "",
@@ -141,6 +151,7 @@ export default function EditDoctorPage() {
           { day: "Friday", from: "09:00", to: "17:00" },
           { day: "Saturday", from: "09:00", to: "17:00" },
         ],
+
       });
     }
   }, [doctor, doctorId]);
@@ -207,7 +218,8 @@ export default function EditDoctorPage() {
     const token = localStorage.getItem('clinic-ai-token');
 
     if (!token) {
-      throw new Error('No authentication token found. Please login again.');
+      toast.error('No authentication token found. Please login again.');
+      return "";
     }
 
     const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}api/upload/image`, {
@@ -220,7 +232,8 @@ export default function EditDoctorPage() {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || 'Failed to upload image');
+      toast.error(errorData.message || 'Failed to upload image');
+      return "";
     }
 
     const result = await response.json();
@@ -230,50 +243,7 @@ export default function EditDoctorPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!patient) return;
-
     setLoading(true);
-
-    if (
-      !formData.firstName ||
-      !formData.lastName ||
-      !formData.name ||
-      !formData.email ||
-      !formData.phone ||
-      !formData.age ||
-      !formData.dateOfBirth ||
-      !formData.gender ||
-      !formData.specialization ||
-      !formData.experience ||
-      !formData.licenseNumber ||
-      !formData.address
-    ) {
-      toast.error("Please fill in all required fields.");
-      setLoading(false);
-      return;
-    }
-
-    // Password validation only if password is provided
-    if (formData.password && formData.password.length < 8) {
-      toast.error("Password must be at least 8 characters long.");
-      setLoading(false);
-      return;
-    }
-
-    // Check for password complexity requirements only if password is provided
-    if (formData.password) {
-      const hasUpperCase = /[A-Z]/.test(formData.password);
-      const hasLowerCase = /[a-z]/.test(formData.password);
-      const hasNumbers = /\d/.test(formData.password);
-      const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(formData.password);
-
-      if (!hasUpperCase || !hasLowerCase || !hasNumbers || !hasSpecialChar) {
-        toast.error(
-          "Password must contain uppercase, lowercase, number, and special character."
-        );
-        setLoading(false);
-        return;
-      }
-    }
 
     try {
       // Filter availableDays to only include selected days
@@ -292,24 +262,17 @@ export default function EditDoctorPage() {
         profilePicture: formData.profilePicture || profileImage,
       };
 
-      await dispatch(updateDoctor({ id: patient.id, doctorData })).unwrap();
-
-      router.push("/admin/doctors");
-      toast.success("Doctor updated successfully!");
-
-    } catch (err: any) {
-      if (err.response?.status === 404) {
-        toast.error("Doctor not found.");
-      } else if (err.response?.status === 400) {
-        toast.error("Invalid data provided. Please check your input.");
-      } else if (err.response?.status === 500) {
-        toast.error("Server error. Please try again later.");
+      const response = await dispatch(updateDoctor({ id: doctorId, doctorData }));
+      if (response.payload === "Doctor updated successfully") {
+        toast.success("Doctor updated successfully!");
+        setLoading(false);
+        return;
       } else {
-        toast.error(
-          err.message || "Failed to update doctor. Please try again."
-        );
+        toast.error(response.payload as string);
+        setLoading(false);
       }
-    } finally {
+    } catch (err: any) {
+      toast.error(err);
       setLoading(false);
     }
   };
@@ -366,6 +329,8 @@ export default function EditDoctorPage() {
   if (!patient && doctors.length > 0) {
     return (
       <ProtectedRoute allowedRoles={["admin"]}>
+        <ToastContainer />
+
         <div className="flex-1 overflow-y-auto p-6">
           <div className="max-w-7xl mx-auto">
             <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
@@ -390,6 +355,7 @@ export default function EditDoctorPage() {
 
   return (
     <ProtectedRoute allowedRoles={["admin"]}>
+      <ToastContainer />
       <div className="min-h-screen bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto py-8 px-6">
           <div className="mb-6">
@@ -425,7 +391,7 @@ export default function EditDoctorPage() {
                     <Avatar className="h-20 w-20">
                       <AvatarImage
                         src={
-                          profileImage || formData.profilePicture || "/placeholder.svg?height=80&width=80"
+                          formData.profilePicture || "/placeholder.svg?height=80&width=80"
                         }
                       />
                       <AvatarFallback className="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-lg">
@@ -543,39 +509,8 @@ export default function EditDoctorPage() {
                       onChange={handleChange}
                       placeholder="sarah.johnson@clinical.com"
                       className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-                      required
+                      disabled
                     />
-                  </div>
-
-                  <div>
-                    <Label
-                      htmlFor="password"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                    >
-                      Password (leave blank to keep current)
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        id="password"
-                        name="password"
-                        type={showPassword ? "text" : "password"}
-                        value={formData.password}
-                        onChange={handleChange}
-                        placeholder="Enter new password"
-                        className="mt-1 pr-10 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </button>
-                    </div>
                   </div>
 
                   <div>
@@ -629,8 +564,8 @@ export default function EditDoctorPage() {
                       id="dateOfBirth"
                       name="dateOfBirth"
                       type="date"
-                      value={formData.dateOfBirth}
-                      onChange={handleChange}
+                      value={formData.dateOfBirth ? moment(formData.dateOfBirth).format('YYYY-MM-DD') : ''}
+                      onChange={(e) => setFormData({ ...formData, dateOfBirth: moment(e.target.value).format('YYYY-MM-DD') })}
                       className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
                       required
                     />
@@ -1000,7 +935,6 @@ export default function EditDoctorPage() {
                   <div className="flex flex-wrap gap-3 mb-6 p-3  ">
                     {[
                       { label: "Select All", value: "Select All" },
-                      { label: "Sun", value: "Sunday" },
                       { label: "Mon", value: "Monday" },
                       { label: "Tue", value: "Tuesday" },
                       { label: "Wed", value: "Wednesday" },
@@ -1025,7 +959,6 @@ export default function EditDoctorPage() {
                                 setSelectedDays([]);
                               } else {
                                 setSelectedDays([
-                                  "Sunday",
                                   "Monday",
                                   "Tuesday",
                                   "Wednesday",
@@ -1052,7 +985,6 @@ export default function EditDoctorPage() {
 
                   <div className="space-y-4">
                     {[
-                      "Sunday",
                       "Monday",
                       "Tuesday",
                       "Wednesday",

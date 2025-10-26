@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from "@reduxjs/toolkit"
 import { doctorService, type CreateDoctorRequest, type UpdateDoctorRequest } from "../api/services/doctorService"
+import { toast } from "react-toastify"
 
 export interface Doctor {
   profilePicture: any
@@ -61,9 +62,10 @@ export const fetchDoctors = createAsyncThunk(
     try {
       const response = await doctorService.getDoctors()
       return response;
-    } catch (error: any) {
-      console.error('Error in fetchDoctors:', error)
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch doctors')
+    } catch (error: any) {  
+      const errorMessage = error.response?.data?.error;
+      const result = errorMessage ? errorMessage.split(':').pop()?.trim() : 'Failed to fetch doctors';
+      return rejectWithValue(result)
     }
   }
 )
@@ -75,8 +77,9 @@ export const fetchDoctor = createAsyncThunk(
       const response = await doctorService.getDoctor(id)
       return response;
     } catch (error: any) {
-      console.error('Error in fetchDoctor:', error)
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch doctor')
+      const errorMessage = error.response?.data?.error;
+      const result = errorMessage ? errorMessage.split(':').pop()?.trim() : 'Failed to fetch doctor';
+      return rejectWithValue(result)
     }
   }
 )
@@ -89,10 +92,12 @@ export const createDoctor = createAsyncThunk(
       if (response.success) {
         return response.data
       } else {
-        return rejectWithValue(response.message || 'Failed to create doctor')
+        return rejectWithValue(response.message)
       }
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to create doctor')
+      const errorMessage = error.response?.data?.error;
+      const result = errorMessage ? errorMessage.split(':').pop()?.trim() : 'Failed to create doctor';
+      return rejectWithValue(result)
     }
   }
 )
@@ -104,29 +109,32 @@ export const createDoctorInCollection = createAsyncThunk(
      
       const response = await doctorService.createDoctorInCollection(doctorData)
       if (response.success) {
+        toast.success("Doctor added successfully!")
         return response.data
-      } else {
-        return rejectWithValue(response.message || 'Failed to add doctor to collection')
       }
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to add doctor to collection')
+      const errorMessage = error.response?.data?.error;
+      const result = errorMessage ? errorMessage.split(':').pop()?.trim() : 'Failed to add doctor to collection';
+      return rejectWithValue(result)
     }
   }
 )
 
 export const updateDoctor = createAsyncThunk(
   'doctors/updateDoctor',
-  async ({ id, doctorData }: { id: string; doctorData: UpdateDoctorRequest }, { rejectWithValue, dispatch }) => {
+  async ({ id, doctorData }: { id: string; doctorData: UpdateDoctorRequest }, { rejectWithValue }) => {
     try {
       const response = await doctorService.updateDoctor(id, doctorData)
       if (response.success) {
-        await dispatch(fetchDoctors()).unwrap()
+        toast.success("Doctor updated successfully!")
         return response.data
       } else {
-        return rejectWithValue(response.message || 'Failed to update doctor')
+        return rejectWithValue(response.message)
       }
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to update doctor')
+      const errorMessage = error.response?.data?.error;
+      const result = errorMessage ? errorMessage.split(':').pop()?.trim() : 'Failed to update doctor';
+      return rejectWithValue(result)
     }
   }
 )
@@ -140,10 +148,12 @@ export const updateDoctorStatus = createAsyncThunk(
         await dispatch(fetchDoctors()).unwrap()
         return { id, status, data: response.data }
       } else {
-        return rejectWithValue(response.message || 'Failed to update doctor status')
+        return rejectWithValue(response.message)
       }
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to update doctor status')
+      const errorMessage = error.response?.data?.error;
+      const result = errorMessage ? errorMessage.split(':').pop()?.trim() : 'Failed to update doctor status';
+      return rejectWithValue(result)
     }
   }
 )
@@ -164,11 +174,13 @@ export const deleteDoctor = createAsyncThunk(
     
         return id
       } else {
-        return rejectWithValue(response.message || 'Failed to delete doctor')
+        return rejectWithValue(response.message)
       }
     } catch (error: any) {
     
-      return rejectWithValue(error.response?.data?.message || 'Failed to delete doctor')
+      const errorMessage = error.response?.data?.error;
+      const result = errorMessage ? errorMessage.split(':').pop()?.trim() : 'Failed to delete doctor';
+      return rejectWithValue(result)
     }
   }
 )
@@ -324,7 +336,7 @@ const doctorSlice = createSlice({
       .addCase(createDoctor.fulfilled, (state, action) => {
         state.loading = false
         const newDoctor: Doctor = {
-          id: action.payload.user.id,
+          id: action.payload?.user?.id || '',
           name: action.payload.user.name,
           firstName: action.payload.user.firstName,
           lastName: action.payload.user.lastName,
@@ -372,22 +384,22 @@ const doctorSlice = createSlice({
       .addCase(updateDoctor.fulfilled, (state, action) => {
         state.loading = false
         const updatedDoctor: Doctor = {
-          id: action.payload.user.id,
-          name: action.payload.user.name,
-          firstName: action.payload.user.firstName,
-          lastName: action.payload.user.lastName,
-          email: action.payload.user.email,
-          phone: action.payload.user.phone,
-          age: action.payload.user.age,
-          gender: action.payload.user.gender,
-          address: action.payload.user.address,
-          specialization: action.payload.user.specialization,
-          experience: action.payload.user.experience,
-          licenseNumber: action.payload.user.licenseNumber,
-          status: (action.payload.user as any).status || 'active',
+          id: action.payload?.user?.id || '',
+          name: action.payload?.user?.name || '',
+          firstName: action.payload?.user?.firstName || '',
+          lastName: action.payload?.user?.lastName || '',
+          email: action.payload?.user?.email || '',
+          phone: action.payload?.user?.phone || '',
+          age: action.payload?.user?.age || 0,
+          gender: action.payload?.user?.gender || 'male',
+          address: action.payload?.user?.address || '',
+          specialization: action.payload?.user?.specialization || '',
+          experience: action.payload?.user?.experience || 0,
+          licenseNumber: action.payload?.user?.licenseNumber || '',
+          status: (action.payload?.user as any).status || 'active',
           role: "doctor",
-          avatar: action.payload.user.avatar,
-          profilePicture: action.payload.user.profilePicture
+          avatar: action.payload?.user?.avatar || '',
+          profilePicture: action.payload?.user?.profilePicture || ''
         }
         const index = state.doctors.findIndex((doctor) => doctor.id === updatedDoctor.id)
         if (index !== -1) {

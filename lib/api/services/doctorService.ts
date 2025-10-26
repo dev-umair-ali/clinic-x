@@ -137,7 +137,7 @@ export const doctorService = {
   },
 
   async updateDoctor(id: string, doctorData: UpdateDoctorRequest): Promise<DoctorResponse> {
-    const response = await api.put(`/doctors/${id}`, doctorData);
+    const response = await api.put(`/admin/update-doctor/${id}`, doctorData);
     return response.data;
   },
 
