@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create axios instance with default config
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_BACKEND_BASE_URL || 'https://api.clinicx.io',
+  baseURL: process.env.NEXT_PUBLIC_BACKEND_BASE_URL || 'https://api.clinicx.io/',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
