@@ -3,10 +3,11 @@ name: Deploy Next.js App to EC2
 on:
   push:
     branches:
-      - main
+      - main  # deploy only when pushing to main branch
 
 jobs:
   deploy:
+    name: Deploy to EC2
     runs-on: ubuntu-latest
 
     steps:
@@ -25,10 +26,14 @@ jobs:
             cd /home/ubuntu/Clinicx-main || exit 1
 
             echo "Pulling latest code..."
-            git pull origin main
+            git fetch origin main
+            git reset --hard origin/main
 
             echo "Installing dependencies..."
             npm install --legacy-peer-deps
+
+            echo "Cleaning old build..."
+            rm -rf .next
 
             echo "Building Next.js app..."
             npm run build
@@ -38,16 +43,20 @@ jobs:
               sudo npm install -g pm2
             fi
 
-            # Stop old process if exists
+            # Stop old instance (ignore errors if not found)
             pm2 delete clinicx || true
 
-            #Start app on port 3001 explicitly
+            # Start app explicitly on port 3001
             PORT=3001 pm2 start "npm run start" --name clinicx
 
             pm2 save
             pm2 startup systemd -u ubuntu --hp /home/ubuntu
 
-            echo "🔄 Reloading Nginx..."
-            sudo nginx -t && sudo systemctl reload nginx
+            echo "Testing Nginx configuration..."
+            sudo nginx -t
 
-            echo "Deployment complete! App running on port 3001 and accessible via Nginx (port 80)."
+            echo "Reloading Nginx..."
+            sudo systemctl reload nginx
+
+            echo "Deployment complete!"
+            echo "App is live at https://app.clinicx.io"
