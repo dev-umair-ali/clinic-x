@@ -31,7 +31,7 @@ export function AISavingsSection() {
     <Card className="shadow-sm rounded-xl">
       <CardHeader>
         <CardTitle className="text-base font-semibold text-foreground">
-          Clinic AI Saved You 7.5 Hours This Week
+          Clinic X Saved You 7.5 Hours This Week
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col md:flex-row items-center gap-6 md:gap-8">

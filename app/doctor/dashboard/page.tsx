@@ -54,7 +54,7 @@ export default function DoctorDashboard() {
             />
           </div>
 
-          {/* Clinic AI Saved You Section */}
+          {/* Clinic X Saved You Section */}
           <AISavingsSection />
 
           {/* Appointments Overview */}

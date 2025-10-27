@@ -88,7 +88,7 @@ export function AppSidebar() {
         <SidebarHeader className="px-6 py-6 shrink-0">
           <div className="flex flex-col items-center text-center">
             <div className="text-2xl font-bold">Logo</div>
-            <div className="text-xs text-white">Powered By Clinic AI</div>
+            <div className="text-xs text-white">Powered By Clinic X</div>
           </div>
         </SidebarHeader>
 

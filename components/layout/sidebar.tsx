@@ -59,7 +59,7 @@ export function Sidebar() {
       {/* Logo Section */}
       <div className="px-6 py-8">
         <div className="text-2xl font-bold text-white mb-1">Logo</div>
-        <div className="text-sm text-teal-100 opacity-80">Powered By Clinic AI</div>
+        <div className="text-sm text-teal-100 opacity-80">Powered By Clinic X</div>
       </div>
 
       {/* Main Content */}

@@ -14,7 +14,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Clinic AI - Healthcare Management Platform",
+  title: "Clinic X - Healthcare Management Platform",
   description: "Modern healthcare management platform with AI-powered features",
 };
 

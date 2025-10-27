@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch"
 import { useState } from "react"
 
 export default function AdminSettingsPage() {
-  const [appName, setAppName] = useState("Clinic AI")
+  const [appName, setAppName] = useState("Clinic X")
   const [notificationsEnabled, setNotificationsEnabled] = useState(true)
 
   const handleSaveSettings = () => {
