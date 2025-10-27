@@ -75,8 +75,8 @@ if (oauthDomain) {
   amplifyConfig.Auth.Cognito.loginWith.oauth = {
     domain: oauthDomain,
     scopes: ['email', 'openid', 'profile'],
-    redirectSignIn: ['http://localhost:30000/'],
-    redirectSignOut: ['http://localhost:3000/'],
+    redirectSignIn: ['https://api.clinicx.io/'],
+    redirectSignOut: ['https://api.clinicx.io/'],
     responseType: 'code',
   }
 }
