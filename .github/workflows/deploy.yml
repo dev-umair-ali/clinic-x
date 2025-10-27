@@ -22,7 +22,6 @@ jobs:
           script: |
             echo "Starting deployment on EC2..."
 
-            # Move to your app directory
             cd /home/ubuntu/Clinicx-main || exit 1
 
             echo "Pulling latest code..."
@@ -34,24 +33,21 @@ jobs:
             echo "Building Next.js app..."
             npm run build
 
-            echo "🔁 Restarting app with PM2..."
-            # Ensure PM2 is installed
-            if ! command -v pm2 &> /dev/null
-            then
+            echo "Restarting app with PM2..."
+            if ! command -v pm2 &> /dev/null; then
               sudo npm install -g pm2
             fi
 
-            # Stop old process if it exists
+            # Stop old process if exists
             pm2 delete clinicx || true
 
-            # Start the app in production mode
-            pm2 start "npm run start" --name clinicx
+            #Start app on port 3001 explicitly
+            PORT=3001 pm2 start "npm run start" --name clinicx
 
-            # Save PM2 process list & startup setup
             pm2 save
             pm2 startup systemd -u ubuntu --hp /home/ubuntu
 
-            echo "Reloading Nginx..."
+            echo "🔄 Reloading Nginx..."
             sudo nginx -t && sudo systemctl reload nginx
 
-            echo "Deployment complete! Visit your EC2 public IP."
+            echo "Deployment complete! App running on port 3001 and accessible via Nginx (port 80)."
