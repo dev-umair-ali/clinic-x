@@ -89,7 +89,7 @@ export default function LoginPage() {
           {/* Welcome */}
           <div>
             <h2 className="text-lg font-semibold text-foreground">Welcome back</h2>
-            <p className="text-sm text-muted-foreground">Sign in to Testing continue</p>
+            <p className="text-sm text-muted-foreground">Sign in to Testing pipeline continue</p>
           </div>
 
           {/* Error */}
