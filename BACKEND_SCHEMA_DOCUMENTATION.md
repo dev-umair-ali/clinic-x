@@ -1,6 +1,6 @@
 # Backend API Schema Documentation
 
-Based on the running backend API at `http://localhost:3000`, here are the complete schema definitions for all models.
+Based on the running backend API at `https://api.clinicx.io`, here are the complete schema definitions for all models.
 
 ## 📋 **Core Models Schema**
 

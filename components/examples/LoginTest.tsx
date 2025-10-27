@@ -80,7 +80,7 @@ export function LoginTest() {
         <div className="text-xs text-muted-foreground">
           <p><strong>Note:</strong> This tests the login API endpoint at:</p>
           <p className="font-mono bg-muted p-2 rounded mt-1">
-            {process.env.NEXT_PUBLIC_BACKEND_BASE_URL || 'http://localhost:3000'}/auth/login
+            {process.env.NEXT_PUBLIC_BACKEND_BASE_URL || 'https://api.clinicx.io'}/auth/login
           </p>
         </div>
       </CardContent>
