@@ -83,7 +83,7 @@ export default function LoginPage() {
           {/* Header */}
           <div className="text-center">
             <h1 className="text-2xl font-bold italic text-foreground">Logo</h1>
-            <p className="text-muted-foreground text-sm">Powered By Clinic AI</p>
+            <p className="text-muted-foreground text-sm">Powered By Clinic X</p>
           </div>
 
           {/* Welcome */}
