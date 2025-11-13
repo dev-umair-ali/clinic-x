@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/lib/store";
 import { ProtectedRoute } from "@/components/ui/protected-route";
 import { HeaderBanner } from "@/app/doctor/doctor-charts/header-banner";
 import { AISavingsSection } from "@/app/doctor/doctor-charts/ai-savings-section";
@@ -11,10 +13,20 @@ import { PrescriptionsSection } from "@/app/doctor/doctor-charts/prescriptions-s
 import { NotesCreditSection } from "@/app/doctor/doctor-charts/notes-credit-section";
 import { RemindersProgressSection } from "@/app/doctor/doctor-charts/reminders-progress-section";
 import { MedicalDashboard } from "@/app/doctor/doctor-charts/medical-dashboard";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { CalendlyConnection, checkCalendlyStatus } from "@/components/calendly-connection";
 
 export default function DoctorDashboard() {
   // Mock user data for UI replication
   const user = { name: "Steven Adesanya" };
+  const { user: authUser } = useSelector((state: RootState) => state.auth);
 
   const currentDate = new Date().toLocaleDateString("en-US", {
     weekday: "long",
@@ -24,6 +36,29 @@ export default function DoctorDashboard() {
   });
 
   const [showMedicalDashboard, setShowMedicalDashboard] = useState(false);
+  const [showCalendlyDialog, setShowCalendlyDialog] = useState(false);
+  const [isCalendlyConnected, setIsCalendlyConnected] = useState<boolean>(false);
+
+  useEffect(() => {
+    const checkStatus = async () => {
+      if (authUser?.role === 'doctor') {
+        const doctorId = (authUser as any)?._id || authUser?.id;
+        if (doctorId) {
+          try {
+            const connected = await checkCalendlyStatus(doctorId);
+            setIsCalendlyConnected(connected);
+            if (!connected) {
+              setShowCalendlyDialog(true);
+            }
+          } catch (error: any) {
+            console.error('Error checking Calendly status:', error);
+          }
+        }
+      }
+    };
+
+    checkStatus();
+  }, [authUser]);
 
   const handleGoToAppointments = () => {
     setShowMedicalDashboard(true);
@@ -31,6 +66,13 @@ export default function DoctorDashboard() {
 
   const handleBackToDashboard = () => {
     setShowMedicalDashboard(false);
+  };
+
+  const handleConnectionChange = (connected: boolean) => {
+    setIsCalendlyConnected(connected);
+    if (connected) {
+      setShowCalendlyDialog(false);
+    }
   };
 
   if (showMedicalDashboard) {
@@ -78,6 +120,26 @@ export default function DoctorDashboard() {
           <RemindersProgressSection />
         </div>
       </div>
+
+      {/* Calendly Connection Dialog */}
+      <Dialog open={showCalendlyDialog} onOpenChange={() => {}}>
+        <DialogContent className="[&>button.absolute]:hidden">
+          <DialogHeader>
+            <DialogTitle>Calendly Not Connected</DialogTitle>
+            <DialogDescription>
+              You are not connected to Calendly. Please connect to it to continue.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            {authUser && ((authUser as any)?._id || authUser?.id) && (
+              <CalendlyConnection
+                doctorId={(authUser as any)?._id || authUser?.id || ""}
+                onConnectionChange={handleConnectionChange}
+              />
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </ProtectedRoute>
   );
 }
