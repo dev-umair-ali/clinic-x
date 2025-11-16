@@ -40,12 +40,14 @@ export default function DoctorDashboard() {
   const [isCalendlyConnected, setIsCalendlyConnected] = useState<boolean>(false);
 
   useEffect(() => {
+    console.log("authUser", authUser);
     const checkStatus = async () => {
       if (authUser?.role === 'doctor') {
-        const doctorId = (authUser as any)?._id || authUser?.id;
+        const doctorId = (authUser as any)?.doctorId;
         if (doctorId) {
           try {
             const connected = await checkCalendlyStatus(doctorId);
+            console.log("connected", connected);
             setIsCalendlyConnected(connected);
             if (!connected) {
               setShowCalendlyDialog(true);
@@ -122,7 +124,7 @@ export default function DoctorDashboard() {
       </div>
 
       {/* Calendly Connection Dialog */}
-      <Dialog open={showCalendlyDialog} onOpenChange={() => {}}>
+      <Dialog open={showCalendlyDialog} onOpenChange={() => { }}>
         <DialogContent className="[&>button.absolute]:hidden">
           <DialogHeader>
             <DialogTitle>Calendly Not Connected</DialogTitle>
@@ -132,10 +134,16 @@ export default function DoctorDashboard() {
           </DialogHeader>
           <DialogFooter>
             {authUser && ((authUser as any)?._id || authUser?.id) && (
-              <CalendlyConnection
-                doctorId={(authUser as any)?._id || authUser?.id || ""}
-                onConnectionChange={handleConnectionChange}
-              />
+              (() => {
+                const doctorId = (authUser as any)?._id || authUser?.id || "";
+                return (
+                  <CalendlyConnection
+                    userId={doctorId}
+                    doctorId={doctorId}
+                    onConnectionChange={handleConnectionChange}
+                  />
+                );
+              })()
             )}
           </DialogFooter>
         </DialogContent>

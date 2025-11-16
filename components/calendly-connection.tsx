@@ -7,6 +7,7 @@ import { useToast } from "@/components/ui/use-toast";
 import api from "@/lib/api/axios";
 
 interface CalendlyConnectionProps {
+  userId: string;
   doctorId: string;
   onConnectionChange?: (isConnected: boolean) => void;
 }
@@ -17,6 +18,7 @@ interface CalendlyConnectionProps {
  * @returns Promise<boolean> - True if connected, false otherwise
  */
 export async function checkCalendlyStatus(doctorId: string): Promise<boolean> {
+  console.log("doctorId", doctorId);
   try {
     const response = await api.get(`/api/calendly/connected-status/${doctorId}`);
     return response.data?.calendlyConnected ?? false;
@@ -27,6 +29,7 @@ export async function checkCalendlyStatus(doctorId: string): Promise<boolean> {
 }
 
 function CalendlyConnectionContent({
+  userId,
   doctorId,
   onConnectionChange,
 }: CalendlyConnectionProps) {
@@ -40,7 +43,7 @@ function CalendlyConnectionContent({
   // Check connection status on mount
   useEffect(() => {
     const fetchStatus = async () => {
-      if (!doctorId) return;
+      if (!userId || !doctorId) return;
       
       setIsLoading(true);
       try {
@@ -61,11 +64,11 @@ function CalendlyConnectionContent({
   useEffect(() => {
     if (hasHandledCallback) return; // Prevent multiple callback handlers
 
-    const success = searchParams?.get("calendly_success");
-    const error = searchParams?.get("calendly_error");
+    const success = searchParams?.get("success") || searchParams?.get("calendly_success");
+    const error = searchParams?.get("error") || searchParams?.get("calendly_error");
     const code = searchParams?.get("code"); // OAuth code from Calendly
     const state = searchParams?.get("state"); // State parameter
-
+ 
     // Check if we have OAuth callback parameters but no success/error flag
     // This might indicate the backend callback endpoint isn't working
     if (code && state && !success && !error) {
@@ -123,6 +126,7 @@ function CalendlyConnectionContent({
   }, [searchParams, doctorId, toast, onConnectionChange, hasHandledCallback]);
 
   const handleConnect = () => {
+    console.log("handleConnect", doctorId);
     if (!doctorId) {
       toast({
         title: "Error",
@@ -159,14 +163,6 @@ function CalendlyConnectionContent({
       window.location.href = connectUrl;
     }, 500);
   };
-
-  if (isLoading) {
-    return (
-      <Button disabled>
-        Checking connection...
-      </Button>
-    );
-  }
 
   if (isConnected) {
     return (
