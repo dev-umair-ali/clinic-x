@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { ProtectedRoute } from "@/components/ui/protected-route";
 import {
   Calendar,
@@ -19,6 +19,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/lib/store";
 import {
   Dialog,
   DialogContent,
@@ -38,17 +40,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { appointmentService, type DoctorAppointment, type PatientDetails, type CreateAppointmentRequest } from "@/lib/api/services/appointmentService";
 
-// Add this interface at the top after the imports
-interface Appointment {
-  id: string;
-  patientName: string;
-  date: string;
-  time: string;
-  type: string;
-  status: "pending" | "confirmed" | "completed" | "cancelled";
-}
-
+// Calendar Event interface
 interface CalendarEvent {
   id: string;
   title: string;
@@ -56,122 +50,465 @@ interface CalendarEvent {
   type: "appointment" | "follow-up" | "consultation" | "check-up";
 }
 
-interface PatientDetails {
-  id: string;
-  name: string;
-  patientId: string;
-  age: number;
-  gender: string;
-  bloodType: string;
-  lastVisit: string;
-  phone: string;
-  email: string;
-  address: string;
-  dob: string;
-  avatar: string;
+// Helper function to calculate age from date of birth
+function calculateAge(dateOfBirth: string | undefined): number {
+  if (!dateOfBirth) return 0;
+  const birthDate = new Date(dateOfBirth);
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
 }
 
-const mockPatientDetails: PatientDetails = {
-  id: "1",
-  name: "Sarah Johnson",
-  patientId: "#PAT-2024-001",
-  age: 32,
-  gender: "Female",
-  bloodType: "O+",
-  lastVisit: "Dec 15, 2024",
-  phone: "(555) 123-4567",
-  email: "sarah.johnson@email.com",
-  address: "123 Main St, City, State 12345",
-  dob: "March 15, 1992",
-  avatar: "/professional-woman.png",
-};
+// Helper function to format date
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+// Helper function to format time
+function formatTime(dateString: string): string {
+  const date = new Date(dateString);
+  return date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
+// Helper function to extract date from dateTime
+function extractDate(dateTime: string): string {
+  return dateTime.split('T')[0];
+}
 
 export default function DoctorAppointments() {
   const router = useRouter();
+  const { user: authUser } = useSelector((state: RootState) => state.auth);
+  
   const [viewMode, setViewMode] = useState<"calendar" | "list">("list");
-  const [selectedPatient, setSelectedPatient] = useState<PatientDetails | null>(
-    null
-  );
+  const [selectedPatient, setSelectedPatient] = useState<PatientDetails | null>(null);
   const [showPatientModal, setShowPatientModal] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
-  const [currentMonth, setCurrentMonth] = useState(new Date(2025, 6)); // July 2025
+  const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedFilter, setSelectedFilter] = useState("Upcoming");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("Date");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageLimit] = useState(10);
 
   const [showEditModal, setShowEditModal] = useState(false);
-  const [editingAppointment, setEditingAppointment] = useState<any>(null);
-  const [selectedDate, setSelectedDate] = useState(new Date(2024, 0, 15)); // January 15, 2024
+  const [editingAppointment, setEditingAppointment] = useState<DoctorAppointment | null>(null);
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
   const [editPatientName, setEditPatientName] = useState("");
-  const [editCalendarMonth, setEditCalendarMonth] = useState(new Date(2024, 0)); // January 2024
+  const [editCalendarMonth, setEditCalendarMonth] = useState(new Date());
   const [showCalendar, setShowCalendar] = useState(false);
 
-  const mockAppointments = [
-    {
-      id: "1",
-      patientName: "Emma Wilson",
-      date: "2024-01-15",
-      time: "10:00 AM",
-      type: "consultation",
-      status: "pending",
-    },
-    {
-      id: "2",
-      patientName: "Emma Wilson",
-      date: "2024-01-15",
-      time: "11:00 AM",
-      type: "consultation",
-      status: "pending",
-    },
-    {
-      id: "3",
-      patientName: "Emma Wilson",
-      date: "2024-01-15",
-      time: "2:00 PM",
-      type: "consultation",
-      status: "pending",
-    },
-  ];
+  // API state
+  const [appointments, setAppointments] = useState<DoctorAppointment[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [stats, setStats] = useState({
+    hoursAvailable: "0",
+    appointmentsBooked: "0",
+    nextAvailableSlot: "N/A",
+  });
+  const [totalPages, setTotalPages] = useState(1);
 
-  const calendarEvents: CalendarEvent[] = mockAppointments.map((apt) => ({
-    id: apt.id,
-    title: `${apt.patientName} - ${apt.type}`,
-    date: apt.date,
-    type: apt.type.toLowerCase() as
-      | "appointment"
-      | "follow-up"
-      | "consultation"
-      | "check-up",
-  }));
+  // Fetch appointments on mount and when filters change
+  useEffect(() => {
+    if (viewMode === "calendar") {
+      fetchCalendarAppointments();
+    } else {
+      fetchAppointments();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedFilter, currentPage, viewMode]);
 
-  const stats = [
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (viewMode === "list") {
+        if (currentPage === 1) {
+          fetchAppointments();
+        } else {
+          setCurrentPage(1);
+        }
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery, viewMode]);
+
+  // Fetch weekly count for stats
+  useEffect(() => {
+    fetchWeeklyCount();
+  }, []);
+
+  // Fetch appointment list view on initial load (alternative endpoint)
+  useEffect(() => {
+    if (authUser?.id && appointments.length === 0 && !loading) {
+      fetchAppointmentListView();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authUser?.id]);
+
+  // Fetch appointments using GET /doctors/appointments with query params
+  const fetchAppointments = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const params: {
+        patientName?: string;
+        status?: string;
+        page?: number;
+        limit?: number;
+      } = {
+        page: currentPage,
+        limit: pageLimit,
+      };
+
+      if (searchQuery && searchQuery.trim()) {
+        params.patientName = searchQuery.trim();
+      }
+
+      // Use status filter API endpoint for status filtering
+      if (selectedFilter === "Canceled") {
+        const response = await appointmentService.getDoctorAppointmentsByStatus("cancelled");
+        if (response && response.success && response.data) {
+          setAppointments(Array.isArray(response.data) ? response.data : []);
+          setTotalPages(1);
+        } else {
+          setAppointments([]);
+          setTotalPages(1);
+        }
+        return;
+      } else if (selectedFilter === "Upcoming") {
+        params.status = "scheduled";
+      }
+
+      const response = await appointmentService.getDoctorAppointments(params);
+      if (response && response.success) {
+        setAppointments(Array.isArray(response.data) ? response.data : []);
+        if (response.total !== undefined && response.limit) {
+          setTotalPages(Math.ceil(response.total / response.limit));
+        } else {
+          setTotalPages(1);
+        }
+      } else {
+        setAppointments([]);
+        setError(response?.message || "No appointments found");
+      }
+    } catch (err: any) {
+      const errorMessage = err.message || err.response?.data?.message || "Failed to fetch appointments";
+      setError(errorMessage);
+      setAppointments([]);
+      console.error("Error fetching appointments:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch calendar appointments using GET /doctors/appointments/calendar
+  const fetchCalendarAppointments = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await appointmentService.getDoctorAppointmentsCalendar();
+      if (response && response.success && response.data) {
+        setAppointments(Array.isArray(response.data) ? response.data : []);
+      } else {
+        setAppointments([]);
+        setError(response?.message || "No calendar appointments found");
+      }
+    } catch (err: any) {
+      const errorMessage = err.message || err.response?.data?.message || "Failed to fetch calendar appointments";
+      setError(errorMessage);
+      setAppointments([]);
+      console.error("Error fetching calendar appointments:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch appointment list view using GET /doctors/:id/appointmentListView
+  const fetchAppointmentListView = async () => {
+    if (!authUser?.id) {
+      console.warn("No doctor ID available for appointment list view");
+      return;
+    }
+    
+    try {
+      const response = await appointmentService.getDoctorAppointmentListView(authUser.id);
+      if (response && response.success && response.data) {
+        setAppointments(Array.isArray(response.data) ? response.data : []);
+        if (response.total !== undefined && response.limit) {
+          setTotalPages(Math.ceil(response.total / response.limit));
+        } else {
+          setTotalPages(1);
+        }
+      } else {
+        // Fallback to regular appointments endpoint
+        fetchAppointments();
+      }
+    } catch (err: any) {
+      console.error("Error fetching appointment list view:", err);
+      // Fallback to regular appointments endpoint
+      fetchAppointments();
+    }
+  };
+
+  const fetchWeeklyCount = async () => {
+    try {
+      const response = await appointmentService.getDoctorWeeklyCount();
+      if (response && response.success && response.data && typeof response.data.count === 'number') {
+        setStats((prev) => ({
+          ...prev,
+          appointmentsBooked: response.data.count.toString(),
+        }));
+      } else {
+        // Keep default value if response is invalid
+        console.warn("Invalid weekly count response:", response);
+      }
+    } catch (err: any) {
+      console.error("Error fetching weekly count:", err);
+      // Don't set error state for stats as it's not critical
+      // Keep default value
+    }
+  };
+
+  const fetchPatientDetails = async (appointmentId: string) => {
+    if (!appointmentId || appointmentId.trim() === '') {
+      setError("Invalid appointment ID");
+      return;
+    }
+    
+    try {
+      // First try to get appointment by ID (GET /doctors/appointments/:id)
+      let appointmentData;
+      try {
+        const appointmentResponse = await appointmentService.getDoctorAppointmentById(appointmentId);
+        if (appointmentResponse && appointmentResponse.success && appointmentResponse.data) {
+          appointmentData = appointmentResponse.data;
+        }
+      } catch (err: any) {
+        console.log("getDoctorAppointmentById failed, trying details endpoint:", err.message);
+      }
+
+      // Then get full details (GET /doctors/appointments/:id/details)
+      const response = await appointmentService.getDoctorAppointmentDetails(appointmentId);
+      if (response && response.success && response.data?.patient) {
+        const patient = response.data.patient;
+        if (!patient._id || !patient.name) {
+          throw new Error("Invalid patient data received");
+        }
+        
+        const patientDetails: PatientDetails = {
+          _id: patient._id,
+          name: patient.name,
+          patientId: patient.patientId || `#PAT-${patient._id.slice(-6)}`,
+          email: patient.email,
+          phone: patient.phone,
+          dateOfBirth: patient.dateOfBirth,
+          age: calculateAge(patient.dateOfBirth),
+          gender: patient.gender,
+          bloodType: patient.bloodType,
+          address: patient.address,
+          avatar: patient.avatar,
+          lastVisit: patient.lastVisit,
+        };
+        setSelectedPatient(patientDetails);
+        setShowPatientModal(true);
+        setError(null);
+      } else if (appointmentData && typeof appointmentData.patient === 'object' && appointmentData.patient) {
+        // Fallback to data from getDoctorAppointmentById
+        const patient = appointmentData.patient as any;
+        if (patient._id && patient.name) {
+          const patientDetails: PatientDetails = {
+            _id: patient._id,
+            name: patient.name,
+            patientId: patient.patientId || `#PAT-${patient._id.slice(-6)}`,
+            email: patient.email,
+            phone: patient.phone,
+            dateOfBirth: patient.dateOfBirth,
+            age: calculateAge(patient.dateOfBirth),
+            gender: patient.gender,
+            bloodType: patient.bloodType,
+            address: patient.address,
+            avatar: patient.avatar,
+          };
+          setSelectedPatient(patientDetails);
+          setShowPatientModal(true);
+          setError(null);
+        } else {
+          throw new Error("Incomplete patient data received");
+        }
+      } else {
+        throw new Error("Patient details not found");
+      }
+    } catch (err: any) {
+      const errorMessage = err.message || "Failed to fetch patient details";
+      setError(errorMessage);
+      console.error("Error fetching patient details:", err);
+    }
+  };
+
+  const handleStatusUpdate = async (appointmentId: string, newStatus: string) => {
+    if (!appointmentId || appointmentId.trim() === '') {
+      setError("Invalid appointment ID");
+      return;
+    }
+    
+    if (!newStatus || !['scheduled', 'completed', 'cancelled'].includes(newStatus)) {
+      setError("Invalid status value");
+      return;
+    }
+    
+    try {
+      const response = await appointmentService.updateDoctorAppointmentStatus(appointmentId, newStatus);
+      if (response && response.success) {
+        setError(null);
+        // Refresh appointments based on current view mode
+        if (viewMode === "calendar") {
+          fetchCalendarAppointments();
+        } else {
+          fetchAppointments();
+        }
+      } else {
+        throw new Error(response?.message || "Failed to update appointment status");
+      }
+    } catch (err: any) {
+      const errorMessage = err.message || "Failed to update appointment status";
+      setError(errorMessage);
+      console.error("Error updating appointment status:", err);
+    }
+  };
+
+  // Create new appointment using POST /appointments
+  const handleCreateAppointment = async (appointmentData: CreateAppointmentRequest) => {
+    // Validate required fields
+    if (!appointmentData.doctor || !appointmentData.patient || !appointmentData.dateTime) {
+      setError("Missing required fields: doctor, patient, and dateTime are required");
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await appointmentService.createAppointment(appointmentData);
+      if (response && response.success) {
+        // Refresh appointments based on current view mode
+        if (viewMode === "calendar") {
+          fetchCalendarAppointments();
+        } else {
+          fetchAppointments();
+        }
+        setShowBookingModal(false);
+        // Refresh weekly count
+        fetchWeeklyCount();
+      } else {
+        throw new Error(response?.message || "Failed to create appointment");
+      }
+    } catch (err: any) {
+      const errorMessage = err.message || err.response?.data?.message || "Failed to create appointment";
+      setError(errorMessage);
+      console.error("Error creating appointment:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Filter appointments based on selected filter
+  const filteredAppointments = useMemo(() => {
+    let filtered = [...appointments];
+    
+    if (selectedFilter === "Upcoming") {
+      const now = new Date();
+      filtered = filtered.filter((apt) => {
+        const aptDate = new Date(apt.dateTime);
+        return aptDate >= now && apt.status !== "cancelled";
+      });
+    } else if (selectedFilter === "Canceled") {
+      filtered = filtered.filter((apt) => apt.status === "cancelled");
+    }
+
+    // Sort by date
+    filtered.sort((a, b) => {
+      const dateA = new Date(a.dateTime).getTime();
+      const dateB = new Date(b.dateTime).getTime();
+      return dateA - dateB;
+    });
+
+    return filtered;
+  }, [appointments, selectedFilter]);
+
+  // Calendar events from appointments
+  const calendarEvents: CalendarEvent[] = useMemo(() => {
+    return filteredAppointments.map((apt) => ({
+      id: apt._id,
+      title: `${apt.patientName || apt.patient?.name || "Patient"} - ${apt.type || "appointment"}`,
+      date: extractDate(apt.dateTime),
+      type: (apt.type?.toLowerCase() || "appointment") as
+        | "appointment"
+        | "follow-up"
+        | "consultation"
+        | "check-up",
+    }));
+  }, [filteredAppointments]);
+
+  // Calculate next available slot
+  const nextAvailableSlot = useMemo(() => {
+    const upcoming = filteredAppointments
+      .filter((apt) => apt.status === "scheduled")
+      .sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime())[0];
+    
+    if (upcoming) {
+      const date = new Date(upcoming.dateTime);
+      const today = new Date();
+      if (date.toDateString() === today.toDateString()) {
+        return `Today ${formatTime(upcoming.dateTime)}`;
+      }
+      return formatDate(upcoming.dateTime) + " " + formatTime(upcoming.dateTime);
+    }
+    return "N/A";
+  }, [filteredAppointments]);
+
+  const statsData = [
     {
       title: "Hours Available This Week",
-      value: "32",
+      value: stats.hoursAvailable,
       icon: <Clock className="h-4 w-4 sm:h-5 sm:w-5" />,
       color: "text-blue-600 dark:text-blue-400",
       bgColor: "bg-blue-50 dark:bg-blue-900/20",
     },
     {
       title: "Appointments Booked",
-      value: mockAppointments.length.toString(),
+      value: stats.appointmentsBooked,
       icon: <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" />,
       color: "text-green-600 dark:text-green-400",
       bgColor: "bg-green-50 dark:bg-green-900/20",
     },
     {
       title: "Next Available Slot",
-      value: "Today 2:00 PM",
+      value: nextAvailableSlot,
       icon: <FileText className="h-4 w-4 sm:h-5 sm:w-5" />,
       color: "text-orange-600 dark:text-orange-400",
       bgColor: "bg-orange-50 dark:bg-orange-900/20",
     },
   ];
 
-  const handlePatientClick = (patient: PatientDetails) => {
-    setSelectedPatient(patient);
-    setShowPatientModal(true);
+  const handlePatientClick = async (appointment: DoctorAppointment) => {
+    if (appointment._id) {
+      await fetchPatientDetails(appointment._id);
+    }
   };
 
   const getDaysInMonth = (date: Date) => {
@@ -289,66 +626,59 @@ export default function DoctorAppointments() {
           </div>
 
           <div className="grid grid-cols-7 gap-1">
-            {days.map((day, index) => (
-              <div
-                key={index}
-                className={`p-1 sm:p-2 h-16 sm:h-20 border border-border ${
-                  day.isCurrentMonth ? "bg-card" : "bg-muted/50"
-                } relative cursor-pointer hover:bg-muted/50 transition-colors`}
-                onClick={() => {
-                  console.log("Calendar day clicked:", day.fullDate);
-                }}
-              >
-                <span
-                  className={`text-xs sm:text-sm ${
-                    day.isCurrentMonth
-                      ? "text-foreground"
-                      : "text-muted-foreground"
-                  }`}
+            {days.map((day, index) => {
+              const dayDateStr = day.fullDate.toISOString().split('T')[0];
+              const dayEvents = calendarEvents.filter(
+                (event) => event.date === dayDateStr
+              );
+
+              return (
+                <div
+                  key={index}
+                  className={`p-1 sm:p-2 h-16 sm:h-20 border border-border ${
+                    day.isCurrentMonth ? "bg-card" : "bg-muted/50"
+                  } relative cursor-pointer hover:bg-muted/50 transition-colors`}
+                  onClick={() => {
+                    console.log("Calendar day clicked:", day.fullDate);
+                  }}
                 >
-                  {day.date}
-                </span>
+                  <span
+                    className={`text-xs sm:text-sm ${
+                      day.isCurrentMonth
+                        ? "text-foreground"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    {day.date}
+                  </span>
 
-                {/* Sample appointments - responsive */}
-                {day.date === 3 && day.isCurrentMonth && (
-                  <div className="mt-1 space-y-1">
-                    <div className="text-xs bg-teal-100 dark:bg-teal-900/30 text-teal-800 dark:text-teal-200 px-1 py-0.5 rounded truncate">
-                      Follow-up
+                  {/* Render appointments for this day */}
+                  {dayEvents.length > 0 && day.isCurrentMonth && (
+                    <div className="mt-1 space-y-1">
+                      {dayEvents.slice(0, 2).map((event) => (
+                        <div
+                          key={event.id}
+                          className={`text-xs px-1 py-0.5 rounded truncate ${
+                            event.type === "follow-up"
+                              ? "bg-teal-100 dark:bg-teal-900/30 text-teal-800 dark:text-teal-200"
+                              : event.type === "consultation"
+                              ? "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200"
+                              : "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200"
+                          }`}
+                        >
+                          {event.title.split(" - ")[1] || event.type}
+                        </div>
+                      ))}
+                      {dayEvents.length > 2 && (
+                        <div className="text-xs text-muted-foreground">
+                          +{dayEvents.length - 2} more
+                        </div>
+                      )}
                     </div>
-                    <div className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 px-1 py-0.5 rounded truncate hidden sm:block">
-                      New Consultation
-                    </div>
-                  </div>
-                )}
-
-                {day.date === 13 && day.isCurrentMonth && (
-                  <div className="mt-1">
-                    <div className="text-xs bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 px-1 py-0.5 rounded">
-                      Busy
-                    </div>
-                  </div>
-                )}
-
-                {day.date === 22 && day.isCurrentMonth && (
-                  <div className="mt-1">
-                    <div className="text-xs bg-teal-100 dark:bg-teal-900/30 text-teal-800 dark:text-teal-200 px-1 py-0.5 rounded truncate">
-                      Follow-up
-                    </div>
-                  </div>
-                )}
-
-                {day.date === 23 && day.isCurrentMonth && (
-                  <div className="mt-1 space-y-1">
-                    <div className="text-xs bg-green-600 text-white px-1 py-0.5 rounded truncate">
-                      Post Dental
-                    </div>
-                    <div className="text-xs bg-teal-600 text-white px-1 py-0.5 rounded truncate hidden sm:block">
-                      09:00 AM
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -405,135 +735,46 @@ export default function DoctorAppointments() {
             ))}
           </div>
 
-          {/* Mobile Card View */}
-          <div className="block sm:hidden space-y-3">
-            {mockAppointments.map((appointment) => (
-              <div
-                key={appointment.id}
-                className="bg-muted/50 rounded-lg p-4 border border-border"
-              >
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <button
-                      onClick={() => handlePatientClick(mockPatientDetails)}
-                      className="font-medium text-foreground hover:text-primary"
-                    >
-                      {appointment.patientName}
-                    </button>
-                    <p className="text-sm text-muted-foreground">
-                      {appointment.date}
-                    </p>
-                  </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem>Start Visit</DropdownMenuItem>
-                      <DropdownMenuItem>Mark Complete</DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => handleEditAppointment(appointment)}
-                      >
-                        Reschedule
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">
-                    {appointment.type}
-                  </span>
-                  <Select
-                    defaultValue={appointment.status}
-                    onValueChange={(value) => {
-                      console.log(
-                        "Status changed for appointment",
-                        appointment.id,
-                        "to:",
-                        value
-                      );
-                    }}
-                  >
-                    <SelectTrigger className="w-24">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Pending">Pending</SelectItem>
-                      <SelectItem value="Confirmed">Confirmed</SelectItem>
-                      <SelectItem value="Completed">Completed</SelectItem>
-                      <SelectItem value="Canceled">Canceled</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            ))}
-          </div>
+          {/* Loading State */}
+          {loading && (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              <span className="ml-2 text-gray-600">Loading appointments...</span>
+            </div>
+          )}
 
-          {/* Desktop Table View */}
-          <div className="hidden sm:block overflow-hidden rounded-lg border border-border">
-            <table className="w-full">
-              <thead className="bg-muted/50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    DATE
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    PATIENT
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    SERVICE
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    STATUS
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    ACTION
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-card divide-y divide-border">
-                {mockAppointments.map((appointment) => (
-                  <tr key={appointment.id} className="hover:bg-muted/50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
-                      {appointment.date}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <button
-                        onClick={() => handlePatientClick(mockPatientDetails)}
-                        className="text-sm text-foreground hover:text-primary font-medium"
-                      >
-                        {appointment.patientName}
-                      </button>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
-                      {appointment.type}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <Select
-                        defaultValue={appointment.status}
-                        onValueChange={(value) => {
-                          console.log(
-                            "Status changed for appointment",
-                            appointment.id,
-                            "to:",
-                            value
-                          );
-                        }}
-                      >
-                        <SelectTrigger className="w-32">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Pending">Pending</SelectItem>
-                          <SelectItem value="Confirmed">Confirmed</SelectItem>
-                          <SelectItem value="Completed">Completed</SelectItem>
-                          <SelectItem value="Canceled">Canceled</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+          {/* Error State */}
+          {error && !loading && (
+            <div className="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
+
+          {/* Mobile Card View */}
+          {!loading && (
+            <div className="block sm:hidden space-y-3">
+              {filteredAppointments.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  No appointments found
+                </div>
+              ) : (
+                filteredAppointments.map((appointment) => (
+                  <div
+                    key={appointment._id}
+                    className="bg-muted/50 rounded-lg p-4 border border-border"
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <button
+                          onClick={() => handlePatientClick(appointment)}
+                          className="font-medium text-foreground hover:text-primary"
+                        >
+                          {appointment.patientName || appointment.patient?.name || "Patient"}
+                        </button>
+                        <p className="text-sm text-muted-foreground">
+                          {formatDate(appointment.dateTime)} {formatTime(appointment.dateTime)}
+                        </p>
+                      </div>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="sm">
@@ -542,7 +783,11 @@ export default function DoctorAppointments() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem>Start Visit</DropdownMenuItem>
-                          <DropdownMenuItem>Mark Complete</DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleStatusUpdate(appointment._id, "completed")}
+                          >
+                            Mark Complete
+                          </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => handleEditAppointment(appointment)}
                           >
@@ -550,57 +795,184 @@ export default function DoctorAppointments() {
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled
-                onClick={() => console.log("Previous page")}
-              >
-                Previous
-              </Button>
-              <Button
-                variant="default"
-                size="sm"
-                className="bg-teal-600 hover:bg-teal-700"
-                onClick={() => console.log("Page 1 clicked")}
-              >
-                1
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => console.log("Page 2 clicked")}
-              >
-                2
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => console.log("Next page")}
-              >
-                Next
-              </Button>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">
+                        {appointment.type || "Appointment"}
+                      </span>
+                      <Select
+                        value={appointment.status}
+                        onValueChange={(value) => {
+                          handleStatusUpdate(appointment._id, value);
+                        }}
+                      >
+                        <SelectTrigger className="w-24">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="scheduled">Scheduled</SelectItem>
+                          <SelectItem value="completed">Completed</SelectItem>
+                          <SelectItem value="cancelled">Cancelled</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
-            <span className="text-sm text-muted-foreground">10 /Pages</span>
-          </div>
+          )}
+
+          {/* Desktop Table View */}
+          {!loading && (
+            <div className="hidden sm:block overflow-hidden rounded-lg border border-border">
+              {filteredAppointments.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  No appointments found
+                </div>
+              ) : (
+                <table className="w-full">
+                  <thead className="bg-muted/50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        DATE
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        PATIENT
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        SERVICE
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        STATUS
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        ACTION
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-card divide-y divide-border">
+                    {filteredAppointments.map((appointment) => (
+                      <tr key={appointment._id} className="hover:bg-muted/50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                          {formatDate(appointment.dateTime)} {formatTime(appointment.dateTime)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <button
+                            onClick={() => handlePatientClick(appointment)}
+                            className="text-sm text-foreground hover:text-primary font-medium"
+                          >
+                            {appointment.patientName || appointment.patient?.name || "Patient"}
+                          </button>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                          {appointment.type || "Appointment"}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <Select
+                            value={appointment.status}
+                            onValueChange={(value) => {
+                              handleStatusUpdate(appointment._id, value);
+                            }}
+                          >
+                            <SelectTrigger className="w-32">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="scheduled">Scheduled</SelectItem>
+                              <SelectItem value="completed">Completed</SelectItem>
+                              <SelectItem value="cancelled">Cancelled</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem>Start Visit</DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleStatusUpdate(appointment._id, "completed")}
+                              >
+                                Mark Complete
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleEditAppointment(appointment)}
+                              >
+                                Reschedule
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          )}
+
+          {totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                >
+                  Previous
+                </Button>
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum;
+                  if (totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+                  return (
+                    <Button
+                      key={pageNum}
+                      variant={currentPage === pageNum ? "default" : "outline"}
+                      size="sm"
+                      className={currentPage === pageNum ? "bg-teal-600 hover:bg-teal-700" : ""}
+                      onClick={() => setCurrentPage(pageNum)}
+                    >
+                      {pageNum}
+                    </Button>
+                  );
+                })}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                >
+                  Next
+                </Button>
+              </div>
+              <span className="text-sm text-muted-foreground">
+                Page {currentPage} of {totalPages}
+              </span>
+            </div>
+          )}
         </div>
       </div>
     );
   };
 
-  const handleEditAppointment = (appointment: any) => {
+  const handleEditAppointment = (appointment: DoctorAppointment) => {
     setEditingAppointment(appointment);
-    setEditPatientName(appointment.patientName);
-    setSelectedTimeSlot("04:00 PM - 06:00 PM"); // Set default selected slot
+    setEditPatientName(appointment.patientName || appointment.patient?.name || "");
+    const appointmentDate = new Date(appointment.dateTime);
+    setSelectedDate(appointmentDate);
+    setSelectedTimeSlot(formatTime(appointment.dateTime));
     setShowEditModal(true);
   };
 
@@ -872,16 +1244,79 @@ export default function DoctorAppointments() {
             {/* Save Button */}
             <Button
               className="w-full bg-teal-600 hover:bg-teal-700 text-white py-3 font-medium"
-              onClick={() => {
-                console.log("Saving appointment changes:", {
-                  appointmentId: editingAppointment?.id,
-                  patientName: editPatientName,
-                  selectedDate: selectedDate,
-                  selectedTimeSlot: selectedTimeSlot,
-                  originalAppointment: editingAppointment,
-                });
-                setShowEditModal(false);
-                // Here you would typically make an API call to save the changes
+              onClick={async () => {
+                if (!editingAppointment || !editingAppointment._id) {
+                  setError("Invalid appointment data");
+                  return;
+                }
+                
+                if (!selectedTimeSlot || selectedTimeSlot.trim() === '') {
+                  setError("Please select a time slot");
+                  return;
+                }
+                
+                try {
+                  const dateTime = new Date(selectedDate);
+                  if (isNaN(dateTime.getTime())) {
+                    setError("Invalid date selected");
+                    return;
+                  }
+                  
+                  const [time, period] = selectedTimeSlot.split(" ");
+                  if (!time || !period) {
+                    setError("Invalid time format");
+                    return;
+                  }
+                  
+                  const [hours, minutes] = time.split(":");
+                  if (!hours || !minutes) {
+                    setError("Invalid time format");
+                    return;
+                  }
+                  
+                  let hour24 = parseInt(hours);
+                  if (isNaN(hour24) || hour24 < 0 || hour24 > 12) {
+                    setError("Invalid hour value");
+                    return;
+                  }
+                  
+                  if (period === "PM" && hour24 !== 12) hour24 += 12;
+                  if (period === "AM" && hour24 === 12) hour24 = 0;
+                  
+                  const minuteValue = parseInt(minutes);
+                  if (isNaN(minuteValue) || minuteValue < 0 || minuteValue > 59) {
+                    setError("Invalid minute value");
+                    return;
+                  }
+                  
+                  dateTime.setHours(hour24, minuteValue, 0, 0);
+                  
+                  if (isNaN(dateTime.getTime())) {
+                    setError("Invalid date and time combination");
+                    return;
+                  }
+                  
+                  const response = await appointmentService.updateAppointment(editingAppointment._id, {
+                    dateTime: dateTime.toISOString(),
+                  });
+                  
+                  if (response && response.success) {
+                    setError(null);
+                    setShowEditModal(false);
+                    // Refresh appointments based on current view mode
+                    if (viewMode === "calendar") {
+                      fetchCalendarAppointments();
+                    } else {
+                      fetchAppointments();
+                    }
+                  } else {
+                    throw new Error(response?.message || "Failed to update appointment");
+                  }
+                } catch (err: any) {
+                  const errorMessage = err.message || "Failed to update appointment";
+                  setError(errorMessage);
+                  console.error("Error updating appointment:", err);
+                }
               }}
             >
               Save
@@ -904,7 +1339,7 @@ export default function DoctorAppointments() {
 
             {/* Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
-              {stats.map((stat, index) => (
+              {statsData.map((stat, index) => (
                 <div
                   key={index}
                   className="bg-card rounded-lg p-4 sm:p-6 shadow-sm border border-border"
@@ -934,7 +1369,8 @@ export default function DoctorAppointments() {
                 <button
                   onClick={() => {
                     setViewMode("calendar");
-                    console.log("Switched to calendar view");
+                    // Fetch calendar appointments when switching to calendar view
+                    fetchCalendarAppointments();
                   }}
                   className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors border flex-1 sm:flex-none justify-center ${
                     viewMode === "calendar"
@@ -949,7 +1385,8 @@ export default function DoctorAppointments() {
                 <button
                   onClick={() => {
                     setViewMode("list");
-                    console.log("Switched to list view");
+                    // Fetch list appointments when switching to list view
+                    fetchAppointments();
                   }}
                   className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors border flex-1 sm:flex-none justify-center ${
                     viewMode === "list"
@@ -999,58 +1436,74 @@ export default function DoctorAppointments() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-sm">
-                <div>
-                  <p className="text-muted-foreground">Age</p>
-                  <p className="font-medium text-foreground">
-                    {selectedPatient.age} years
-                  </p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Gender</p>
-                  <p className="font-medium text-foreground">
-                    {selectedPatient.gender}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Blood Type</p>
-                  <p className="font-medium text-foreground">
-                    {selectedPatient.bloodType}
-                  </p>
-                </div>
+                {selectedPatient.age !== undefined && (
+                  <div>
+                    <p className="text-muted-foreground">Age</p>
+                    <p className="font-medium text-foreground">
+                      {selectedPatient.age} years
+                    </p>
+                  </div>
+                )}
+                {selectedPatient.gender && (
+                  <div>
+                    <p className="text-muted-foreground">Gender</p>
+                    <p className="font-medium text-foreground">
+                      {selectedPatient.gender}
+                    </p>
+                  </div>
+                )}
+                {selectedPatient.bloodType && (
+                  <div>
+                    <p className="text-muted-foreground">Blood Type</p>
+                    <p className="font-medium text-foreground">
+                      {selectedPatient.bloodType}
+                    </p>
+                  </div>
+                )}
               </div>
 
-              <div className="text-sm">
-                <p className="text-muted-foreground">Last Visit</p>
-                <p className="font-medium text-foreground">
-                  {selectedPatient.lastVisit}
-                </p>
-              </div>
+              {selectedPatient.lastVisit && (
+                <div className="text-sm">
+                  <p className="text-muted-foreground">Last Visit</p>
+                  <p className="font-medium text-foreground">
+                    {selectedPatient.lastVisit}
+                  </p>
+                </div>
+              )}
 
               <div className="space-y-2 text-sm">
-                <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground">📞</span>
-                  <span className="truncate text-foreground">
-                    {selectedPatient.phone}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground">✉️</span>
-                  <span className="truncate text-foreground">
-                    {selectedPatient.email}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground">📍</span>
-                  <span className="text-xs sm:text-sm text-foreground">
-                    {selectedPatient.address}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground">🎂</span>
-                  <span className="text-foreground">
-                    DOB: {selectedPatient.dob}
-                  </span>
-                </div>
+                {selectedPatient.phone && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">📞</span>
+                    <span className="truncate text-foreground">
+                      {selectedPatient.phone}
+                    </span>
+                  </div>
+                )}
+                {selectedPatient.email && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">✉️</span>
+                    <span className="truncate text-foreground">
+                      {selectedPatient.email}
+                    </span>
+                  </div>
+                )}
+                {selectedPatient.address && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">📍</span>
+                    <span className="text-xs sm:text-sm text-foreground">
+                      {selectedPatient.address}
+                    </span>
+                  </div>
+                )}
+                {selectedPatient.dateOfBirth && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">🎂</span>
+                    <span className="text-foreground">
+                      DOB: {formatDate(selectedPatient.dateOfBirth)}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           )}
