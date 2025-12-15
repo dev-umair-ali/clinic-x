@@ -8,7 +8,8 @@ export interface User {
   firstName?: string
   lastName?: string
   role: "admin" | "doctor" | "patient"
-  profilePicture?: string,
+  profilePicture?: string
+  hasCompletedOnboarding?: boolean
 }
 
 interface AuthState {

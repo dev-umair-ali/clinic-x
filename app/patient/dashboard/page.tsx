@@ -8,15 +8,29 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { ChatBot } from "./chat-bot"
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from "recharts"
 import { HiMiniChatBubbleBottomCenterText } from "react-icons/hi2"
+import { OnboardingModal } from "@/components/ui/onboarding-modal"
 
 export default function PatientDashboard() {
   const { user } = useSelector((state: RootState) => state.auth)
   const router = useRouter()
   const [isChatOpen, setIsChatOpen] = useState(false)
+  const [showOnboardingModal, setShowOnboardingModal] = useState(false)
+
+  // Check if user has completed onboarding
+  useEffect(() => {
+    if (user && user.role === "patient" && !user.hasCompletedOnboarding) {
+      setShowOnboardingModal(true)
+    }
+  }, [user])
+
+  const handleStartOnboarding = () => {
+    setShowOnboardingModal(false)
+    router.push("/patient/onboarding")
+  }
 
   // Chart data matching screenshot
   const appointmentTrends = [
@@ -46,11 +60,20 @@ export default function PatientDashboard() {
 
   return (
     <ProtectedRoute allowedRoles={["patient"]}>
+      {/* Onboarding Modal */}
+      <OnboardingModal 
+        isOpen={showOnboardingModal}
+        onOpenChange={setShowOnboardingModal}
+        onStartOnboarding={handleStartOnboarding}
+      />
+      
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6">
         <div className="max-w-7xl mx-auto">
           {/* Header - exact match */}
           <div className="mb-6 bg-[#1da68f3c] p-6 sm:p-8 rounded-md">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Welcome back, John Doe!</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+              Welcome back, {user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : user?.email || 'Patient'}!
+            </h1>
             <p className="text-gray-600 dark:text-gray-300 text-sm">
               Here's an overview of your healthcare information and recent activity.
             </p>
