@@ -18,6 +18,7 @@ export default function HomePage() {
         admin: "/admin/dashboard",
         doctor: "/doctor/dashboard",
         patient: "/patient/dashboard",
+        receptionist: "/receptionist/dashboard",
       }
       router.push(dashboardRoutes[user.role])
     }

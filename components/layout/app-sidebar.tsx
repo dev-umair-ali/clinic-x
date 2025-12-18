@@ -59,6 +59,19 @@ const menuItems = {
       href: "/patient/prescriptions",
     },
   ],
+  receptionist: [
+    { icon: IoHome, label: "Dashboard", href: "/receptionist/dashboard" },
+    {
+      icon: CiCalendar,
+      label: "Appointments",
+      href: "/receptionist/appointments",
+    },
+    {
+      icon: HiMiniUserGroup,
+      label: "Patients",
+      href: "/receptionist/patients",
+    },
+  ],
 };
 
 export function AppSidebar() {
