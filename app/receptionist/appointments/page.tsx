@@ -3,10 +3,12 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import type { RootState } from "@/lib/store";
+import type { RootState, AppDispatch } from "@/lib/store";
 import { ProtectedRoute } from "@/components/ui/protected-route";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import EditAppointmentModal from "@/components/ui/edit-appointment-modal";
+import PatientDetailsModal from "@/components/ui/patient-details-modal";
 import {
   Select,
   SelectContent,
@@ -64,32 +66,32 @@ function parseAppointmentDate(appointment: Appointment): Date {
 
 export default function PatientAppointmentsPage() {
   const router = useRouter();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const { appointments } = useSelector(
     (state: RootState) => state.appointments
   );
 
- const dummyAppointments: Appointment[] = [
-  {
-    _id: "apt_001",
-    doctorName: "Dr. Sarah Chen",
-    doctor: "doc_101",
-    patient: "user_1",
-    dateTime: "2025-09-01T10:30:00Z",
-    status: "pending",
-    notes: "Routine checkup",
-    createdAt: "2025-08-28T08:15:00Z",
-  },
-  {
-    _id: "apt_002",
-    doctorName: "Dr. John Smith",
-    doctor: "doc_102",
-    patient: "user_2",
-    dateTime: "2025-08-25T14:00:00Z",
-    status: "confirmed",
-    createdAt: "2025-08-20T11:45:00Z",
-  },
-];
+  const dummyAppointments: Appointment[] = [
+    {
+      _id: "apt_001",
+      doctorName: "Dr. Sarah Chen",
+      doctor: "doc_101",
+      patient: "user_1",
+      dateTime: "2025-09-01T10:30:00Z",
+      status: "pending",
+      notes: "Routine checkup",
+      createdAt: "2025-08-28T08:15:00Z",
+    },
+    {
+      _id: "apt_002",
+      doctorName: "Dr. John Smith",
+      doctor: "doc_102",
+      patient: "user_2",
+      dateTime: "2025-08-25T14:00:00Z",
+      status: "confirmed",
+      createdAt: "2025-08-20T11:45:00Z",
+    },
+  ];
 
   const { user: currentUser } = useSelector((state: RootState) => state.auth);
 
@@ -97,8 +99,7 @@ export default function PatientAppointmentsPage() {
     () => dummyAppointments.filter((a) => a.patientId === currentUser?.id),
     [dummyAppointments, currentUser?.id]
   );
-console.log('Patient Appointments:', patientAppointments);
-console.log(dummyAppointments , 'dummyAppointments');
+
   const upcomingAppointment = useMemo(() => {
     const future = [...patientAppointments]
       .filter(
@@ -139,8 +140,16 @@ console.log(dummyAppointments , 'dummyAppointments');
 
   const [showOnboarding, setShowOnboarding] = useState(false);
 
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingAppointment, setEditingAppointment] =
+    useState<Appointment | null>(null);
+
+  const [showPatientDetails, setShowPatientDetails] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState<any>(null);
+
+  const [error, setError] = useState<string | null>(null);
+
   const [formData, setFormData] = useState({
-    // Personal Information
     fullName: "",
     preferredName: "",
     dateOfBirth: "",
@@ -158,14 +167,12 @@ console.log(dummyAppointments , 'dummyAppointments');
     occupation: "",
     language: "",
     referredBy: "",
-    // Insurance
     hasInsurance: "yes",
     insuranceCompany: "",
     policyholderName: "",
     relationshipToPatient: "",
     memberId: "",
     groupNumber: "",
-    // Present Condition
     mainConcern: "",
     symptomOnset: "",
     hadBefore: "",
@@ -176,13 +183,11 @@ console.log(dummyAppointments , 'dummyAppointments');
     activitiesAffected: "",
     seekingTreatment: "",
     treatmentDescription: "",
-    // Health History
     healthConditions: [],
     currentMedications: "",
     bloodThinners: "",
     surgicalHistory: "",
     allergies: "",
-    // Lifestyle & Habits
     exerciseRegularly: "",
     workType: "",
     sleepQuality: "",
@@ -190,7 +195,6 @@ console.log(dummyAppointments , 'dummyAppointments');
     tobaccoUse: "",
     alcoholUse: "",
     recreationalDrugs: "",
-    // For Women
     pregnant: "",
     menstrualCycle: "",
     pmsSymptoms: "",
@@ -198,7 +202,6 @@ console.log(dummyAppointments , 'dummyAppointments');
     posturalSymptoms: "",
     birthControl: "",
     pregnancyHistory: "",
-    // Consent & Legal
     informationAccurate: false,
     consentTreatment: false,
     physicalExamination: false,
@@ -217,45 +220,6 @@ console.log(dummyAppointments , 'dummyAppointments');
   const closeOnboarding = () => {
     setShowOnboarding(false);
   };
-
-  // const filteredAppointments = useMemo(() => {
-  //   let list = [...patientAppointments];
-  //   // if (filterTab === "Upcoming") {
-  //   //   list = list.filter(
-  //   //     (a) => a.status === "pending" || a.status === "confirmed"
-  //   //   );
-  //   // } else if (filterTab === "Canceled") {
-  //   //   list = list.filter((a) => a.status === "cancelled");
-  //   // }
-
-  //   // if (searchQuery.trim()) {
-  //   //   const q = searchQuery.toLowerCase();
-  //   //   list = list.filter(
-  //   //     (a) =>
-  //   //       a.doctorName.toLowerCase().includes(q) ||
-  //   //       a.type.toLowerCase().includes(q)
-  //   //   );
-  //   // }
-
-  //   if (sortBy === "Monthly") {
-  //     list.sort(
-  //       (a, b) =>
-  //         parseAppointmentDate(a).getTime() - parseAppointmentDate(b).getTime()
-  //     );
-  //   } else if (sortBy === "Weekly") {
-  //     const order = {
-  //       confirmed: 0,
-  //       pending: 1,
-  //       completed: 2,
-  //       cancelled: 3,
-  //     } as const;
-  //     list.sort((a, b) => order[a.status] - order[b.status]);
-  //   }
-
-  //   return list;
-  // }, [patientAppointments, filterTab, searchQuery, sortBy]);
-
-  // console.log('Filtered Appointments:', filteredAppointments);
 
   const calendarEvents = useMemo(
     () =>
@@ -276,7 +240,12 @@ console.log(dummyAppointments , 'dummyAppointments');
 
   const confirmCancel = () => {
     if (!cancelTarget) return;
-    dispatch(updateAppointment({ ...cancelTarget, status: "cancelled" }));
+    dispatch(
+      updateAppointment({
+        appointmentId: cancelTarget._id,
+        appointmentData: { status: "cancelled" },
+      })
+    );
     setShowCancelDialog(false);
     setCancelTarget(null);
   };
@@ -297,7 +266,7 @@ console.log(dummyAppointments , 'dummyAppointments');
   };
 
   if (showOnboarding) {
-    return <OnboardingForm onClose={closeOnboarding} />;
+    return <OnboardingForm />;
   }
 
   return (
@@ -324,7 +293,6 @@ console.log(dummyAppointments , 'dummyAppointments');
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Main Appointment Card */}
               <div>
                 <Card className="bg-white dark:bg-gray-800 shadow-sm h-full">
                   <CardContent className="p-6 h-full flex flex-col">
@@ -357,14 +325,17 @@ console.log(dummyAppointments , 'dummyAppointments');
 
                       <div className="flex gap-3 pt-4">
                         <Button
-                          onClick={handleReschedule}
+                          onClick={() => {
+                            setEditingAppointment(dummyAppointments[0]);
+                            setShowEditModal(true);
+                          }}
                           variant="outline"
                           className="text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 bg-transparent"
                         >
                           Reschedule
                         </Button>
                         <Button
-                          // onClick={ onCancel(appointment)}
+                          onClick={() => onCancel(dummyAppointments[0])}
                           variant="outline"
                           className="text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 bg-transparent"
                         >
@@ -376,7 +347,6 @@ console.log(dummyAppointments , 'dummyAppointments');
                 </Card>
               </div>
 
-              {/* Stats Cards */}
               <div className="space-y-4 h-full flex flex-col">
                 <Card className="bg-white dark:bg-gray-800 shadow-sm flex-1">
                   <CardContent className="p-4 h-full flex items-center">
@@ -563,10 +533,13 @@ console.log(dummyAppointments , 'dummyAppointments');
                                   }
                                   className="text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                                 >
-                                  Schedule
+                                  Mark Complete
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
-                                  onClick={handleReschedule}
+                                  onClick={() => {
+                                    setEditingAppointment(appointment);
+                                    setShowEditModal(true);
+                                  }}
                                   className="text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                                 >
                                   Reschedule
@@ -611,13 +584,47 @@ console.log(dummyAppointments , 'dummyAppointments');
         </div>
       </div>
 
+      <EditAppointmentModal
+        open={showEditModal}
+        setShowPatientDetails={() => setShowPatientDetails(true)}
+        onClose={() => setShowEditModal(false)}
+        appointment={editingAppointment}
+        onSaved={() => {
+          setShowEditModal(false); // 1. remove the first modal from the DOM
+          const patient = {
+            _id: editingAppointment?.patient?.id || "dummy",
+            name: editingAppointment?.patientName || "Emma Wilson",
+            patientId: "#PAT-2024-001",
+            email: "sarah.johnson@email.com",
+            phone: "(555) 123-4567",
+            dateOfBirth: "1992-03-15",
+            age: 32,
+            gender: "Female",
+            bloodType: "O+",
+            address: "123 Main St, City, State 12345",
+            lastVisit: "Dec 15, 2024",
+            avatar: "/placeholder.svg?height=80&width=80",
+          };
+          setSelectedPatient(patient);
+
+          // wait until the exit animation finishes, then show the second modal
+          setTimeout(() => setShowPatientDetails(true), 200);
+        }}
+        onError={(msg) => setError(msg)}
+      />
+
+      <PatientDetailsModal
+        open={showPatientDetails}
+        onClose={() => setShowPatientDetails(false)}
+        patient={selectedPatient}
+      />
+
       <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
         <DialogContent className="bg-white dark:bg-gray-800 border-0 shadow-xl max-w-lg mx-auto rounded-lg">
           <div className="p-3">
             <DialogHeader className="flex flex-row items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
-                </div>
+                <div className="w-8 h-8 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center"></div>
                 <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-white">
                   Appointment Cancel
                 </DialogTitle>
@@ -626,6 +633,7 @@ console.log(dummyAppointments , 'dummyAppointments');
                 onClick={() => setShowCancelDialog(false)}
                 className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
               >
+                <X className="h-4 w-4" />
               </button>
             </DialogHeader>
             {cancelTarget && (
@@ -651,7 +659,7 @@ console.log(dummyAppointments , 'dummyAppointments');
                 </p>
                 <Button
                   onClick={confirmCancel}
-                  className="w-full bg-[#1DA68F] hover:bg-[#168f73] text-white py-3 rounded-lg font-medium"
+                  className="w-full bg-red-500 hover:bg-[#168f73] text-white py-3 rounded-lg font-medium"
                 >
                   Yes, Cancel Appointment
                 </Button>

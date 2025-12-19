@@ -71,6 +71,13 @@ const menuItems = {
       label: "Patients",
       href: "/receptionist/patients",
     },
+
+    {
+      icon: FaCreditCard,
+      label: " Patients Billing",
+      href: "/receptionist/patients-billing",
+    },
+    { icon: TiMicrophone, label: "Prescription", href: "/receptionist/prescription" },
   ],
 };
 
