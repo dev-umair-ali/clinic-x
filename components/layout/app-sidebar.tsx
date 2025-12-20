@@ -36,34 +36,38 @@ const menuItems = {
     { icon: IoHome, label: "Dashboard", href: "/admin/dashboard" },
     { icon: HiMiniUserGroup, label: "Doctors", href: "/admin/doctors" },
     { icon: HiMiniUserGroup, label: "Patients", href: "/admin/patients" },
-    { icon: FaRegClipboard , label: "Dshboard log", href: "/admin/dashlogs" },
+    { icon: FaRegClipboard, label: "Dshboard log", href: "/admin/dashlogs" },
     { icon: FaClinicMedical, label: "Add Clinic", href: "/admin/add-clinic" },
-    { icon: IoIosPersonAdd, label: "Add Assistant", href: "/admin/add-assistant" },
-
-    // { icon: CiCalendar, label: "Appointments", href: "/admin/appointments" },
+    {
+      icon: IoIosPersonAdd,
+      label: "Add Assistant",
+      href: "/admin/add-assistant",
+    },
   ],
+
   doctor: [
     { icon: IoHome, label: "Dashboard", href: "/doctor/dashboard" },
     { icon: CiCalendar, label: "Appointments", href: "/doctor/appointments" },
-    // { icon: HiMiniUserGroup, label: "Patients", href: "/doctor/patients" },
     {
       icon: FaCreditCard,
       label: " Patients Billing",
       href: "/doctor/patients-billing",
-    }, // ✅ Moved to MAIN MENU
+    },
     { icon: TiMicrophone, label: "Prescription", href: "/doctor/prescription" },
     { icon: RiVolumeUpFill, label: "Patient Notes", href: "/doctor/notes" },
   ],
+
   patient: [
     { icon: IoHome, label: "Dashboard", href: "/patient/dashboard" },
     { icon: CiCalendar, label: "Appointments", href: "/patient/appointments" },
-    { icon: AiFillDollarCircle, label: " Billing", href: "/billing/patient" }, // ✅ Added
+    { icon: AiFillDollarCircle, label: " Billing", href: "/billing/patient" },
     {
       icon: TiMicrophone,
       label: "Prescriptions",
       href: "/patient/prescriptions",
     },
   ],
+
   receptionist: [
     { icon: IoHome, label: "Dashboard", href: "/receptionist/dashboard" },
     {
@@ -76,7 +80,6 @@ const menuItems = {
       label: "Patients",
       href: "/receptionist/patients",
     },
-
     {
       icon: FaCreditCard,
       label: " Patients Billing",
@@ -88,7 +91,42 @@ const menuItems = {
       href: "/receptionist/prescription",
     },
   ],
+
+  clinic: [
+    // 1️⃣ Core
+    { icon: IoHome, label: "Dashboard", href: "/clinic/dashboard" },
+
+    // 2️⃣ Scheduling
+    { icon: CiCalendar, label: "Appointments", href: "/clinic/appointments" },
+
+    // 3️⃣ People
+    { icon: HiMiniUserGroup, label: "Patients", href: "/clinic/patients" },
+
+    // 4️⃣ Medical
+    { icon: TiMicrophone, label: "Prescription", href: "/clinic/prescription" },
+    { icon: RiVolumeUpFill, label: "Patient Notes", href: "/clinic/notes" },
+
+    // 5️⃣ Finance
+    {
+      icon: FaCreditCard,
+      label: " Patients Billing",
+      href: "/clinic/patients-billing",
+    },
+
+    // 6️⃣ Management
+    { icon: FaClinicMedical, label: "Add Clinic", href: "/clinic/add-clinic" },
+    {
+      icon: IoIosPersonAdd,
+      label: "Add Assistant",
+      href: "/clinic/add-assistant",
+    },
+
+    // 7️⃣ Logs & Settings
+    { icon: FaRegClipboard, label: "Dshboard log", href: "/clinic/dashlogs" },
+    { icon: IoSettingsSharp, label: "Settings", href: "/clinic/settings" },
+  ],
 };
+
 
 export function AppSidebar() {
   const pathname = usePathname();

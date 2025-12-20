@@ -1,17 +1,19 @@
-"use client"
+"use client";
 
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { useSelector } from "react-redux"
-import type { RootState } from "@/lib/store"
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/lib/store";
 
 export default function HomePage() {
-  const router = useRouter()
-  const { isAuthenticated, user } = useSelector((state: RootState) => state.auth)
+  const router = useRouter();
+  const { isAuthenticated, user } = useSelector(
+    (state: RootState) => state.auth
+  );
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push("/login")
+      router.push("/login");
     } else if (user) {
       // Redirect to appropriate dashboard based on role
       const dashboardRoutes = {
@@ -19,10 +21,11 @@ export default function HomePage() {
         doctor: "/doctor/dashboard",
         patient: "/patient/dashboard",
         receptionist: "/receptionist/dashboard",
-      }
-      router.push(dashboardRoutes[user.role])
+        clinic: "/clinic/dashboard",
+      };
+      router.push(dashboardRoutes[user.role]);
     }
-  }, [isAuthenticated, user, router])
+  }, [isAuthenticated, user, router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -31,5 +34,5 @@ export default function HomePage() {
         <p className="text-gray-600">Loading...</p>
       </div>
     </div>
-  )
+  );
 }

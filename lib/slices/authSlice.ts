@@ -7,7 +7,7 @@ export interface User {
   name: string;
   firstName?: string;
   lastName?: string;
-  role: "admin" | "doctor" | "patient" | "receptionist";
+  role: "admin" | "doctor" | "patient" | "receptionist" | "clinic";
   profilePicture?: string;
   hasCompletedOnboarding?: boolean;
 }
