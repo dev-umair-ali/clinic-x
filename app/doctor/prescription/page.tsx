@@ -3,7 +3,11 @@
 import { useState } from "react";
 import { ProtectedRoute } from "@/components/ui/protected-route";
 import { VoiceRecorder } from "@/components/ui/voice-recorder";
-import { Eye, RotateCcw, ArrowLeft, Plus, FileText, X } from 'lucide-react';
+import { Eye, RotateCcw, ArrowLeft, Plus, FileText, X } from "lucide-react";
+import { AcceptPrescriptionModal } from "@/components/ui/AcceptPrescriptionModal";
+import { RejectPrescriptionModal } from "@/components/ui/RejectPrescriptionModal";
+import { FaCheck } from "react-icons/fa";
+import { FcCancel } from "react-icons/fc";
 
 // Dummy prescription data
 const prescriptionHistory = [
@@ -55,6 +59,31 @@ const dummyPatients = [
 ];
 
 export default function PrescriptionDashboard() {
+  /* ====== MODAL STATE ====== */
+  const [acceptOpen, setAcceptOpen] = useState(false);
+  const [rejectOpen, setRejectOpen] = useState(false);
+  const [selectedRow, setSelectedRow] = useState<
+    (typeof prescriptionHistory)[0] | null
+  >(null);
+
+  const openAccept = (row: (typeof prescriptionHistory)[0]) => {
+    setSelectedRow(row);
+    setAcceptOpen(true);
+  };
+  const openReject = (row: (typeof prescriptionHistory)[0]) => {
+    setSelectedRow(row);
+    setRejectOpen(true);
+  };
+
+  const handleAccept = () => {
+    console.log("✅ ACCEPTED", selectedRow);
+    setAcceptOpen(false);
+  };
+  const handleReject = (reason: string) => {
+    console.log("❌ REJECTED", selectedRow, reason);
+    setRejectOpen(false);
+  };
+
   // Main view state
   const [currentView, setCurrentView] = useState<"list" | "add">("list");
   const [showPrescriptionDetails, setShowPrescriptionDetails] = useState(false);
@@ -184,7 +213,9 @@ export default function PrescriptionDashboard() {
                     >
                       <span
                         className={
-                          selectedPatient ? "text-foreground" : "text-muted-foreground"
+                          selectedPatient
+                            ? "text-foreground"
+                            : "text-muted-foreground"
                         }
                       >
                         {selectedPatient || "Select Patient"}
@@ -237,7 +268,9 @@ export default function PrescriptionDashboard() {
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-2">
                       <FileText className="h-5 w-5 text-muted-foreground" />
-                      <span className="font-medium text-foreground">Prescription Details</span>
+                      <span className="font-medium text-foreground">
+                        Prescription Details
+                      </span>
                     </div>
                     <span className="text-sm text-muted-foreground">
                       {new Date().toLocaleDateString()}
@@ -343,7 +376,9 @@ export default function PrescriptionDashboard() {
                           onChange={(e) => setDoNotRefill(e.target.checked)}
                           className="rounded border-border"
                         />
-                        <span className="text-sm text-foreground">Do Not Refill</span>
+                        <span className="text-sm text-foreground">
+                          Do Not Refill
+                        </span>
                       </label>
                       <label className="flex items-center gap-2">
                         <input
@@ -365,7 +400,9 @@ export default function PrescriptionDashboard() {
                           onChange={(e) => setDoNotSubstitute(e.target.checked)}
                           className="rounded border-border"
                         />
-                        <span className="text-sm text-foreground">Do Not Substitute</span>
+                        <span className="text-sm text-foreground">
+                          Do Not Substitute
+                        </span>
                       </label>
                     </div>
                     <textarea
@@ -546,7 +583,9 @@ export default function PrescriptionDashboard() {
                   {prescriptionHistory.map((prescription, index) => (
                     <tr
                       key={prescription.id}
-                      className={`${index % 2 === 0 ? "bg-card" : "bg-muted/30"} hover:bg-muted/50 transition-colors`}
+                      className={`${
+                        index % 2 === 0 ? "bg-card" : "bg-muted/30"
+                      } hover:bg-muted/50 transition-colors`}
                     >
                       <td className="py-4 px-6 text-foreground">
                         {prescription.date}
@@ -566,9 +605,19 @@ export default function PrescriptionDashboard() {
                             <Eye className="h-3 w-3" />
                             View
                           </button>
-                          <button className="bg-background hover:bg-muted/50 text-foreground border border-border px-4 py-1 rounded text-sm font-medium transition-colors flex items-center gap-1">
-                            <RotateCcw className="h-3 w-3" />
-                            Refill
+                          <button
+                            onClick={() => openAccept(prescription)}
+                            className="bg-[#1FA888] hover:bg-teal-600 text-white px-4 py-1 rounded text-sm font-medium transition-colors flex items-center gap-1"
+                          >
+                            <FaCheck className="h-3 w-3" />
+                            Accept
+                          </button>
+                          <button
+                            onClick={() => openReject(prescription)}
+                            className="bg-background hover:bg-muted/50 text-foreground border border-border px-4 py-1 rounded text-sm font-medium transition-colors flex items-center gap-1"
+                          >
+                            <FcCancel className="h-3 w-3" />
+                            Reject
                           </button>
                         </div>
                       </td>
@@ -593,7 +642,9 @@ export default function PrescriptionDashboard() {
                 <button className="px-3 py-1 text-muted-foreground hover:text-foreground text-sm transition-colors">
                   Next
                 </button>
-                <span className="ml-4 text-muted-foreground text-sm">10 /Pages</span>
+                <span className="ml-4 text-muted-foreground text-sm">
+                  10 /Pages
+                </span>
               </div>
             </div>
           </div>
@@ -626,7 +677,9 @@ export default function PrescriptionDashboard() {
                     <h3 className="text-sm font-medium text-muted-foreground mb-1">
                       State
                     </h3>
-                    <p className="font-medium text-foreground">State of New Jersey</p>
+                    <p className="font-medium text-foreground">
+                      State of New Jersey
+                    </p>
                   </div>
                   <div>
                     <h3 className="text-sm font-medium text-muted-foreground mb-1">
@@ -645,19 +698,29 @@ export default function PrescriptionDashboard() {
                     <p className="font-medium text-foreground">
                       PANKAJ RAMANLAL SHIROLWALA, M.D.
                     </p>
-                    <p className="text-sm text-muted-foreground mt-2">(732) 442-2211</p>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      (732) 442-2211
+                    </p>
                     <p className="text-sm text-muted-foreground">
                       NPI Number: 1003882523
                     </p>
-                    <p className="text-sm text-muted-foreground mt-2">DEA: BS9168091</p>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      DEA: BS9168091
+                    </p>
                   </div>
                   <div>
                     <h3 className="text-sm font-medium text-muted-foreground mb-1">
                       Prescriber Address
                     </h3>
-                    <p className="text-sm text-foreground">609 AMBOY AVENUE, SUITE 101,</p>
-                    <p className="text-sm text-foreground">PERTH AMBOY, NJ 08861</p>
-                    <p className="text-sm text-muted-foreground mt-2">(732) 326-0517</p>
+                    <p className="text-sm text-foreground">
+                      609 AMBOY AVENUE, SUITE 101,
+                    </p>
+                    <p className="text-sm text-foreground">
+                      PERTH AMBOY, NJ 08861
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      (732) 326-0517
+                    </p>
                   </div>
                 </div>
 
@@ -687,8 +750,12 @@ export default function PrescriptionDashboard() {
                       <h4 className="text-sm font-medium text-muted-foreground mb-1">
                         Patient Address
                       </h4>
-                      <p className="text-sm text-foreground">609 AMBOY AVENUE, SUITE 101,</p>
-                      <p className="text-sm text-foreground">PERTH AMBOY, NJ 08861</p>
+                      <p className="text-sm text-foreground">
+                        609 AMBOY AVENUE, SUITE 101,
+                      </p>
+                      <p className="text-sm text-foreground">
+                        PERTH AMBOY, NJ 08861
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -719,11 +786,15 @@ export default function PrescriptionDashboard() {
                     <h4 className="text-sm font-medium text-muted-foreground mb-1">
                       Do Not Refill
                     </h4>
-                    <p className="font-medium text-foreground">{doNotRefill ? "YES" : "NO"}</p>
+                    <p className="font-medium text-foreground">
+                      {doNotRefill ? "YES" : "NO"}
+                    </p>
                     <h4 className="text-sm font-medium text-muted-foreground mb-1 mt-4">
                       Refills
                     </h4>
-                    <p className="font-medium text-foreground">{refills || "2 Times Weekly"}</p>
+                    <p className="font-medium text-foreground">
+                      {refills || "2 Times Weekly"}
+                    </p>
                     <h4 className="text-sm font-medium text-muted-foreground mb-1 mt-4">
                       Dosage
                     </h4>
@@ -756,7 +827,7 @@ export default function PrescriptionDashboard() {
                 {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-4 pt-4">
                   <button className="flex-1 bg-[#1FA888] hover:bg-teal-600 text-white py-3 rounded-lg font-medium transition-colors">
-                     Download
+                    Download
                   </button>
                   {/* <button className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg font-medium transition-colors">
                     📧 Send to Pharmacy
@@ -773,6 +844,21 @@ export default function PrescriptionDashboard() {
           </div>
         )}
       </div>
+      {/* ===== MODALS ===== */}
+      <AcceptPrescriptionModal
+        open={acceptOpen}
+        onClose={() => setAcceptOpen(false)}
+        onConfirm={handleAccept}
+        medication={selectedRow?.medication || ""}
+        dosage={selectedRow?.dosage || ""}
+      />
+      <RejectPrescriptionModal
+        open={rejectOpen}
+        onClose={() => setRejectOpen(false)}
+        onConfirm={handleReject}
+        medication={selectedRow?.medication || ""}
+        dosage={selectedRow?.dosage || ""}
+      />
     </ProtectedRoute>
   );
 }

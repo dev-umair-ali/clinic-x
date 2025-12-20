@@ -26,6 +26,9 @@ import type { RootState } from "@/lib/store";
 import { logout } from "@/lib/slices/authSlice";
 import { CiCalendar } from "react-icons/ci";
 import { FaCreditCard } from "react-icons/fa";
+import { FaClinicMedical } from "react-icons/fa";
+import { IoIosPersonAdd } from "react-icons/io";
+import { FaRegClipboard } from "react-icons/fa";
 
 // Removed "Settings" and "Billing" from menuItems so they only appear in OTHER section
 const menuItems = {
@@ -33,14 +36,16 @@ const menuItems = {
     { icon: IoHome, label: "Dashboard", href: "/admin/dashboard" },
     { icon: HiMiniUserGroup, label: "Doctors", href: "/admin/doctors" },
     { icon: HiMiniUserGroup, label: "Patients", href: "/admin/patients" },
-    { icon: HiMiniUserGroup, label: "Dshboard log", href: "/admin/dashlogs" },
+    { icon: FaRegClipboard , label: "Dshboard log", href: "/admin/dashlogs" },
+    { icon: FaClinicMedical, label: "Add Clinic", href: "/admin/add-clinic" },
+    { icon: IoIosPersonAdd, label: "Add Assistant", href: "/admin/add-assistant" },
 
     // { icon: CiCalendar, label: "Appointments", href: "/admin/appointments" },
   ],
   doctor: [
     { icon: IoHome, label: "Dashboard", href: "/doctor/dashboard" },
     { icon: CiCalendar, label: "Appointments", href: "/doctor/appointments" },
-    { icon: HiMiniUserGroup, label: "Patients", href: "/doctor/patients" },
+    // { icon: HiMiniUserGroup, label: "Patients", href: "/doctor/patients" },
     {
       icon: FaCreditCard,
       label: " Patients Billing",
@@ -77,7 +82,11 @@ const menuItems = {
       label: " Patients Billing",
       href: "/receptionist/patients-billing",
     },
-    { icon: TiMicrophone, label: "Prescription", href: "/receptionist/prescription" },
+    {
+      icon: TiMicrophone,
+      label: "Prescription",
+      href: "/receptionist/prescription",
+    },
   ],
 };
 

@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { FileText, X } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea"; // ← NEW
 import { useState, type ChangeEvent } from "react";
-import { FaCheck } from "react-icons/fa";
 
 interface Props {
   open: boolean;

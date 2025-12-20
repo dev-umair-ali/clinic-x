@@ -37,7 +37,7 @@ interface Props {
   appointment: DoctorAppointment | null;
   onSaved: () => void;
   onError: (msg: string) => void;
-    setShowPatientDetails: () => void;
+    setShowPatientDetails: (show: boolean) => void;
 }
 
 const timeSlots = [

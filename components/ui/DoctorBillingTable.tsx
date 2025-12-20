@@ -264,10 +264,10 @@ export function DoctorBillingTable({ data, onAddMore, onEditPaid }: Props) {
   /* ---------- render ---------- */
   return (
     <div className="bg-card dark:bg-gray-800 border border-border dark:border-gray-700 rounded-lg shadow-sm">
-      <div className="flex justify-between items-center p-4 border-b border-border dark:border-gray-700">
+      {/* <div className="flex justify-between items-center p-4 border-b border-border dark:border-gray-700">
         <h2 className="text-lg font-semibold text-foreground dark:text-gray-100">Billing History</h2>
         <Button className="bg-[#1DA68F] hover:bg-[#1DA68F]/80 text-white">Add Billing</Button>
-      </div>
+      </div> */}
 
       <div className="overflow-x-auto border-t border-slate-200 dark:border-gray-700">
         <div className="min-w-[1600px] lg:min-w-[1800px]">
