@@ -51,22 +51,22 @@ interface Props {
 
 export default function AssistantEmployment({ data, onChange }: Props) {
   return (
-    <Card className="border-gray-200 dark:border-gray-700 shadow-sm">
-      <CardHeader className="bg-[#F8F9FA] dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 rounded-t-lg">
-        <CardTitle className="flex items-center gap-2 text-lg text-gray-900 dark:text-white">
-          <Briefcase className="h-5 w-5 text-[#1DA68F]" />
+    <Card className="border-[hsl(var(--border))] shadow-sm">
+      <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
+        <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
+          <Briefcase className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
           Employment Information
         </CardTitle>
       </CardHeader>
 
-      <CardContent className="p-6 bg-white dark:bg-gray-800">
+      <CardContent className="p-6 bg-[hsl(var(--card))]">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="assignedClinic" className="text-gray-700 dark:text-gray-300">
-              Assigned Clinic <span className="text-red-500">*</span>
+            <Label htmlFor="assignedClinic" className="text-[hsl(var(--foreground))]">
+              Assigned Clinic <span className="text-[hsl(var(--destructive))]">*</span>
             </Label>
             <Select value={data.assignedClinic} onValueChange={(v) => onChange("assignedClinic", v)}>
-              <SelectTrigger className="border-gray-300 dark:border-gray-600 focus:border-[#1DA68F] focus:ring-[#1DA68F]">
+              <SelectTrigger className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]">
                 <SelectValue placeholder="Select clinic" />
               </SelectTrigger>
               <SelectContent>
@@ -80,11 +80,11 @@ export default function AssistantEmployment({ data, onChange }: Props) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="department" className="text-gray-700 dark:text-gray-300">
+            <Label htmlFor="department" className="text-[hsl(var(--foreground))]">
               Department
             </Label>
             <Select value={data.department} onValueChange={(v) => onChange("department", v)}>
-              <SelectTrigger className="border-gray-300 dark:border-gray-600 focus:border-[#1DA68F] focus:ring-[#1DA68F]">
+              <SelectTrigger className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]">
                 <SelectValue placeholder="Select department" />
               </SelectTrigger>
               <SelectContent>
@@ -98,11 +98,11 @@ export default function AssistantEmployment({ data, onChange }: Props) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="role" className="text-gray-700 dark:text-gray-300">
-              Role <span className="text-red-500">*</span>
+            <Label htmlFor="role" className="text-[hsl(var(--foreground))]">
+              Role <span className="text-[hsl(var(--destructive))]">*</span>
             </Label>
             <Select value={data.role} onValueChange={(v) => onChange("role", v)}>
-              <SelectTrigger className="border-gray-300 dark:border-gray-600 focus:border-[#1DA68F] focus:ring-[#1DA68F]">
+              <SelectTrigger className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]">
                 <SelectValue placeholder="Select role" />
               </SelectTrigger>
               <SelectContent>
@@ -116,7 +116,7 @@ export default function AssistantEmployment({ data, onChange }: Props) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="employeeId" className="text-gray-700 dark:text-gray-300">
+            <Label htmlFor="employeeId" className="text-[hsl(var(--foreground))]">
               Employee ID
             </Label>
             <Input
@@ -124,29 +124,29 @@ export default function AssistantEmployment({ data, onChange }: Props) {
               value={data.employeeId}
               onChange={(e) => onChange("employeeId", e.target.value)}
               placeholder="Enter employee ID"
-              className="border-gray-300 dark:border-gray-600 focus:border-[#1DA68F] focus:ring-[#1DA68F]"
+              className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="hireDate" className="text-gray-700 dark:text-gray-300">
-              Hire Date <span className="text-red-500">*</span>
+            <Label htmlFor="hireDate" className="text-[hsl(var(--foreground))]">
+              Hire Date <span className="text-[hsl(var(--destructive))]">*</span>
             </Label>
             <Input
               id="hireDate"
               type="date"
               value={data.hireDate}
               onChange={(e) => onChange("hireDate", e.target.value)}
-              className="border-gray-300 dark:border-gray-600 focus:border-[#1DA68F] focus:ring-[#1DA68F]"
+              className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="employmentType" className="text-gray-700 dark:text-gray-300">
-              Employment Type <span className="text-red-500">*</span>
+            <Label htmlFor="employmentType" className="text-[hsl(var(--foreground))]">
+              Employment Type <span className="text-[hsl(var(--destructive))]">*</span>
             </Label>
             <Select value={data.employmentType} onValueChange={(v) => onChange("employmentType", v)}>
-              <SelectTrigger className="border-gray-300 dark:border-gray-600 focus:border-[#1DA68F] focus:ring-[#1DA68F]">
+              <SelectTrigger className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]">
                 <SelectValue placeholder="Select type" />
               </SelectTrigger>
               <SelectContent>
@@ -160,7 +160,7 @@ export default function AssistantEmployment({ data, onChange }: Props) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="salary" className="text-gray-700 dark:text-gray-300">
+            <Label htmlFor="salary" className="text-[hsl(var(--foreground))]">
               Salary
             </Label>
             <Input
@@ -168,7 +168,7 @@ export default function AssistantEmployment({ data, onChange }: Props) {
               value={data.salary}
               onChange={(e) => onChange("salary", e.target.value)}
               placeholder="Enter salary"
-              className="border-gray-300 dark:border-gray-600 focus:border-[#1DA68F] focus:ring-[#1DA68F]"
+              className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]"
             />
           </div>
         </div>

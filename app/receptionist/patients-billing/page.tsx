@@ -168,7 +168,7 @@ export default function DoctorBillingPage() {
 
         {/* table */}
         <DoctorBillingTable
-          data={billingData}
+          data={billingData as unknown as any}
           onAddMore={handleAddMoreBilling}
           onEditPaid={() => setEditModal(true)}
         />

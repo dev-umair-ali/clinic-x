@@ -133,7 +133,7 @@ export default function DoctorAppointments() {
       <div className="flex-1 overflow-y-auto p-3 sm:p-6 bg-background">
         <div className="max-w-7xl mx-auto">
           <div className="mb-6 sm:mb-8">
-            <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-4 sm:mb-6">Calendly Integrationsdsd</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-4 sm:mb-6">Calendly Integrations</h1>
             <StatsCards data={statsData} />
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mb-6">
               <ViewToggle

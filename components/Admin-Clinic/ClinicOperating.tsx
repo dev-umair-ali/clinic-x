@@ -19,48 +19,48 @@ interface ClinicOperatingProps {
 
 export default function ClinicOperating({ data, onChange, onToggleDay }: ClinicOperatingProps) {
   return (
-    <Card className="border-gray-200 dark:border-gray-700 shadow-sm">
-      <CardHeader className="bg-[#F8F9FA] dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 rounded-t-lg">
-        <CardTitle className="flex items-center gap-2 text-lg text-gray-900 dark:text-white">
-          <Clock className="h-5 w-5 text-[#1DA68F]" />
+    <Card className="border-[hsl(var(--border))] shadow-sm">
+      <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
+        <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
+          <Clock className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
           Operating Hours
         </CardTitle>
       </CardHeader>
 
-      <CardContent className="p-6 bg-white dark:bg-gray-800">
+      <CardContent className="p-6 bg-[hsl(var(--card))]">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div className="space-y-2">
-            <Label htmlFor="openingTime" className="text-gray-700 dark:text-gray-300">
-              Opening Time <span className="text-red-500">*</span>
+            <Label htmlFor="openingTime" className="text-[hsl(var(--foreground))]">
+              Opening Time <span className="text-[hsl(var(--destructive))]">*</span>
             </Label>
             <Input
               id="openingTime"
               type="time"
               value={data.openingTime}
               onChange={(e) => onChange("openingTime", e.target.value)}
-              className="border-gray-300 dark:border-gray-600 focus:border-[#1DA68F] focus:ring-[#1DA68F]"
+              className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]"
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="closingTime" className="text-gray-700 dark:text-gray-300">
-              Closing Time <span className="text-red-500">*</span>
+            <Label htmlFor="closingTime" className="text-[hsl(var(--foreground))]">
+              Closing Time <span className="text-[hsl(var(--destructive))]">*</span>
             </Label>
             <Input
               id="closingTime"
               type="time"
               value={data.closingTime}
               onChange={(e) => onChange("closingTime", e.target.value)}
-              className="border-gray-300 dark:border-gray-600 focus:border-[#1DA68F] focus:ring-[#1DA68F]"
+              className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]"
               required
             />
           </div>
         </div>
 
         <div>
-          <Label className="text-gray-700 dark:text-gray-300 mb-3 block">
-            Working Days <span className="text-red-500">*</span>
+          <Label className="text-[hsl(var(--foreground))] mb-3 block">
+            Working Days <span className="text-[hsl(var(--destructive))]">*</span>
           </Label>
           <div className="flex flex-wrap gap-2">
             {weekDays.map((day) => (
@@ -70,8 +70,8 @@ export default function ClinicOperating({ data, onChange, onToggleDay }: ClinicO
                 onClick={() => onToggleDay(day)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   data.workingDays.includes(day)
-                    ? "bg-[#1DA68F] text-white"
-                    : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                    ? "bg-[hsl(var(--color-brand-teal))] text-white"
+                    : "bg-[hsl(var(--muted))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]"
                 }`}
               >
                 {day.slice(0, 3)}

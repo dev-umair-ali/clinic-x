@@ -108,7 +108,6 @@ export default function AddClinicPage() {
 
   /* ----------  HANDLERS  ---------- */
   const handleInputChange = (field: string, value: string) => {
-  
     setFormData((prev) => ({ ...prev, [field as keyof ClinicFormData]: value as any }))
   }
 
@@ -187,34 +186,34 @@ export default function AddClinicPage() {
 
   /* ----------  RENDER  ---------- */
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-[hsl(var(--background))]">
       {showSuccess && (
-        <div className="fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-in slide-in-from-top-2">
+        <div className="fixed top-4 right-4 z-50 bg-[hsl(var(--color-status-success))] text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-in slide-in-from-top-2">
           <CheckCircle className="h-5 w-5" />
           Clinic saved successfully!
         </div>
       )}
 
       {/* Header */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+      <div className="bg-[hsl(var(--card))] border-b border-[hsl(var(--border))] px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="text-gray-600 dark:text-gray-300">
+            <Button variant="ghost" size="icon" className="text-[hsl(var(--muted-foreground))]">
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Add New Clinic</h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Fill in the details to register a new clinic</p>
+              <h1 className="text-2xl font-bold text-[hsl(var(--foreground))]">Add New Clinic</h1>
+              <p className="text-sm text-[hsl(var(--muted-foreground))]">Fill in the details to register a new clinic</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="outline" className="border-gray-300 dark:border-gray-600 bg-transparent">
+            <Button variant="outline" className="border-[hsl(var(--border))] bg-transparent">
               Cancel
             </Button>
             <Button
               onClick={() => handleSubmit()}
               disabled={isLoading}
-              className="bg-[#1DA68F] hover:bg-[#168f73] text-white"
+              className="bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-white"
             >
               {isLoading ? (
                 <>
@@ -235,9 +234,9 @@ export default function AddClinicPage() {
       {/* Body */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         {errors.length > 0 && (
-          <div className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-            <h3 className="text-red-800 dark:text-red-400 font-medium mb-2">Please fix the following errors:</h3>
-            <ul className="list-disc list-inside text-red-600 dark:text-red-400 text-sm space-y-1">
+          <div className="mb-6 bg-[hsl(var(--color-status-error-light))] border border-[hsl(var(--color-status-error-dark))] rounded-lg p-4">
+            <h3 className="text-[hsl(var(--color-status-error-dark))] font-medium mb-2">Please fix the following errors:</h3>
+            <ul className="list-disc list-inside text-[hsl(var(--color-status-error-dark))] text-sm space-y-1">
               {errors.map((err, i) => (
                 <li key={i}>{err}</li>
               ))}
@@ -297,32 +296,32 @@ export default function AddClinicPage() {
           />
 
           {/* 5  Owner / Admin */}
-          <Card className="border-gray-200 dark:border-gray-700 shadow-sm">
-            <CardHeader className="bg-[#F8F9FA] dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 rounded-t-lg">
-              <CardTitle className="flex items-center gap-2 text-lg text-gray-900 dark:text-white">
-                <User className="h-5 w-5 text-[#1DA68F]" />
+          <Card className="border-[hsl(var(--border))] shadow-sm">
+            <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
+              <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
+                <User className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
                 Owner / Administrator Information
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-6 bg-white dark:bg-gray-800">
+            <CardContent className="p-6 bg-[hsl(var(--card))]">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="ownerName" className="text-gray-700 dark:text-gray-300">
-                    Owner Name <span className="text-red-500">*</span>
+                  <Label htmlFor="ownerName" className="text-[hsl(var(--foreground))]">
+                    Owner Name <span className="text-[hsl(var(--destructive))]">*</span>
                   </Label>
                   <Input
                     id="ownerName"
                     value={formData.ownerName}
                     onChange={(e) => handleInputChange("ownerName", e.target.value)}
                     placeholder="Enter owner name"
-                    className="border-gray-300 dark:border-gray-600 focus:border-[#1DA68F] focus:ring-[#1DA68F]"
+                    className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]"
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="ownerPhone" className="text-gray-700 dark:text-gray-300">
-                    Owner Phone <span className="text-red-500">*</span>
+                  <Label htmlFor="ownerPhone" className="text-[hsl(var(--foreground))]">
+                    Owner Phone <span className="text-[hsl(var(--destructive))]">*</span>
                   </Label>
                   <Input
                     id="ownerPhone"
@@ -330,14 +329,14 @@ export default function AddClinicPage() {
                     value={formData.ownerPhone}
                     onChange={(e) => handleInputChange("ownerPhone", e.target.value)}
                     placeholder="+1 (555) 000-0000"
-                    className="border-gray-300 dark:border-gray-600 focus:border-[#1DA68F] focus:ring-[#1DA68F]"
+                    className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]"
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="ownerEmail" className="text-gray-700 dark:text-gray-300">
-                    Owner Email <span className="text-red-500">*</span>
+                  <Label htmlFor="ownerEmail" className="text-[hsl(var(--foreground))]">
+                    Owner Email <span className="text-[hsl(var(--destructive))]">*</span>
                   </Label>
                   <Input
                     id="ownerEmail"
@@ -345,7 +344,7 @@ export default function AddClinicPage() {
                     value={formData.ownerEmail}
                     onChange={(e) => handleInputChange("ownerEmail", e.target.value)}
                     placeholder="owner@example.com"
-                    className="border-gray-300 dark:border-gray-600 focus:border-[#1DA68F] focus:ring-[#1DA68F]"
+                    className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]"
                     required
                   />
                 </div>
@@ -354,17 +353,17 @@ export default function AddClinicPage() {
           </Card>
 
           {/* 6  Specializations & Facilities */}
-          <Card className="border-gray-200 dark:border-gray-700 shadow-sm">
-            <CardHeader className="bg-[#F8F9FA] dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 rounded-t-lg">
-              <CardTitle className="flex items-center gap-2 text-lg text-gray-900 dark:text-white">
-                <Plus className="h-5 w-5 text-[#1DA68F]" />
+          <Card className="border-[hsl(var(--border))] shadow-sm">
+            <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
+              <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
+                <Plus className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
                 Specializations & Facilities
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-6 bg-white dark:bg-gray-800">
+            <CardContent className="p-6 bg-[hsl(var(--card))]">
               <div className="space-y-6">
                 <div>
-                  <Label className="text-gray-700 dark:text-gray-300 mb-3 block">Specializations</Label>
+                  <Label className="text-[hsl(var(--foreground))] mb-3 block">Specializations</Label>
                   <div className="flex flex-wrap gap-2">
                     {specializationOptions.map((spec) => (
                       <button
@@ -373,8 +372,8 @@ export default function AddClinicPage() {
                         onClick={() => handleSpecializationToggle(spec)}
                         className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
                           formData.specializations.includes(spec)
-                            ? "bg-[#1DA68F] text-white border-[#1DA68F]"
-                            : "bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:border-[#1DA68F]"
+                            ? "bg-[hsl(var(--color-brand-teal))] text-white border-[hsl(var(--color-brand-teal))]"
+                            : "bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border-[hsl(var(--border))] hover:border-[hsl(var(--color-brand-teal))]"
                         }`}
                       >
                         {spec}
@@ -384,7 +383,7 @@ export default function AddClinicPage() {
                 </div>
 
                 <div>
-                  <Label className="text-gray-700 dark:text-gray-300 mb-3 block">Available Facilities</Label>
+                  <Label className="text-[hsl(var(--foreground))] mb-3 block">Available Facilities</Label>
                   <div className="flex flex-wrap gap-2">
                     {facilityOptions.map((facility) => (
                       <button
@@ -393,8 +392,8 @@ export default function AddClinicPage() {
                         onClick={() => handleFacilityToggle(facility)}
                         className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
                           formData.facilities.includes(facility)
-                            ? "bg-[#1DA68F] text-white border-[#1DA68F]"
-                            : "bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:border-[#1DA68F]"
+                            ? "bg-[hsl(var(--color-brand-teal))] text-white border-[hsl(var(--color-brand-teal))]"
+                            : "bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border-[hsl(var(--border))] hover:border-[hsl(var(--color-brand-teal))]"
                         }`}
                       >
                         {facility}
@@ -407,24 +406,24 @@ export default function AddClinicPage() {
           </Card>
 
           {/* 7  Documents & Description */}
-          <Card className="border-gray-200 dark:border-gray-700 shadow-sm">
-            <CardHeader className="bg-[#F8F9FA] dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 rounded-t-lg">
-              <CardTitle className="flex items-center gap-2 text-lg text-gray-900 dark:text-white">
-                <FileText className="h-5 w-5 text-[#1DA68F]" />
+          <Card className="border-[hsl(var(--border))] shadow-sm">
+            <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
+              <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
+                <FileText className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
                 Documents & Description
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-6 bg-white dark:bg-gray-800">
+            <CardContent className="p-6 bg-[hsl(var(--card))]">
               <div className="space-y-6">
                 <div>
-                  <Label className="text-gray-700 dark:text-gray-300 mb-3 block">
+                  <Label className="text-[hsl(var(--foreground))] mb-3 block">
                     Upload Documents (License, Certificates, etc.)
                   </Label>
-                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center">
-                    <Upload className="h-10 w-10 text-gray-400 mx-auto mb-3" />
+                  <div className="border-2 border-dashed border-[hsl(var(--border))] rounded-lg p-6 text-center">
+                    <Upload className="h-10 w-10 text-[hsl(var(--muted-foreground))] mx-auto mb-3" />
                     <label htmlFor="document-upload" className="cursor-pointer">
-                      <span className="text-[#1DA68F] font-medium hover:underline">Click to upload</span>
-                      <span className="text-gray-500 dark:text-gray-400"> or drag and drop</span>
+                      <span className="text-[hsl(var(--color-brand-teal))] font-medium hover:underline">Click to upload</span>
+                      <span className="text-[hsl(var(--muted-foreground))]"> or drag and drop</span>
                       <input
                         id="document-upload"
                         type="file"
@@ -433,7 +432,7 @@ export default function AddClinicPage() {
                         onChange={handleDocumentUpload}
                       />
                     </label>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">PDF, DOC, JPG, PNG up to 10MB each</p>
+                    <p className="text-xs text-[hsl(var(--muted-foreground))] mt-1">PDF, DOC, JPG, PNG up to 10MB each</p>
                   </div>
 
                   {formData.documents.length > 0 && (
@@ -441,16 +440,16 @@ export default function AddClinicPage() {
                       {formData.documents.map((doc, idx) => (
                         <div
                           key={idx}
-                          className="flex items-center justify-between bg-gray-50 dark:bg-gray-700 p-3 rounded-lg"
+                          className="flex items-center justify-between bg-[hsl(var(--accent))] p-3 rounded-lg"
                         >
                           <div className="flex items-center gap-2">
-                            <FileText className="h-4 w-4 text-[#1DA68F]" />
-                            <span className="text-sm text-gray-700 dark:text-gray-300">{doc.name}</span>
+                            <FileText className="h-4 w-4 text-[hsl(var(--color-brand-teal))]" />
+                            <span className="text-sm text-[hsl(var(--foreground))]">{doc.name}</span>
                           </div>
                           <button
                             type="button"
                             onClick={() => removeDocument(idx)}
-                            className="text-red-500 hover:text-red-600"
+                            className="text-[hsl(var(--color-status-error))] hover:text-[hsl(var(--color-status-error-dark))]"
                           >
                             <X className="h-4 w-4" />
                           </button>
@@ -461,7 +460,7 @@ export default function AddClinicPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description" className="text-gray-700 dark:text-gray-300">
+                  <Label htmlFor="description" className="text-[hsl(var(--foreground))]">
                     Clinic Description
                   </Label>
                   <Textarea
@@ -469,7 +468,7 @@ export default function AddClinicPage() {
                     value={formData.description}
                     onChange={(e) => handleInputChange("description", e.target.value)}
                     placeholder="Enter a brief description of your clinic, services offered, and any special features..."
-                    className="border-gray-300 dark:border-gray-600 focus:border-[#1DA68F] focus:ring-[#1DA68F] min-h-[120px]"
+                    className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))] min-h-[120px]"
                   />
                 </div>
               </div>
@@ -478,10 +477,10 @@ export default function AddClinicPage() {
 
           {/* Bottom actions */}
           <div className="flex items-center justify-end gap-4 pt-4">
-            <Button type="button" variant="outline" className="border-gray-300 dark:border-gray-600 px-8 bg-transparent">
+            <Button type="button" variant="outline" className="border-[hsl(var(--border))] px-8 bg-transparent">
               Cancel
             </Button>
-            <Button type="submit" className="bg-[#1DA68F] hover:bg-[#168f73] text-white px-8">
+            <Button type="submit" className="bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-white px-8">
               <Save className="h-4 w-4 mr-2" />
               Save Clinic
             </Button>

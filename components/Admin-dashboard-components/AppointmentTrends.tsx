@@ -18,20 +18,46 @@ export default function AppointmentTrends() {
     <Card className="rounded-2xl shadow-sm dark:bg-gray-800 dark:border-gray-700">
       <CardHeader className="pb-4">
         <div className="flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-          <CardTitle className="text-base sm:text-lg dark:text-white">Appointment Trends</CardTitle>
+          <TrendingUp className="w-5 h-5 text-[hsl(var(--color-muted-foreground))]" />
+          <CardTitle className="text-base sm:text-lg dark:text-[hsl(var(--color-foreground))]">
+            Appointment Trends
+          </CardTitle>
         </div>
       </CardHeader>
       <CardContent>
         <ChartContainer
-          config={{ appointments: { label: "Appointments", color: "#14B8A6" } }}
+          config={{
+            appointments: {
+              label: "Appointments",
+              color: "hsl(var(--color-chart-green))",
+            },
+          }}
           className="h-48 sm:h-64"
         >
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data}>
-              <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#6B7280" }} />
-              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#6B7280" }} />
-              <Line type="monotone" dataKey="appointments" stroke="#14B8A6" strokeWidth={3} dot={{ fill: "#14B8A6", strokeWidth: 2, r: 4 }} />
+              <XAxis
+                dataKey="month"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 12, fill: "hsl(var(--color-muted-foreground))" }}
+              />
+              <YAxis
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 12, fill: "hsl(var(--color-muted-foreground))" }}
+              />
+              <Line
+                type="monotone"
+                dataKey="appointments"
+                stroke="hsl(var(--color-chart-green))"
+                strokeWidth={3}
+                dot={{
+                  fill: "hsl(var(--color-chart-green))",
+                  strokeWidth: 2,
+                  r: 4,
+                }}
+              />
             </LineChart>
           </ResponsiveContainer>
         </ChartContainer>

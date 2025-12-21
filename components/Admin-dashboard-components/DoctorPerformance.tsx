@@ -18,24 +18,49 @@ export default function DoctorPerformance() {
     <Card className="rounded-2xl shadow-sm dark:bg-gray-800 dark:border-gray-700">
       <CardHeader className="pb-4">
         <div className="flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-          <CardTitle className="text-base sm:text-lg dark:text-white">Doctor Performance</CardTitle>
+          <TrendingUp className="w-5 h-5 text-[hsl(var(--color-muted-foreground))]" />
+          <CardTitle className="text-base sm:text-lg dark:text-[hsl(var(--color-foreground))]">
+            Doctor Performance
+          </CardTitle>
         </div>
       </CardHeader>
       <CardContent>
         <ChartContainer
           config={{
-            consultations: { label: "Consultations", color: "#14B8A6" },
-            surgeries: { label: "Surgeries", color: "#F97316" },
+            consultations: {
+              label: "Consultations",
+              color: "hsl(var(--color-chart-green))",
+            },
+            surgeries: {
+              label: "Surgeries",
+              color: "hsl(var(--color-chart-orange))",
+            },
           }}
           className="h-48 sm:h-64"
         >
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} barCategoryGap="20%">
-              <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#6B7280" }} />
-              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#6B7280" }} />
-              <Bar dataKey="consultations" fill="#14B8A6" radius={[2, 2, 0, 0]} />
-              <Bar dataKey="surgeries" fill="#F97316" radius={[2, 2, 0, 0]} />
+              <XAxis
+                dataKey="month"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 12, fill: "hsl(var(--color-muted-foreground))" }}
+              />
+              <YAxis
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 12, fill: "hsl(var(--color-muted-foreground))" }}
+              />
+              <Bar
+                dataKey="consultations"
+                fill="hsl(var(--color-chart-green))"
+                radius={[2, 2, 0, 0]}
+              />
+              <Bar
+                dataKey="surgeries"
+                fill="hsl(var(--color-chart-orange))"
+                radius={[2, 2, 0, 0]}
+              />
             </BarChart>
           </ResponsiveContainer>
         </ChartContainer>

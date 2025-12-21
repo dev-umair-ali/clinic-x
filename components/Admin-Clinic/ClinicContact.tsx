@@ -17,19 +17,19 @@ interface ClinicContactProps {
 
 export default function ClinicContact({ data, onChange }: ClinicContactProps) {
   return (
-    <Card className="border-gray-200 dark:border-gray-700 shadow-sm">
-      <CardHeader className="bg-[#F8F9FA] dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 rounded-t-lg">
-        <CardTitle className="flex items-center gap-2 text-lg text-gray-900 dark:text-white">
-          <Phone className="h-5 w-5 text-[#1DA68F]" />
+    <Card className="border-[hsl(var(--border))] shadow-sm">
+      <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
+        <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
+          <Phone className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
           Contact Information
         </CardTitle>
       </CardHeader>
 
-      <CardContent className="p-6 bg-white dark:bg-gray-800">
+      <CardContent className="p-6 bg-[hsl(var(--card))]">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="phoneNumber" className="text-gray-700 dark:text-gray-300">
-              Phone Number <span className="text-red-500">*</span>
+            <Label htmlFor="phoneNumber" className="text-[hsl(var(--foreground))]">
+              Phone Number <span className="text-[hsl(var(--destructive))]">*</span>
             </Label>
             <Input
               id="phoneNumber"
@@ -37,13 +37,13 @@ export default function ClinicContact({ data, onChange }: ClinicContactProps) {
               value={data.phoneNumber}
               onChange={(e) => onChange("phoneNumber", e.target.value)}
               placeholder="+1 (555) 000-0000"
-              className="border-gray-300 dark:border-gray-600 focus:border-[#1DA68F] focus:ring-[#1DA68F]"
+              className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]"
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="alternatePhone" className="text-gray-700 dark:text-gray-300">
+            <Label htmlFor="alternatePhone" className="text-[hsl(var(--foreground))]">
               Alternate Phone
             </Label>
             <Input
@@ -52,13 +52,13 @@ export default function ClinicContact({ data, onChange }: ClinicContactProps) {
               value={data.alternatePhone}
               onChange={(e) => onChange("alternatePhone", e.target.value)}
               placeholder="+1 (555) 000-0000"
-              className="border-gray-300 dark:border-gray-600 focus:border-[#1DA68F] focus:ring-[#1DA68F]"
+              className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-gray-700 dark:text-gray-300">
-              Email Address <span className="text-red-500">*</span>
+            <Label htmlFor="email" className="text-[hsl(var(--foreground))]">
+              Email Address <span className="text-[hsl(var(--destructive))]">*</span>
             </Label>
             <Input
               id="email"
@@ -66,13 +66,13 @@ export default function ClinicContact({ data, onChange }: ClinicContactProps) {
               value={data.email}
               onChange={(e) => onChange("email", e.target.value)}
               placeholder="clinic@example.com"
-              className="border-gray-300 dark:border-gray-600 focus:border-[#1DA68F] focus:ring-[#1DA68F]"
+              className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]"
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="website" className="text-gray-700 dark:text-gray-300">
+            <Label htmlFor="website" className="text-[hsl(var(--foreground))]">
               Website
             </Label>
             <Input
@@ -80,8 +80,8 @@ export default function ClinicContact({ data, onChange }: ClinicContactProps) {
               type="url"
               value={data.website}
               onChange={(e) => onChange("website", e.target.value)}
-              placeholder="https://www.example.com "
-              className="border-gray-300 dark:border-gray-600 focus:border-[#1DA68F] focus:ring-[#1DA68F]"
+              placeholder="https://www.example.com"
+              className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]"
             />
           </div>
         </div>

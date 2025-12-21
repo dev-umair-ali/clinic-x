@@ -17,9 +17,13 @@ export default function PatientGrowth() {
     <Card className="rounded-2xl shadow-sm dark:bg-gray-800 dark:border-gray-700">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base sm:text-lg dark:text-white">Patient Growth Trend</CardTitle>
-          {/* Same dropdown as ClinicPerformance – you can extract later */}
-          <select className="text-teal-600 dark:text-teal-400 text-sm bg-transparent border-none cursor-pointer hover:underline">
+          <CardTitle className="text-base sm:text-lg dark:text-[hsl(var(--color-foreground))]">
+            Patient Growth Trend
+          </CardTitle>
+          <select
+            className="text-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--color-brand-teal))]
+                       text-sm bg-transparent border-none cursor-pointer hover:underline"
+          >
             <option>All Clinics</option>
             <option>Active</option>
             <option>Inactive</option>
@@ -28,14 +32,34 @@ export default function PatientGrowth() {
       </CardHeader>
       <CardContent>
         <ChartContainer
-          config={{ patients: { label: "Patients", color: "#14B8A6" } }}
+          config={{
+            patients: {
+              label: "Patients",
+              color: "hsl(var(--color-chart-green))",
+            },
+          }}
           className="h-48 sm:h-64"
         >
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data}>
-              <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#6B7280" }} />
-              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#6B7280" }} />
-              <Area type="monotone" dataKey="patients" stroke="#14B8A6" fill="#14B8A6" fillOpacity={0.3} />
+              <XAxis
+                dataKey="month"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 12, fill: "hsl(var(--color-muted-foreground))" }}
+              />
+              <YAxis
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 12, fill: "hsl(var(--color-muted-foreground))" }}
+              />
+              <Area
+                type="monotone"
+                dataKey="patients"
+                stroke="hsl(var(--color-chart-green))"
+                fill="hsl(var(--color-chart-green))"
+                fillOpacity={0.3}
+              />
             </AreaChart>
           </ResponsiveContainer>
         </ChartContainer>

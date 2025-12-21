@@ -36,61 +36,61 @@ export default function AssistantPersonal({ data, onChange, onPhoto, photoPrevie
   }
 
   return (
-    <Card className="border-gray-200 dark:border-gray-700 shadow-sm">
-      <CardHeader className="bg-[#F8F9FA] dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 rounded-t-lg">
-        <CardTitle className="flex items-center gap-2 text-lg text-gray-900 dark:text-white">
-          <User className="h-5 w-5 text-[#1DA68F]" />
+    <Card className="border-[hsl(var(--border))] shadow-sm">
+      <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
+        <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
+          <User className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
           Personal Information
         </CardTitle>
       </CardHeader>
 
-      <CardContent className="p-6 bg-white dark:bg-gray-800">
+      <CardContent className="p-6 bg-[hsl(var(--card))]">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="firstName" className="text-gray-700 dark:text-gray-300">
-              First Name <span className="text-red-500">*</span>
+            <Label htmlFor="firstName" className="text-[hsl(var(--foreground))]">
+              First Name <span className="text-[hsl(var(--destructive))]">*</span>
             </Label>
             <Input
               id="firstName"
               value={data.firstName}
               onChange={(e) => onChange("firstName", e.target.value)}
               placeholder="Enter first name"
-              className="border-gray-300 dark:border-gray-600 focus:border-[#1DA68F] focus:ring-[#1DA68F]"
+              className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="lastName" className="text-gray-700 dark:text-gray-300">
-              Last Name <span className="text-red-500">*</span>
+            <Label htmlFor="lastName" className="text-[hsl(var(--foreground))]">
+              Last Name <span className="text-[hsl(var(--destructive))]">*</span>
             </Label>
             <Input
               id="lastName"
               value={data.lastName}
               onChange={(e) => onChange("lastName", e.target.value)}
               placeholder="Enter last name"
-              className="border-gray-300 dark:border-gray-600 focus:border-[#1DA68F] focus:ring-[#1DA68F]"
+              className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="dateOfBirth" className="text-gray-700 dark:text-gray-300">
-              Date of Birth <span className="text-red-500">*</span>
+            <Label htmlFor="dateOfBirth" className="text-[hsl(var(--foreground))]">
+              Date of Birth <span className="text-[hsl(var(--destructive))]">*</span>
             </Label>
             <Input
               id="dateOfBirth"
               type="date"
               value={data.dateOfBirth}
               onChange={(e) => onChange("dateOfBirth", e.target.value)}
-              className="border-gray-300 dark:border-gray-600 focus:border-[#1DA68F] focus:ring-[#1DA68F]"
+              className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="gender" className="text-gray-700 dark:text-gray-300">
-              Gender <span className="text-red-500">*</span>
+            <Label htmlFor="gender" className="text-[hsl(var(--foreground))]">
+              Gender <span className="text-[hsl(var(--destructive))]">*</span>
             </Label>
             <Select value={data.gender} onValueChange={(v) => onChange("gender", v)}>
-              <SelectTrigger className="border-gray-300 dark:border-gray-600 focus:border-[#1DA68F] focus:ring-[#1DA68F]">
+              <SelectTrigger className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]">
                 <SelectValue placeholder="Select gender" />
               </SelectTrigger>
               <SelectContent>
@@ -104,38 +104,38 @@ export default function AssistantPersonal({ data, onChange, onPhoto, photoPrevie
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="nationalId" className="text-gray-700 dark:text-gray-300">
-              National ID <span className="text-red-500">*</span>
+            <Label htmlFor="nationalId" className="text-[hsl(var(--foreground))]">
+              National ID <span className="text-[hsl(var(--destructive))]">*</span>
             </Label>
             <Input
               id="nationalId"
               value={data.nationalId}
               onChange={(e) => onChange("nationalId", e.target.value)}
               placeholder="Enter national ID"
-              className="border-gray-300 dark:border-gray-600 focus:border-[#1DA68F] focus:ring-[#1DA68F]"
+              className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]"
             />
           </div>
         </div>
 
         <div className="mt-6">
-          <Label className="text-gray-700 dark:text-gray-300 mb-2 block">Assistant Photo</Label>
+          <Label className="text-[hsl(var(--foreground))] mb-2 block">Assistant Photo</Label>
           <div className="flex items-center gap-4">
-            <div className="w-24 h-24 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-full flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-gray-700">
+            <div className="w-24 h-24 border-2 border-dashed border-[hsl(var(--border))] rounded-full flex items-center justify-center overflow-hidden bg-[hsl(var(--accent))]">
               {preview ? (
                 <img src={preview} alt="Photo preview" className="w-full h-full object-cover" />
               ) : (
-                <User className="h-8 w-8 text-gray-400" />
+                <User className="h-8 w-8 text-[hsl(var(--muted-foreground))]" />
               )}
             </div>
             <div>
               <label htmlFor="photo-upload">
-                <div className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 border border-[#1DA68F] text-[#1DA68F] rounded-lg hover:bg-[#1DA68F]/10 transition-colors">
+                <div className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 border border-[hsl(var(--color-brand-teal))] text-[hsl(var(--color-brand-teal))] rounded-lg hover:bg-[hsl(var(--color-brand-teal-light))] transition-colors">
                   <Upload className="h-4 w-4" />
                   Upload Photo
                 </div>
                 <input id="photo-upload" type="file" accept="image/*" className="hidden" onChange={handlePhoto} />
               </label>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">PNG, JPG up to 2MB</p>
+              <p className="text-xs text-[hsl(var(--muted-foreground))] mt-1">PNG, JPG up to 2MB</p>
             </div>
           </div>
         </div>

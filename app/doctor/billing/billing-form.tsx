@@ -84,62 +84,62 @@ export function BillingForm({ isOpen, onClose, onSave, initialData }: BillingFor
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto bg-[hsl(var(--card))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]">
         <DialogHeader>
           <DialogTitle>{initialData ? "Edit Billing Entry" : "Add New Billing Entry"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="cpt">CPT Code</Label>
-            <Input id="cpt" value={formData.cpt} onChange={handleChange} required />
+            <Input id="cpt" value={formData.cpt} onChange={handleChange} required className="border-[hsl(var(--border))] focus:ring-[hsl(var(--color-brand-teal))]" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="patient">Patient</Label>
-            <Input id="patient" value={formData.patient} onChange={handleChange} required />
+            <Input id="patient" value={formData.patient} onChange={handleChange} required className="border-[hsl(var(--border))] focus:ring-[hsl(var(--color-brand-teal))]" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="copay">Co Pay</Label>
-            <Input id="copay" value={formData.copay} onChange={handleChange} />
+            <Input id="copay" value={formData.copay} onChange={handleChange} className="border-[hsl(var(--border))] focus:ring-[hsl(var(--color-brand-teal))]" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="desc">Description</Label>
-            <Input id="desc" value={formData.desc} onChange={handleChange} />
+            <Input id="desc" value={formData.desc} onChange={handleChange} className="border-[hsl(var(--border))] focus:ring-[hsl(var(--color-brand-teal))]" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="charge">Charge</Label>
-            <Input id="charge" value={formData.charge} onChange={handleChange} />
+            <Input id="charge" value={formData.charge} onChange={handleChange} className="border-[hsl(var(--border))] focus:ring-[hsl(var(--color-brand-teal))]" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="adjustment">Adjustment</Label>
-            <Input id="adjustment" value={formData.adjustment} onChange={handleChange} />
+            <Input id="adjustment" value={formData.adjustment} onChange={handleChange} className="border-[hsl(var(--border))] focus:ring-[hsl(var(--color-brand-teal))]" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="insurance">Insurance Paid</Label>
-            <Input id="insurance" value={formData.insurance} onChange={handleChange} />
+            <Input id="insurance" value={formData.insurance} onChange={handleChange} className="border-[hsl(var(--border))] focus:ring-[hsl(var(--color-brand-teal))]" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="paid">Patient Paid</Label>
-            <Input id="paid" value={formData.paid} onChange={handleChange} />
+            <Input id="paid" value={formData.paid} onChange={handleChange} className="border-[hsl(var(--border))] focus:ring-[hsl(var(--color-brand-teal))]" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="date">Date</Label>
-            <Input id="date" type="date" value={formData.date} onChange={handleChange} />
+            <Input id="date" type="date" value={formData.date} onChange={handleChange} className="border-[hsl(var(--border))] focus:ring-[hsl(var(--color-brand-teal))]" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="responsibility">Patient Responsibility</Label>
-            <Input id="responsibility" value={formData.responsibility} onChange={handleChange} />
+            <Input id="responsibility" value={formData.responsibility} onChange={handleChange} className="border-[hsl(var(--border))] focus:ring-[hsl(var(--color-brand-teal))]" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="reason">Reason</Label>
-            <Input id="reason" value={formData.reason} onChange={handleChange} />
+            <Input id="reason" value={formData.reason} onChange={handleChange} className="border-[hsl(var(--border))] focus:ring-[hsl(var(--color-brand-teal))]" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="status">Status</Label>
             <Select value={formData.status} onValueChange={(value) => handleSelectChange(value, "status")}>
-              <SelectTrigger id="status">
+              <SelectTrigger id="status" className="border-[hsl(var(--border))] focus:ring-[hsl(var(--color-brand-teal))]">
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-[hsl(var(--card))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]">
                 <SelectItem value="Pending">Pending</SelectItem>
                 <SelectItem value="Paid">Paid</SelectItem>
                 <SelectItem value="Overdue">Overdue</SelectItem>
@@ -147,7 +147,9 @@ export function BillingForm({ isOpen, onClose, onSave, initialData }: BillingFor
             </Select>
           </div>
           <DialogFooter className="sm:col-span-2 mt-4">
-            <Button type="submit">{initialData ? "Save Changes" : "Add Bill"}</Button>
+            <Button type="submit" className="bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-white">
+              {initialData ? "Save Changes" : "Add Bill"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

@@ -104,14 +104,15 @@ const menuItems = {
     },
     { icon: FaRegClipboard, label: "Dshboard log", href: "/clinic/dashlogs" },
     { icon: IoSettingsSharp, label: "Settings", href: "/clinic/settings" },
-    { icon: CiCalendar, label: "Appointments", href: "/clinic/appointments" },
+    { icon: CiCalendar, label: "patients-billing", href: "/clinic/patients-billing" },
     { icon: TiMicrophone, label: "Prescription", href: "/clinic/prescription" },
     { icon: RiVolumeUpFill, label: "Patient Notes", href: "/clinic/notes" },
     {
       icon: FaCreditCard,
-      label: " Patients Billing",
-      href: "/clinic/patients-billing",
+      label: "theme-settings",
+      href: "/clinic/theme-settings",
     },
+    
   ],
 };
 

@@ -49,36 +49,36 @@ export default function ClinicBasicInfo({ data, onChange, onLogo, logoPreview }:
   }
 
   return (
-    <Card className="border-gray-200 dark:border-gray-700 shadow-sm">
-      <CardHeader className="bg-[#F8F9FA] dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 rounded-t-lg">
-        <CardTitle className="flex items-center gap-2 text-lg text-gray-900 dark:text-white">
-          <Building2 className="h-5 w-5 text-[#1DA68F]" />
+    <Card className="border-[hsl(var(--border))] shadow-sm">
+      <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
+        <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
+          <Building2 className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
           Basic Information
         </CardTitle>
       </CardHeader>
 
-      <CardContent className="p-6 bg-white dark:bg-gray-800">
+      <CardContent className="p-6 bg-[hsl(var(--card))]">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="clinicName" className="text-gray-700 dark:text-gray-300">
-              Clinic Name <span className="text-red-500">*</span>
+            <Label htmlFor="clinicName" className="text-[hsl(var(--foreground))]">
+              Clinic Name <span className="text-[hsl(var(--destructive))]">*</span>
             </Label>
             <Input
               id="clinicName"
               value={data.clinicName}
               onChange={(e) => onChange("clinicName", e.target.value)}
               placeholder="Enter clinic name"
-              className="border-gray-300 dark:border-gray-600 focus:border-[#1DA68F] focus:ring-[#1DA68F]"
+              className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]"
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="clinicType" className="text-gray-700 dark:text-gray-300">
-              Clinic Type <span className="text-red-500">*</span>
+            <Label htmlFor="clinicType" className="text-[hsl(var(--foreground))]">
+              Clinic Type <span className="text-[hsl(var(--destructive))]">*</span>
             </Label>
             <Select value={data.clinicType} onValueChange={(v) => onChange("clinicType", v)}>
-              <SelectTrigger className="border-gray-300 dark:border-gray-600 focus:border-[#1DA68F] focus:ring-[#1DA68F]">
+              <SelectTrigger className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]">
                 <SelectValue placeholder="Select clinic type" />
               </SelectTrigger>
               <SelectContent>
@@ -92,21 +92,21 @@ export default function ClinicBasicInfo({ data, onChange, onLogo, logoPreview }:
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="registrationNumber" className="text-gray-700 dark:text-gray-300">
-              Registration Number <span className="text-red-500">*</span>
+            <Label htmlFor="registrationNumber" className="text-[hsl(var(--foreground))]">
+              Registration Number <span className="text-[hsl(var(--destructive))]">*</span>
             </Label>
             <Input
               id="registrationNumber"
               value={data.registrationNumber}
               onChange={(e) => onChange("registrationNumber", e.target.value)}
               placeholder="Enter registration number"
-              className="border-gray-300 dark:border-gray-600 focus:border-[#1DA68F] focus:ring-[#1DA68F]"
+              className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]"
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="taxId" className="text-gray-700 dark:text-gray-300">
+            <Label htmlFor="taxId" className="text-[hsl(var(--foreground))]">
               Tax ID / GST Number
             </Label>
             <Input
@@ -114,12 +114,12 @@ export default function ClinicBasicInfo({ data, onChange, onLogo, logoPreview }:
               value={data.taxId}
               onChange={(e) => onChange("taxId", e.target.value)}
               placeholder="Enter tax ID"
-              className="border-gray-300 dark:border-gray-600 focus:border-[#1DA68F] focus:ring-[#1DA68F]"
+              className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="totalDoctors" className="text-gray-700 dark:text-gray-300">
+            <Label htmlFor="totalDoctors" className="text-[hsl(var(--foreground))]">
               Total Doctors
             </Label>
             <Input
@@ -128,12 +128,12 @@ export default function ClinicBasicInfo({ data, onChange, onLogo, logoPreview }:
               value={data.totalDoctors}
               onChange={(e) => onChange("totalDoctors", e.target.value)}
               placeholder="Enter number"
-              className="border-gray-300 dark:border-gray-600 focus:border-[#1DA68F] focus:ring-[#1DA68F]"
+              className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="totalStaff" className="text-gray-700 dark:text-gray-300">
+            <Label htmlFor="totalStaff" className="text-[hsl(var(--foreground))]">
               Total Staff
             </Label>
             <Input
@@ -142,30 +142,30 @@ export default function ClinicBasicInfo({ data, onChange, onLogo, logoPreview }:
               value={data.totalStaff}
               onChange={(e) => onChange("totalStaff", e.target.value)}
               placeholder="Enter number"
-              className="border-gray-300 dark:border-gray-600 focus:border-[#1DA68F] focus:ring-[#1DA68F]"
+              className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]"
             />
           </div>
         </div>
 
         <div className="mt-6">
-          <Label className="text-gray-700 dark:text-gray-300 mb-2 block">Clinic Logo</Label>
+          <Label className="text-[hsl(var(--foreground))] mb-2 block">Clinic Logo</Label>
           <div className="flex items-center gap-4">
-            <div className="w-24 h-24 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-gray-700">
+            <div className="w-24 h-24 border-2 border-dashed border-[hsl(var(--border))] rounded-lg flex items-center justify-center overflow-hidden bg-[hsl(var(--accent))]">
               {preview ? (
                 <img src={preview} alt="Logo preview" className="w-full h-full object-cover" />
               ) : (
-                <Building2 className="h-8 w-8 text-gray-400" />
+                <Building2 className="h-8 w-8 text-[hsl(var(--muted-foreground))]" />
               )}
             </div>
             <div>
               <label htmlFor="logo-upload">
-                <div className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 border border-[#1DA68F] text-[#1DA68F] rounded-lg hover:bg-[#1DA68F]/10 transition-colors">
+                <div className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 border border-[hsl(var(--color-brand-teal))] text-[hsl(var(--color-brand-teal))] rounded-lg hover:bg-[hsl(var(--color-brand-teal-light))] transition-colors">
                   <Upload className="h-4 w-4" />
                   Upload Logo
                 </div>
                 <input id="logo-upload" type="file" accept="image/*" className="hidden" onChange={handleLogo} />
               </label>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">PNG, JPG up to 2MB</p>
+              <p className="text-xs text-[hsl(var(--muted-foreground))] mt-1">PNG, JPG up to 2MB</p>
             </div>
           </div>
         </div>

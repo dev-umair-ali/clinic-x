@@ -49,6 +49,54 @@
     --custom-dashboard-orange-DEFAULT: 25 95% 53%;
     --custom-dashboard-purple-DEFAULT: 252 95% 67%;
     --custom-dashboard-red-DEFAULT: 0 84% 60%;
+
+    /* SEMANTIC COLOR TOKENS (with real color comments) */
+    /* Brand / Teal */
+    --color-brand-teal: 167 69% 39%;        /* #1DA68F  |  Teal brand */
+    --color-brand-teal-dark: 167 69% 29%;   /* #168f73  |  Teal hover */
+    --color-brand-teal-light: 167 70% 89%;  /* #d1f5ef  |  Teal bg */
+
+    /* Status / Feedback */
+    --color-status-success: 160 83% 39%;    /* #0aca7a  |  Success green */
+    --color-status-success-dark: 160 92% 25%;
+    --color-status-success-light: 160 70% 89%;
+    --color-status-error: 0 84% 60%;        /* #ef4444  |  Error red */
+    --color-status-error-dark: 0 62% 30%;
+    --color-status-warning: 25 95% 53%;     /* #f97316  |  Warning orange */
+    --color-status-info: 217 91% 60%;       /* #3b82f6  |  Info blue */
+
+    /* Charts / UI accents */
+    --color-chart-blue: 217 91% 60%;        /* #3b82f6  |  Chart blue */
+    --color-chart-purple: 252 95% 67%;      /* #8b5cf6  |  Chart purple */
+    --color-chart-orange: 25 95% 53%;       /* #f97316  |  Chart orange */
+    --color-chart-green: 160 83% 39%;       /* #0aca7a  |  Chart green */
+    --color-chart-red: 0 84% 60%;           /* #ef4444  |  Chart red */
+
+    /* Sidebar new tokens */
+    --gradient-sidebar-start: 167 55% 23%;     /* #126A5C  |  Deep teal  */
+    --gradient-sidebar-end: 167 69% 39%;       /* #1DA68F  |  Brand teal */
+    --color-white-alpha-20: 0 0% 100% / 0.2;   /* white/20 */
+    --color-white-alpha-10: 0 0% 100% / 0.1;   /* white/10 */
+    --color-white-alpha-60: 0 0% 100% / 0.6;   /* white/60 */
+    --color-white-alpha-80: 0 0% 100% / 0.8;   /* white/80 */
+    --color-white-alpha-90: 0 0% 100% / 0.9;   /* white/90 */
+    --color-teal-gradient-mid: 167 69% 49%;    /* #27DEBF  |  Mid teal   */
+
+    /* Extra dashboard colours */
+    --color-gold-dark: 43 84% 31%;             /* #947311  |  Dark amber / gold */
+    --color-pink-vibrant: 307 76% 48%;         /* #D022C4  |  Vibrant pink */
+    --color-bg-teal-tint: 167 70% 89%;         /* very-light teal bg */
+    --color-bg-orange-tint: 25 95% 93%;        /* very-light orange bg */
+    --color-bg-blue-tint: 217 91% 93%;         /* very-light blue bg */
+    --color-bg-pink-tint: 307 76% 93%;         /* very-light pink bg */
+
+    /* Input backgrounds */
+--color-input-bg: 0 0% 96%; /* #F6F6F6 */
+
+/* Semantic UI accents */
+--color-medical: 160 83% 39%; /* dashboard green */
+--color-info: 217 91% 60%; /* dashboard blue */
+
   }
 
   /* ---------- ENHANCED DARK MODE ---------- */
@@ -82,6 +130,12 @@
     --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 217.2 32.6% 17.5%; /* Enhanced sidebar border */
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+      /* ... existing dark tokens ... */
+
+    --color-input-bg: 222.2 32.6% 17.5%;
+    --color-medical: 160 70% 89%;
+    --color-info: 217 91% 93%;
   }
 }
 
@@ -106,7 +160,7 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1DA68F; /* your green */
+  background: hsl(var(--color-brand-teal)); /* your green */
   border-radius: 8px;
   border: 2px solid transparent; /* creates spacing effect */
   background-clip: content-box; /* keeps the rounded edge effect */
@@ -114,7 +168,7 @@
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #159b7d; /* darker green on hover */
+  background: hsl(var(--color-brand-teal-dark)); /* darker green on hover */
 }
 
 /* ---------- SIDEBAR GRADIENT ---------- */
@@ -128,7 +182,7 @@
 
 /* ---------- ACTIVE MENU ---------- */
 .menu-active-gradient {
-  background: linear-gradient(94.25deg, #1da68f 0%, #27debf 100%);
+  background: linear-gradient(94.25deg, hsl(var(--color-brand-teal)) 0%, hsl(var(--color-teal-gradient-mid)) 100%);
   color: white;
   padding: 9px 13.5px;
   border-radius: 16px;
@@ -138,3 +192,4 @@
   align-items: center;
   gap: 13.5px;
 }
+/* NEW variable-driven gradient */
