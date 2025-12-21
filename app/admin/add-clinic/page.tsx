@@ -107,8 +107,9 @@ export default function AddClinicPage() {
   const [errors, setErrors] = useState<string[]>([])
 
   /* ----------  HANDLERS  ---------- */
-  const handleInputChange = (field: keyof ClinicFormData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
+  const handleInputChange = (field: string, value: string) => {
+  
+    setFormData((prev) => ({ ...prev, [field as keyof ClinicFormData]: value as any }))
   }
 
   const handleWorkingDayToggle = (day: string) => {
@@ -256,7 +257,7 @@ export default function AddClinicPage() {
               totalStaff: formData.totalStaff,
               logo: formData.logo,
             }}
-            onChange={(field: string, value: string) => handleInputChange(field as keyof ClinicFormData, value)}
+            onChange={handleInputChange}
             onLogo={handleLogoUpload}
             logoPreview={logoPreview}
           />

@@ -316,7 +316,7 @@ export default function EditPatientPage() {
             <div className="flex items-center justify-center h-64">
               <div className="text-center">
                 <p className="text-gray-600 dark:text-gray-400 mb-4">Patient not found</p>
-                <Button onClick={() => router.push("/admin/patients")}>
+                <Button onClick={() => router.push("/clinic/patients")}>
                   Back to Patients
                 </Button>
               </div>

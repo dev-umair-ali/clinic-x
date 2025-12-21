@@ -1,12 +1,11 @@
 "use client";
 
-import React from 'react';
+import React, { useContext } from 'react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ProtectedRoute } from '@/components/ui/protected-route';
 import { ChevronRight, ArrowLeft } from 'lucide-react';
-import { LuCircleCheckBig } from 'react-icons/lu';
 
 /* ----------  STEP COMPONENTS  ---------- */
 import BasicInformation           from './BasicInformation/page';
@@ -112,8 +111,16 @@ const INITIAL_FORM_DATA = {
   },
 };
 
+/* ------------------------------------------------------------------ */
+/*  If you already have an AuthContext / useAuth hook – use it here   */
+/*  Below is a tiny placeholder so the file compiles out-of-the-box.  */
+/* ------------------------------------------------------------------ */
+const AuthContext = React.createContext<{ user?: { role: string } }>({});
+const useAuth = () => React.useContext(AuthContext);
+
 export default function Onboarding() {
   const router = useRouter();
+  const { user } = useAuth();                       // ← current user (role inside)
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
@@ -137,7 +144,13 @@ export default function Onboarding() {
   const getProgressPercentage = () =>
     Math.round((new Set(completedSteps).size / steps.length) * 100);
 
-  const handleComplete = () => router.push('/receptionist/appointments');
+  const handleComplete = () => {
+    const target =
+      user?.role === 'clinic'
+        ? '/clinic/appointments'
+        : '/receptionist/appointments';
+    router.push(target);
+  };
 
   /* step render map */
   const stepComponents: Record<number, React.ReactNode> = {
@@ -193,98 +206,100 @@ export default function Onboarding() {
   };
 
   return (
-    <ProtectedRoute allowedRoles={['receptionist']}>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        {/* Header */}
-        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
-          <div className="max-w-7xl mx-auto px-6 py-4">
-            <div className="flex items-center justify-between">
-              <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
-                Patient Onboarding
-              </h1>
-              <div className="text-sm text-gray-600 dark:text-gray-300">
-                {getProgressPercentage()}% Complete
+    <ProtectedRoute allowedRoles={['receptionist', 'clinic']}>
+      <AuthContext.Provider value={{ user }}>   {/* expose user to hook */}
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+          {/* Header */}
+          <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
+            <div className="max-w-7xl mx-auto px-6 py-4">
+              <div className="flex items-center justify-between">
+                <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  Patient Onboarding
+                </h1>
+                <div className="text-sm text-gray-600 dark:text-gray-300">
+                  {getProgressPercentage()}% Complete
+                </div>
               </div>
-            </div>
-            <div className="mt-4">
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div
-                  className="bg-teal-600 dark:bg-teal-500 h-2 rounded-full transition-all"
-                  style={{ width: `${getProgressPercentage()}%` }}
-                />
+              <div className="mt-4">
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                  <div
+                    className="bg-teal-600 dark:bg-teal-500 h-2 rounded-full transition-all"
+                    style={{ width: `${getProgressPercentage()}%` }}
+                  />
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row">
-          {/* Sidebar */}
-          <aside className="w-full md:w-80 bg-white dark:bg-gray-800 border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700 p-6">
-            <nav className="space-y-1 sticky top-6">
-              {steps.map((step) => (
-                <div
-                  key={step.id}
-                  className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
-                    step.id === currentStep
-                      ? 'bg-teal-600 text-white'
-                      : completedSteps.includes(step.id)
-                      ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400'
-                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
-                  }`}
-                >
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row">
+            {/* Sidebar */}
+            <aside className="w-full md:w-80 bg-white dark:bg-gray-800 border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700 p-6">
+              <nav className="space-y-1 sticky top-6">
+                {steps.map((step) => (
                   <div
-                    className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-medium ${
+                    key={step.id}
+                    className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
                       step.id === currentStep
-                        ? 'bg-white text-teal-600'
+                        ? 'bg-teal-600 text-white'
                         : completedSteps.includes(step.id)
-                        ? 'bg-green-500 text-white'
-                        : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
+                        ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400'
+                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                     }`}
                   >
-                    {completedSteps.includes(step.id) ? '✓' : step.id}
+                    <div
+                      className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-medium ${
+                        step.id === currentStep
+                          ? 'bg-white text-teal-600'
+                          : completedSteps.includes(step.id)
+                          ? 'bg-green-500 text-white'
+                          : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
+                      }`}
+                    >
+                      {completedSteps.includes(step.id) ? '✓' : step.id}
+                    </div>
+                    <span className="text-sm font-medium">{step.name}</span>
                   </div>
-                  <span className="text-sm font-medium">{step.name}</span>
+                ))}
+              </nav>
+            </aside>
+
+            {/* Main Content */}
+            <main className="flex-1 bg-white dark:bg-gray-800">
+              <div className="p-6 md:p-8">
+                <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-4">
+                  <span>Step {currentStep} of {steps.length}</span>
+                  <ChevronRight className="h-4 w-4" />
+                  <span>{steps[currentStep - 1].name}</span>
                 </div>
-              ))}
-            </nav>
-          </aside>
 
-          {/* Main Content */}
-          <main className="flex-1 bg-white dark:bg-gray-800">
-            <div className="p-6 md:p-8">
-              <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-4">
-                <span>Step {currentStep} of {steps.length}</span>
-                <ChevronRight className="h-4 w-4" />
-                <span>{steps[currentStep - 1].name}</span>
-              </div>
+                {/* STEP CONTENT */}
+                <div className="space-y-8">{stepComponents[currentStep]}</div>
 
-              {/* STEP CONTENT */}
-              <div className="space-y-8">{stepComponents[currentStep]}</div>
-
-              {/* NAV BUTTONS */}
-              <div className="flex justify-end pt-8 mt-8 border-t border-gray-200 dark:border-gray-700">
-                <div className="flex gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={prevStep}
-                    disabled={currentStep === 1}
-                    className="flex items-center gap-2"
-                  >
-                    <ArrowLeft className="h-4 w-4" /> Back
-                  </Button>
-                  <Button
-                    onClick={currentStep === steps.length ? handleComplete : nextStep}
-                    className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white"
-                  >
-                    {currentStep === steps.length ? 'Submit' : 'Next'}
-                    <ArrowLeft className="h-4 w-4 rotate-180" />
-                  </Button>
+                {/* NAV BUTTONS */}
+                <div className="flex justify-end pt-8 mt-8 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex gap-3">
+                    <Button
+                      variant="outline"
+                      onClick={prevStep}
+                      disabled={currentStep === 1}
+                      className="flex items-center gap-2"
+                    >
+                      <ArrowLeft className="h-4 w-4" /> Back
+                    </Button>
+                    <Button
+                      onClick={currentStep === steps.length ? handleComplete : nextStep}
+                      className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white"
+                    >
+                      {currentStep === steps.length ? 'Submit' : 'Next'}
+                      <ArrowLeft className="h-4 w-4 rotate-180" />
+                    </Button>
+                  </div>
                 </div>
               </div>
-            </div>
-          </main>
+            </main>
+          </div>
         </div>
-      </div>
+      </AuthContext.Provider>
     </ProtectedRoute>
   );
 }

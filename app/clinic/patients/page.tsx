@@ -8,18 +8,19 @@ import type { RootState, AppDispatch } from "@/lib/store";
 import { useRouter } from "next/navigation";
 import { fetchPatients } from "@/lib/slices/patientSlice";
 
-export default function AdminPatientsPage() {
+export default function ReceptionistPatientsPage() {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const { patients, loading, error } = useSelector(
     (state: RootState) => state.patients
   );
-  const patientsData = useMemo(() => patients, [patients]);
 
   useEffect(() => {
     // Fetch patients when component mounts
     dispatch(fetchPatients());
   }, [dispatch]);
+
+  const patientsData = useMemo(() => patients, [patients]);
 
   const handleNavigation = (path: string) => {
     router.push(path);

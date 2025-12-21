@@ -3,7 +3,7 @@
 import type React from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Calendar, CalendarClock, CalendarX, CalendarCheck } from 'lucide-react';
-import { AppointmentOverviewCard } from "../app/doctor/doctor-charts/appointment-overview-card";
+import { AppointmentOverviewCard } from "./doctor-charts/appointment-overview-card";
 
 export default function AppointmentsOverviewSection() {
   const router = useRouter();

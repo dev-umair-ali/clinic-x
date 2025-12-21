@@ -586,11 +586,11 @@ export default function PatientAppointmentsPage() {
 
       <EditAppointmentModal
         open={showEditModal}
-        setShowPatientDetails={() => setShowPatientDetails(true)}
         onClose={() => setShowEditModal(false)}
         appointment={editingAppointment}
         onSaved={() => {
-          setShowEditModal(false); // 1. remove the first modal from the DOM
+          console.log("onSaved fired – opening patient details");
+          setShowEditModal(false);
           const patient = {
             _id: editingAppointment?.patient?.id || "dummy",
             name: editingAppointment?.patientName || "Emma Wilson",
@@ -606,9 +606,7 @@ export default function PatientAppointmentsPage() {
             avatar: "/placeholder.svg?height=80&width=80",
           };
           setSelectedPatient(patient);
-
-          // wait until the exit animation finishes, then show the second modal
-          setTimeout(() => setShowPatientDetails(true), 200);
+          setTimeout(() => setShowPatientDetails(true), 0); // ← only this line changed
         }}
         onError={(msg) => setError(msg)}
       />

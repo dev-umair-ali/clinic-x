@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/app/doctor/doctor-charts/input";
+import { Input } from "@/components/doctor-charts/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -14,7 +14,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/app/doctor/doctor-charts/select";
+} from "@/components/doctor-charts/select";
 import { Slider } from "@/components/ui/slider";
 import { ProtectedRoute } from "@/components/ui/protected-route";
 import { Check, ArrowLeft, Upload, ChevronRight } from "lucide-react";

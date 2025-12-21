@@ -12,10 +12,10 @@ import { MdChildCare } from "react-icons/md"
 import { RiScissorsFill } from "react-icons/ri"
 import { RxCross2 } from "react-icons/rx"
 
-import { Badge } from "@/app/doctor/doctor-charts/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/app/doctor/doctor-charts/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/doctor/doctor-charts/tabs"
-import { Button } from "@/app/doctor/doctor-charts/button"
+import { Badge } from "@/components/doctor-charts/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/doctor-charts/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/doctor-charts/tabs"
+import { Button } from "@/components/doctor-charts/button"
 
 const sections = [
   {

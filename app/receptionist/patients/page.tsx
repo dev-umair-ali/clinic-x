@@ -15,8 +15,7 @@ export default function ReceptionistPatientsPage() {
     (state: RootState) => state.patients
   );
 
-  const dumyPatient =[]
-  const patientsData = useMemo(() => dumyPatient, [dumyPatient]);
+  const patientsData = useMemo(() => patients, [patients]);
 
   useEffect(() => {
     // Fetch patients when component mounts

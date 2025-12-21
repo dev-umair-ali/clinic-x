@@ -1,49 +1,100 @@
-"use client"
-import { Plus } from "lucide-react"
-import { useSelector } from "react-redux"
-import { RootState } from "@/lib/store"
-import { useRouter } from "next/navigation"
+"use client";
+
+import { Plus } from "lucide-react";
+import { useSelector } from "react-redux";
+import { RootState } from "@/lib/store";
+import { useRouter } from "next/navigation";
+
+/* -------------------------------------------------
+   Role-based banner config
+---------------------------------------------------*/
+const BANNER_CONFIG: Record<
+  string,
+  {
+    title?: string;
+    buttons: {
+      label: string;
+      path: string;
+    }[];
+  }
+> = {
+  admin: {
+    buttons: [
+      { label: "Add Doctor", path: "/admin/doctors/add" },
+      { label: "Add Patient", path: "/admin/patients/add" },
+    ],
+  },
+  receptionist: {
+    buttons: [
+      {
+        label: "Add Doctor",
+        path: "/receptionist/doctors/add",
+      },
+      { label: "Add Patient", path: "/receptionist/patients/add" },
+    ],
+  },
+  clinic: {
+    buttons: [
+      { label: "Add Doctor", path: "/clinic/doctors/add" },
+      { label: "Add Patient", path: "/clinic/patients/add" },
+    ],
+  },
+  doctor: {
+    title: "Here’s your schedule and patient list for today.",
+    buttons: [{ label: "View Schedule", path: "/doctor/schedule" }],
+  },
+  patient: {
+    title: "Quick access to your records and upcoming appointments.",
+    buttons: [
+      { label: "Book Appointment", path: "/patient/appointments/book" },
+      { label: "My Records", path: "/patient/records" },
+    ],
+  },
+};
 
 export default function HeaderBanner() {
-  const { user } = useSelector((state: RootState) => state.auth)
-  const router = useRouter()
+  const router = useRouter();
+  const { user } = useSelector((state: RootState) => state.auth);
 
-  const handleNav = (path: string) => router.push(path)
+  /* ---- safety ---- */
+  if (!user) return null;
+
+  const role = user.role ?? "patient"; // fallback
+  const cfg = BANNER_CONFIG[role] ?? BANNER_CONFIG.patient;
+
+  const name =
+    user.firstName && user.lastName
+      ? `${user.firstName} ${user.lastName}`
+      : user.name ?? "User";
 
   return (
     <div className="bg-teal-500 dark:bg-teal-600 rounded-2xl p-4 sm:p-8 text-white relative overflow-hidden">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold mb-2">
-            {user?.firstName && user?.lastName
-              ? `${user.firstName.charAt(0).toUpperCase() + user.firstName.slice(1)} ${
-                  user.lastName.charAt(0).toUpperCase() + user.lastName.slice(1)
-                }`
-              : user?.name
-              ? user.name.charAt(0).toUpperCase() + user.name.slice(1)
-              : "User"}
+            {name.charAt(0).toUpperCase() + name.slice(1)}
           </h1>
           <p className="text-teal-100 dark:text-teal-200 text-sm sm:text-base">
-            Here's an overview of your healthcare information and recent activity.
+            {cfg.title ??
+              "Here’s an overview of your healthcare information and recent activity."}
           </p>
         </div>
+
         <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-          <button
-            onClick={() => handleNav("/admin/doctors/add")}
-            className="bg-white dark:bg-gray-800 text-teal-600 dark:text-teal-400 px-4 py-2 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            Add Doctor
-          </button>
-          <button
-            onClick={() => handleNav("/admin/patients/add")}
-            className="bg-white dark:bg-gray-800 text-teal-600 dark:text-teal-400 px-4 py-2 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            Add Patient
-          </button>
+          {cfg.buttons.map((btn) => (
+            <button
+              key={btn.path}
+              onClick={() => router.push(btn.path)}
+              className="bg-white dark:bg-gray-800 text-teal-600 dark:text-teal-400 
+                         px-4 py-2 rounded-lg font-medium flex items-center justify-center 
+                         gap-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              {btn.label}
+            </button>
+          ))}
         </div>
       </div>
     </div>
-  )
+  );
 }
