@@ -12,10 +12,10 @@ export default function CurrentMedications({
 }) {
   return (
     <div className="mb-6">
-      <h3 className="text-base font-medium text-gray-900 mb-4">
+      <h3 className="text-base font-medium text-[hsl(var(--foreground))] mb-4">
         Current Medications
       </h3>
-      <p className="text-sm text-gray-600 mb-3">
+      <p className="text-sm text-[hsl(var(--muted-foreground))] mb-3">
         List all medications you are currently taking:
       </p>
       <Textarea
@@ -23,9 +23,9 @@ export default function CurrentMedications({
         onChange={(e) => updateFormData("currentMedications", e.target.value)}
         placeholder="Include prescription medications, over-the-counter drugs, vitamins, and supplements..."
         rows={3}
-        className="mb-6"
+        className="mb-6 bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]"
       />
-      <Label className="text-sm font-medium text-gray-700 mb-3 block">
+      <Label className="text-sm font-medium text-[hsl(var(--muted-foreground))] mb-3 block">
         Do you take blood thinners?
       </Label>
       <RadioGroup
@@ -34,12 +34,12 @@ export default function CurrentMedications({
         className="flex space-x-4"
       >
         <div className="flex items-center space-x-2">
-          <RadioGroupItem value="yes" id="blood-thinners-yes" />
-          <Label htmlFor="blood-thinners-yes">Yes</Label>
+          <RadioGroupItem value="yes" id="blood-thinners-yes" className="border-[hsl(var(--border))] data-[state=checked]:bg-[hsl(var(--color-brand-teal))] data-[state=checked]:border-[hsl(var(--color-brand-teal))]" />
+          <Label htmlFor="blood-thinners-yes" className="text-[hsl(var(--foreground))]">Yes</Label>
         </div>
         <div className="flex items-center space-x-2">
-          <RadioGroupItem value="no" id="blood-thinners-no" />
-          <Label htmlFor="blood-thinners-no">No</Label>
+          <RadioGroupItem value="no" id="blood-thinners-no" className="border-[hsl(var(--border))] data-[state=checked]:bg-[hsl(var(--color-brand-teal))] data-[state=checked]:border-[hsl(var(--color-brand-teal))]" />
+          <Label htmlFor="blood-thinners-no" className="text-[hsl(var(--foreground))]">No</Label>
         </div>
       </RadioGroup>
     </div>

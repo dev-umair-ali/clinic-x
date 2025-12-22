@@ -12,11 +12,11 @@ export default function WomensHealthInformation({
 }) {
   return (
     <div>
-      <h3 className="text-base font-medium text-gray-900 mb-4">
+      <h3 className="text-base font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] mb-4">
         Women&apos;s Health Information
       </h3>
       <div className="mb-6">
-        <Label className="text-sm font-medium text-gray-700 mb-3 block">
+        <Label className="text-sm font-medium text-[hsl(var(--foreground))] mb-3 block">
           Are you currently pregnant?
         </Label>
         <RadioGroup
@@ -26,15 +26,15 @@ export default function WomensHealthInformation({
         >
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="yes" id="pregnant-yes" />
-            <Label htmlFor="pregnant-yes">Yes</Label>
+            <Label htmlFor="pregnant-yes" className="text-[hsl(var(--foreground))]">Yes</Label>
           </div>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="no" id="pregnant-no" />
-            <Label htmlFor="pregnant-no">No</Label>
+            <Label htmlFor="pregnant-no" className="text-[hsl(var(--foreground))]">No</Label>
           </div>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="unsure" id="pregnant-unsure" />
-            <Label htmlFor="pregnant-unsure">Unsure</Label>
+            <Label htmlFor="pregnant-unsure" className="text-[hsl(var(--foreground))]">Unsure</Label>
           </div>
         </RadioGroup>
       </div>
@@ -49,13 +49,13 @@ export default function WomensHealthInformation({
           { key: "pregnancyHistory", label: "Pregnancy History", ph: "Number of pregnancies, births, complications, etc." },
         ].map((x) => (
           <div key={x.key}>
-            <Label className="text-sm font-medium text-gray-700">{x.label}</Label>
+            <Label className="text-sm font-medium text-[hsl(var(--foreground))]">{x.label}</Label>
             <Textarea
               value={formData[x.key as keyof typeof formData]}
               onChange={(e) => updateFormData(x.key, e.target.value)}
               placeholder={x.ph}
               rows={2}
-              className="mt-1"
+              className="mt-1 bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
             />
           </div>
         ))}

@@ -11,8 +11,8 @@ export default function Allergies({
 }) {
   return (
     <div>
-      <h3 className="text-base font-medium text-gray-900 mb-4">Allergies</h3>
-      <p className="text-sm text-gray-600 mb-3">
+      <h3 className="text-base font-medium text-[hsl(var(--foreground))] mb-4">Allergies</h3>
+      <p className="text-sm text-[hsl(var(--muted-foreground))] mb-3">
         Allergies (medications, foods, environmental):
       </p>
       <Textarea
@@ -20,6 +20,7 @@ export default function Allergies({
         onChange={(e) => updateFormData("allergies", e.target.value)}
         placeholder="List any known allergies and reactions..."
         rows={3}
+        className="bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
       />
     </div>
   );

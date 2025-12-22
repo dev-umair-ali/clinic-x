@@ -12,11 +12,11 @@ export default function ExercisePhysicalActivity({
 }) {
   return (
     <div>
-      <h3 className="text-base font-medium text-gray-900 mb-4">
+      <h3 className="text-base font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] mb-4">
         Exercise & Physical Activity
       </h3>
       <div className="mb-4">
-        <Label className="text-sm font-medium text-gray-700 mb-3 block">
+        <Label className="text-sm font-medium text-[hsl(var(--foreground))] mb-3 block">
           Do you exercise regularly?
         </Label>
         <RadioGroup
@@ -26,17 +26,17 @@ export default function ExercisePhysicalActivity({
         >
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="yes" id="exercise-yes" />
-            <Label htmlFor="exercise-yes">Yes</Label>
+            <Label htmlFor="exercise-yes" className="text-[hsl(var(--foreground))]">Yes</Label>
           </div>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="no" id="exercise-no" />
-            <Label htmlFor="exercise-no">No</Label>
+            <Label htmlFor="exercise-no" className="text-[hsl(var(--foreground))]">No</Label>
           </div>
         </RadioGroup>
       </div>
 
       <div className="mb-6">
-        <Label className="text-sm font-medium text-gray-700 mb-3 block">
+        <Label className="text-sm font-medium text-[hsl(var(--foreground))] mb-3 block">
           What type of work do you do?
         </Label>
         <RadioGroup
@@ -45,25 +45,25 @@ export default function ExercisePhysicalActivity({
         >
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="mostly-sitting" id="mostly-sitting" />
-            <Label htmlFor="mostly-sitting">Mostly sitting (desk job)</Label>
+            <Label htmlFor="mostly-sitting" className="text-[hsl(var(--foreground))]">Mostly sitting (desk job)</Label>
           </div>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="mostly-standing" id="mostly-standing" />
-            <Label htmlFor="mostly-standing">Mostly standing</Label>
+            <Label htmlFor="mostly-standing" className="text-[hsl(var(--foreground))]">Mostly standing</Label>
           </div>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="physical-labor" id="physical-labor" />
-            <Label htmlFor="physical-labor">Physical labor</Label>
+            <Label htmlFor="physical-labor" className="text-[hsl(var(--foreground))]">Physical labor</Label>
           </div>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="mixed-activities" id="mixed-activities" />
-            <Label htmlFor="mixed-activities">Mixed activities</Label>
+            <Label htmlFor="mixed-activities" className="text-[hsl(var(--foreground))]">Mixed activities</Label>
           </div>
         </RadioGroup>
       </div>
 
       <div className="mb-4">
-        <Label className="text-sm font-medium text-gray-700 mb-3 block">
+        <Label className="text-sm font-medium text-[hsl(var(--foreground))] mb-3 block">
           Sleep Quality:
         </Label>
         <RadioGroup
@@ -73,21 +73,21 @@ export default function ExercisePhysicalActivity({
         >
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="poor" id="sleep-poor" />
-            <Label htmlFor="sleep-poor">Poor</Label>
+            <Label htmlFor="sleep-poor" className="text-[hsl(var(--foreground))]">Poor</Label>
           </div>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="fair" id="sleep-fair" />
-            <Label htmlFor="sleep-fair">Fair</Label>
+            <Label htmlFor="sleep-fair" className="text-[hsl(var(--foreground))]">Fair</Label>
           </div>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="good" id="sleep-good" />
-            <Label htmlFor="sleep-good">Good</Label>
+            <Label htmlFor="sleep-good" className="text-[hsl(var(--foreground))]">Good</Label>
           </div>
         </RadioGroup>
       </div>
 
       <div>
-        <Label className="text-sm font-medium text-gray-700">
+        <Label className="text-sm font-medium text-[hsl(var(--foreground))]">
           Do you use pillows or sleep supports?
         </Label>
         <Textarea
@@ -95,7 +95,7 @@ export default function ExercisePhysicalActivity({
           onChange={(e) => updateFormData("sleepSupports", e.target.value)}
           placeholder="Describe any pillows, wedges, or supports you use while sleeping..."
           rows={2}
-          className="mt-1"
+          className="mt-1 bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
         />
       </div>
     </div>

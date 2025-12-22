@@ -26,10 +26,10 @@ export default function HealthConditions({
 }) {
   return (
     <div>
-      <h3 className="text-base font-medium text-gray-900 mb-4">
+      <h3 className="text-base font-medium text-[hsl(var(--foreground))] mb-4">
         Health Conditions
       </h3>
-      <p className="text-sm text-gray-600 mb-4">
+      <p className="text-sm text-[hsl(var(--muted-foreground))] mb-4">
         Check all conditions that apply to you:
       </p>
       <div className="grid grid-cols-3 gap-3 mb-4">
@@ -48,7 +48,7 @@ export default function HealthConditions({
             />
             <Label
               htmlFor={c.toLowerCase().replace(/[^a-z0-9]/g, "-")}
-              className="text-sm"
+              className="text-sm text-[hsl(var(--foreground))]"
             >
               {c}
             </Label>
@@ -56,7 +56,7 @@ export default function HealthConditions({
         ))}
       </div>
       <div>
-        <Label className="text-sm font-medium text-gray-700">
+        <Label className="text-sm font-medium text-[hsl(var(--foreground))]">
           Other conditions not listed:
         </Label>
         <Textarea
@@ -64,7 +64,7 @@ export default function HealthConditions({
           onChange={(e) => updateFormData("otherConditions", e.target.value)}
           placeholder="Please specify any other health conditions..."
           rows={2}
-          className="mt-1"
+          className="mt-1 bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
         />
       </div>
     </div>

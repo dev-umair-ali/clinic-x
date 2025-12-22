@@ -18,7 +18,6 @@ export default function ReceptionistPatientsPage() {
   const patientsData = useMemo(() => patients, [patients]);
 
   useEffect(() => {
-    // Fetch patients when component mounts
     dispatch(fetchPatients());
   }, [dispatch]);
 
@@ -34,16 +33,16 @@ export default function ReceptionistPatientsPage() {
           <div className="mb-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                <h1 className="text-2xl sm:text-3xl font-bold text-[hsl(var(--foreground))] mb-2">
                   Patients
                 </h1>
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-[hsl(var(--muted-foreground))]">
                   Manage patient records and appointments
                 </p>
               </div>
               <button
                 onClick={() => handleNavigation("/clinic/patients/add")}
-                className="px-4 py-2 bg-[#1DA68F] min-w-[130px] text-white rounded hover:bg-[#1DA68F]/70 flex justify-center items-center gap-2 font-bold text-sm transition-colors mt-4 sm:mt-0"
+                className="px-4 py-2 bg-[hsl(var(--color-brand-teal))] min-w-[130px] text-[hsl(var(--primary-foreground))] rounded hover:bg-[hsl(var(--color-brand-teal-dark))] flex justify-center items-center gap-2 font-bold text-sm transition-colors mt-4 sm:mt-0"
               >
                 + Add Patient
               </button>
@@ -51,12 +50,12 @@ export default function ReceptionistPatientsPage() {
 
             {/* Summary Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
-              {/* Total Patients */}
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-md">
+              {/* ----- TOTAL PATIENTS ----- */}
+              <div className="bg-[hsl(var(--card))] p-6 rounded-xl border border-[hsl(var(--border))] shadow-md">
                 <div className="flex items-center">
-                  <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-full mr-4">
+                  <div className="p-3 bg-[hsl(var(--color-chart-blue)/0.1)] rounded-full mr-4">
                     <svg
-                      className="w-7 h-7 text-blue-600 dark:text-blue-400"
+                      className="w-7 h-7 text-[hsl(var(--color-chart-blue))]"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -70,22 +69,22 @@ export default function ReceptionistPatientsPage() {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="text-sm text-[hsl(var(--muted-foreground))]">
                       Total Patients
                     </p>
-                    <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                    <p className="text-3xl font-bold text-[hsl(var(--color-chart-blue))]">
                       {patientsData.length}
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Active Patients */}
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-md">
+              {/* ----- ACTIVE PATIENTS ----- */}
+              <div className="bg-[hsl(var(--card))] p-6 rounded-xl border border-[hsl(var(--border))] shadow-md">
                 <div className="flex items-center">
-                  <div className="p-3 bg-green-100 dark:bg-green-900 rounded-full mr-4">
+                  <div className="p-3 bg-[hsl(var(--color-status-success)/0.1)] rounded-full mr-4">
                     <svg
-                      className="w-7 h-7 text-green-600 dark:text-green-400"
+                      className="w-7 h-7 text-[hsl(var(--color-status-success))]"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -99,22 +98,22 @@ export default function ReceptionistPatientsPage() {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="text-sm text-[hsl(var(--muted-foreground))]">
                       Active Patients
                     </p>
-                    <p className="text-3xl font-bold text-green-600 dark:text-green-400">
+                    <p className="text-3xl font-bold text-[hsl(var(--color-status-success))]">
                       {patientsData.filter((p) => p.status === "active").length}
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Inactive Patients */}
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-md">
+              {/* ----- IN-ACTIVE PATIENTS ----- */}
+              <div className="bg-[hsl(var(--card))] p-6 rounded-xl border border-[hsl(var(--border))] shadow-md">
                 <div className="flex items-center">
-                  <div className="p-3 bg-orange-100 dark:bg-orange-900 rounded-full mr-4">
+                  <div className="p-3 bg-[hsl(var(--color-chart-orange)/0.1)] rounded-full mr-4">
                     <svg
-                      className="w-7 h-7 text-orange-600 dark:text-orange-400"
+                      className="w-7 h-7 text-[hsl(var(--color-chart-orange))]"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -128,10 +127,10 @@ export default function ReceptionistPatientsPage() {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="text-sm text-[hsl(var(--muted-foreground))]">
                       In-Active Patients
                     </p>
-                    <p className="text-3xl font-bold text-orange-600 dark:text-orange-400">
+                    <p className="text-3xl font-bold text-[hsl(var(--color-chart-orange))]">
                       {
                         patientsData.filter((p) => p.status === "inactive")
                           .length
@@ -144,15 +143,17 @@ export default function ReceptionistPatientsPage() {
           </div>
 
           {error && patientsData.length === 0 && (
-            <div className="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-full text-sm">
+            <div className="mb-4 bg-[hsl(var(--color-status-error-light))] border border-[hsl(var(--color-status-error))] text-[hsl(var(--color-status-error))] px-4 py-3 rounded-lg text-sm">
               {error}
             </div>
           )}
 
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-              <span className="ml-2 text-gray-600">Loading patients...</span>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[hsl(var(--color-brand-teal))]"></div>
+              <span className="ml-2 text-[hsl(var(--muted-foreground))]">
+                Loading patients...
+              </span>
             </div>
           ) : (
             <PatientTable patients={patientsData} />

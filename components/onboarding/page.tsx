@@ -208,22 +208,22 @@ export default function Onboarding() {
   return (
     <ProtectedRoute allowedRoles={['receptionist', 'clinic']}>
       <AuthContext.Provider value={{ user }}>   {/* expose user to hook */}
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="min-h-screen bg-[hsl(var(--background))]">
           {/* Header */}
-          <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
+          <div className="bg-[hsl(var(--card))] border-b border-[hsl(var(--border))] sticky top-0 z-10">
             <div className="max-w-7xl mx-auto px-6 py-4">
               <div className="flex items-center justify-between">
-                <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
+                <h1 className="text-xl font-semibold text-[hsl(var(--card-foreground))]">
                   Patient Onboarding
                 </h1>
-                <div className="text-sm text-gray-600 dark:text-gray-300">
+                <div className="text-sm text-[hsl(var(--muted-foreground))]">
                   {getProgressPercentage()}% Complete
                 </div>
               </div>
               <div className="mt-4">
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div className="w-full bg-[hsl(var(--muted))] rounded-full h-2">
                   <div
-                    className="bg-teal-600 dark:bg-teal-500 h-2 rounded-full transition-all"
+                    className="bg-[hsl(var(--color-brand-teal))] h-2 rounded-full transition-all"
                     style={{ width: `${getProgressPercentage()}%` }}
                   />
                 </div>
@@ -233,26 +233,26 @@ export default function Onboarding() {
 
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row">
             {/* Sidebar */}
-            <aside className="w-full md:w-80 bg-white dark:bg-gray-800 border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700 p-6">
+            <aside className="w-full md:w-80 bg-[hsl(var(--card))] border-b md:border-b-0 md:border-r border-[hsl(var(--border))] p-6">
               <nav className="space-y-1 sticky top-6">
                 {steps.map((step) => (
                   <div
                     key={step.id}
                     className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
                       step.id === currentStep
-                        ? 'bg-teal-600 text-white'
+                        ? 'bg-[hsl(var(--color-brand-teal))] text-[hsl(var(--primary-foreground))]'
                         : completedSteps.includes(step.id)
-                        ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400'
-                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                        ? 'bg-[hsl(var(--color-status-success)/0.1)] text-[hsl(var(--color-status-success))]'
+                        : 'text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--accent))]'
                     }`}
                   >
                     <div
                       className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-medium ${
                         step.id === currentStep
-                          ? 'bg-white text-teal-600'
+                          ? 'bg-[hsl(var(--primary-foreground))] text-[hsl(var(--color-brand-teal))]'
                           : completedSteps.includes(step.id)
-                          ? 'bg-green-500 text-white'
-                          : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
+                          ? 'bg-[hsl(var(--color-status-success))] text-[hsl(var(--primary-foreground))]'
+                          : 'bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]'
                       }`}
                     >
                       {completedSteps.includes(step.id) ? '✓' : step.id}
@@ -264,9 +264,9 @@ export default function Onboarding() {
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 bg-white dark:bg-gray-800">
+            <main className="flex-1 bg-[hsl(var(--background))]">
               <div className="p-6 md:p-8">
-                <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-4">
+                <div className="flex items-center gap-2 text-sm text-[hsl(var(--muted-foreground))] mb-4">
                   <span>Step {currentStep} of {steps.length}</span>
                   <ChevronRight className="h-4 w-4" />
                   <span>{steps[currentStep - 1].name}</span>
@@ -276,7 +276,7 @@ export default function Onboarding() {
                 <div className="space-y-8">{stepComponents[currentStep]}</div>
 
                 {/* NAV BUTTONS */}
-                <div className="flex justify-end pt-8 mt-8 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex justify-end pt-8 mt-8 border-t border-[hsl(var(--border))]">
                   <div className="flex gap-3">
                     <Button
                       variant="outline"
@@ -288,7 +288,7 @@ export default function Onboarding() {
                     </Button>
                     <Button
                       onClick={currentStep === steps.length ? handleComplete : nextStep}
-                      className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white"
+                      className="flex items-center gap-2 bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-[hsl(var(--primary-foreground))]"
                     >
                       {currentStep === steps.length ? 'Submit' : 'Next'}
                       <ArrowLeft className="h-4 w-4 rotate-180" />

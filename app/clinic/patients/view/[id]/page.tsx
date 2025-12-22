@@ -50,12 +50,12 @@ export default function ViewPatientPage() {
   if (loading) {
     return (
       <ProtectedRoute allowedRoles={["clinic"]}>
-        <div className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
+        <div className="flex-1 overflow-y-auto p-6 bg-[hsl(var(--color-gray-50))] dark:bg-[hsl(var(--background))]">
           <div className="max-w-7xl mx-auto">
             <div className="flex items-center justify-center h-64">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1DA68F] mx-auto mb-4"></div>
-                <p className="text-gray-600 dark:text-gray-400">Loading patient details...</p>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[hsl(var(--color-brand-teal))] mx-auto mb-4"></div>
+                <p className="text-[hsl(var(--muted-foreground))]">Loading patient details...</p>
               </div>
             </div>
           </div>
@@ -67,12 +67,12 @@ export default function ViewPatientPage() {
   if (!patient) {
     return (
       <ProtectedRoute allowedRoles={["clinic"]}>
-        <div className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
+        <div className="flex-1 overflow-y-auto p-6 bg-[hsl(var(--color-gray-50))] dark:bg-[hsl(var(--background))]">
           <div className="max-w-7xl mx-auto">
             <div className="flex items-center justify-center h-64">
               <div className="text-center">
-                <XCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-                <p className="text-gray-600 dark:text-gray-400">Patient not found</p>
+                <XCircle className="h-12 w-12 text-[hsl(var(--color-status-error))] mx-auto mb-4" />
+                <p className="text-[hsl(var(--muted-foreground))]">Patient not found</p>
                 <Button
                   onClick={() => router.push("/clinic/patients")}
                   className="mt-4"
@@ -131,8 +131,8 @@ export default function ViewPatientPage() {
       <div className="flex items-center gap-3">
         {icon}
         <div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{label}</p>
-          <p className="font-medium text-gray-900 dark:text-gray-100">
+          <p className="text-sm text-[hsl(var(--muted-foreground))]">{label}</p>
+          <p className="font-medium text-[hsl(var(--foreground))]">
             {formatTextField(value, fallback)}
           </p>
         </div>
@@ -179,23 +179,23 @@ export default function ViewPatientPage() {
 console.log(doctorName, "doctorName")
   return (
     <ProtectedRoute allowedRoles={["clinic"]}>
-      <div className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
+      <div className="flex-1 overflow-y-auto p-6 bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))]">
         <div className="max-w-7xl mx-auto">
           {/* Header Section */}
           <div className="flex items-center gap-4 mb-6">
             <Button
               variant="ghost"
               onClick={() => router.push("/clinic/patients")}
-              className="p-2 text-[#1DA68F] hover:bg-gray-100 dark:hover:bg-gray-800 bg-[#1DA68F]/10"
+              className="p-2 text-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-light))] dark:hover:bg-[hsl(var(--color-brand-teal-light))]/20 bg-[hsl(var(--color-brand-teal-light))] dark:bg-[hsl(var(--color-brand-teal-light))]/10"
             >
               <ArrowLeft className="h-5 w-5" />
               <span className="ml-2 text-sm font-medium">Back to Patients</span>
             </Button>
             <div className="flex-1">
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              <h1 className="text-2xl font-bold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
                 Patient Details
               </h1>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">
                 View and manage patient information
               </p>
             </div>
@@ -203,7 +203,7 @@ console.log(doctorName, "doctorName")
               <Button
                 variant="outline"
                 onClick={() => router.push(`/clinic/patients/edit/${patientId}`)}
-                className="text-[#1DA68F] border-[#1DA68F] hover:bg-[#1DA68F] hover:text-white dark:border-[#1DA68F] dark:text-[#1DA68F] dark:hover:bg-[#1DA68F] dark:hover:text-white"
+                className="text-[hsl(var(--color-brand-teal))] border-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal))] hover:text-white dark:border-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--color-brand-teal))] dark:hover:bg-[hsl(var(--color-brand-teal))] dark:hover:text-white"
               >
                 <Edit className="h-4 w-4 mr-2" />
                 Edit Patient
@@ -212,23 +212,23 @@ console.log(doctorName, "doctorName")
           </div>
 
           {/* Patient Profile Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
+          <div className="bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))] rounded-lg shadow-sm border border-[hsl(var(--border))] p-6 mb-6">
             <div className="flex items-center gap-6">
               <Avatar className="h-24 w-24">
                 <AvatarImage src={patient.profilePicture || "/placeholder.svg?height=80&width=80"} alt={patient.fullName || "Patient"} />
-                <AvatarFallback className="text-2xl bg-[#1DA68F] text-white">
+                <AvatarFallback className="text-2xl bg-[hsl(var(--color-brand-teal))] text-white">
                   {patient.fullName ? patient.fullName.charAt(0).toUpperCase() : "P"}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                <h2 className="text-2xl font-bold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] mb-2">
                   {patient.fullName || "Unknown Patient"}
                 </h2>
-                <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                <div className="flex items-center gap-4 text-sm text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">
                   <span>Patient ID: {patient.id || (patient as any)._id || "N/A"}</span>
                   <Badge 
                     variant={patient.status === "active" ? "default" : "secondary"}
-                    className={patient.status === "active" ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" : ""}
+                    className={patient.status === "active" ? "bg-[hsl(var(--color-status-success-light))] text-[hsl(var(--color-status-success))] dark:bg-[hsl(var(--color-status-success))/0.2] dark:text-[hsl(var(--color-status-success))]" : ""}
                   >
                     {patient.status || "Unknown"}
                   </Badge>
@@ -238,59 +238,59 @@ console.log(doctorName, "doctorName")
           </div>
 
           {/* Patient Information Section */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+          <div className="bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))] rounded-lg shadow-sm border border-[hsl(var(--border))] p-6 mb-6">
+            <h3 className="text-lg font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] mb-4">
               Patient Information
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {renderField(
-                <Mail className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
+                <Mail className="h-5 w-5 text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]" />,
                 "Email",
                 patient.email
               )}
               {renderField(
-                <Phone className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
+                <Phone className="h-5 w-5 text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]" />,
                 "Phone",
                 patient.phone
               )}
               {renderField(
-                <Phone className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
+                <Phone className="h-5 w-5 text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]" />,
                 "Alternative Phone",
                 patient.phoneNumber
               )}
               {renderField(
-                <MapPin className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
+                <MapPin className="h-5 w-5 text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]" />,
                 "Address",
                 patient.address,
                 "Address not specified"
               )}
               {renderField(
-                <Calendar className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
+                <Calendar className="h-5 w-5 text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]" />,
                 "Date of Birth",
                 patient.dateOfBirth
               )}
               {renderField(
-                <Calendar className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
+                <Calendar className="h-5 w-5 text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]" />,
                 "Age",
                 patient.age
               )}
               {renderField(
-                <User className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
+                <User className="h-5 w-5 text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]" />,
                 "Gender",
                 patient.gender
               )}
               {renderField(
-                <Heart className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
+                <Heart className="h-5 w-5 text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]" />,
                 "Blood Type",
                 patient.bloodType || patient.BloodType
               )}
               {renderField(
-                <User className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
+                <User className="h-5 w-5 text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]" />,
                 "Primary Doctor",
                 doctorName || "No doctor assigned"
               )}
               {renderField(
-                <Shield className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
+                <Shield className="h-5 w-5 text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]" />,
                 "Insurance Provider",
                 patient.insuranceProvide || patient.InsuranceProvide || patient.insuranceInfo
               )}
@@ -303,23 +303,23 @@ console.log(doctorName, "doctorName")
             hasData(patient.eRelationship) || hasData(patient.ERelationship) ||
             hasData(patient.emergencyContactName) || hasData(patient.emergencyContactPhone) ||
             hasData(patient.emergencyContactRelationship)) && (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+            <div className="bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))] rounded-lg shadow-sm border border-[hsl(var(--border))] p-6 mb-6">
+              <h3 className="text-lg font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] mb-4">
                 Emergency Contact
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {renderField(
-                  <User className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
+                  <User className="h-5 w-5 text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]" />,
                   "Name",
                   patient.eContactName || patient.EContactName || patient.emergencyContactName
                 )}
                 {renderField(
-                  <Phone className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
+                  <Phone className="h-5 w-5 text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]" />,
                   "Phone",
                   patient.ePhoneNumber || patient.EPhoneNumber || patient.emergencyContactPhone
                 )}
                 {renderField(
-                  <User className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
+                  <User className="h-5 w-5 text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]" />,
                   "Relationship",
                   patient.eRelationship || patient.ERelationship || patient.emergencyContactRelationship
                 )}
@@ -329,15 +329,15 @@ console.log(doctorName, "doctorName")
 
           {/* Tabs Section - Only show if there's data for any tab */}
           {(hasOverviewData() || hasAppointmentsData()) && (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-              <div className="border-b border-gray-200 dark:border-gray-700">
+            <div className="bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))] rounded-lg shadow-sm border border-[hsl(var(--border))]">
+              <div className="border-b border-[hsl(var(--border))]">
                 <nav className="flex space-x-8 px-6">
                   {hasOverviewData() && (
                     <button
                       className={`py-4 px-1 border-b-2 ${
                         activeTab === "overview"
-                          ? "border-[#1DA68F] text-[#1DA68F]"
-                          : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                          ? "border-[hsl(var(--color-brand-teal))] text-[hsl(var(--color-brand-teal))]"
+                          : "border-transparent text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] dark:text-[hsl(var(--muted-foreground))] dark:hover:text-[hsl(var(--foreground))]"
                       } font-medium text-sm`}
                       onClick={() => setActiveTab("overview")}
                     >
@@ -348,8 +348,8 @@ console.log(doctorName, "doctorName")
                     <button
                       className={`py-4 px-1 border-b-2 ${
                         activeTab === "appointments"
-                          ? "border-[#1DA68F] text-[#1DA68F]"
-                          : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                          ? "border-[hsl(var(--color-brand-teal))] text-[hsl(var(--color-brand-teal))]"
+                          : "border-transparent text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] dark:text-[hsl(var(--muted-foreground))] dark:hover:text-[hsl(var(--foreground))]"
                       } font-medium text-sm`}
                       onClick={() => setActiveTab("appointments")}
                     >
@@ -363,45 +363,45 @@ console.log(doctorName, "doctorName")
                 <div className="p-6">
                   {/* Key Patient Metrics */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                    <div className="bg-[hsl(var(--muted))]/30 dark:bg-[hsl(var(--muted))]/20 rounded-lg p-4">
                       <div className="flex items-center gap-3">
-                        <User className="h-8 w-8 text-[#1DA68F]" />
+                        <User className="h-8 w-8 text-[hsl(var(--color-brand-teal))]" />
                         <div>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">Age</p>
-                          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                          <p className="text-sm text-[hsl(var(--muted-foreground))]">Age</p>
+                          <p className="text-lg font-semibold text-[hsl(var(--foreground))]">
                             {patient.age || "N/A"} Years old
                           </p>
                         </div>
                       </div>
                     </div>
-                    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                    <div className="bg-[hsl(var(--muted))]/30 dark:bg-[hsl(var(--muted))]/20 rounded-lg p-4">
                       <div className="flex items-center gap-3">
-                        <Heart className="h-8 w-8 text-[#1DA68F]" />
+                        <Heart className="h-8 w-8 text-[hsl(var(--color-brand-teal))]" />
                         <div>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">Blood Type</p>
-                          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                          <p className="text-sm text-[hsl(var(--muted-foreground))]">Blood Type</p>
+                          <p className="text-lg font-semibold text-[hsl(var(--foreground))]">
                             {patient.bloodType || patient.BloodType || "Unknown"}
                           </p>
                         </div>
                       </div>
                     </div>
-                    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                    <div className="bg-[hsl(var(--muted))]/30 dark:bg-[hsl(var(--muted))]/20 rounded-lg p-4">
                       <div className="flex items-center gap-3">
-                        <Calendar className="h-8 w-8 text-[#1DA68F]" />
+                        <Calendar className="h-8 w-8 text-[hsl(var(--color-brand-teal))]" />
                         <div>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">Last Visit</p>
-                          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                          <p className="text-sm text-[hsl(var(--muted-foreground))]">Last Visit</p>
+                          <p className="text-lg font-semibold text-[hsl(var(--foreground))]">
                             {patient.lastVisit || "N/A"}
                           </p>
                         </div>
                       </div>
                     </div>
-                    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                    <div className="bg-[hsl(var(--muted))]/30 dark:bg-[hsl(var(--muted))]/20 rounded-lg p-4">
                       <div className="flex items-center gap-3">
-                        <Shield className="h-8 w-8 text-[#1DA68F]" />
+                        <Shield className="h-8 w-8 text-[hsl(var(--color-brand-teal))]" />
                         <div>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">Insurance</p>
-                          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                          <p className="text-sm text-[hsl(var(--muted-foreground))]">Insurance</p>
+                          <p className="text-lg font-semibold text-[hsl(var(--foreground))]">
                             {patient.insuranceProvide || patient.InsuranceProvide || "N/A"}
                           </p>
                         </div>
@@ -413,10 +413,10 @@ console.log(doctorName, "doctorName")
                   {hasOverviewData() && (
                     <div className="space-y-6">
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                        <h3 className="text-lg font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] mb-1">
                           Medical History
                         </h3>
-                        <p className="text-gray-600 dark:text-gray-400 text-sm">
+                        <p className="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] text-sm">
                           Comprehensive medical background and conditions
                         </p>
                       </div>
@@ -424,37 +424,37 @@ console.log(doctorName, "doctorName")
                       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* Critical Allergies - Only show if there are allergies */}
                         {(hasData(patient.allergies) || hasData(patient.Allergies) || hasData(patient.allergiesArray)) && (
-                          <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg p-4">
-                            <h4 className="font-semibold text-red-800 dark:text-red-200 mb-3 uppercase text-sm tracking-wide">
+                          <div className="bg-[hsl(var(--color-status-error-light))] dark:bg-[hsl(var(--color-status-error))/0.1] border border-[hsl(var(--color-status-error))] dark:border-[hsl(var(--color-status-error))] rounded-lg p-4">
+                            <h4 className="font-semibold text-[hsl(var(--color-status-error))] dark:text-[hsl(var(--color-status-error))] mb-3 uppercase text-sm tracking-wide">
                               Critical Allergies
                             </h4>
                             <div className="space-y-2">
                               {patient.allergies && (
-                                <div className="flex items-center justify-between rounded-md bg-white dark:bg-red-900/40 px-3 py-2">
-                                  <span className="text-red-800 dark:text-red-200 text-sm">
+                                <div className="flex items-center justify-between rounded-md bg-[hsl(var(--card))] dark:bg-[hsl(var(--color-status-error))/0.2] px-3 py-2">
+                                  <span className="text-[hsl(var(--color-status-error))] dark:text-[hsl(var(--color-status-error))] text-sm">
                                     {patient.allergies}
                                   </span>
-                                  <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 text-xs">
+                                  <Badge className="bg-[hsl(var(--color-status-error-light))] text-[hsl(var(--color-status-error))] dark:bg-[hsl(var(--color-status-error))/0.2] dark:text-[hsl(var(--color-status-error))] text-xs">
                                     Critical
                                   </Badge>
                                 </div>
                               )}
                               {patient.Allergies && (
-                                <div className="flex items-center justify-between rounded-md bg-white dark:bg-red-900/40 px-3 py-2">
-                                  <span className="text-red-800 dark:text-red-200 text-sm">
+                                <div className="flex items-center justify-between rounded-md bg-[hsl(var(--card))] dark:bg-[hsl(var(--color-status-error))/0.2] px-3 py-2">
+                                  <span className="text-[hsl(var(--color-status-error))] dark:text-[hsl(var(--color-status-error))] text-sm">
                                     {patient.Allergies}
                                   </span>
-                                  <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 text-xs">
+                                  <Badge className="bg-[hsl(var(--color-status-error-light))] text-[hsl(var(--color-status-error))] dark:bg-[hsl(var(--color-status-error))/0.2] dark:text-[hsl(var(--color-status-error))] text-xs">
                                     Critical
                                   </Badge>
                                 </div>
                               )}
                               {patient.allergiesArray && patient.allergiesArray.map((allergy, index) => (
-                                <div key={index} className="flex items-center justify-between rounded-md bg-white dark:bg-red-900/40 px-3 py-2">
-                                  <span className="text-red-800 dark:text-red-200 text-sm">
+                                <div key={index} className="flex items-center justify-between rounded-md bg-[hsl(var(--card))] dark:bg-[hsl(var(--color-status-error))/0.2] px-3 py-2">
+                                  <span className="text-[hsl(var(--color-status-error))] dark:text-[hsl(var(--color-status-error))] text-sm">
                                     {allergy}
                                   </span>
-                                  <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 text-xs">
+                                  <Badge className="bg-[hsl(var(--color-status-error-light))] text-[hsl(var(--color-status-error))] dark:bg-[hsl(var(--color-status-error))/0.2] dark:text-[hsl(var(--color-status-error))] text-xs">
                                     Critical
                                   </Badge>
                                 </div>
@@ -465,21 +465,21 @@ console.log(doctorName, "doctorName")
 
                         {/* Medical Conditions - Only show if there's medical history */}
                         {(hasData(patient.medicalHistory) || hasData(patient.MedicalHistory)) && (
-                          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                          <div className="bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-lg p-4">
                             <div className="flex items-center gap-2 mb-3">
-                              <Heart className="h-5 w-5 text-[#1DA68F]" />
-                              <h4 className="font-semibold text-gray-900 dark:text-gray-100">
+                              <Heart className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
+                              <h4 className="font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
                                 Medical Conditions
                               </h4>
                             </div>
                             <div className="space-y-2">
                               {patient.medicalHistory && (
-                                <div className="text-sm text-gray-700 dark:text-gray-300">
+                                <div className="text-sm text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
                                   {patient.medicalHistory}
                                 </div>
                               )}
                               {patient.MedicalHistory && (
-                                <div className="text-sm text-gray-700 dark:text-gray-300">
+                                <div className="text-sm text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
                                   {patient.MedicalHistory}
                                 </div>
                               )}
@@ -489,26 +489,26 @@ console.log(doctorName, "doctorName")
 
                         {/* Current Medications - Only show if there are medications */}
                         {(hasData(patient.currentMedication) || hasData(patient.CurrentMedication) || hasData(patient.medicationsArray)) && (
-                          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                          <div className="bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-lg p-4">
                             <div className="flex items-center gap-2 mb-3">
-                              <Paperclip className="h-5 w-5 text-[#1DA68F]" />
-                              <h4 className="font-semibold text-gray-900 dark:text-gray-100">
+                              <Paperclip className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
+                              <h4 className="font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
                                 Current Medications
                               </h4>
                             </div>
                             <div className="space-y-2">
                               {patient.currentMedication && (
-                                <div className="text-sm text-gray-700 dark:text-gray-300">
+                                <div className="text-sm text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
                                   {patient.currentMedication}
                                 </div>
                               )}
                               {patient.CurrentMedication && (
-                                <div className="text-sm text-gray-700 dark:text-gray-300">
+                                <div className="text-sm text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
                                   {patient.CurrentMedication}
                                 </div>
                               )}
                               {patient.medicationsArray && patient.medicationsArray.map((medication, index) => (
-                                <div key={index} className="text-sm text-gray-700 dark:text-gray-300">
+                                <div key={index} className="text-sm text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
                                   {medication}
                                 </div>
                               ))}
@@ -518,14 +518,14 @@ console.log(doctorName, "doctorName")
 
                         {/* Surgical History - Only show if there's surgical history */}
                         {hasData((patient as any).surgicalHistory) && (
-                          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                          <div className="bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-lg p-4">
                             <div className="flex items-center gap-2 mb-3">
-                              <Scissors className="h-5 w-5 text-[#1DA68F]" />
-                              <h4 className="font-semibold text-gray-900 dark:text-gray-100">
+                              <Scissors className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
+                              <h4 className="font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
                                 Surgical History
                               </h4>
                             </div>
-                            <div className="text-sm text-gray-700 dark:text-gray-300">
+                            <div className="text-sm text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
                               {(patient as any).surgicalHistory}
                             </div>
                           </div>
@@ -538,21 +538,21 @@ console.log(doctorName, "doctorName")
 
               {activeTab === "appointments" && (
                 <div className="p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                  <h3 className="text-lg font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] mb-4">
                     Appointment History
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                  <p className="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] text-sm mb-4">
                     Complete history of patient appointments
                   </p>
                   
                   {/* Appointment Tabs */}
-                  <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
+                  <div className="border-b border-[hsl(var(--border))] mb-6">
                     <nav className="flex space-x-8">
                       <button
                         className={`py-2 px-1 border-b-2 ${
                           activeAppointmentTab === "upcoming"
-                            ? "border-[#1DA68F] text-[#1DA68F]"
-                            : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                            ? "border-[hsl(var(--color-brand-teal))] text-[hsl(var(--color-brand-teal))]"
+                            : "border-transparent text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] dark:text-[hsl(var(--muted-foreground))] dark:hover:text-[hsl(var(--foreground))]"
                         } font-medium text-sm`}
                         onClick={() => setActiveAppointmentTab("upcoming")}
                       >
@@ -561,8 +561,8 @@ console.log(doctorName, "doctorName")
                       <button
                         className={`py-2 px-1 border-b-2 ${
                           activeAppointmentTab === "completed"
-                            ? "border-[#1DA68F] text-[#1DA68F]"
-                            : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                            ? "border-[hsl(var(--color-brand-teal))] text-[hsl(var(--color-brand-teal))]"
+                            : "border-transparent text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] dark:text-[hsl(var(--muted-foreground))] dark:hover:text-[hsl(var(--foreground))]"
                         } font-medium text-sm`}
                         onClick={() => setActiveAppointmentTab("completed")}
                       >
@@ -578,25 +578,25 @@ console.log(doctorName, "doctorName")
                       .map((appointment, index) => (
                         <div
                           key={index}
-                          className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600"
+                          className="bg-[hsl(var(--muted))]/30 dark:bg-[hsl(var(--muted))]/20 rounded-lg p-4 border border-[hsl(var(--border))]"
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4">
                               <div className="flex items-center gap-2">
-                                <Calendar className="h-5 w-5 text-[#1DA68F]" />
-                                <span className="font-medium text-gray-900 dark:text-gray-100">
+                                <Calendar className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
+                                <span className="font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
                                   {appointment.date}
                                 </span>
                               </div>
                               <div className="flex items-center gap-2">
-                                <Clock className="h-5 w-5 text-gray-400" />
-                                <span className="text-gray-600 dark:text-gray-400">
+                                <Clock className="h-5 w-5 text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]" />
+                                <span className="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">
                                   {appointment.time}
                                 </span>
                               </div>
                               <div className="flex items-center gap-2">
-                                <User className="h-5 w-5 text-gray-400" />
-                                <span className="text-gray-600 dark:text-gray-400">
+                                <User className="h-5 w-5 text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]" />
+                                <span className="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">
                                   {appointment.doctor}
                                 </span>
                               </div>
@@ -612,15 +612,15 @@ console.log(doctorName, "doctorName")
                                 }
                                 className={
                                   appointment.status === "completed"
-                                    ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                                    ? "bg-[hsl(var(--color-status-success-light))] text-[hsl(var(--color-status-success))] dark:bg-[hsl(var(--color-status-success))/0.2] dark:text-[hsl(var(--color-status-success))]"
                                     : appointment.status === "upcoming"
-                                    ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                                    ? "bg-[hsl(var(--color-chart-blue)/0.1)] text-[hsl(var(--color-chart-blue))] dark:bg-[hsl(var(--color-chart-blue))/0.2] dark:text-[hsl(var(--color-chart-blue))]"
                                     : ""
                                 }
                               >
                                 {appointment.status}
                               </Badge>
-                              <span className="text-sm text-gray-500 dark:text-gray-400">
+                              <span className="text-sm text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">
                                 {appointment.type}
                               </span>
                             </div>
@@ -631,7 +631,7 @@ console.log(doctorName, "doctorName")
 
                   {/* Pagination */}
                   <div className="flex items-center justify-between mt-6">
-                    <p className="text-sm text-gray-700 dark:text-gray-300">
+                    <p className="text-sm text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">
                       Showing 1-3 of 3 appointments
                     </p>
                     <div className="flex gap-2">

@@ -11,12 +11,12 @@ export default function SubstanceUse({
 }) {
   return (
     <div>
-      <h3 className="text-base font-medium text-gray-900 mb-4">
+      <h3 className="text-base font-medium text-[hsl(var(--foreground))] mb-4">
         Substance Use
       </h3>
       <div className="space-y-4">
         <div>
-          <Label className="text-sm font-medium text-gray-700 mb-3 block">
+          <Label className="text-sm font-medium text-[hsl(var(--muted-foreground))] mb-3 block">
             Tobacco Use:
           </Label>
           <RadioGroup
@@ -25,18 +25,18 @@ export default function SubstanceUse({
             className="flex space-x-4"
           >
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="yes" id="tobacco-yes" />
-              <Label htmlFor="tobacco-yes">Yes</Label>
+              <RadioGroupItem value="yes" id="tobacco-yes" className="border-[hsl(var(--border))] data-[state=checked]:bg-[hsl(var(--color-brand-teal))] data-[state=checked]:border-[hsl(var(--color-brand-teal))]" />
+              <Label htmlFor="tobacco-yes" className="text-[hsl(var(--foreground))]">Yes</Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="no" id="tobacco-no" />
-              <Label htmlFor="tobacco-no">No</Label>
+              <RadioGroupItem value="no" id="tobacco-no" className="border-[hsl(var(--border))] data-[state=checked]:bg-[hsl(var(--color-brand-teal))] data-[state=checked]:border-[hsl(var(--color-brand-teal))]" />
+              <Label htmlFor="tobacco-no" className="text-[hsl(var(--foreground))]">No</Label>
             </div>
           </RadioGroup>
         </div>
 
         <div>
-          <Label className="text-sm font-medium text-gray-700 mb-3 block">
+          <Label className="text-sm font-medium text-[hsl(var(--muted-foreground))] mb-3 block">
             Alcohol Use:
           </Label>
           <RadioGroup
@@ -45,18 +45,18 @@ export default function SubstanceUse({
             className="flex space-x-4"
           >
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="yes" id="alcohol-yes" />
-              <Label htmlFor="alcohol-yes">Yes</Label>
+              <RadioGroupItem value="yes" id="alcohol-yes" className="border-[hsl(var(--border))] data-[state=checked]:bg-[hsl(var(--color-brand-teal))] data-[state=checked]:border-[hsl(var(--color-brand-teal))]" />
+              <Label htmlFor="alcohol-yes" className="text-[hsl(var(--foreground))]">Yes</Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="no" id="alcohol-no" />
-              <Label htmlFor="alcohol-no">No</Label>
+              <RadioGroupItem value="no" id="alcohol-no" className="border-[hsl(var(--border))] data-[state=checked]:bg-[hsl(var(--color-brand-teal))] data-[state=checked]:border-[hsl(var(--color-brand-teal))]" />
+              <Label htmlFor="alcohol-no" className="text-[hsl(var(--foreground))]">No</Label>
             </div>
           </RadioGroup>
         </div>
 
         <div>
-          <Label className="text-sm font-medium text-gray-700 mb-3 block">
+          <Label className="text-sm font-medium text-[hsl(var(--muted-foreground))] mb-3 block">
             Recreational Drug Use:
           </Label>
           <RadioGroup
@@ -65,12 +65,12 @@ export default function SubstanceUse({
             className="flex space-x-4"
           >
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="yes" id="drugs-yes" />
-              <Label htmlFor="drugs-yes">Yes</Label>
+              <RadioGroupItem value="yes" id="drugs-yes" className="border-[hsl(var(--border))] data-[state=checked]:bg-[hsl(var(--color-brand-teal))] data-[state=checked]:border-[hsl(var(--color-brand-teal))]" />
+              <Label htmlFor="drugs-yes" className="text-[hsl(var(--foreground))]">Yes</Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="no" id="drugs-no" />
-              <Label htmlFor="drugs-no">No</Label>
+              <RadioGroupItem value="no" id="drugs-no" className="border-[hsl(var(--border))] data-[state=checked]:bg-[hsl(var(--color-brand-teal))] data-[state=checked]:border-[hsl(var(--color-brand-teal))]" />
+              <Label htmlFor="drugs-no" className="text-[hsl(var(--foreground))]">No</Label>
             </div>
           </RadioGroup>
         </div>

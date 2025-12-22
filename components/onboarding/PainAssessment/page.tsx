@@ -11,12 +11,12 @@ export default function PainAssessment({
 }) {
   return (
     <div>
-      <h3 className="text-base font-medium text-gray-900 dark:text-white mb-4">
+      <h3 className="text-base font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] mb-4">
         Pain Assessment
       </h3>
       <div className="space-y-4">
         <div>
-          <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+          <Label className="text-sm font-medium text-[hsl(var(--foreground))] mb-2 block">
             Pain Level (0 = No Pain, 10 = Worst Pain)
           </Label>
           <div className="space-y-2">
@@ -27,7 +27,7 @@ export default function PainAssessment({
               step={1}
               className="w-full"
             />
-            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+            <div className="flex justify-between text-xs text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">
               <span>0</span>
               <span className="font-medium">Current: {formData.painLevel || 0}</span>
               <span>10</span>
@@ -36,7 +36,7 @@ export default function PainAssessment({
         </div>
 
         <div>
-          <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+          <Label className="text-sm font-medium text-[hsl(var(--foreground))] mb-2 block">
             Pain characteristics (check all that apply):
           </Label>
           <div className="grid grid-cols-2 gap-3">
@@ -62,9 +62,9 @@ export default function PainAssessment({
                       e.target.checked ? [...arr, c] : arr.filter((x: string) => x !== c)
                     );
                   }}
-                  className="text-teal-600"
+                  className="text-[hsl(var(--color-brand-teal))]"
                 />
-                <span className="text-sm text-gray-700 dark:text-gray-300">{c}</span>
+                <span className="text-sm text-[hsl(var(--foreground))]">{c}</span>
               </label>
             ))}
           </div>

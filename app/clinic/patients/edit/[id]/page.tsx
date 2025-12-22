@@ -294,12 +294,12 @@ export default function EditPatientPage() {
   if (loading) {
     return (
       <ProtectedRoute allowedRoles={["clinic"]}>
-        <div className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
+        <div className="flex-1 overflow-y-auto p-6 bg-[hsl(var(--color-gray-50))] dark:bg-[hsl(var(--background))]">
           <div className="max-w-4xl mx-auto">
             <div className="flex items-center justify-center h-64">
               <div className="text-center">
-                <Loader2 className="h-8 w-8 animate-spin text-[#1DA68F] mx-auto mb-4" />
-                <p className="text-gray-600 dark:text-gray-400">Loading patient data...</p>
+                <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--color-brand-teal))] mx-auto mb-4" />
+                <p className="text-[hsl(var(--muted-foreground))]">Loading patient data...</p>
               </div>
             </div>
           </div>
@@ -311,11 +311,11 @@ export default function EditPatientPage() {
   if (!patient) {
     return (
       <ProtectedRoute allowedRoles={["clinic"]}>
-        <div className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
+        <div className="flex-1 overflow-y-auto p-6 bg-[hsl(var(--color-gray-50))] dark:bg-[hsl(var(--background))]">
           <div className="max-w-4xl mx-auto">
             <div className="flex items-center justify-center h-64">
               <div className="text-center">
-                <p className="text-gray-600 dark:text-gray-400 mb-4">Patient not found</p>
+                <p className="text-[hsl(var(--muted-foreground))] mb-4">Patient not found</p>
                 <Button onClick={() => router.push("/clinic/patients")}>
                   Back to Patients
                 </Button>
@@ -329,7 +329,7 @@ export default function EditPatientPage() {
 
   return (
     <ProtectedRoute allowedRoles={["clinic"]}>
-      <div className="min-h-screen bg-gradient-to-br from-background via-secondary/20 to-primary/5 dark:from-background dark:via-card/20 dark:to-primary/10">
+      <div className="min-h-screen bg-gradient-to-br from-[hsl(var(--background))] via-[hsl(var(--secondary))]/20 to-[hsl(var(--primary))]/5 dark:from-[hsl(var(--background))] dark:via-[hsl(var(--card))]/20 dark:to-[hsl(var(--primary))]/10">
         <ToastContainer />
         <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           <div className="max-w-7xl mx-auto space-y-8">
@@ -339,7 +339,7 @@ export default function EditPatientPage() {
                 <Button
                   variant="ghost"
                   onClick={() => router.back()}
-                  className="flex items-center gap-2 rounded-md bg-teal-50 text-teal-600 px-3 py-2 hover:bg-teal-100 transition-colors"
+                  className="flex items-center gap-2 rounded-md bg-[hsl(var(--color-brand-teal-light))] text-[hsl(var(--color-brand-teal))] px-3 py-2 hover:bg-[hsl(var(--color-brand-teal-light))]/80 transition-colors"
                 >
                   <ArrowLeft className="h-4 w-4" />
                   <span className="text-sm font-medium">Back to Patients</span>
@@ -349,18 +349,18 @@ export default function EditPatientPage() {
               {/* Title */}
               <div className="flex items-center justify-between">
                 <div>
-                  <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Edit Patient</h1>
-                  <p className="text-gray-500 mt-1">Update patient information and medical details</p>
+                  <h1 className="text-2xl sm:text-3xl font-bold text-[hsl(var(--foreground))]">Edit Patient</h1>
+                  <p className="text-[hsl(var(--muted-foreground))] mt-1">Update patient information and medical details</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+            <div className="bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))] rounded-lg shadow-sm border border-[hsl(var(--border))]">
+              <div className="px-6 py-4 border-b border-[hsl(var(--border))]">
+                <h2 className="text-xl font-semibold text-[hsl(var(--foreground))]">
                   Edit Patient Information
                 </h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">
                   Update the patient's personal and medical information
                 </p>
               </div>
@@ -368,7 +368,7 @@ export default function EditPatientPage() {
             <form onSubmit={handleSubmit} className="p-6 space-y-8">
               {/* Profile Picture Section */}
               <div>
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                <h3 className="text-lg font-medium text-[hsl(var(--foreground))] mb-4">
                   Profile Picture
                 </h3>
                 <div className="flex items-center space-x-4">
@@ -382,7 +382,7 @@ export default function EditPatientPage() {
                           profileImage || formData.profilePicture || "/placeholder.svg?height=80&width=80"
                         }
                       />
-                      <AvatarFallback className="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-lg">
+                      <AvatarFallback className="bg-[hsl(var(--muted))] dark:bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] text-lg">
                         {formData.fullName
                           ? formData.fullName
                             .split(" ")
@@ -391,7 +391,7 @@ export default function EditPatientPage() {
                           : "PT"}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-teal-600 rounded-full flex items-center justify-center">
+                    <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-[hsl(var(--color-brand-teal))] rounded-full flex items-center justify-center">
                       {imageUploading ? (
                         <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
                       ) : (
@@ -408,10 +408,10 @@ export default function EditPatientPage() {
                     className="hidden"
                   />
                   <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                    <p className="text-sm font-medium text-[hsl(var(--foreground))]">
                       Profile Image
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                    <p className="text-xs text-[hsl(var(--muted-foreground))]">
                       The Proposed size is 512 x 512 px and no longer bigger
                       than 2.5 MBs
                     </p>
@@ -421,16 +421,16 @@ export default function EditPatientPage() {
 
               {/* Personal Information */}
               <div className="form-section">
-                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-border/50">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <User className="h-5 w-5 text-primary" />
+                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[hsl(var(--border))]/50">
+                  <div className="p-2 bg-[hsl(var(--primary))]/10 rounded-lg">
+                    <User className="h-5 w-5 text-[hsl(var(--primary))]" />
                   </div>
-                  <h3 className="text-xl font-semibold text-foreground">Basic Information</h3>
+                  <h3 className="text-xl font-semibold text-[hsl(var(--foreground))]">Basic Information</h3>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="firstName" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <Label htmlFor="firstName" className="text-sm font-medium text-[hsl(var(--foreground))]">
                       First Name *
                     </Label>
                     <Input
@@ -439,13 +439,13 @@ export default function EditPatientPage() {
                       value={formData.firstName}
                       onChange={handleChange}
                       placeholder="Enter first name"
-                      className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      className="bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
                       required
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="lastName" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <Label htmlFor="lastName" className="text-sm font-medium text-[hsl(var(--foreground))]">
                       Last Name *
                     </Label>
                     <Input
@@ -454,13 +454,13 @@ export default function EditPatientPage() {
                       value={formData.lastName}
                       onChange={handleChange}
                       placeholder="Enter last name"
-                      className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      className="bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
                       required
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <Label htmlFor="email" className="text-sm font-medium text-[hsl(var(--foreground))]">
                       Email Address *
                     </Label>
                     <Input
@@ -470,13 +470,13 @@ export default function EditPatientPage() {
                       value={formData.email}
                       onChange={handleChange}
                       placeholder="Enter email address"
-                      className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      className="bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
                       disabled={true}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <Label htmlFor="phone" className="text-sm font-medium text-[hsl(var(--foreground))]">
                       Phone Number *
                     </Label>
                     <Input
@@ -485,13 +485,13 @@ export default function EditPatientPage() {
                       value={formData.phone}
                       onChange={handleChange}
                       placeholder="Enter phone number"
-                      className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      className="bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
                       required
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="age" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <Label htmlFor="age" className="text-sm font-medium text-[hsl(var(--foreground))]">
                       Age
                     </Label>
                     <Input
@@ -501,31 +501,31 @@ export default function EditPatientPage() {
                       value={formData.age}
                       onChange={handleChange}
                       placeholder="Enter age"
-                      className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      className="bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="gender" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <Label htmlFor="gender" className="text-sm font-medium text-[hsl(var(--foreground))]">
                       Gender
                     </Label>
                     <Select
                       value={formData.gender}
                       onValueChange={(value) => setFormData({ ...formData, gender: value })}
                     >
-                      <SelectTrigger className="dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                      <SelectTrigger className="bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]">
                         <SelectValue placeholder="Select gender" />
                       </SelectTrigger>
-                      <SelectContent className="dark:bg-gray-700 dark:border-gray-600">
-                        <SelectItem value="male" className="dark:text-white dark:hover:bg-gray-600">Male</SelectItem>
-                        <SelectItem value="female" className="dark:text-white dark:hover:bg-gray-600">Female</SelectItem>
-                        <SelectItem value="other" className="dark:text-white dark:hover:bg-gray-600">Other</SelectItem>
+                      <SelectContent className="bg-[hsl(var(--card))] border-[hsl(var(--border))]">
+                        <SelectItem value="male" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50">Male</SelectItem>
+                        <SelectItem value="female" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50">Female</SelectItem>
+                        <SelectItem value="other" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50">Other</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="dateOfBirth" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <Label htmlFor="dateOfBirth" className="text-sm font-medium text-[hsl(var(--foreground))]">
                       Date of Birth
                     </Label>
                     <Input
@@ -534,12 +534,12 @@ export default function EditPatientPage() {
                       type="date"
                       value={formData.dateOfBirth ? moment(formData.dateOfBirth).format("YYYY-MM-DD") : ""}
                       onChange={(e) => setFormData({ ...formData, dateOfBirth: moment(e.target.value).format("YYYY-MM-DD") })}
-                      className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      className="bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="address" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <Label htmlFor="address" className="text-sm font-medium text-[hsl(var(--foreground))]">
                       Address
                     </Label>
                     <Textarea
@@ -548,26 +548,26 @@ export default function EditPatientPage() {
                       value={formData.address}
                       onChange={handleChange}
                       placeholder="Enter full address"
-                      className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      className="bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
                       rows={3}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="status" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <Label htmlFor="status" className="text-sm font-medium text-[hsl(var(--foreground))]">
                       Status
                     </Label>
                     <Select
                       value={formData.status}
                       onValueChange={(value) => setFormData({ ...formData, status: value })}
                     >
-                      <SelectTrigger className="dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                      <SelectTrigger className="bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]">
                         <SelectValue placeholder="Select status" />
                       </SelectTrigger>
-                      <SelectContent className="dark:bg-gray-700 dark:border-gray-600">
-                        <SelectItem value="active" className="dark:text-white dark:hover:bg-gray-600">Active</SelectItem>
-                        <SelectItem value="inactive" className="dark:text-white dark:hover:bg-gray-600">Inactive</SelectItem>
-                        <SelectItem value="pending" className="dark:text-white dark:hover:bg-gray-600">Pending</SelectItem>
+                      <SelectContent className="bg-[hsl(var(--card))] border-[hsl(var(--border))]">
+                        <SelectItem value="active" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50">Active</SelectItem>
+                        <SelectItem value="inactive" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50">Inactive</SelectItem>
+                        <SelectItem value="pending" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50">Pending</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -576,55 +576,55 @@ export default function EditPatientPage() {
 
               {/* Medical Information */}
               <div className="form-section">
-                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-border/50">
-                  <div className="p-2 bg-info/10 rounded-lg">
-                    <Heart className="h-5 w-5 text-info" />
+                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[hsl(var(--border))]/50">
+                  <div className="p-2 bg-[hsl(var(--color-chart-blue))]/10 rounded-lg">
+                    <Heart className="h-5 w-5 text-[hsl(var(--color-chart-blue))]" />
                   </div>
-                  <h3 className="text-xl font-semibold text-foreground">Medical Information</h3>
+                  <h3 className="text-xl font-semibold text-[hsl(var(--foreground))]">Medical Information</h3>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="bloodType" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <Label htmlFor="bloodType" className="text-sm font-medium text-[hsl(var(--foreground))]">
                       Blood Type
                     </Label>
                     <Select
                       value={formData.bloodType}
                       onValueChange={(value) => setFormData({ ...formData, bloodType: value })}
                     >
-                      <SelectTrigger className="dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                      <SelectTrigger className="bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]">
                         <SelectValue placeholder="Select blood type" />
                       </SelectTrigger>
-                      <SelectContent className="dark:bg-gray-700 dark:border-gray-600">
-                        <SelectItem value="A+" className="dark:text-white dark:hover:bg-gray-600">A+</SelectItem>
-                        <SelectItem value="A-" className="dark:text-white dark:hover:bg-gray-600">A-</SelectItem>
-                        <SelectItem value="B+" className="dark:text-white dark:hover:bg-gray-600">B+</SelectItem>
-                        <SelectItem value="B-" className="dark:text-white dark:hover:bg-gray-600">B-</SelectItem>
-                        <SelectItem value="AB+" className="dark:text-white dark:hover:bg-gray-600">AB+</SelectItem>
-                        <SelectItem value="AB-" className="dark:text-white dark:hover:bg-gray-600">AB-</SelectItem>
-                        <SelectItem value="O+" className="dark:text-white dark:hover:bg-gray-600">O+</SelectItem>
-                        <SelectItem value="O-" className="dark:text-white dark:hover:bg-gray-600">O-</SelectItem>
+                      <SelectContent className="bg-[hsl(var(--card))] border-[hsl(var(--border))]">
+                        <SelectItem value="A+" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50">A+</SelectItem>
+                        <SelectItem value="A-" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50">A-</SelectItem>
+                        <SelectItem value="B+" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50">B+</SelectItem>
+                        <SelectItem value="B-" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50">B-</SelectItem>
+                        <SelectItem value="AB+" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50">AB+</SelectItem>
+                        <SelectItem value="AB-" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50">AB-</SelectItem>
+                        <SelectItem value="O+" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50">O+</SelectItem>
+                        <SelectItem value="O-" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50">O-</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="primaryDoctor" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <Label htmlFor="primaryDoctor" className="text-sm font-medium text-[hsl(var(--foreground))]">
                       Primary Doctor
                     </Label>
                     <Select
                       value={formData.primaryDoctor}
                       onValueChange={(value) => setFormData({ ...formData, primaryDoctor: value })}
                     >
-                      <SelectTrigger className="dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                      <SelectTrigger className="bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]">
                         <SelectValue placeholder="Select primary doctor" />
                       </SelectTrigger>
-                      <SelectContent className="dark:bg-gray-700 dark:border-gray-600">
+                      <SelectContent className="bg-[hsl(var(--card))] border-[hsl(var(--border))]">
                           {doctors && doctors.map((doctor) => (
                             <SelectItem 
                               key={doctor.id} 
                               value={doctor.id || ""} 
-                              className="dark:text-white dark:hover:bg-gray-600"
+                              className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50"
                             >
                               Dr. {doctor.firstName} {doctor.lastName}
                             </SelectItem>
@@ -634,7 +634,7 @@ export default function EditPatientPage() {
                   </div>
 
                   <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="medicalHistory" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <Label htmlFor="medicalHistory" className="text-sm font-medium text-[hsl(var(--foreground))]">
                       Medical History
                     </Label>
                     <Textarea
@@ -643,13 +643,13 @@ export default function EditPatientPage() {
                       value={formData.medicalHistory}
                       onChange={handleChange}
                       placeholder="Enter medical history"
-                      className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      className="bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
                       rows={4}
                     />
                   </div>
 
                   <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="allergies" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <Label htmlFor="allergies" className="text-sm font-medium text-[hsl(var(--foreground))]">
                       Allergies
                     </Label>
                     <Textarea
@@ -658,13 +658,13 @@ export default function EditPatientPage() {
                       value={formData.allergies}
                       onChange={handleChange}
                       placeholder="Enter known allergies"
-                      className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      className="bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
                       rows={3}
                     />
                   </div>
 
                   <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="currentMedication" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <Label htmlFor="currentMedication" className="text-sm font-medium text-[hsl(var(--foreground))]">
                       Current Medications
                     </Label>
                     <Textarea
@@ -673,13 +673,13 @@ export default function EditPatientPage() {
                       value={formData.currentMedication}
                       onChange={handleChange}
                       placeholder="Enter current medications"
-                      className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      className="bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
                       rows={3}
                     />
                   </div>
 
                   <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="insuranceProvide" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <Label htmlFor="insuranceProvide" className="text-sm font-medium text-[hsl(var(--foreground))]">
                       Insurance Provider
                     </Label>
                     <Input
@@ -688,7 +688,7 @@ export default function EditPatientPage() {
                       value={formData.insuranceProvide}
                       onChange={handleChange}
                       placeholder="Enter insurance provider"
-                      className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      className="bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
                     />
                   </div>
                 </div>
@@ -696,16 +696,16 @@ export default function EditPatientPage() {
 
               {/* Emergency Contact */}
               <div className="form-section">
-                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-border/50">
-                  <div className="p-2 bg-destructive/10 rounded-lg">
-                    <Phone className="h-5 w-5 text-destructive" />
+                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[hsl(var(--border))]/50">
+                  <div className="p-2 bg-[hsl(var(--destructive))]/10 rounded-lg">
+                    <Phone className="h-5 w-5 text-[hsl(var(--destructive))]" />
                   </div>
-                  <h3 className="text-xl font-semibold text-foreground">Emergency Contact</h3>
+                  <h3 className="text-xl font-semibold text-[hsl(var(--foreground))]">Emergency Contact</h3>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="eContactName" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <Label htmlFor="eContactName" className="text-sm font-medium text-[hsl(var(--foreground))]">
                       Contact Name
                     </Label>
                     <Input
@@ -714,12 +714,12 @@ export default function EditPatientPage() {
                       value={formData.eContactName}
                       onChange={handleChange}
                       placeholder="Enter emergency contact name"
-                      className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      className="bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="ePhoneNumber" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <Label htmlFor="ePhoneNumber" className="text-sm font-medium text-[hsl(var(--foreground))]">
                       Contact Phone
                     </Label>
                     <Input
@@ -728,28 +728,28 @@ export default function EditPatientPage() {
                       value={formData.ePhoneNumber}
                       onChange={handleChange}
                       placeholder="Enter emergency contact phone"
-                      className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      className="bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="eRelationship" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <Label htmlFor="eRelationship" className="text-sm font-medium text-[hsl(var(--foreground))]">
                       Relationship
                     </Label>
                     <Select
                       value={formData.eRelationship}
                       onValueChange={(value) => setFormData({ ...formData, eRelationship: value })}
                     >
-                      <SelectTrigger className="dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                      <SelectTrigger className="bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]">
                         <SelectValue placeholder="Select relationship" />
                       </SelectTrigger>
-                      <SelectContent className="dark:bg-gray-700 dark:border-gray-600">
-                        <SelectItem value="spouse" className="dark:text-white dark:hover:bg-gray-600">Spouse</SelectItem>
-                        <SelectItem value="parent" className="dark:text-white dark:hover:bg-gray-600">Parent</SelectItem>
-                        <SelectItem value="child" className="dark:text-white dark:hover:bg-gray-600">Child</SelectItem>
-                        <SelectItem value="sibling" className="dark:text-white dark:hover:bg-gray-600">Sibling</SelectItem>
-                        <SelectItem value="friend" className="dark:text-white dark:hover:bg-gray-600">Friend</SelectItem>
-                        <SelectItem value="other" className="dark:text-white dark:hover:bg-gray-600">Other</SelectItem>
+                      <SelectContent className="bg-[hsl(var(--card))] border-[hsl(var(--border))]">
+                        <SelectItem value="spouse" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50">Spouse</SelectItem>
+                        <SelectItem value="parent" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50">Parent</SelectItem>
+                        <SelectItem value="child" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50">Child</SelectItem>
+                        <SelectItem value="sibling" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50">Sibling</SelectItem>
+                        <SelectItem value="friend" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50">Friend</SelectItem>
+                        <SelectItem value="other" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50">Other</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -763,7 +763,7 @@ export default function EditPatientPage() {
                   variant="outline"
                   onClick={() => router.back()}
                   disabled={isLoading}
-                  className="flex-1 h-12 border-border/50 hover:bg-muted/50 dark:bg-muted/50 transition-all duration-200 bg-[#EFEFEF]"
+                  className="flex-1 h-12 border-[hsl(var(--border))]/50 hover:bg-[hsl(var(--muted))]/50 dark:bg-[hsl(var(--muted))]/50 transition-all duration-200 bg-[hsl(var(--color-gray-100))]"
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Cancel
@@ -771,7 +771,7 @@ export default function EditPatientPage() {
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="flex-1 h-12 bg-[#1DA68F] hover:opacity-90 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                  className="flex-1 h-12 bg-[hsl(var(--color-brand-teal))] hover:opacity-90 text-white shadow-lg hover:shadow-xl transition-all duration-200"
                 >
                   {isLoading ? (
                     <>

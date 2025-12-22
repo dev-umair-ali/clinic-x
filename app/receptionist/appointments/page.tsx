@@ -46,7 +46,7 @@ import {
   DollarSign,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import OnboardingForm from "./onboarding-form";
+import OnboardingForm from "./onboarding/page";
 
 const steps = [
   { id: 1, name: "Personal Information", completed: false },
@@ -253,15 +253,15 @@ export default function PatientAppointmentsPage() {
   const statusColor = (status: Appointment["status"]) => {
     switch (status) {
       case "confirmed":
-        return "bg-[#1DA68F] text-white";
+        return "bg-[hsl(var(--color-status-success))] text-white";
       case "pending":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200";
+        return "bg-[hsl(var(--color-chart-orange)/0.1)] text-[hsl(var(--color-chart-orange))] dark:bg-[hsl(var(--color-chart-orange))/0.2] dark:text-[hsl(var(--color-chart-orange))]";
       case "cancelled":
-        return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200";
+        return "bg-[hsl(var(--color-status-error-light))] text-[hsl(var(--color-status-error))] dark:bg-[hsl(var(--color-status-error))/0.2] dark:text-[hsl(var(--color-status-error))]";
       case "completed":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200";
+        return "bg-[hsl(var(--color-chart-blue)/0.1)] text-[hsl(var(--color-chart-blue))] dark:bg-[hsl(var(--color-chart-blue))/0.2] dark:text-[hsl(var(--color-chart-blue))]";
       default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-200";
+        return "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] dark:bg-[hsl(var(--muted))] dark:text-[hsl(var(--muted-foreground))]";
     }
   };
 
@@ -271,21 +271,21 @@ export default function PatientAppointmentsPage() {
 
   return (
     <ProtectedRoute allowedRoles={["receptionist"]}>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))]">
         <div className="px-6 py-6">
           <div className="max-w-7xl mx-auto space-y-6">
             <div className="flex items-start justify-between mb-6">
               <div>
-                <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-1">
+                <h1 className="text-2xl font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] mb-1">
                   Appointments
                 </h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">
                   Schedule and manage your appointments
                 </p>
               </div>
               <Button
                 onClick={() => router.push("/receptionist/appointments/book")}
-                className="bg-[#1DA68F] hover:bg-[#168f73] text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2"
+                className="bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2"
               >
                 <Plus className="h-4 w-4" />
                 New Appointment
@@ -294,30 +294,30 @@ export default function PatientAppointmentsPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div>
-                <Card className="bg-white dark:bg-gray-800 shadow-sm h-full">
+                <Card className="bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))] shadow-sm h-full">
                   <CardContent className="p-6 h-full flex flex-col">
                     <div className="flex items-center gap-2 mb-4">
-                      <Calendar className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                      <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      <Calendar className="h-5 w-5 text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]" />
+                      <h2 className="text-lg font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
                         Upcoming Appointment
                       </h2>
                     </div>
 
                     <div className="space-y-4 flex-1 flex flex-col">
-                      <div className="flex items-start justify-between bg-gray-50 dark:bg-gray-700 p-4 rounded-lg flex-1">
+                      <div className="flex items-start justify-between bg-[hsl(var(--muted))]/30 dark:bg-[hsl(var(--muted))]/20 p-4 rounded-lg flex-1">
                         <div className="flex-1">
-                          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-1">
+                          <h3 className="text-xl font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] mb-1">
                             Annual Physical Exam
                           </h3>
-                          <p className="text-gray-600 dark:text-gray-300 mb-2">
+                          <p className="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] mb-2">
                             Dr. Sarah Smith - Internal Medicine
                           </p>
-                          <p className="text-gray-600 dark:text-gray-300 text-sm">
+                          <p className="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] text-sm">
                             July 30, 2024 at 4:00 PM
                           </p>
                         </div>
                         <div className="ml-4">
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-[hsl(var(--color-status-success-light))] text-[hsl(var(--color-status-success))] dark:bg-[hsl(var(--color-status-success))/0.2] dark:text-[hsl(var(--color-status-success))]">
                             Confirmed
                           </span>
                         </div>
@@ -330,14 +330,14 @@ export default function PatientAppointmentsPage() {
                             setShowEditModal(true);
                           }}
                           variant="outline"
-                          className="text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 bg-transparent"
+                          className="text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] border-[hsl(var(--border))] dark:border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))]/50 dark:hover:bg-[hsl(var(--muted))]/50 bg-transparent"
                         >
                           Reschedule
                         </Button>
                         <Button
                           onClick={() => onCancel(dummyAppointments[0])}
                           variant="outline"
-                          className="text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 bg-transparent"
+                          className="text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] border-[hsl(var(--border))] dark:border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))]/50 dark:hover:bg-[hsl(var(--muted))]/50 bg-transparent"
                         >
                           Cancel
                         </Button>
@@ -348,17 +348,17 @@ export default function PatientAppointmentsPage() {
               </div>
 
               <div className="space-y-4 h-full flex flex-col">
-                <Card className="bg-white dark:bg-gray-800 shadow-sm flex-1">
+                <Card className="bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))] shadow-sm flex-1">
                   <CardContent className="p-4 h-full flex items-center">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                        <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                      <div className="p-2 bg-[hsl(var(--color-chart-blue))/0.1] dark:bg-[hsl(var(--color-chart-blue))/0.1] rounded-lg">
+                        <Clock className="h-5 w-5 text-[hsl(var(--color-chart-blue))] dark:text-[hsl(var(--color-chart-blue))]" />
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                        <p className="text-sm text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">
                           Total Visits This Year
                         </p>
-                        <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                        <p className="text-2xl font-bold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
                           32
                         </p>
                       </div>
@@ -366,17 +366,17 @@ export default function PatientAppointmentsPage() {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-white dark:bg-gray-800 shadow-sm flex-1">
+                <Card className="bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))] shadow-sm flex-1">
                   <CardContent className="p-4 h-full flex items-center">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
-                        <DollarSign className="h-5 w-5 text-green-600 dark:text-green-400" />
+                      <div className="p-2 bg-[hsl(var(--color-status-success))/0.1] dark:bg-[hsl(var(--color-status-success))/0.1] rounded-lg">
+                        <DollarSign className="h-5 w-5 text-[hsl(var(--color-status-success))] dark:text-[hsl(var(--color-status-success))]" />
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                        <p className="text-sm text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">
                           Appointments Scheduled
                         </p>
-                        <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                        <p className="text-2xl font-bold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
                           03
                         </p>
                       </div>
@@ -392,8 +392,8 @@ export default function PatientAppointmentsPage() {
                 onClick={() => setViewMode("calendar")}
                 className={`flex items-center gap-2 ${
                   viewMode === "calendar"
-                    ? "bg-gray-900 text-white dark:bg-white dark:text-gray-900"
-                    : "text-gray-600 dark:text-gray-400 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+                    ? "bg-[hsl(var(--foreground))] text-[hsl(var(--background))] dark:bg-[hsl(var(--background))] dark:text-[hsl(var(--foreground))]"
+                    : "text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] border-[hsl(var(--border))] dark:border-[hsl(var(--border))] bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))]"
                 }`}
               >
                 <Calendar className="h-4 w-4" /> Calendar View
@@ -403,8 +403,8 @@ export default function PatientAppointmentsPage() {
                 onClick={() => setViewMode("list")}
                 className={`flex items-center gap-2 ${
                   viewMode === "list"
-                    ? "bg-[#1DA68F] text-white hover:bg-[#168f73]"
-                    : "text-gray-600 dark:text-gray-400 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+                    ? "bg-[hsl(var(--color-brand-teal))] text-white hover:bg-[hsl(var(--color-brand-teal-dark))]"
+                    : "text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] border-[hsl(var(--border))] dark:border-[hsl(var(--border))] bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))]"
                 }`}
               >
                 <List className="h-4 w-4" /> Appointment List View
@@ -414,9 +414,9 @@ export default function PatientAppointmentsPage() {
             {viewMode === "calendar" ? (
               <CalendarView events={calendarEvents} />
             ) : (
-              <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              <div className="bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))] rounded-lg border border-[hsl(var(--border))]">
+                <div className="p-6 border-b border-[hsl(var(--border))]">
+                  <h3 className="text-lg font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] mb-4">
                     Appointment List View
                   </h3>
                   <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -428,8 +428,8 @@ export default function PatientAppointmentsPage() {
                           onClick={() => setFilterTab(tab)}
                           className={`text-sm px-4 py-2 ${
                             filterTab === tab
-                              ? "bg-gray-900 text-white dark:bg-white dark:text-gray-900"
-                              : "text-gray-600 dark:text-gray-400 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+                              ? "bg-[hsl(var(--foreground))] text-[hsl(var(--background))] dark:bg-[hsl(var(--background))] dark:text-[hsl(var(--foreground))]"
+                              : "text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] border-[hsl(var(--border))] dark:border-[hsl(var(--border))] bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))]"
                           }`}
                         >
                           {tab}
@@ -438,19 +438,19 @@ export default function PatientAppointmentsPage() {
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] h-4 w-4" />
                         <Input
                           placeholder="Search Appointment"
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
-                          className="pl-9 w-full sm:w-64 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+                          className="pl-9 w-full sm:w-64 border-[hsl(var(--border))] dark:border-[hsl(var(--border))] bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))]"
                         />
                       </div>
                       <Select value={sortBy} onValueChange={setSortBy}>
-                        <SelectTrigger className="w-[140px] border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800">
+                        <SelectTrigger className="w-[140px] border-[hsl(var(--border))] dark:border-[hsl(var(--border))] bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))]">
                           <SelectValue placeholder="Sort By" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))] border-[hsl(var(--border))] dark:border-[hsl(var(--border))]">
                           <SelectItem value="Monthly">Monthly</SelectItem>
                           <SelectItem value="Weekly">Weekly</SelectItem>
                         </SelectContent>
@@ -461,36 +461,36 @@ export default function PatientAppointmentsPage() {
 
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead className="bg-[#F8F9FA] dark:bg-gray-700/50">
+                    <thead className="bg-[hsl(var(--muted))]/30 dark:bg-[hsl(var(--muted))]/20">
                       <tr>
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                        <th className="px-6 py-4 text-left text-xs font-semibold text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
                           DOCTOR
                         </th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                        <th className="px-6 py-4 text-left text-xs font-semibold text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
                           DATE
                         </th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                        <th className="px-6 py-4 text-left text-xs font-semibold text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
                           TIME
                         </th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                        <th className="px-6 py-4 text-left text-xs font-semibold text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
                           SERVICE
                         </th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                        <th className="px-6 py-4 text-left text-xs font-semibold text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
                           STATUS
                         </th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider"></th>
+                        <th className="px-6 py-4 text-left text-xs font-semibold text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] uppercase tracking-wider"></th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    <tbody className="bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))] divide-y divide-[hsl(var(--border))] dark:divide-[hsl(var(--border))]">
                       {dummyAppointments.map((appointment) => (
                         <tr
                           key={appointment.id}
-                          className="hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                          className="hover:bg-[hsl(var(--muted))]/30 dark:hover:bg-[hsl(var(--muted))]/20"
                         >
-                          <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
+                          <td className="px-6 py-4 text-sm font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
                             Dr. {appointment.doctorName}
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                          <td className="px-6 py-4 text-sm text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
                             {new Date(appointment.date).toLocaleDateString(
                               "en-US",
                               {
@@ -500,10 +500,10 @@ export default function PatientAppointmentsPage() {
                               }
                             )}
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                          <td className="px-6 py-4 text-sm text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
                             {appointment.time}
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                          <td className="px-6 py-4 text-sm text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
                             {appointment.type}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
@@ -519,19 +519,19 @@ export default function PatientAppointmentsPage() {
                           <td className="px-6 py-4 text-sm">
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1">
+                                <button className="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] dark:hover:text-[hsl(var(--foreground))] p-1">
                                   <MoreHorizontal className="h-5 w-5" />
                                 </button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent
                                 align="end"
-                                className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
+                                className="bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))] border border-[hsl(var(--border))] dark:border-[hsl(var(--border))]"
                               >
                                 <DropdownMenuItem
                                   onClick={() =>
-                                    router.push("/patient/appointments/book")
+                                    router.push("/receptionist/appointments/book")
                                   }
-                                  className="text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                  className="text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50 dark:hover:bg-[hsl(var(--muted))]/50"
                                 >
                                   Mark Complete
                                 </DropdownMenuItem>
@@ -540,13 +540,13 @@ export default function PatientAppointmentsPage() {
                                     setEditingAppointment(appointment);
                                     setShowEditModal(true);
                                   }}
-                                  className="text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                  className="text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50 dark:hover:bg-[hsl(var(--muted))]/50"
                                 >
                                   Reschedule
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                   onClick={() => onCancel(appointment)}
-                                  className="text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                  className="text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50 dark:hover:bg-[hsl(var(--muted))]/50"
                                 >
                                   Cancel
                                 </DropdownMenuItem>
@@ -559,27 +559,28 @@ export default function PatientAppointmentsPage() {
                   </table>
                 </div>
 
-                <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                <div className="px-6 py-4 border-t border-[hsl(var(--border))] flex items-center justify-between">
                   <div className="flex items-center gap-1">
-                    <button className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+                    <button className="px-3 py-2 text-sm text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] dark:hover:text-[hsl(var(--foreground))]">
                       Previous
                     </button>
-                    <button className="px-3 py-2 text-sm bg-[#1DA68F] text-white rounded font-medium">
+                    <button className="px-3 py-2 text-sm bg-[hsl(var(--color-brand-teal))] text-white rounded font-medium">
                       1
                     </button>
-                    <button className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+                    <button className="px-3 py-2 text-sm text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] dark:hover:text-[hsl(var(--foreground))]">
                       2
                     </button>
-                    <button className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+                    <button className="px-3 py-2 text-sm text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] dark:hover:text-[hsl(var(--foreground))]">
                       Next
                     </button>
                   </div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                  <div className="text-sm text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">
                     10 / Pages
                   </div>
                 </div>
               </div>
             )}
+
           </div>
         </div>
       </div>
@@ -618,32 +619,32 @@ export default function PatientAppointmentsPage() {
       />
 
       <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
-        <DialogContent className="bg-white dark:bg-gray-800 border-0 shadow-xl max-w-lg mx-auto rounded-lg">
+        <DialogContent className="bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))] border-0 shadow-xl max-w-lg mx-auto rounded-lg">
           <div className="p-3">
             <DialogHeader className="flex flex-row items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center"></div>
-                <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-white">
+                <div className="w-8 h-8 bg-[hsl(var(--color-status-error-light))] dark:bg-[hsl(var(--color-status-error))/0.2] rounded-full flex items-center justify-center"></div>
+                <DialogTitle className="text-lg font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
                   Appointment Cancel
                 </DialogTitle>
               </div>
               <button
                 onClick={() => setShowCancelDialog(false)}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                className="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] dark:hover:text-[hsl(var(--foreground))]"
               >
                 <X className="h-4 w-4" />
               </button>
             </DialogHeader>
             {cancelTarget && (
               <div className="space-y-4">
-                <div className="bg-[#D1F2EB] dark:bg-[#1DA68F]/10 rounded-lg p-4">
-                  <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
+                <div className="bg-[hsl(var(--color-brand-teal-light))] dark:bg-[hsl(var(--color-brand-teal))/0.1] rounded-lg p-4">
+                  <h4 className="font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] mb-1">
                     {cancelTarget.type}
                   </h4>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
+                  <p className="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] text-sm mb-2">
                     Dr. {cancelTarget.doctorName} - Internal Medicine
                   </p>
-                  <p className="text-[#1DA68F] text-sm font-medium">
+                  <p className="text-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--color-brand-teal))] text-sm font-medium">
                     {new Date(cancelTarget.date).toLocaleDateString("en-US", {
                       month: "short",
                       day: "numeric",
@@ -652,12 +653,12 @@ export default function PatientAppointmentsPage() {
                     at {cancelTarget.time}
                   </p>
                 </div>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">
+                <p className="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] text-sm">
                   Are you sure you want to cancel this appointment?
                 </p>
                 <Button
                   onClick={confirmCancel}
-                  className="w-full bg-red-500 hover:bg-[#168f73] text-white py-3 rounded-lg font-medium"
+                  className="w-full bg-[hsl(var(--color-status-error))] hover:bg-[hsl(var(--color-status-error-dark))] text-white py-3 rounded-lg font-medium"
                 >
                   Yes, Cancel Appointment
                 </Button>

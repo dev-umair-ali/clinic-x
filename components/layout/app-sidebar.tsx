@@ -96,6 +96,11 @@ const menuItems = {
       label: "Prescription",
       href: "/receptionist/prescription",
     },
+      {
+      icon: FaCreditCard,
+      label: "theme-settings",
+      href: "/receptionist/theme-settings",
+    },
   ],
   clinic: [
     { icon: IoHome, label: "Dashboard", href: "/clinic/dashboard" },

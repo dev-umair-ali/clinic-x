@@ -18,51 +18,51 @@ export default function EmergencyContact({
 }) {
   return (
     <div>
-      <h3 className="text-base font-medium text-gray-900 dark:text-white mb-4">
+      <h3 className="text-base font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] mb-4">
         Emergency Contact
       </h3>
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+          <Label className="text-sm font-medium text-[hsl(var(--foreground))] mb-2 block">
             Emergency Contact Name
           </Label>
           <Input
             placeholder="Person's Name"
             value={formData.emergencyContactName}
             onChange={(e) => updateFormData("emergencyContactName", e.target.value)}
-            className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            className="bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
           />
         </div>
         <div>
-          <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+          <Label className="text-sm font-medium text-[hsl(var(--foreground))] mb-2 block">
             Emergency Contact Phone
           </Label>
           <Input
             placeholder="(555) 123-4567"
             value={formData.emergencyContactPhone}
             onChange={(e) => updateFormData("emergencyContactPhone", e.target.value)}
-            className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            className="bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
           />
         </div>
       </div>
       <div className="mt-4">
-        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+        <Label className="text-sm font-medium text-[hsl(var(--foreground))] mb-2 block">
           Relationship to Patient
         </Label>
         <Select
           value={formData.relationshipToPatient}
           onValueChange={(v) => updateFormData("relationshipToPatient", v)}
         >
-          <SelectTrigger className="dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+          <SelectTrigger className="bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]">
             <SelectValue placeholder="Select relationship" />
           </SelectTrigger>
-          <SelectContent className="dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-            <SelectItem value="spouse">Spouse</SelectItem>
-            <SelectItem value="parent">Parent</SelectItem>
-            <SelectItem value="child">Child</SelectItem>
-            <SelectItem value="sibling">Sibling</SelectItem>
-            <SelectItem value="friend">Friend</SelectItem>
-            <SelectItem value="other">Other</SelectItem>
+          <SelectContent className="bg-[hsl(var(--card))] border-[hsl(var(--border))]">
+            <SelectItem value="spouse" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50">Spouse</SelectItem>
+            <SelectItem value="parent" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50">Parent</SelectItem>
+            <SelectItem value="child" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50">Child</SelectItem>
+            <SelectItem value="sibling" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50">Sibling</SelectItem>
+            <SelectItem value="friend" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50">Friend</SelectItem>
+            <SelectItem value="other" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50">Other</SelectItem>
           </SelectContent>
         </Select>
       </div>

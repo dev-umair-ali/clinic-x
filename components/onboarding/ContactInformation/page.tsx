@@ -18,12 +18,12 @@ export default function ContactInformation({
 }) {
   return (
     <div>
-      <h3 className="text-base font-medium text-gray-900 dark:text-white mb-4">
+      <h3 className="text-base font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] mb-4">
         Contact Information
       </h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+          <Label className="text-sm font-medium text-[hsl(var(--foreground))] mb-2 block">
             Email Address *
           </Label>
           <Input
@@ -31,36 +31,36 @@ export default function ContactInformation({
             placeholder="your@example.com"
             value={formData.emailAddress}
             onChange={(e) => updateFormData("emailAddress", e.target.value)}
-            className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            className="bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
           />
         </div>
         <div>
-          <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+          <Label className="text-sm font-medium text-[hsl(var(--foreground))] mb-2 block">
             Phone Number *
           </Label>
           <Input
             placeholder="(555) 123-4567"
             value={formData.phoneNumber}
             onChange={(e) => updateFormData("phoneNumber", e.target.value)}
-            className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            className="bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
           />
         </div>
       </div>
       <div className="mt-4">
-        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+        <Label className="text-sm font-medium text-[hsl(var(--foreground))] mb-2 block">
           Preferred Contact Method
         </Label>
         <Select
           value={formData.preferredContactMethod}
           onValueChange={(v) => updateFormData("preferredContactMethod", v)}
         >
-          <SelectTrigger className="dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+          <SelectTrigger className="bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]">
             <SelectValue placeholder="How would you like us to contact you" />
           </SelectTrigger>
-          <SelectContent className="dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-            <SelectItem value="phone">Phone</SelectItem>
-            <SelectItem value="email">Email</SelectItem>
-            <SelectItem value="text">Text Message</SelectItem>
+          <SelectContent className="bg-[hsl(var(--card))] border-[hsl(var(--border))]">
+            <SelectItem value="phone" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50">Phone</SelectItem>
+            <SelectItem value="email" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50">Email</SelectItem>
+            <SelectItem value="text" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50">Text Message</SelectItem>
           </SelectContent>
         </Select>
       </div>
