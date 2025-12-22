@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { toast, ToastContainer } from "react-toastify"
-import 'react-toastify/dist/ReactToastify.css';
+import 'react-toastify/dist/ReactToastify.css'; // Import the CSS
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   ArrowLeft,
@@ -22,7 +22,7 @@ import {
   Heart,
   Phone,
   Save,
-} from "lucide-react"
+  } from "lucide-react"
 import type { AppDispatch, RootState } from "@/lib/store"
 import {
   Select,

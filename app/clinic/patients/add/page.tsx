@@ -5,14 +5,14 @@ import { useState, useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useRouter } from "next/navigation"
 import { ProtectedRoute } from "@/components/ui/protected-route"
-import { createPatientInCollection, fetchPatients } from "@/lib/slices/patientSlice"
+import {  createPatientInCollection, fetchPatients } from "@/lib/slices/patientSlice"
 import { fetchDoctors } from "@/lib/slices/doctorSlice"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { toast, ToastContainer } from "react-toastify"
-import 'react-toastify/dist/ReactToastify.css';
+import 'react-toastify/dist/ReactToastify.css'; // Import the CSS
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   ArrowLeft,
@@ -203,63 +203,63 @@ export default function AddPatientStyled() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Validation
-    if (
-      !formData.firstName ||
-      !formData.lastName ||
-      !formData.email ||
-      !formData.password ||
-      !formData.phone ||
-      !formData.age ||
-      !formData.dateOfBirth ||
-      !formData.gender ||
-      !formData.address ||
-      !formData.primaryDoctor
-    ) {
-      toast.error("Please fill in all required fields.")
-      return
-    }
+    // // Validation
+    // if (
+    //   !formData.firstName ||
+    //   !formData.lastName ||
+    //   !formData.email ||
+    //   !formData.password ||
+    //   !formData.phone ||
+    //   !formData.age ||
+    //   !formData.dateOfBirth ||
+    //   !formData.gender ||
+    //   !formData.address ||
+    //   !formData.primaryDoctor
+    // ) {
+      // toast.error("Please fill in all required fields.")
+    //   return
+    // }
 
-    if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
-      toast.error("Please enter a valid email address")
-      return
-    }
+    // if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
+    //   toast.error("Please enter a valid email address")
+    //   return
+    // }
 
-    if (formData.password.length < 8) {
-      toast.error("Password must be at least 8 characters long.")
-      return
-    }
+    // if (formData.password.length < 8) {
+    //   toast.error("Password must be at least 8 characters long.")
+    //   return
+    // }
 
-    // Check for password complexity requirements
-    const hasUpperCase = /[A-Z]/.test(formData.password)
-    const hasLowerCase = /[a-z]/.test(formData.password)
-    const hasNumbers = /\d/.test(formData.password)
-    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(formData.password)
+    // // Check for password complexity requirements
+    // const hasUpperCase = /[A-Z]/.test(formData.password)
+    // const hasLowerCase = /[a-z]/.test(formData.password)
+    // const hasNumbers = /\d/.test(formData.password)
+    // const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(formData.password)
 
-    if (!hasUpperCase || !hasLowerCase || !hasNumbers || !hasSpecialChar) {
-      toast.error("Password must contain uppercase, lowercase, number, and special character.")
-      return
-    }
+    // if (!hasUpperCase || !hasLowerCase || !hasNumbers || !hasSpecialChar) {
+    //   toast.error("Password must contain uppercase, lowercase, number, and special character.")
+    //   return
+    // }
 
-    try {
-      setIsLoading(true)
-      const response = await dispatch(
-        createPatientInCollection(formData as unknown as CreatePatientRequest) as any,
-      )
-      console.log(response, "response")
-      if (response.meta.requestStatus === "fulfilled") {
-        // Reset image states
-        setProfileImage(null);
-        setImageFile(null);
-        setIsLoading(false)
-        toast.success("Patient added successfully!")
-        await dispatch(fetchPatients())
-        router.push("/admin/patients")
-      }
-    } catch (err: any) {
-      toast.error(err)
-      setIsLoading(false)
-    }
+    // try {
+    //   setIsLoading(true)
+    //   const response = await dispatch(
+    //     createPatientInCollection(formData as unknown as CreatePatientRequest) as any,
+    //   )
+    //   console.log(response, "response")
+    //   if (response.meta.requestStatus === "fulfilled") {
+    //     // Reset image states
+    //     setProfileImage(null);
+    //     setImageFile(null);
+    //     setIsLoading(false)
+    //     toast.success("Patient added successfully!")
+    //     await dispatch(fetchPatients())
+        router.push(`/clinic/patients/onboarding`)
+    //   }
+    // } catch (err: any) {
+    //   toast.error(err)
+    //   setIsLoading(false)
+    // }
   }
 
   return (
@@ -274,7 +274,7 @@ export default function AddPatientStyled() {
                 <Button
                   variant="ghost"
                   onClick={() => router.back()}
-                  className="flex items-center gap-2 rounded-md bg-[hsl(var(--color-brand-teal-light))] text-[hsl(var(--color-brand-teal))] px-3 py-2 hover:bg-[hsl(var(--color-brand-teal-light))] transition-colors"
+                  className="flex items-center gap-2 rounded-md bg-teal-50 text-teal-600 px-3 py-2 hover:bg-teal-100 transition-colors"
                 >
                   <ArrowLeft className="h-4 w-4" />
                   <span className="text-sm font-medium">Back to Patients</span>
@@ -284,18 +284,18 @@ export default function AddPatientStyled() {
               {/* Title */}
               <div className="flex items-center justify-between">
                 <div>
-                  <h1 className="text-2xl sm:text-3xl font-bold text-[hsl(var(--foreground))]">Add New Patient</h1>
-                  <p className="text-[hsl(var(--muted-foreground))] mt-1">Fill in the details to add a new patient</p>
+                  <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Add New Patient</h1>
+                  <p className="text-gray-500 mt-1">Fill in the details to add a new patient</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-[hsl(var(--card))] rounded-lg shadow-sm border border-[hsl(var(--border))]">
-              <div className="px-6 py-4 border-b border-[hsl(var(--border))]">
-                <h2 className="text-xl font-semibold text-[hsl(var(--foreground))]">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                   Add New Patient
                 </h2>
-                <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   Fill in the details to add a new patient
                 </p>
               </div>
@@ -303,7 +303,7 @@ export default function AddPatientStyled() {
               <form onSubmit={handleSubmit} className="p-6 space-y-8">
                 {/* Profile Picture Section */}
                 <div>
-                  <h3 className="text-lg font-medium text-[hsl(var(--foreground))] mb-4">
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
                     Profile Picture
                   </h3>
                   <div className="flex items-center space-x-4">
@@ -317,7 +317,7 @@ export default function AddPatientStyled() {
                             profileImage || formData.profilePicture || "/placeholder.svg?height=80&width=80"
                           }
                         />
-                        <AvatarFallback className="bg-[hsl(var(--accent))] text-[hsl(var(--muted-foreground))] text-lg">
+                        <AvatarFallback className="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-lg">
                           {formData.fullName
                             ? formData.fullName
                               .split(" ")
@@ -326,7 +326,7 @@ export default function AddPatientStyled() {
                             : "PT"}
                         </AvatarFallback>
                       </Avatar>
-                      <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-[hsl(var(--color-brand-teal))] rounded-full flex items-center justify-center">
+                      <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-teal-600 rounded-full flex items-center justify-center">
                         {imageUploading ? (
                           <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
                         ) : (
@@ -343,10 +343,10 @@ export default function AddPatientStyled() {
                       className="hidden"
                     />
                     <div>
-                      <p className="text-sm font-medium text-[hsl(var(--foreground))]">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
                         Profile Image
                       </p>
-                      <p className="text-xs text-[hsl(var(--muted-foreground))]">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         The Proposed size is 512 x 512 px and no longer bigger
                         than 2.5 MBs
                       </p>
@@ -355,18 +355,18 @@ export default function AddPatientStyled() {
                 </div>
 
                 <div className="form-section">
-                  <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[hsl(var(--border))]">
-                    <div className="p-2 bg-[hsl(var(--primary)/0.1)] rounded-lg">
-                      <User className="h-5 w-5 text-[hsl(var(--primary))]" />
+                  <div className="flex items-center gap-3 mb-6 pb-4 border-b border-border/50">
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <User className="h-5 w-5 text-primary" />
                     </div>
-                    <h3 className="text-xl font-semibold text-[hsl(var(--foreground))]">Basic Information</h3>
+                    <h3 className="text-xl font-semibold text-foreground">Basic Information</h3>
                   </div>
 
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <Label htmlFor="firstName" className="text-sm font-medium text-[hsl(var(--foreground))]">
-                          First Name <span className="text-[hsl(var(--destructive))]">*</span>
+                        <Label htmlFor="firstName" className="text-sm font-medium text-foreground">
+                          First Name <span className="text-destructive">*</span>
                         </Label>
                         <Input
                           id="firstName"
@@ -375,13 +375,13 @@ export default function AddPatientStyled() {
                           value={formData.firstName}
                           onChange={handleChange}
                           placeholder="John"
-                          required
-                          className="focus-ring bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] hover:border-[hsl(var(--border))] transition-colors"
+                          // required
+                          className="focus-ring bg-[#F6F6F6] dark:bg-gray-700 border-border/50 hover:border-border transition-colors"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="lastName" className="text-sm font-medium text-[hsl(var(--foreground))]">
-                          Last Name <span className="text-[hsl(var(--destructive))]">*</span>
+                        <Label htmlFor="lastName" className="text-sm font-medium text-foreground">
+                          Last Name <span className="text-destructive">*</span>
                         </Label>
                         <Input
                           id="lastName"
@@ -390,16 +390,16 @@ export default function AddPatientStyled() {
                           value={formData.lastName}
                           onChange={handleChange}
                           placeholder="Doe"
-                          required
-                          className="focus-ring bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] hover:border-[hsl(var(--border))] transition-colors"
+                          // required
+                          className="focus-ring bg-[#F6F6F6] dark:bg-gray-700 border-border/50 hover:border-border transition-colors"
                         />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <Label htmlFor="email" className="text-sm font-medium text-[hsl(var(--foreground))]">
-                          Email Address <span className="text-[hsl(var(--destructive))]">*</span>
+                        <Label htmlFor="email" className="text-sm font-medium text-foreground">
+                          Email Address <span className="text-destructive">*</span>
                         </Label>
                         <Input
                           id="email"
@@ -408,13 +408,13 @@ export default function AddPatientStyled() {
                           value={formData.email}
                           onChange={handleChange}
                           placeholder="john.doe@example.com"
-                          required
-                          className="focus-ring bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] hover:border-[hsl(var(--border))] transition-colors"
+                          // required
+                          className="focus-ring bg-[#F6F6F6] dark:bg-gray-700 border-border/50 hover:border-border transition-colors"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="password" className="text-sm font-medium text-[hsl(var(--foreground))]">
-                          Password <span className="text-[hsl(var(--destructive))]">*</span>
+                        <Label htmlFor="password" className="text-sm font-medium text-foreground">
+                          Password <span className="text-destructive">*</span>
                         </Label>
                         <div className="relative">
                           <Input
@@ -424,14 +424,14 @@ export default function AddPatientStyled() {
                             value={formData.password}
                             onChange={handleChange}
                             placeholder="SecurePassword123!"
-                            required
+                            // required
                             minLength={8}
-                            className="focus-ring bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] hover:border-[hsl(var(--border))] transition-colors pr-12"
+                            className="focus-ring bg-[#F6F6F6] dark:bg-gray-700 border-border/50 hover:border-border transition-colors pr-12"
                           />
                           <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] focus:outline-none transition-colors"
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none transition-colors"
                           >
                             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                           </button>
@@ -441,8 +441,8 @@ export default function AddPatientStyled() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <Label htmlFor="phone" className="text-sm font-medium text-[hsl(var(--foreground))]">
-                          Phone Number <span className="text-[hsl(var(--destructive))]">*</span>
+                        <Label htmlFor="phone" className="text-sm font-medium text-foreground">
+                          Phone Number <span className="text-destructive">*</span>
                         </Label>
                         <Input
                           id="phone"
@@ -451,12 +451,12 @@ export default function AddPatientStyled() {
                           value={formData.phone}
                           onChange={handleChange}
                           placeholder="+1 (555) 123-4567"
-                          required
-                          className="focus-ring bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] hover:border-[hsl(var(--border))] transition-colors"
+                          // required
+                          className="focus-ring bg-[#F6F6F6] dark:bg-gray-700 border-border/50 hover:border-border transition-colors"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="bloodType" className="text-sm font-medium text-[hsl(var(--foreground))]">
+                        <Label htmlFor="bloodType" className="text-sm font-medium text-foreground">
                           Blood Type
                         </Label>
                         <Select
@@ -465,32 +465,56 @@ export default function AddPatientStyled() {
                             setFormData({ ...formData, bloodType: value })
                           }
                         >
-                          <SelectTrigger className="mt-1 bg-[hsl(var(--card))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]">
+                          <SelectTrigger className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                             <SelectValue placeholder="Select blood type" />
                           </SelectTrigger>
-                          <SelectContent className="bg-[hsl(var(--card))] border-[hsl(var(--border))]">
-                            <SelectItem value="A+" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">
+                          <SelectContent className="dark:bg-gray-700 dark:border-gray-600">
+                            <SelectItem
+                              value="A+"
+                              className="dark:text-white dark:hover:bg-gray-600"
+                            >
                               A+
                             </SelectItem>
-                            <SelectItem value="A-" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">
+                            <SelectItem
+                              value="A-"
+                              className="dark:text-white dark:hover:bg-gray-600"
+                            >
                               A-
                             </SelectItem>
-                            <SelectItem value="B+" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">
+                            <SelectItem
+                              value="B+"
+                              className="dark:text-white dark:hover:bg-gray-600"
+                            >
                               B+
                             </SelectItem>
-                            <SelectItem value="B-" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">
+                            <SelectItem
+                              value="B-"
+                              className="dark:text-white dark:hover:bg-gray-600"
+                            >
                               B-
                             </SelectItem>
-                            <SelectItem value="AB+" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">
+                            <SelectItem
+                              value="AB+"
+                              className="dark:text-white dark:hover:bg-gray-600"
+                            >
                               AB+
                             </SelectItem>
-                            <SelectItem value="AB-" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">
+                            <SelectItem
+                              value="AB-"
+                              className="dark:text-white dark:hover:bg-gray-600"
+                            >
                               AB-
                             </SelectItem>
-                            <SelectItem value="O+" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">
+                            <SelectItem
+                              value="O+"
+                              className="dark:text-white dark:hover:bg-gray-600"
+                            >
                               O+
                             </SelectItem>
-                            <SelectItem value="O-" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">
+                            <SelectItem
+                              value="O-"
+                              className="dark:text-white dark:hover:bg-gray-600"
+                            >
                               O-
                             </SelectItem>
                           </SelectContent>
@@ -501,8 +525,8 @@ export default function AddPatientStyled() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                       <div className="space-y-2">
-                        <Label htmlFor="gender" className="text-sm font-medium text-[hsl(var(--foreground))]">
-                          Gender <span className="text-[hsl(var(--destructive))]">*</span>
+                        <Label htmlFor="gender" className="text-sm font-medium text-foreground">
+                          Gender <span className="text-destructive">*</span>
                         </Label>
                         <Select
                           value={formData.gender}
@@ -510,25 +534,34 @@ export default function AddPatientStyled() {
                             setFormData({ ...formData, gender: value })
                           }
                         >
-                          <SelectTrigger className="mt-1 bg-[hsl(var(--card))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]">
+                          <SelectTrigger className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                             <SelectValue placeholder="Select gender" />
                           </SelectTrigger>
-                          <SelectContent className="bg-[hsl(var(--card))] border-[hsl(var(--border))]">
-                            <SelectItem value="male" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">
+                          <SelectContent className="dark:bg-gray-700 dark:border-gray-600">
+                            <SelectItem
+                              value="male"
+                              className="dark:text-white dark:hover:bg-gray-600"
+                            >
                               Male
                             </SelectItem>
-                            <SelectItem value="female" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">
+                            <SelectItem
+                              value="female"
+                              className="dark:text-white dark:hover:bg-gray-600"
+                            >
                               Female
                             </SelectItem>
-                            <SelectItem value="other" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">
+                            <SelectItem
+                              value="other"
+                              className="dark:text-white dark:hover:bg-gray-600"
+                            >
                               Other
                             </SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="address" className="text-sm font-medium text-[hsl(var(--foreground))]">
-                          Address <span className="text-[hsl(var(--destructive))]">*</span>
+                        <Label htmlFor="address" className="text-sm font-medium text-foreground">
+                          Address <span className="text-destructive">*</span>
                         </Label>
                         <div className="relative">
                           <Textarea
@@ -538,18 +571,18 @@ export default function AddPatientStyled() {
                             onChange={handleChange}
                             placeholder="123 Main Street, City, State 12345"
                             rows={3}
-                            required
-                            className="focus-ring bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] hover:border-[hsl(var(--border))] transition-colors resize-none"
+                            // required
+                            className="focus-ring bg-[#F6F6F6] dark:bg-gray-700 border-border/50 hover:border-border transition-colors resize-none"
                           />
-                          <MapPin className="absolute right-3 top-3 h-4 w-4 text-[hsl(var(--muted-foreground))] pointer-events-none" />
+                          <MapPin className="absolute right-3 top-3 h-4 w-4 text-muted-foreground pointer-events-none" />
                         </div>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <Label htmlFor="age" className="text-sm font-medium text-[hsl(var(--foreground))]">
-                          Age <span className="text-[hsl(var(--destructive))]">*</span>
+                        <Label htmlFor="age" className="text-sm font-medium text-foreground">
+                          Age <span className="text-destructive">*</span>
                         </Label>
                         <Input
                           id="age"
@@ -559,13 +592,13 @@ export default function AddPatientStyled() {
                           onChange={handleChange}
                           placeholder="35"
                           min="0"
-                          required
-                          className="focus-ring bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] hover:border-[hsl(var(--border))] transition-colors"
+                          // required
+                          className="focus-ring bg-[#F6F6F6] dark:bg-gray-700 border-border/50 hover:border-border transition-colors"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="dateOfBirth" className="text-sm font-medium text-[hsl(var(--foreground))]">
-                          Date of Birth <span className="text-[hsl(var(--destructive))]">*</span>
+                        <Label htmlFor="dateOfBirth" className="text-sm font-medium text-foreground">
+                          Date of Birth <span className="text-destructive">*</span>
                         </Label>
                         <div className="relative">
                           <Input
@@ -574,10 +607,10 @@ export default function AddPatientStyled() {
                             type="date"
                             value={formData.dateOfBirth}
                             onChange={handleChange}
-                            required
-                            className="focus-ring bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] hover:border-[hsl(var(--border))] transition-colors"
+                            // required
+                            className="focus-ring bg-[#F6F6F6] dark:bg-gray-700 border-border/50 hover:border-border transition-colors"
                           />
-                          <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[hsl(var(--muted-foreground))] pointer-events-none" />
+                          <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                         </div>
                       </div>
                     </div>
@@ -586,26 +619,26 @@ export default function AddPatientStyled() {
                 </div>
 
                 <div className="form-section">
-                  <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[hsl(var(--border))]">
-                    <div className="p-2 bg-[hsl(var(--color-medical)/0.1)] rounded-lg">
-                      <Stethoscope className="h-5 w-5 text-[hsl(var(--color-medical))]" />
+                  <div className="flex items-center gap-3 mb-6 pb-4 border-b border-border/50">
+                    <div className="p-2 bg-medical/10 rounded-lg">
+                      <Stethoscope className="h-5 w-5 text-medical" />
                     </div>
-                    <h3 className="text-xl font-semibold text-[hsl(var(--foreground))]">Medical Assignment</h3>
+                    <h3 className="text-xl font-semibold text-foreground">Medical Assignment</h3>
                   </div>
 
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <Label htmlFor="primaryDoctor" className="text-sm font-medium text-[hsl(var(--foreground))]">
-                          Primary Doctor <span className="text-[hsl(var(--destructive))]">*</span>
+                        <Label htmlFor="primaryDoctor" className="text-sm font-medium text-foreground">
+                          Primary Doctor <span className="text-destructive">*</span>
                         </Label>
                         <select
                           id="primaryDoctor"
                           name="primaryDoctor"
                           value={formData.primaryDoctor}
                           onChange={handleChange}
-                          className="w-full border border-[hsl(var(--border))] rounded-lg p-3 text-sm text-[hsl(var(--foreground))] bg-[hsl(var(--color-input-bg))] hover:border-[hsl(var(--border))] focus:border-[hsl(var(--color-medical))] focus:ring-2 focus:ring-[hsl(var(--color-medical))/20] transition-all"
-                          required
+                          className="w-full border border-border/50 rounded-lg p-3 text-sm text-foreground bg-[#F6F6F6] dark:bg-gray-700 hover:border-border focus:border-medical focus:ring-2 focus:ring-medical/20 transition-all"
+                          // required
                         >
                           <option value="">Select Doctor</option>
                           {doctors.map((doctor) => (
@@ -616,7 +649,7 @@ export default function AddPatientStyled() {
                         </select>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="insuranceProvide" className="text-sm font-medium text-[hsl(var(--foreground))]">
+                        <Label htmlFor="insuranceProvide" className="text-sm font-medium text-foreground">
                           Insurance Provider
                         </Label>
                         <div className="relative">
@@ -627,9 +660,9 @@ export default function AddPatientStyled() {
                             value={formData.insuranceProvide}
                             onChange={handleChange}
                             placeholder="Blue Cross Blue Shield"
-                            className="focus-ring bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] hover:border-[hsl(var(--border))] transition-colors pl-10"
+                            className="focus-ring bg-[#F6F6F6] dark:bg-gray-700 border-border/50 hover:border-border transition-colors pl-10"
                           />
-                          <Shield className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[hsl(var(--muted-foreground))]" />
+                          <Shield className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         </div>
                       </div>
                     </div>
@@ -639,17 +672,17 @@ export default function AddPatientStyled() {
                 </div>
 
                 <div className="form-section">
-                  <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[hsl(var(--border))]">
-                    <div className="p-2 bg-[hsl(var(--color-info)/0.1)] rounded-lg">
-                      <Heart className="h-5 w-5 text-[hsl(var(--color-info))]" />
+                  <div className="flex items-center gap-3 mb-6 pb-4 border-b border-border/50">
+                    <div className="p-2 bg-info/10 rounded-lg">
+                      <Heart className="h-5 w-5 text-info" />
                     </div>
-                    <h3 className="text-xl font-semibold text-[hsl(var(--foreground))]">Medical Information</h3>
+                    <h3 className="text-xl font-semibold text-foreground">Medical Information</h3>
                   </div>
 
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
                       <div className="space-y-2">
-                        <Label htmlFor="medicalHistory" className="text-sm font-medium text-[hsl(var(--foreground))]">
+                        <Label htmlFor="medicalHistory" className="text-sm font-medium text-foreground">
                           Medical History
                         </Label>
                         <div className="flex items-center gap-3">
@@ -660,7 +693,7 @@ export default function AddPatientStyled() {
                             onChange={handleChange}
                             placeholder="Diabetes, Hypertension, Previous surgeries..."
                             rows={4}
-                            className="flex-1 focus-ring bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] hover:border-[hsl(var(--border))] transition-colors resize-none"
+                            className="flex-1 focus-ring bg-[#F6F6F6] dark:bg-gray-700 border-border/50 hover:border-border transition-colors resize-none"
                           />
                         </div>
                       </div>
@@ -668,7 +701,7 @@ export default function AddPatientStyled() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <Label htmlFor="allergies" className="text-sm font-medium text-[hsl(var(--foreground))]">
+                        <Label htmlFor="allergies" className="text-sm font-medium text-foreground">
                           Allergies
                         </Label>
                         <div className="flex items-center gap-3">
@@ -679,12 +712,12 @@ export default function AddPatientStyled() {
                             value={formData.allergies}
                             onChange={handleChange}
                             placeholder="Penicillin, Shellfish, Pollen..."
-                            className="flex-1 focus-ring bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] hover:border-[hsl(var(--border))] transition-colors"
+                            className="flex-1 focus-ring bg-[#F6F6F6] dark:bg-gray-700 border-border/50 hover:border-border transition-colors"
                           />
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="currentMedication" className="text-sm font-medium text-[hsl(var(--foreground))]">
+                        <Label htmlFor="currentMedication" className="text-sm font-medium text-foreground">
                           Current Medication
                         </Label>
                         <div className="flex items-center gap-3">
@@ -695,7 +728,7 @@ export default function AddPatientStyled() {
                             value={formData.currentMedication}
                             onChange={handleChange}
                             placeholder="Metformin, Lisinopril, Aspirin..."
-                            className="flex-1 focus-ring bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] hover:border-[hsl(var(--border))] transition-colors"
+                            className="flex-1 focus-ring bg-[#F6F6F6] dark:bg-gray-700 border-border/50 hover:border-border transition-colors"
                           />
                         </div>
                       </div>
@@ -704,15 +737,115 @@ export default function AddPatientStyled() {
                 </div>
 
                 <div className="form-section">
-                  <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[hsl(var(--border))]">
-                    <div className="p-2 bg-[hsl(var(--color-medical)/0.1)] rounded-lg">
-                      <UserPlus className="h-5 w-5 text-[hsl(var(--color-medical))]" />
+                  <div className="flex items-center gap-3 mb-6 pb-4 border-b border-border/50">
+                    <div className="p-2 bg-destructive/10 rounded-lg">
+                      <Phone className="h-5 w-5 text-destructive" />
                     </div>
-                    <h3 className="text-xl font-semibold text-[hsl(var(--foreground))]">Patient Status</h3>
+                    <h3 className="text-xl font-semibold text-foreground">Emergency Contact</h3>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="eContactName" className="text-sm font-medium text-foreground">
+                          Emergency Contact Name
+                        </Label>
+                        <Input
+                          id="eContactName"
+                          name="eContactName"
+                          type="text"
+                          value={formData.eContactName}
+                          onChange={handleChange}
+                          placeholder="Jane Doe"
+                          className="focus-ring bg-[#F6F6F6] dark:bg-gray-700 border-border/50 hover:border-border transition-colors"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="ePhoneNumber" className="text-sm font-medium text-foreground">
+                          Emergency Phone Number
+                        </Label>
+                        <Input
+                          id="ePhoneNumber"
+                          name="ePhoneNumber"
+                          type="text"
+                          value={formData.ePhoneNumber}
+                          onChange={handleChange}
+                          placeholder="+1 (555) 987-6543"
+                          className="focus-ring bg-[#F6F6F6] dark:bg-gray-700 border-border/50 hover:border-border transition-colors"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="eRelationship" className="text-sm font-medium text-foreground">
+                          Emergency Relationship
+                        </Label>
+                        <Select
+                          value={formData.eRelationship}
+                          onValueChange={(value) =>
+                            setFormData({ ...formData, eRelationship: value })
+                          }
+                        >
+                          <SelectTrigger className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <SelectValue placeholder="Select relationship" />
+                          </SelectTrigger>
+                          <SelectContent className="dark:bg-gray-700 dark:border-gray-600">
+                            <SelectItem
+                              value="spouse"
+                              className="dark:text-white dark:hover:bg-gray-600"
+                            >
+                              Spouse
+                            </SelectItem>
+                            <SelectItem
+                              value="parent"
+                              className="dark:text-white dark:hover:bg-gray-600"
+                            >
+                              Parent
+                            </SelectItem>
+                            <SelectItem
+                              value="sibling"
+                              className="dark:text-white dark:hover:bg-gray-600"
+                            >
+                              Sibling
+                            </SelectItem>
+                            <SelectItem
+                              value="child"
+                              className="dark:text-white dark:hover:bg-gray-600"
+                            >
+                              Child
+                            </SelectItem>
+                            <SelectItem
+                              value="friend"
+                              className="dark:text-white dark:hover:bg-gray-600"
+                            >
+                              Friend
+                            </SelectItem>
+                            <SelectItem
+                              value="other"
+                              className="dark:text-white dark:hover:bg-gray-600"
+                            >
+                              Other
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+
+
+                <div className="form-section">
+                  <div className="flex items-center gap-3 mb-6 pb-4 border-b border-border/50">
+                    <div className="p-2 bg-medical/10 rounded-lg">
+                      <UserPlus className="h-5 w-5 text-medical" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-foreground">Patient Status</h3>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="status" className="text-sm font-medium text-[hsl(var(--foreground))]">
+                    <Label htmlFor="status" className="text-sm font-medium text-foreground">
                       Status
                     </Label>
                     <Select
@@ -721,19 +854,25 @@ export default function AddPatientStyled() {
                         setFormData({ ...formData, status: value })
                       }
                     >
-                      <SelectTrigger className="mt-1 bg-[hsl(var(--card))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]">
+                      <SelectTrigger className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                         <SelectValue placeholder="Select status" />
                       </SelectTrigger>
-                      <SelectContent className="bg-[hsl(var(--card))] border-[hsl(var(--border))]">
-                        <SelectItem value="active" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">
+                      <SelectContent className="dark:bg-gray-700 dark:border-gray-600">
+                        <SelectItem
+                          value="active"
+                          className="dark:text-white dark:hover:bg-gray-600"
+                        >
                           Active
                         </SelectItem>
-                        <SelectItem value="inactive" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">
+                        <SelectItem
+                          value="inactive"
+                          className="dark:text-white dark:hover:bg-gray-600"
+                        >
                           Inactive
                         </SelectItem>
                       </SelectContent>
                     </Select>
-                    <p className="text-xs text-[hsl(var(--muted-foreground))]">
+                    <p className="text-xs text-muted-foreground">
                       Active patients can schedule appointments and access services.
                     </p>
                   </div>
@@ -745,7 +884,7 @@ export default function AddPatientStyled() {
                     variant="outline"
                     onClick={() => router.back()}
                     disabled={isLoading}
-                    className="flex-1 h-12 border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))] transition-all duration-200 bg-[hsl(var(--accent))]"
+                    className="flex-1 h-12 border-border/50 hover:bg-muted/50 dark:bg-muted/50 transition-all duration-200 bg-[#EFEFEF]"
                   >
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Cancel
@@ -753,7 +892,7 @@ export default function AddPatientStyled() {
                   <Button
                     type="submit"
                     disabled={isLoading}
-                    className="flex-1 h-12 bg-[hsl(var(--color-brand-teal))] hover:opacity-90 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                    className="flex-1 h-12 bg-[#1DA68F] hover:opacity-90 text-white shadow-lg hover:shadow-xl transition-all duration-200"
                   >
                     {isLoading ? (
                       <>

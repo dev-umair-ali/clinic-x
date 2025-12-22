@@ -24,10 +24,10 @@ export function RejectPrescriptionModal({ open, onClose, onConfirm, medication, 
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md mx-4">
-        <div className="flex items-center justify-between p-4 border-b border-border dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-foreground dark:text-gray-100">Reject Prescription</h2>
+    <div className="fixed inset-0 bg-[hsl(var(--color-black)/0.5)] flex items-center justify-center z-50 p-4">
+      <div className="bg-[hsl(var(--card))] rounded-lg shadow-xl w-full max-w-md mx-4">
+        <div className="flex items-center justify-between p-4 border-b border-[hsl(var(--border))]">
+          <h2 className="text-lg font-semibold text-[hsl(var(--card-foreground))]">Reject Prescription</h2>
           <Button variant="ghost" size="sm" onClick={onClose} className="h-8 w-8 p-0">
             <X className="w-4 h-4" />
           </Button>
@@ -35,28 +35,28 @@ export function RejectPrescriptionModal({ open, onClose, onConfirm, medication, 
 
         <div className="p-4 space-y-4">
           <div className="flex items-center gap-3">
-            <FileText className="w-5 h-5 text-red-600" />
+            <FileText className="w-5 h-5 text-[hsl(var(--color-status-error))]" />
             <div>
-              <p className="text-sm text-muted-foreground dark:text-gray-400">Medication</p>
-              <p className="font-medium text-foreground dark:text-gray-100">{medication}</p>
+              <p className="text-sm text-[hsl(var(--muted-foreground))]">Medication</p>
+              <p className="font-medium text-[hsl(var(--card-foreground))]">{medication}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <FileText className="w-5 h-5 text-blue-600" />
+            <FileText className="w-5 h-5 text-[hsl(var(--color-status-info))]" />
             <div>
-              <p className="text-sm text-muted-foreground dark:text-gray-400">Dosage</p>
-              <p className="font-medium text-foreground dark:text-gray-100">{dosage}</p>
+              <p className="text-sm text-[hsl(var(--muted-foreground))]">Dosage</p>
+              <p className="font-medium text-[hsl(var(--card-foreground))]">{dosage}</p>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground dark:text-gray-300 mb-2">Reason for rejection</label>
+            <label className="block text-sm font-medium text-[hsl(var(--foreground))] mb-2">Reason for rejection</label>
             <Textarea
               placeholder="Enter reason..."
               value={reason}
               onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setReason(e.target.value)}
               rows={4}
-              className="w-full px-3 py-2 border border-border dark:border-gray-600 rounded-md bg-background dark:bg-gray-900 text-foreground dark:text-gray-100"
+              className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-md bg-[hsl(var(--background))] text-[hsl(var(--foreground))]"
             />
           </div>
         </div>
@@ -65,7 +65,7 @@ export function RejectPrescriptionModal({ open, onClose, onConfirm, medication, 
           <Button variant="outline" className="flex-1" onClick={onClose}>
             Cancel
           </Button>
-          <Button className="flex-1 bg-red-600 hover:bg-red-700 text-white" onClick={handleConfirm}>
+          <Button className="flex-1 bg-[hsl(var(--color-status-error))] hover:bg-[hsl(var(--color-status-error-dark))] text-[hsl(var(--destructive-foreground))]" onClick={handleConfirm}>
             Confirm Reject
           </Button>
         </div>

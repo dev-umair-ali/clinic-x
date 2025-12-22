@@ -142,16 +142,16 @@ export default function DoctorBillingPage() {
 
   return (
     <ProtectedRoute allowedRoles={["clinic"]}>
-      <div className="p-6 max-w-7xl mx-auto bg-background dark:bg-gray-900 min-h-screen">
+      <div className="p-6 max-w-7xl mx-auto bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))] min-h-screen">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-foreground dark:text-gray-100">
+          <h1 className="text-2xl font-bold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
             Patient Billing
           </h1>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                className="flex items-center gap-2 border-border dark:border-gray-600 bg-transparent dark:bg-gray-800 text-foreground dark:text-gray-100"
+                className="flex items-center gap-2 border-[hsl(var(--border))] dark:border-[hsl(var(--border))] bg-transparent dark:bg-[hsl(var(--card))] text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]"
               >
                 Last 7 Days
                 <ChevronDown className="h-4 w-4" />
@@ -159,15 +159,15 @@ export default function DoctorBillingPage() {
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
-              className="dark:bg-gray-800 dark:border-gray-700"
+              className="dark:bg-[hsl(var(--card))] dark:border-[hsl(var(--border))]"
             >
-              <DropdownMenuItem className="dark:text-gray-300 dark:hover:bg-gray-700">
+              <DropdownMenuItem className="dark:text-[hsl(var(--card-foreground))] dark:hover:bg-[hsl(var(--accent))]">
                 Last 7 Days
               </DropdownMenuItem>
-              <DropdownMenuItem className="dark:text-gray-300 dark:hover:bg-gray-700">
+              <DropdownMenuItem className="dark:text-[hsl(var(--card-foreground))] dark:hover:bg-[hsl(var(--accent))]">
                 Last 30 Days
               </DropdownMenuItem>
-              <DropdownMenuItem className="dark:text-gray-300 dark:hover:bg-gray-700">
+              <DropdownMenuItem className="dark:text-[hsl(var(--card-foreground))] dark:hover:bg-[hsl(var(--accent))]">
                 Last 90 Days
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -177,15 +177,15 @@ export default function DoctorBillingPage() {
         {/*  Stat Cards  */}
         <DashboardKPIs />
 
-        <div className="w-full overflow-x-auto rounded-lg border border-border dark:border-gray-700">
+        <div className="w-full overflow-x-auto rounded-lg border border-[hsl(var(--border))] dark:border-[hsl(var(--border))]">
           {" "}
-          <div className="flex justify-between items-center p-4 border-b border-border dark:border-gray-700">
-            <h2 className="text-lg font-semibold text-foreground dark:text-gray-100">
+          <div className="flex justify-between items-center p-4 border-b border-[hsl(var(--border))] dark:border-[hsl(var(--border))]">
+            <h2 className="text-lg font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
               Billing History
             </h2>
             <Button
               onClick={handleAddBillingClick}
-              className="bg-[#1DA68F] hover:bg-[#1DA68F]/80 text-white"
+              className="bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-[hsl(var(--primary-foreground))]"
             >
               Add Billing
             </Button>
@@ -259,24 +259,24 @@ export default function DoctorBillingPage() {
           />
         </div>
         {editPatientPaidModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md mx-4">
-              <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-gray-700">
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-gray-100">
+          <div className="fixed inset-0 bg-[hsl(var(--background)/0.5)] flex items-center justify-center z-50 p-4">
+            <div className="bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))] rounded-lg shadow-xl w-full max-w-md mx-4">
+              <div className="flex items-center justify-between p-6 border-b border-[hsl(var(--border))] dark:border-[hsl(var(--border))]">
+                <h2 className="text-lg font-semibold text-[hsl(var(--card-foreground))] dark:text-[hsl(var(--card-foreground))]">
                   Edit Patient Paid
                 </h2>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setEditPatientPaidModal(false)}
-                  className="h-8 w-8 p-0 hover:bg-slate-100 dark:hover:bg-gray-700"
+                  className="h-8 w-8 p-0 hover:bg-[hsl(var(--accent))] dark:hover:bg-[hsl(var(--accent))]"
                 >
                   <X className="w-4 h-4" />
                 </Button>
               </div>
               <div className="p-6 space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] mb-2">
                     New Amount Paid
                   </label>
                   <input
@@ -289,11 +289,11 @@ export default function DoctorBillingPage() {
                         amount: e.target.value,
                       }))
                     }
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    className="w-full px-3 py-2 border border-[hsl(var(--input))] dark:border-[hsl(var(--input))] rounded-md focus:outline-none focus:ring-2 focus:ring-[hsl(var(--ring))] focus:border-[hsl(var(--ring))] bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))] text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] mb-2">
                     Reason for Change
                   </label>
                   <textarea
@@ -306,20 +306,20 @@ export default function DoctorBillingPage() {
                       }))
                     }
                     rows={4}
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    className="w-full px-3 py-2 border border-[hsl(var(--input))] dark:border-[hsl(var(--input))] rounded-md focus:outline-none focus:ring-2 focus:ring-[hsl(var(--ring))] focus:border-[hsl(var(--ring))] resize-none bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))] text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]"
                   />
                 </div>
               </div>
               <div className="flex gap-3 p-6 pt-0">
                 <Button
                   variant="outline"
-                  className="flex-1 border-slate-300 dark:border-gray-600 text-slate-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-700 bg-transparent dark:bg-gray-800"
+                  className="flex-1 border-[hsl(var(--border))] dark:border-[hsl(var(--border))] text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--accent))] dark:hover:bg-[hsl(var(--accent))] bg-transparent dark:bg-transparent"
                   onClick={() => setEditPatientPaidModal(false)}
                 >
                   Cancel
                 </Button>
                 <Button
-                  className="flex-1 bg-teal-600 hover:bg-teal-700 text-white"
+                  className="flex-1 bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]"
                   onClick={() => {
                     setEditPatientPaidModal(false);
                     setEditPatientPaidData({ amount: "", reason: "" });

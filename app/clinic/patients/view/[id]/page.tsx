@@ -50,12 +50,12 @@ export default function ViewPatientPage() {
   if (loading) {
     return (
       <ProtectedRoute allowedRoles={["clinic"]}>
-        <div className="flex-1 overflow-y-auto p-6 bg-[hsl(var(--background))]">
+        <div className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
           <div className="max-w-7xl mx-auto">
             <div className="flex items-center justify-center h-64">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[hsl(var(--color-brand-teal))] mx-auto mb-4"></div>
-                <p className="text-[hsl(var(--muted-foreground))]">Loading patient details...</p>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1DA68F] mx-auto mb-4"></div>
+                <p className="text-gray-600 dark:text-gray-400">Loading patient details...</p>
               </div>
             </div>
           </div>
@@ -67,12 +67,12 @@ export default function ViewPatientPage() {
   if (!patient) {
     return (
       <ProtectedRoute allowedRoles={["clinic"]}>
-        <div className="flex-1 overflow-y-auto p-6 bg-[hsl(var(--background))]">
+        <div className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
           <div className="max-w-7xl mx-auto">
             <div className="flex items-center justify-center h-64">
               <div className="text-center">
-                <XCircle className="h-12 w-12 text-[hsl(var(--destructive))] mx-auto mb-4" />
-                <p className="text-[hsl(var(--muted-foreground))]">Patient not found</p>
+                <XCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+                <p className="text-gray-600 dark:text-gray-400">Patient not found</p>
                 <Button
                   onClick={() => router.push("/clinic/patients")}
                   className="mt-4"
@@ -131,8 +131,8 @@ export default function ViewPatientPage() {
       <div className="flex items-center gap-3">
         {icon}
         <div>
-          <p className="text-sm text-[hsl(var(--muted-foreground))]">{label}</p>
-          <p className="font-medium text-[hsl(var(--foreground))]">
+          <p className="text-sm text-gray-500 dark:text-gray-400">{label}</p>
+          <p className="font-medium text-gray-900 dark:text-gray-100">
             {formatTextField(value, fallback)}
           </p>
         </div>
@@ -176,26 +176,26 @@ export default function ViewPatientPage() {
       status: "scheduled",
     },
   ];
-
+console.log(doctorName, "doctorName")
   return (
     <ProtectedRoute allowedRoles={["clinic"]}>
-      <div className="flex-1 overflow-y-auto p-6 bg-[hsl(var(--background))]">
+      <div className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto">
           {/* Header Section */}
           <div className="flex items-center gap-4 mb-6">
             <Button
               variant="ghost"
               onClick={() => router.push("/clinic/patients")}
-              className="p-2 text-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--accent))] bg-[hsl(var(--color-brand-teal)/0.1)]"
+              className="p-2 text-[#1DA68F] hover:bg-gray-100 dark:hover:bg-gray-800 bg-[#1DA68F]/10"
             >
               <ArrowLeft className="h-5 w-5" />
               <span className="ml-2 text-sm font-medium">Back to Patients</span>
             </Button>
             <div className="flex-1">
-              <h1 className="text-2xl font-bold text-[hsl(var(--foreground))]">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 Patient Details
               </h1>
-              <p className="text-[hsl(var(--muted-foreground))]">
+              <p className="text-gray-600 dark:text-gray-400">
                 View and manage patient information
               </p>
             </div>
@@ -203,7 +203,7 @@ export default function ViewPatientPage() {
               <Button
                 variant="outline"
                 onClick={() => router.push(`/clinic/patients/edit/${patientId}`)}
-                className="text-[hsl(var(--color-brand-teal))] border-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal))] hover:text-white"
+                className="text-[#1DA68F] border-[#1DA68F] hover:bg-[#1DA68F] hover:text-white dark:border-[#1DA68F] dark:text-[#1DA68F] dark:hover:bg-[#1DA68F] dark:hover:text-white"
               >
                 <Edit className="h-4 w-4 mr-2" />
                 Edit Patient
@@ -212,23 +212,23 @@ export default function ViewPatientPage() {
           </div>
 
           {/* Patient Profile Card */}
-          <div className="bg-[hsl(var(--card))] rounded-lg shadow-sm border border-[hsl(var(--border))] p-6 mb-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
             <div className="flex items-center gap-6">
               <Avatar className="h-24 w-24">
                 <AvatarImage src={patient.profilePicture || "/placeholder.svg?height=80&width=80"} alt={patient.fullName || "Patient"} />
-                <AvatarFallback className="text-2xl bg-[hsl(var(--color-brand-teal))] text-white">
+                <AvatarFallback className="text-2xl bg-[#1DA68F] text-white">
                   {patient.fullName ? patient.fullName.charAt(0).toUpperCase() : "P"}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <h2 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-2">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                   {patient.fullName || "Unknown Patient"}
                 </h2>
-                <div className="flex items-center gap-4 text-sm text-[hsl(var(--muted-foreground))]">
+                <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
                   <span>Patient ID: {patient.id || (patient as any)._id || "N/A"}</span>
                   <Badge 
                     variant={patient.status === "active" ? "default" : "secondary"}
-                    className={patient.status === "active" ? "bg-[hsl(var(--color-status-success-light))] text-[hsl(var(--color-status-success-dark))]" : ""}
+                    className={patient.status === "active" ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" : ""}
                   >
                     {patient.status || "Unknown"}
                   </Badge>
@@ -238,59 +238,59 @@ export default function ViewPatientPage() {
           </div>
 
           {/* Patient Information Section */}
-          <div className="bg-[hsl(var(--card))] rounded-lg shadow-sm border border-[hsl(var(--border))] p-6 mb-6">
-            <h3 className="text-lg font-semibold text-[hsl(var(--foreground))] mb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
               Patient Information
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {renderField(
-                <Mail className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />,
+                <Mail className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
                 "Email",
                 patient.email
               )}
               {renderField(
-                <Phone className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />,
+                <Phone className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
                 "Phone",
                 patient.phone
               )}
               {renderField(
-                <Phone className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />,
+                <Phone className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
                 "Alternative Phone",
                 patient.phoneNumber
               )}
               {renderField(
-                <MapPin className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />,
+                <MapPin className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
                 "Address",
                 patient.address,
                 "Address not specified"
               )}
               {renderField(
-                <Calendar className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />,
+                <Calendar className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
                 "Date of Birth",
                 patient.dateOfBirth
               )}
               {renderField(
-                <Calendar className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />,
+                <Calendar className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
                 "Age",
                 patient.age
               )}
               {renderField(
-                <User className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />,
+                <User className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
                 "Gender",
                 patient.gender
               )}
               {renderField(
-                <Heart className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />,
+                <Heart className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
                 "Blood Type",
                 patient.bloodType || patient.BloodType
               )}
               {renderField(
-                <User className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />,
+                <User className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
                 "Primary Doctor",
                 doctorName || "No doctor assigned"
               )}
               {renderField(
-                <Shield className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />,
+                <Shield className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
                 "Insurance Provider",
                 patient.insuranceProvide || patient.InsuranceProvide || patient.insuranceInfo
               )}
@@ -298,28 +298,28 @@ export default function ViewPatientPage() {
           </div>
 
           {/* Emergency Contact Section - Only show if there's emergency contact data */}
-          {(hasData(patient.eContactName) || hasData(patient.EContactName) ||
+          {(hasData(patient.eContactName) || hasData(patient.EContactName) || 
             hasData(patient.ePhoneNumber) || hasData(patient.EPhoneNumber) ||
             hasData(patient.eRelationship) || hasData(patient.ERelationship) ||
             hasData(patient.emergencyContactName) || hasData(patient.emergencyContactPhone) ||
             hasData(patient.emergencyContactRelationship)) && (
-            <div className="bg-[hsl(var(--card))] rounded-lg shadow-sm border border-[hsl(var(--border))] p-6 mb-6">
-              <h3 className="text-lg font-semibold text-[hsl(var(--foreground))] mb-4">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
                 Emergency Contact
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {renderField(
-                  <User className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />,
+                  <User className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
                   "Name",
                   patient.eContactName || patient.EContactName || patient.emergencyContactName
                 )}
                 {renderField(
-                  <Phone className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />,
+                  <Phone className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
                   "Phone",
                   patient.ePhoneNumber || patient.EPhoneNumber || patient.emergencyContactPhone
                 )}
                 {renderField(
-                  <User className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />,
+                  <User className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
                   "Relationship",
                   patient.eRelationship || patient.ERelationship || patient.emergencyContactRelationship
                 )}
@@ -329,15 +329,15 @@ export default function ViewPatientPage() {
 
           {/* Tabs Section - Only show if there's data for any tab */}
           {(hasOverviewData() || hasAppointmentsData()) && (
-            <div className="bg-[hsl(var(--card))] rounded-lg shadow-sm border border-[hsl(var(--border))]">
-              <div className="border-b border-[hsl(var(--border))]">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+              <div className="border-b border-gray-200 dark:border-gray-700">
                 <nav className="flex space-x-8 px-6">
                   {hasOverviewData() && (
                     <button
                       className={`py-4 px-1 border-b-2 ${
                         activeTab === "overview"
-                          ? "border-[hsl(var(--color-brand-teal))] text-[hsl(var(--color-brand-teal))]"
-                          : "border-transparent text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
+                          ? "border-[#1DA68F] text-[#1DA68F]"
+                          : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                       } font-medium text-sm`}
                       onClick={() => setActiveTab("overview")}
                     >
@@ -348,8 +348,8 @@ export default function ViewPatientPage() {
                     <button
                       className={`py-4 px-1 border-b-2 ${
                         activeTab === "appointments"
-                          ? "border-[hsl(var(--color-brand-teal))] text-[hsl(var(--color-brand-teal))]"
-                          : "border-transparent text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
+                          ? "border-[#1DA68F] text-[#1DA68F]"
+                          : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                       } font-medium text-sm`}
                       onClick={() => setActiveTab("appointments")}
                     >
@@ -363,45 +363,45 @@ export default function ViewPatientPage() {
                 <div className="p-6">
                   {/* Key Patient Metrics */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                    <div className="bg-[hsl(var(--accent))] rounded-lg p-4">
+                    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
                       <div className="flex items-center gap-3">
-                        <User className="h-8 w-8 text-[hsl(var(--color-brand-teal))]" />
+                        <User className="h-8 w-8 text-[#1DA68F]" />
                         <div>
-                          <p className="text-sm text-[hsl(var(--muted-foreground))]">Age</p>
-                          <p className="text-lg font-semibold text-[hsl(var(--foreground))]">
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Age</p>
+                          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                             {patient.age || "N/A"} Years old
                           </p>
                         </div>
                       </div>
                     </div>
-                    <div className="bg-[hsl(var(--accent))] rounded-lg p-4">
+                    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
                       <div className="flex items-center gap-3">
-                        <Heart className="h-8 w-8 text-[hsl(var(--color-brand-teal))]" />
+                        <Heart className="h-8 w-8 text-[#1DA68F]" />
                         <div>
-                          <p className="text-sm text-[hsl(var(--muted-foreground))]">Blood Type</p>
-                          <p className="text-lg font-semibold text-[hsl(var(--foreground))]">
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Blood Type</p>
+                          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                             {patient.bloodType || patient.BloodType || "Unknown"}
                           </p>
                         </div>
                       </div>
                     </div>
-                    <div className="bg-[hsl(var(--accent))] rounded-lg p-4">
+                    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
                       <div className="flex items-center gap-3">
-                        <Calendar className="h-8 w-8 text-[hsl(var(--color-brand-teal))]" />
+                        <Calendar className="h-8 w-8 text-[#1DA68F]" />
                         <div>
-                          <p className="text-sm text-[hsl(var(--muted-foreground))]">Last Visit</p>
-                          <p className="text-lg font-semibold text-[hsl(var(--foreground))]">
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Last Visit</p>
+                          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                             {patient.lastVisit || "N/A"}
                           </p>
                         </div>
                       </div>
                     </div>
-                    <div className="bg-[hsl(var(--accent))] rounded-lg p-4">
+                    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
                       <div className="flex items-center gap-3">
-                        <Shield className="h-8 w-8 text-[hsl(var(--color-brand-teal))]" />
+                        <Shield className="h-8 w-8 text-[#1DA68F]" />
                         <div>
-                          <p className="text-sm text-[hsl(var(--muted-foreground))]">Insurance</p>
-                          <p className="text-lg font-semibold text-[hsl(var(--foreground))]">
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Insurance</p>
+                          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                             {patient.insuranceProvide || patient.InsuranceProvide || "N/A"}
                           </p>
                         </div>
@@ -413,10 +413,10 @@ export default function ViewPatientPage() {
                   {hasOverviewData() && (
                     <div className="space-y-6">
                       <div>
-                        <h3 className="text-lg font-semibold text-[hsl(var(--foreground))] mb-1">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
                           Medical History
                         </h3>
-                        <p className="text-[hsl(var(--muted-foreground))] text-sm">
+                        <p className="text-gray-600 dark:text-gray-400 text-sm">
                           Comprehensive medical background and conditions
                         </p>
                       </div>
@@ -424,37 +424,37 @@ export default function ViewPatientPage() {
                       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* Critical Allergies - Only show if there are allergies */}
                         {(hasData(patient.allergies) || hasData(patient.Allergies) || hasData(patient.allergiesArray)) && (
-                          <div className="bg-[hsl(var(--color-status-error-light))] border border-[hsl(var(--color-status-error-dark))] rounded-lg p-4">
-                            <h4 className="font-semibold text-[hsl(var(--color-status-error-dark))] mb-3 uppercase text-sm tracking-wide">
+                          <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                            <h4 className="font-semibold text-red-800 dark:text-red-200 mb-3 uppercase text-sm tracking-wide">
                               Critical Allergies
                             </h4>
                             <div className="space-y-2">
                               {patient.allergies && (
-                                <div className="flex items-center justify-between rounded-md bg-[hsl(var(--card))] px-3 py-2">
-                                  <span className="text-[hsl(var(--color-status-error-dark))] text-sm">
+                                <div className="flex items-center justify-between rounded-md bg-white dark:bg-red-900/40 px-3 py-2">
+                                  <span className="text-red-800 dark:text-red-200 text-sm">
                                     {patient.allergies}
                                   </span>
-                                  <Badge className="bg-[hsl(var(--color-status-error-light))] text-[hsl(var(--color-status-error-dark))] text-xs">
+                                  <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 text-xs">
                                     Critical
                                   </Badge>
                                 </div>
                               )}
                               {patient.Allergies && (
-                                <div className="flex items-center justify-between rounded-md bg-[hsl(var(--card))] px-3 py-2">
-                                  <span className="text-[hsl(var(--color-status-error-dark))] text-sm">
+                                <div className="flex items-center justify-between rounded-md bg-white dark:bg-red-900/40 px-3 py-2">
+                                  <span className="text-red-800 dark:text-red-200 text-sm">
                                     {patient.Allergies}
                                   </span>
-                                  <Badge className="bg-[hsl(var(--color-status-error-light))] text-[hsl(var(--color-status-error-dark))] text-xs">
+                                  <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 text-xs">
                                     Critical
                                   </Badge>
                                 </div>
                               )}
                               {patient.allergiesArray && patient.allergiesArray.map((allergy, index) => (
-                                <div key={index} className="flex items-center justify-between rounded-md bg-[hsl(var(--card))] px-3 py-2">
-                                  <span className="text-[hsl(var(--color-status-error-dark))] text-sm">
+                                <div key={index} className="flex items-center justify-between rounded-md bg-white dark:bg-red-900/40 px-3 py-2">
+                                  <span className="text-red-800 dark:text-red-200 text-sm">
                                     {allergy}
                                   </span>
-                                  <Badge className="bg-[hsl(var(--color-status-error-light))] text-[hsl(var(--color-status-error-dark))] text-xs">
+                                  <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 text-xs">
                                     Critical
                                   </Badge>
                                 </div>
@@ -465,21 +465,21 @@ export default function ViewPatientPage() {
 
                         {/* Medical Conditions - Only show if there's medical history */}
                         {(hasData(patient.medicalHistory) || hasData(patient.MedicalHistory)) && (
-                          <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-lg p-4">
+                          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                             <div className="flex items-center gap-2 mb-3">
-                              <Heart className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
-                              <h4 className="font-semibold text-[hsl(var(--foreground))]">
+                              <Heart className="h-5 w-5 text-[#1DA68F]" />
+                              <h4 className="font-semibold text-gray-900 dark:text-gray-100">
                                 Medical Conditions
                               </h4>
                             </div>
                             <div className="space-y-2">
                               {patient.medicalHistory && (
-                                <div className="text-sm text-[hsl(var(--foreground))]">
+                                <div className="text-sm text-gray-700 dark:text-gray-300">
                                   {patient.medicalHistory}
                                 </div>
                               )}
                               {patient.MedicalHistory && (
-                                <div className="text-sm text-[hsl(var(--foreground))]">
+                                <div className="text-sm text-gray-700 dark:text-gray-300">
                                   {patient.MedicalHistory}
                                 </div>
                               )}
@@ -489,26 +489,26 @@ export default function ViewPatientPage() {
 
                         {/* Current Medications - Only show if there are medications */}
                         {(hasData(patient.currentMedication) || hasData(patient.CurrentMedication) || hasData(patient.medicationsArray)) && (
-                          <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-lg p-4">
+                          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                             <div className="flex items-center gap-2 mb-3">
-                              <Paperclip className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
-                              <h4 className="font-semibold text-[hsl(var(--foreground))]">
+                              <Paperclip className="h-5 w-5 text-[#1DA68F]" />
+                              <h4 className="font-semibold text-gray-900 dark:text-gray-100">
                                 Current Medications
                               </h4>
                             </div>
                             <div className="space-y-2">
                               {patient.currentMedication && (
-                                <div className="text-sm text-[hsl(var(--foreground))]">
+                                <div className="text-sm text-gray-700 dark:text-gray-300">
                                   {patient.currentMedication}
                                 </div>
                               )}
                               {patient.CurrentMedication && (
-                                <div className="text-sm text-[hsl(var(--foreground))]">
+                                <div className="text-sm text-gray-700 dark:text-gray-300">
                                   {patient.CurrentMedication}
                                 </div>
                               )}
                               {patient.medicationsArray && patient.medicationsArray.map((medication, index) => (
-                                <div key={index} className="text-sm text-[hsl(var(--foreground))]">
+                                <div key={index} className="text-sm text-gray-700 dark:text-gray-300">
                                   {medication}
                                 </div>
                               ))}
@@ -518,14 +518,14 @@ export default function ViewPatientPage() {
 
                         {/* Surgical History - Only show if there's surgical history */}
                         {hasData((patient as any).surgicalHistory) && (
-                          <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-lg p-4">
+                          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                             <div className="flex items-center gap-2 mb-3">
-                              <Scissors className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
-                              <h4 className="font-semibold text-[hsl(var(--foreground))]">
+                              <Scissors className="h-5 w-5 text-[#1DA68F]" />
+                              <h4 className="font-semibold text-gray-900 dark:text-gray-100">
                                 Surgical History
                               </h4>
                             </div>
-                            <div className="text-sm text-[hsl(var(--foreground))]">
+                            <div className="text-sm text-gray-700 dark:text-gray-300">
                               {(patient as any).surgicalHistory}
                             </div>
                           </div>
@@ -538,21 +538,21 @@ export default function ViewPatientPage() {
 
               {activeTab === "appointments" && (
                 <div className="p-6">
-                  <h3 className="text-lg font-semibold text-[hsl(var(--foreground))] mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
                     Appointment History
                   </h3>
-                  <p className="text-[hsl(var(--muted-foreground))] text-sm mb-4">
+                  <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
                     Complete history of patient appointments
                   </p>
                   
                   {/* Appointment Tabs */}
-                  <div className="border-b border-[hsl(var(--border))] mb-6">
+                  <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
                     <nav className="flex space-x-8">
                       <button
                         className={`py-2 px-1 border-b-2 ${
                           activeAppointmentTab === "upcoming"
-                            ? "border-[hsl(var(--color-brand-teal))] text-[hsl(var(--color-brand-teal))]"
-                            : "border-transparent text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
+                            ? "border-[#1DA68F] text-[#1DA68F]"
+                            : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                         } font-medium text-sm`}
                         onClick={() => setActiveAppointmentTab("upcoming")}
                       >
@@ -561,8 +561,8 @@ export default function ViewPatientPage() {
                       <button
                         className={`py-2 px-1 border-b-2 ${
                           activeAppointmentTab === "completed"
-                            ? "border-[hsl(var(--color-brand-teal))] text-[hsl(var(--color-brand-teal))]"
-                            : "border-transparent text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
+                            ? "border-[#1DA68F] text-[#1DA68F]"
+                            : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                         } font-medium text-sm`}
                         onClick={() => setActiveAppointmentTab("completed")}
                       >
@@ -578,25 +578,25 @@ export default function ViewPatientPage() {
                       .map((appointment, index) => (
                         <div
                           key={index}
-                          className="bg-[hsl(var(--accent))] rounded-lg p-4 border border-[hsl(var(--border))]"
+                          className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600"
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4">
                               <div className="flex items-center gap-2">
-                                <Calendar className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
-                                <span className="font-medium text-[hsl(var(--foreground))]">
+                                <Calendar className="h-5 w-5 text-[#1DA68F]" />
+                                <span className="font-medium text-gray-900 dark:text-gray-100">
                                   {appointment.date}
                                 </span>
                               </div>
                               <div className="flex items-center gap-2">
-                                <Clock className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />
-                                <span className="text-[hsl(var(--muted-foreground))]">
+                                <Clock className="h-5 w-5 text-gray-400" />
+                                <span className="text-gray-600 dark:text-gray-400">
                                   {appointment.time}
                                 </span>
                               </div>
                               <div className="flex items-center gap-2">
-                                <User className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />
-                                <span className="text-[hsl(var(--muted-foreground))]">
+                                <User className="h-5 w-5 text-gray-400" />
+                                <span className="text-gray-600 dark:text-gray-400">
                                   {appointment.doctor}
                                 </span>
                               </div>
@@ -612,15 +612,15 @@ export default function ViewPatientPage() {
                                 }
                                 className={
                                   appointment.status === "completed"
-                                    ? "bg-[hsl(var(--color-status-success-light))] text-[hsl(var(--color-status-success-dark))]"
+                                    ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                                     : appointment.status === "upcoming"
-                                    ? "bg-[hsl(var(--color-status-info-light))] text-[hsl(var(--color-status-info-dark))]"
+                                    ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
                                     : ""
                                 }
                               >
                                 {appointment.status}
                               </Badge>
-                              <span className="text-sm text-[hsl(var(--muted-foreground))]">
+                              <span className="text-sm text-gray-500 dark:text-gray-400">
                                 {appointment.type}
                               </span>
                             </div>
@@ -631,7 +631,7 @@ export default function ViewPatientPage() {
 
                   {/* Pagination */}
                   <div className="flex items-center justify-between mt-6">
-                    <p className="text-sm text-[hsl(var(--muted-foreground))]">
+                    <p className="text-sm text-gray-700 dark:text-gray-300">
                       Showing 1-3 of 3 appointments
                     </p>
                     <div className="flex gap-2">

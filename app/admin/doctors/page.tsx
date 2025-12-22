@@ -34,21 +34,21 @@ export default function AdminDoctorsPage() {
 
   return (
     <ProtectedRoute allowedRoles={["admin"]}>
-      <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 min-h-screen">
+      <div className="flex-1 overflow-y-auto bg-[hsl(var(--background))] min-h-screen">
         <div className="max-w-7xl mx-auto p-6">
           {/* Header */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              <h1 className="text-2xl font-bold text-[hsl(var(--foreground))]">
                 Doctors
               </h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
+              <p className="text-[hsl(var(--muted-foreground))] mt-1">
                 Manage and monitor all doctors across your clinics
               </p>
             </div>
             <Button
               onClick={() => handleNavigation("/admin/doctors/add")}
-              className="mt-4 md:mt-0 bg-teal-600 hover:bg-teal-700 text-white flex items-center space-x-2"
+              className="mt-4 md:mt-0 bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-[hsl(var(--primary-foreground))] flex items-center space-x-2"
             >
               <Plus className="h-4 w-4" />
               <span>Add Doctor</span>
@@ -58,43 +58,43 @@ export default function AdminDoctorsPage() {
           {/* Stats Boxes */}
           {/* Stats Boxes */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="flex items-center p-6 min-h-[110px] bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-              <div className="h-12 w-12 flex items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
-                <Users className="h-7 w-7 text-blue-600 dark:text-blue-400" />
+            <div className="flex items-center p-6 min-h-[110px] bg-[hsl(var(--card))] rounded-xl shadow-sm border border-[hsl(var(--border))]">
+              <div className="h-12 w-12 flex items-center justify-center rounded-full bg-[hsl(var(--color-chart-blue)/0.1)]">
+                <Users className="h-7 w-7 text-[hsl(var(--color-chart-blue))]" />
               </div>
               <div className="ml-4">
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-sm text-[hsl(var(--muted-foreground))]">
                   Total Doctors
                 </p>
-                <p className="text-lg font-semibold text-blue-600 dark:text-blue-400">
+                <p className="text-lg font-semibold text-[hsl(var(--color-chart-blue))]">
                   {doctorsData.length}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center p-6 min-h-[110px] bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-              <div className="h-12 w-12 flex items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
-                <UserCheck className="h-7 w-7 text-green-600 dark:text-green-400" />
+            <div className="flex items-center p-6 min-h-[110px] bg-[hsl(var(--card))] rounded-xl shadow-sm border border-[hsl(var(--border))]">
+              <div className="h-12 w-12 flex items-center justify-center rounded-full bg-[hsl(var(--color-status-success)/0.1)]">
+                <UserCheck className="h-7 w-7 text-[hsl(var(--color-status-success))]" />
               </div>
               <div className="ml-4">
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-sm text-[hsl(var(--muted-foreground))]">
                   Active Doctor
                 </p>
-                <p className="text-lg font-semibold text-green-600 dark:text-green-400">
+                <p className="text-lg font-semibold text-[hsl(var(--color-status-success))]">
                   {activeDoctorsCount}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center p-6 min-h-[110px] bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-              <div className="h-12 w-12 flex items-center justify-center rounded-full bg-red-100 dark:bg-red-900">
-                <User className="h-7 w-7 text-red-600 dark:text-red-400" />
+            <div className="flex items-center p-6 min-h-[110px] bg-[hsl(var(--card))] rounded-xl shadow-sm border border-[hsl(var(--border))]">
+              <div className="h-12 w-12 flex items-center justify-center rounded-full bg-[hsl(var(--color-status-error)/0.1)]">
+                <User className="h-7 w-7 text-[hsl(var(--color-status-error))]" />
               </div>
               <div className="ml-4">
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-sm text-[hsl(var(--muted-foreground))]">
                   Inactive Doctors
                 </p>
-                <p className="text-lg font-semibold text-red-600 dark:text-red-400">
+                <p className="text-lg font-semibold text-[hsl(var(--color-status-error))]">
                   {inactiveDoctorsCount}
                 </p>
               </div>
@@ -103,7 +103,7 @@ export default function AdminDoctorsPage() {
 
           {/* Error Handling */}
           {error && doctorsData.length === 0 && (
-            <div className="mb-4 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 text-red-600 dark:text-red-300 px-4 py-3 rounded-lg text-sm">
+            <div className="mb-4 bg-[hsl(var(--color-status-error)/0.1)] border border-[hsl(var(--color-status-error))] text-[hsl(var(--color-status-error))] px-4 py-3 rounded-lg text-sm">
               {error}
             </div>
           )}
@@ -111,8 +111,8 @@ export default function AdminDoctorsPage() {
           {/* Loading / Table */}
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
-              <span className="ml-2 text-gray-600 dark:text-gray-300">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[hsl(var(--color-brand-teal))]"></div>
+              <span className="ml-2 text-[hsl(var(--muted-foreground))]">
                 Loading doctors...
               </span>
             </div>

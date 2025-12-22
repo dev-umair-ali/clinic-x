@@ -91,12 +91,78 @@
     --color-bg-pink-tint: 307 76% 93%;         /* very-light pink bg */
 
     /* Input backgrounds */
---color-input-bg: 0 0% 96%; /* #F6F6F6 */
+    --color-input-bg: 0 0% 96%; /* #F6F6F6 */
 
-/* Semantic UI accents */
---color-medical: 160 83% 39%; /* dashboard green */
---color-info: 217 91% 60%; /* dashboard blue */
+    /* Semantic UI accents */
+    --color-medical: 160 83% 39%; /* dashboard green */
+    --color-info: 217 91% 60%; /* dashboard blue */
 
+    /* ========== MISSING COLORS FROM YOUR COMPONENTS - EXACT TAILWIND VALUES ========== */
+    
+    /* Gray Colors - EXACT Tailwind Values */
+    --color-gray-50: 210 20% 98%;    /* #F9FAFB */
+    --color-gray-100: 210 16% 96%;   /* #F3F4F6 */
+    --color-gray-200: 214 14% 92%;   /* #E5E7EB */
+    --color-gray-300: 212 10% 84%;   /* #D1D5DB */
+    --color-gray-400: 210 6% 64%;    /* #9CA3AF */
+    --color-gray-500: 212 4% 52%;    /* #6B7280 */
+    --color-gray-600: 213 4% 46%;    /* #4B5563 */
+    --color-gray-700: 215 4% 38%;    /* #374151 */
+    --color-gray-800: 215 6% 28%;    /* #1F2937 */
+    --color-gray-900: 218 8% 18%;    /* #111827 */
+
+    /* Slate Colors - EXACT Tailwind Values */
+    --color-slate-50: 210 40% 98%;   /* #F8FAFC */
+    --color-slate-100: 210 40% 96%;  /* #F1F5F9 */
+    --color-slate-200: 214 32% 91%;  /* #E2E8F0 */
+    --color-slate-300: 212 26% 84%;  /* #CBD5E1 */
+    --color-slate-400: 209 13% 73%;  /* #94A3B8 */
+    --color-slate-500: 213 9% 57%;   /* #64748B */
+    --color-slate-600: 215 14% 46%;  /* #475569 */
+    --color-slate-700: 215 19% 35%;  /* #334155 */
+    --color-slate-800: 215 28% 22%;  /* #1E293B */
+    --color-slate-900: 222 47% 11%;  /* #0F172A */
+
+    /* Red Colors - EXACT Tailwind Values */
+    --color-red-500: 0 84% 60%;      /* #EF4444 */
+    --color-red-600: 0 72% 51%;      /* #DC2626 */
+    --color-red-700: 0 68% 42%;      /* #B91C1C */
+    --color-red-800: 0 65% 37%;      /* #991B1B */
+
+    /* Green Colors - EXACT Tailwind Values */
+    --color-green-500: 142 76% 45%;  /* #22C55E */
+    --color-emerald-500: 160 84% 45%; /* #10B981 */
+
+    /* Blue Colors - EXACT Tailwind Values */
+    --color-blue-500: 213 94% 68%;   /* #3B82F6 */
+    --color-sky-500: 199 89% 56%;    /* #0EA5E9 */
+
+    /* Amber Colors - EXACT Tailwind Values */
+    --color-amber-500: 38 92% 50%;   /* #F59E0B */
+
+    /* Purple Colors - EXACT Tailwind Values */
+    --color-purple-500: 262 83% 58%; /* #8B5CF6 */
+    --color-violet-500: 262 89% 58%; /* #8B5CF6 */
+
+    /* Background & Foreground Semantic Mapping */
+    --color-bg-primary: var(--background);
+    --color-bg-secondary: var(--card);
+    --color-bg-tertiary: var(--secondary);
+    --color-bg-success: 142 76% 45%; /* green-500 */
+    --color-bg-error: 0 84% 60%;     /* red-500 */
+    --color-bg-warning: 38 92% 50%;  /* amber-500 */
+    --color-bg-info: 213 94% 68%;    /* blue-500 */
+
+    --color-text-primary: var(--foreground);
+    --color-text-secondary: var(--muted-foreground);
+    --color-text-success: 142 61% 34%; /* green-700 */
+    --color-text-error: 0 68% 42%;     /* red-700 */
+    --color-text-warning: 32 95% 44%;  /* amber-700 */
+    --color-text-info: 199 89% 36%;    /* sky-700 */
+
+    --color-border-primary: var(--border);
+    --color-border-secondary: var(--input);
+    --color-border-focus: var(--ring);
   }
 
   /* ---------- ENHANCED DARK MODE ---------- */
@@ -131,7 +197,27 @@
     --sidebar-border: 217.2 32.6% 17.5%; /* Enhanced sidebar border */
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-      /* ... existing dark tokens ... */
+    /* Dark mode semantic mappings */
+    --color-bg-primary: var(--background);
+    --color-bg-secondary: var(--card);
+    --color-bg-tertiary: var(--secondary);
+    --color-bg-success: 160 84% 25%; /* dark green */
+    --color-bg-error: 0 62% 30%;     /* dark red */
+    --color-bg-warning: 32 95% 44%;  /* dark amber */
+    --color-bg-info: 199 89% 36%;    /* dark sky */
+
+    --color-text-primary: var(--foreground);
+    --color-text-secondary: var(--muted-foreground);
+    --color-text-success: 142 70% 89%; /* light green */
+    --color-text-error: 0 84% 60%;     /* light red */
+    --color-text-warning: 38 92% 93%;  /* light amber */
+    --color-text-info: 199 89% 93%;    /* light sky */
+
+    --color-border-primary: var(--border);
+    --color-border-secondary: var(--input);
+    --color-border-focus: var(--ring);
+
+    /* ... existing dark tokens ... */
 
     --color-input-bg: 222.2 32.6% 17.5%;
     --color-medical: 160 70% 89%;
@@ -192,4 +278,3 @@
   align-items: center;
   gap: 13.5px;
 }
-/* NEW variable-driven gradient */

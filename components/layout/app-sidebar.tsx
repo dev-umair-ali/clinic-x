@@ -30,7 +30,6 @@ import { FaClinicMedical } from "react-icons/fa";
 import { IoIosPersonAdd } from "react-icons/io";
 import { FaRegClipboard } from "react-icons/fa";
 
-// Removed "Settings" and "Billing" from menuItems so they only appear in OTHER section
 const menuItems = {
   admin: [
     { icon: IoHome, label: "Dashboard", href: "/admin/dashboard" },
@@ -43,6 +42,12 @@ const menuItems = {
       label: "Add Assistant",
       href: "/admin/add-assistant",
     },
+    {
+      icon: FaCreditCard,
+      label: "theme-settings",
+      href: "/admin/theme-settings",
+    },
+    
 
     // { icon: CiCalendar, label: "Appointments", href: "/admin/appointments" },
   ],
@@ -136,14 +141,14 @@ export function AppSidebar() {
   return (
     <Sidebar
       collapsible="offcanvas"
-      className="bg-gradient-to-r from-[#126A5C] to-[#1DA68F] text-white border-none h-screen"
+      className="bg-gradient-to-r from-[hsl(var(--gradient-sidebar-start))] to-[hsl(var(--gradient-sidebar-end))] text-[hsl(var(--sidebar-foreground))] border-none h-screen"
     >
       <div className="flex flex-col h-full">
         {/* Sidebar Header */}
         <SidebarHeader className="px-6 py-6 shrink-0">
           <div className="flex flex-col items-center text-center">
             <div className="text-2xl font-bold">Logo</div>
-            <div className="text-xs text-white">Powered By Clinic X</div>
+            <div className="text-xs text-[hsl(var(--sidebar-foreground))]">Powered By Clinic X</div>
           </div>
         </SidebarHeader>
 
@@ -152,7 +157,7 @@ export function AppSidebar() {
           <div className="flex flex-col h-full">
             {/* Main Menu */}
             <SidebarGroup className="mb-6">
-              <SidebarGroupLabel className="text-xs font-medium text-white mb-4 uppercase tracking-wider">
+              <SidebarGroupLabel className="text-xs font-medium text-[hsl(var(--sidebar-foreground))] mb-4 uppercase tracking-wider">
                 MAIN MENU
               </SidebarGroupLabel>
               <SidebarGroupContent>
@@ -165,8 +170,8 @@ export function AppSidebar() {
                           asChild
                           className={`px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
                             isActive
-                              ? "bg-gradient-to-r from-[#1DA68F] to-[#27DEBF] text-white font-semibold"
-                              : "text-white hover:bg-[linear-gradient(94.25deg,_#1DA68F_0%,_#27DEBF_100%)] hover:text-white"
+                              ? "bg-gradient-to-r from-[hsl(var(--color-brand-teal))] to-[hsl(var(--color-teal-gradient-mid))] text-[hsl(var(--sidebar-foreground))] font-semibold"
+                              : "text-[hsl(var(--sidebar-foreground))] hover:bg-[linear-gradient(94.25deg,_hsl(var(--color-brand-teal))_0%,_hsl(var(--color-teal-gradient-mid))_100%)] hover:text-[hsl(var(--sidebar-foreground))]"
                           }`}
                         >
                           <Link
@@ -184,8 +189,6 @@ export function AppSidebar() {
               </SidebarGroupContent>
             </SidebarGroup>
 
-            {/* Other Section */}
-            {/* Other Section */}
             {role === "doctor" || role === "patient" ? (
               <SidebarGroup className="mb-6">
                 {/* <SidebarGroupLabel className="text-xs font-medium text-white mb-4 uppercase tracking-wider">
@@ -249,7 +252,7 @@ export function AppSidebar() {
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     onClick={handleLogout}
-                    className="px-3 py-2.5 rounded-xl text-sm font-medium bg-[#B71D19] hover:bg-red-700 text-white shadow-lg w-full"
+                    className="px-3 py-2.5 rounded-xl text-sm font-medium bg-[hsl(var(--color-status-error))] hover:bg-[hsl(var(--color-status-error-dark))] text-[hsl(var(--destructive-foreground))] shadow-lg w-full"
                   >
                     <LogOut className="h-6 w-6 shrink-0" />
                     <span>Sign Out</span>
@@ -260,7 +263,7 @@ export function AppSidebar() {
 
             <SidebarGroup className="shrink-0">
               <SidebarGroupContent>
-                <div className="relative rounded-2xl p-6 bg-gradient-to-br from-[#1c6c5af6] to-[#083146] overflow-hidden">
+                <div className="relative rounded-2xl p-6 bg-gradient-to-br from-[hsl(var(--color-brand-teal-dark)/0.9)] to-[hsl(var(--color-medical)/0.8)] overflow-hidden">
                   {/* Background medical cross icon */}
                   <div className="absolute -right-4 -bottom-2 transform ">
                     <img
@@ -271,20 +274,20 @@ export function AppSidebar() {
                   </div>
 
                   {/* Question mark icon */}
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-white/30 mb-4">
-                    <span className="text-white text-sm font-bold">?</span>
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-[hsl(var(--color-white-alpha-20))] mb-4">
+                    <span className="text-[hsl(var(--sidebar-foreground))] text-sm font-bold">?</span>
                   </div>
 
                   {/* Content */}
-                  <h3 className="text-white text-lg font-semibold mb-2 leading-tight">
+                  <h3 className="text-[hsl(var(--sidebar-foreground))] text-lg font-semibold mb-2 leading-tight">
                     Still have more questions?
                   </h3>
-                  <p className="text-white/80 text-sm mb-4 leading-relaxed">
+                  <p className="text-[hsl(var(--color-white-alpha-80))] text-sm mb-4 leading-relaxed">
                     We will be ready to help you, always available 24/7 hours
                   </p>
 
                   {/* Contact button */}
-                  <button className="flex items-center gap-2 text-white text-sm font-medium underline hover:text-white/90 transition-colors group">
+                  <button className="flex items-center gap-2 text-[hsl(var(--sidebar-foreground))] text-sm font-medium underline hover:text-[hsl(var(--color-white-alpha-90))] transition-colors group">
                     <span>Contact Us</span>
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </button>

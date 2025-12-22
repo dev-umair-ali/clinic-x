@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import type React from "react"
 
@@ -70,10 +70,10 @@ export function DoctorBillingTable({ data, onAddMore, onEditPaid }: Props) {
   /* ---------- tiny helpers ---------- */
   const Avatar = ({ name }: { name: string }) => (
     <div className="flex items-center gap-2 lg:gap-3">
-      <div className="w-6 h-6 lg:w-8 lg:h-8 rounded-full overflow-hidden flex-shrink-0 border border-slate-200 dark:border-gray-600">
+      <div className="w-6 h-6 lg:w-8 lg:h-8 rounded-full overflow-hidden flex-shrink-0 border border-[hsl(var(--border))] dark:border-[hsl(var(--border))]">
         <img src="/woman-profile.png" alt={name} className="w-full h-full object-cover" />
       </div>
-      <span className="font-medium text-slate-900 dark:text-gray-100 text-xs lg:text-sm truncate">{name}</span>
+      <span className="font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] text-xs lg:text-sm truncate">{name}</span>
     </div>
   )
 
@@ -81,9 +81,9 @@ export function DoctorBillingTable({ data, onAddMore, onEditPaid }: Props) {
     <div
       className={`grid grid-cols-[120px_70px_120px_90px_100px_110px_110px_90px_90px_120px_110px_110px_90px]
         lg:grid-cols-[140px_80px_140px_100px_110px_120px_120px_100px_100px_140px_120px_120px_100px]
-        gap-2 lg:gap-4 px-3 lg:px-4 py-3 bg-slate-100 dark:bg-gray-800
-        border-b border-border dark:border-gray-700 text-xs font-medium
-        text-slate-700 dark:text-gray-300 uppercase tracking-wider`}
+        gap-2 lg:gap-4 px-3 lg:px-4 py-3 bg-[hsl(var(--muted))] dark:bg-[hsl(var(--muted))]
+        border-b border-[hsl(var(--border))] dark:border-[hsl(var(--border))] text-xs font-medium
+        text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] uppercase tracking-wider`}
     >
       {props.children}
     </div>
@@ -93,8 +93,8 @@ export function DoctorBillingTable({ data, onAddMore, onEditPaid }: Props) {
     <div
       className={`grid grid-cols-[120px_70px_120px_90px_100px_110px_110px_90px_90px_120px_110px_110px_90px]
         lg:grid-cols-[140px_80px_140px_100px_110px_120px_120px_100px_100px_140px_120px_120px_100px]
-        gap-2 lg:gap-4 px-3 lg:px-4 py-3 items-center text-sm border-b border-border dark:border-gray-700
-        ${props.isEditing ? "bg-teal-50 dark:bg-teal-900/20" : "bg-white dark:bg-gray-900 hover:bg-slate-50 dark:hover:bg-gray-800"}`}
+        gap-2 lg:gap-4 px-3 lg:px-4 py-3 items-center text-sm border-b border-[hsl(var(--border))] dark:border-[hsl(var(--border))]
+        ${props.isEditing ? "bg-[hsl(var(--color-brand-teal-light))] dark:bg-[hsl(var(--color-brand-teal)/0.2)]" : "bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] dark:hover:bg-[hsl(var(--accent))]"}`}
     >
       {props.children}
     </div>
@@ -114,11 +114,11 @@ export function DoctorBillingTable({ data, onAddMore, onEditPaid }: Props) {
         <Input
           value={editedData[field] as string}
           onChange={(e) => handleInputChange(field, e.target.value)}
-          className="h-7 text-xs lg:text-sm px-2 bg-white dark:bg-gray-800 border-teal-300 dark:border-teal-600 focus:ring-teal-500"
+          className="h-7 text-xs lg:text-sm px-2 bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))] border-[hsl(var(--color-brand-teal))] dark:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]"
         />
       )
     }
-    return <div className="text-slate-900 dark:text-gray-100 text-xs lg:text-sm">{value}</div>
+    return <div className="text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] text-xs lg:text-sm">{value}</div>
   }
 
   const renderActionButtons = (row: BillingItem, showEditDelete: boolean) => {
@@ -131,7 +131,7 @@ export function DoctorBillingTable({ data, onAddMore, onEditPaid }: Props) {
             size="sm"
             variant="ghost"
             onClick={handleSave}
-            className="h-6 w-6 lg:h-7 lg:w-7 p-0 hover:bg-green-50 dark:hover:bg-green-900 text-green-600 dark:text-green-400"
+            className="h-6 w-6 lg:h-7 lg:w-7 p-0 hover:bg-[hsl(var(--color-status-success-light))] dark:hover:bg-[hsl(var(--color-status-success)/0.2)] text-[hsl(var(--color-status-success))] dark:text-[hsl(var(--color-status-success))]"
           >
             <Check className="w-4 h-4" />
           </Button>
@@ -139,7 +139,7 @@ export function DoctorBillingTable({ data, onAddMore, onEditPaid }: Props) {
             size="sm"
             variant="ghost"
             onClick={handleCancel}
-            className="h-6 w-6 lg:h-7 lg:w-7 p-0 hover:bg-red-50 dark:hover:bg-red-900 text-red-600 dark:text-red-400"
+            className="h-6 w-6 lg:h-7 lg:w-7 p-0 hover:bg-[hsl(var(--color-status-error-light))] dark:hover:bg-[hsl(var(--color-status-error)/0.2)] text-[hsl(var(--color-status-error))] dark:text-[hsl(var(--color-status-error))]"
           >
             <X className="w-4 h-4" />
           </Button>
@@ -154,14 +154,14 @@ export function DoctorBillingTable({ data, onAddMore, onEditPaid }: Props) {
             size="sm"
             variant="ghost"
             onClick={() => handleEditClick(row)}
-            className="h-6 w-6 lg:h-7 lg:w-7 p-0 hover:bg-teal-50 dark:hover:bg-teal-900 text-teal-600 dark:text-teal-400"
+            className="h-6 w-6 lg:h-7 lg:w-7 p-0 hover:bg-[hsl(var(--color-brand-teal-light))] dark:hover:bg-[hsl(var(--color-brand-teal)/0.2)] text-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--color-brand-teal))]"
           >
             <MdOutlineModeEdit className="w-4 h-4" />
           </Button>
           <Button
             size="sm"
             variant="ghost"
-            className="h-6 w-6 lg:h-7 lg:w-7 p-0 hover:bg-red-50 dark:hover:bg-red-900 text-red-600 dark:text-red-400"
+            className="h-6 w-6 lg:h-7 lg:w-7 p-0 hover:bg-[hsl(var(--color-status-error-light))] dark:hover:bg-[hsl(var(--color-status-error)/0.2)] text-[hsl(var(--color-status-error))] dark:text-[hsl(var(--color-status-error))]"
           >
             <Trash2 className="w-3 h-3 lg:w-4 lg:h-4" />
           </Button>
@@ -173,7 +173,7 @@ export function DoctorBillingTable({ data, onAddMore, onEditPaid }: Props) {
       <Button
         size="sm"
         variant="ghost"
-        className="h-7 w-7 lg:h-8 lg:w-8 p-0 hover:bg-teal-50 dark:hover:bg-teal-900 text-teal-600 dark:text-teal-400"
+        className="h-7 w-7 lg:h-8 lg:w-8 p-0 hover:bg-[hsl(var(--color-brand-teal-light))] dark:hover:bg-[hsl(var(--color-brand-teal)/0.2)] text-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--color-brand-teal))]"
       >
         <BsFillSendFill className="w-4 h-4" />
       </Button>
@@ -247,10 +247,10 @@ export function DoctorBillingTable({ data, onAddMore, onEditPaid }: Props) {
 
   const getStatusBadge = (status: string) => {
     const styles: Record<string, string> = {
-      Pending: "bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300",
-      Submitted: "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300",
-      Approved: "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300",
-      Rejected: "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300",
+      Pending: "bg-[hsl(var(--color-chart-orange)/0.1))] dark:bg-[hsl(var(--color-chart-orange)/0.2))] text-[hsl(var(--color-chart-orange))] dark:text-[hsl(var(--color-chart-orange))]",
+      Submitted: "bg-[hsl(var(--color-chart-blue)/0.1))] dark:bg-[hsl(var(--color-chart-blue)/0.2))] text-[hsl(var(--color-chart-blue))] dark:text-[hsl(var(--color-chart-blue))]",
+      Approved: "bg-[hsl(var(--color-chart-green)/0.1))] dark:bg-[hsl(var(--color-chart-green)/0.2))] text-[hsl(var(--color-chart-green))] dark:text-[hsl(var(--color-chart-green))]",
+      Rejected: "bg-[hsl(var(--color-status-error)/0.1))] dark:bg-[hsl(var(--color-status-error)/0.2))] text-[hsl(var(--color-status-error))] dark:text-[hsl(var(--color-status-error))]",
     }
     return (
       <Badge
@@ -263,13 +263,13 @@ export function DoctorBillingTable({ data, onAddMore, onEditPaid }: Props) {
 
   /* ---------- render ---------- */
   return (
-    <div className="bg-card dark:bg-gray-800 border border-border dark:border-gray-700 rounded-lg shadow-sm">
+    <div className="bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))] border border-[hsl(var(--border))] dark:border-[hsl(var(--border))] rounded-lg shadow-sm">
       {/* <div className="flex justify-between items-center p-4 border-b border-border dark:border-gray-700">
         <h2 className="text-lg font-semibold text-foreground dark:text-gray-100">Billing History</h2>
         <Button className="bg-[#1DA68F] hover:bg-[#1DA68F]/80 text-white">Add Billing</Button>
       </div> */}
 
-      <div className="overflow-x-auto border-t border-slate-200 dark:border-gray-700">
+      <div className="overflow-x-auto border-t border-[hsl(var(--border))] dark:border-[hsl(var(--border))]">
         <div className="min-w-[1600px] lg:min-w-[1800px]">
           {/* ==================  MAIN HEADER  ================== */}
           <HeaderRow>
@@ -281,11 +281,11 @@ export function DoctorBillingTable({ data, onAddMore, onEditPaid }: Props) {
             <div>INSURANCE PAID</div>
             <div>CLAIM STATUS</div>
             <div
-              className="flex items-center gap-1 cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
+              className="flex items-center gap-1 cursor-pointer hover:text-[hsl(var(--color-brand-teal))] dark:hover:text-[hsl(var(--color-brand-teal))] transition-colors"
               onClick={onEditPaid}
             >
               PATIENT PAID
-              <MdOutlineModeEdit className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+              <MdOutlineModeEdit className="w-4 h-4 text-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--color-brand-teal))]" />
             </div>
             <div>DATE</div>
             <div>PATIENT RESPONSIBILITY</div>
@@ -310,26 +310,26 @@ export function DoctorBillingTable({ data, onAddMore, onEditPaid }: Props) {
                 <EditableCell value={row.patientPaid} field="patientPaid" isEditing={isEditing} />
                 <EditableCell value={row.date} field="date" isEditing={isEditing} />
                 <EditableCell value={row.patientResponsibility} field="patientResponsibility" isEditing={isEditing} />
-                <div className="text-slate-600 dark:text-gray-400 text-xs">{row.reason}</div>
+                <div className="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] text-xs">{row.reason}</div>
                 <div>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="outline"
                         size="sm"
-                        className="h-7 lg:h-8 px-2 lg:px-3 text-xs border-slate-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-slate-50 dark:hover:bg-gray-700 text-slate-700 dark:text-gray-300"
+                        className="h-7 lg:h-8 px-2 lg:px-3 text-xs border-[hsl(var(--border))] dark:border-[hsl(var(--border))] bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] dark:hover:bg-[hsl(var(--accent))] text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]"
                       >
                         {row.paymentStatus}
                         <ChevronDown className="w-3 h-3 ml-1" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="dark:bg-gray-800 dark:border-gray-700">
-                      <DropdownMenuItem className="dark:text-gray-300 dark:hover:bg-gray-700">
+                    <DropdownMenuContent className="dark:bg-[hsl(var(--card))] dark:border-[hsl(var(--border))]">
+                      <DropdownMenuItem className="dark:text-[hsl(var(--card-foreground))] dark:hover:bg-[hsl(var(--accent))]">
                         Submitted
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="dark:text-gray-300 dark:hover:bg-gray-700">Pending</DropdownMenuItem>
-                      <DropdownMenuItem className="dark:text-gray-300 dark:hover:bg-gray-700">Paid</DropdownMenuItem>
-                      <DropdownMenuItem className="dark:text-gray-300 dark:hover:bg-gray-700">Denied</DropdownMenuItem>
+                      <DropdownMenuItem className="dark:text-[hsl(var(--card-foreground))] dark:hover:bg-[hsl(var(--accent))]">Pending</DropdownMenuItem>
+                      <DropdownMenuItem className="dark:text-[hsl(var(--card-foreground))] dark:hover:bg-[hsl(var(--accent))]">Paid</DropdownMenuItem>
+                      <DropdownMenuItem className="dark:text-[hsl(var(--card-foreground))] dark:hover:bg-[hsl(var(--accent))]">Denied</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
@@ -348,11 +348,11 @@ export function DoctorBillingTable({ data, onAddMore, onEditPaid }: Props) {
             <div>INSURANCE PAID</div>
             <div>CLAIM STATUS</div>
             <div
-              className="flex items-center gap-1 cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
+              className="flex items-center gap-1 cursor-pointer hover:text-[hsl(var(--color-brand-teal))] dark:hover:text-[hsl(var(--color-brand-teal))] transition-colors"
               onClick={onEditPaid}
             >
               PATIENT PAID
-              <MdOutlineModeEdit className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+              <MdOutlineModeEdit className="w-4 h-4 text-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--color-brand-teal))]" />
             </div>
             <div>DATE</div>
             <div>PATIENT RESPONSIBILITY</div>
@@ -376,20 +376,20 @@ export function DoctorBillingTable({ data, onAddMore, onEditPaid }: Props) {
                 <EditableCell value={row.insurancePaid} field="insurancePaid" isEditing={isEditing} />
                 <div>{getStatusBadge(row.claimStatus)}</div>
                 <EditableCell value={row.patientPaid} field="patientPaid" isEditing={isEditing} />
-                <div className="flex items-center gap-1 lg:gap-2 text-slate-900 dark:text-gray-100 text-xs lg:text-sm">
-                  <Calendar className="w-3 h-3 lg:w-4 lg:h-4 text-slate-400 dark:text-gray-500" />
+                <div className="flex items-center gap-1 lg:gap-2 text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] text-xs lg:text-sm">
+                  <Calendar className="w-3 h-3 lg:w-4 lg:h-4 text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]" />
                   {isEditing && editedData ? (
                     <Input
                       value={editedData.date}
                       onChange={(e) => handleInputChange("date", e.target.value)}
-                      className="h-7 text-xs lg:text-sm px-2 bg-white dark:bg-gray-800 border-teal-300 dark:border-teal-600 focus:ring-teal-500 w-24"
+                      className="h-7 text-xs lg:text-sm px-2 bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))] border-[hsl(var(--color-brand-teal))] dark:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))] w-24"
                     />
                   ) : (
                     row.date
                   )}
                 </div>
                 <EditableCell value={row.patientResponsibility} field="patientResponsibility" isEditing={isEditing} />
-                <div className="text-slate-600 dark:text-gray-400 text-xs">{row.reason}</div>
+                <div className="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] text-xs">{row.reason}</div>
                 <div></div>
                 {renderActionButtons(row, showEditDelete)}
               </Row>
@@ -397,11 +397,11 @@ export function DoctorBillingTable({ data, onAddMore, onEditPaid }: Props) {
           })}
 
           {/* ==================  ADD-MORE ROW  ================== */}
-          <div className="px-3 lg:px-4 py-4 border-b border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+          <div className="px-3 lg:px-4 py-4 border-b border-[hsl(var(--border))] dark:border-[hsl(var(--border))] bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))]">
             <Button
               variant="ghost"
               size="sm"
-              className="text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 hover:bg-teal-50 dark:hover:bg-teal-900 h-8 px-3 text-sm font-medium"
+              className="text-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--color-brand-teal))] hover:text-[hsl(var(--color-brand-teal-dark))] dark:hover:text-[hsl(var(--color-brand-teal-dark))] hover:bg-[hsl(var(--color-brand-teal-light))] dark:hover:bg-[hsl(var(--color-brand-teal)/0.2)] h-8 px-3 text-sm font-medium"
               onClick={onAddMore}
             >
               <Plus className="w-4 h-4 mr-2" />
@@ -412,14 +412,14 @@ export function DoctorBillingTable({ data, onAddMore, onEditPaid }: Props) {
       </div>
 
       {/* ---------- pagination ---------- */}
-      <div className="flex justify-between items-center p-4 text-sm text-muted-foreground dark:text-gray-400">
+      <div className="flex justify-between items-center p-4 text-sm text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">
         <div className="space-x-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
-            className="border-border dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+            className="border-[hsl(var(--border))] dark:border-[hsl(var(--border))] dark:bg-[hsl(var(--card))] dark:text-[hsl(var(--card-foreground))] dark:hover:bg-[hsl(var(--accent))]"
           >
             Previous
           </Button>
@@ -431,8 +431,8 @@ export function DoctorBillingTable({ data, onAddMore, onEditPaid }: Props) {
               onClick={() => setPage(i + 1)}
               className={
                 page === i + 1
-                  ? "bg-[#1DA68F] hover:bg-[#1DA68F]/80"
-                  : "border-border dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                  ? "bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))]"
+                  : "border-[hsl(var(--border))] dark:border-[hsl(var(--border))] dark:bg-[hsl(var(--card))] dark:text-[hsl(var(--card-foreground))] dark:hover:bg-[hsl(var(--accent))]"
               }
             >
               {i + 1}
@@ -443,7 +443,7 @@ export function DoctorBillingTable({ data, onAddMore, onEditPaid }: Props) {
             size="sm"
             onClick={() => setPage((p) => Math.min(totalPages || 1, p + 1))}
             disabled={page === totalPages || totalPages === 0}
-            className="border-border dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+            className="border-[hsl(var(--border))] dark:border-[hsl(var(--border))] dark:bg-[hsl(var(--card))] dark:text-[hsl(var(--card-foreground))] dark:hover:bg-[hsl(var(--accent))]"
           >
             Next
           </Button>

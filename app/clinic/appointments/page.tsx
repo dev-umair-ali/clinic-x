@@ -1,196 +1,177 @@
 "use client";
-import { ProtectedRoute } from "@/components/ui/protected-route";
-import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
-import type { RootState } from "@/lib/store";
-import { useState, useEffect } from "react";
-import { Calendar, List } from "lucide-react";
-import StatsCards from "@/components/DoctorAppointments-components/StatsCards";
-import ViewToggle from "@/components/DoctorAppointments-components/ViewToggle";
-import CalendarView from "@/components/DoctorAppointments-components/CalendarView";
-import AppointmentList from "@/components/DoctorAppointments-components/AppointmentList";
-import PatientModal from "@/components/DoctorAppointments-components/PatientModal";
-import EditAppointmentModal from "@/components/DoctorAppointments-components/EditAppointmentModal";
-import useAppointments from "@/components/DoctorAppointments-components/hooks/useAppointments";
-import useStats from "@/components/DoctorAppointments-components/hooks/useStats";
-import { DoctorAppointment, PatientDetails } from "@/lib/api/services/appointmentService";
 
-function calculateAge(dob?: string): number {
-  if (!dob) return 0;
-  const b = new Date(dob);
-  const t = new Date();
-  let a = t.getFullYear() - b.getFullYear();
-  const m = t.getMonth() - b.getMonth();
-  if (m < 0 || (m === 0 && t.getDate() < b.getDate())) a--;
-  return a;
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import type { RootState, AppDispatch } from "@/lib/store";
+import { ProtectedRoute } from "@/components/ui/protected-route";
+import { Button } from "@/components/ui/button";
+import { CalendarView } from "@/components/ui/calendar-view";
+import { updateAppointment } from "@/lib/slices/appointmentSlice";
+import { Plus } from "lucide-react";
+
+import UpcomingCard from "@/components/patient-appointments/UpcomingCard";
+import StatsCards from "@/components/patient-appointments/StatsCards";
+import ViewToggleBar from "@/components/patient-appointments/ViewToggleBar";
+import AppointmentTable from "@/components/patient-appointments/AppointmentTable";
+import CancelDialog from "@/components/patient-appointments/CancelDialog";
+
+function parseAppointmentDate(apt: any) {
+  return new Date(`${apt.date} ${apt.time}`);
 }
 
-export default function DoctorAppointments() {
+export default function PatientAppointmentsPage() {
   const router = useRouter();
-  const { user: authUser } = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch<AppDispatch>();
+
+  const { user } = useSelector((state: RootState) => state.auth);
+
+  // ✅ Dummy data for testing
+  const patientAppointments = useMemo(() => [
+    {
+      _id: "1",
+      type: "Annual Physical Exam",
+      doctorName: "Sarah Smith",
+      date: "2025-12-25",
+      time: "10:00 AM",
+      status: "confirmed",
+      patient: user?.id ?? "patient1",
+    },
+    {
+      _id: "2",
+      type: "Dental Checkup",
+      doctorName: "John Doe",
+      date: "2025-12-28",
+      time: "2:00 PM",
+      status: "pending",
+      patient: user?.id ?? "patient1",
+    },
+    {
+      _id: "3",
+      type: "Eye Examination",
+      doctorName: "Emma Brown",
+      date: "2025-12-30",
+      time: "11:30 AM",
+      status: "confirmed",
+      patient: user?.id ?? "patient1",
+    },
+  ], [user?.id]);
+
+  // Find nearest upcoming appointment
+  const upcomingAppointment = useMemo(() => {
+    return patientAppointments
+      .filter(
+        (a) =>
+          a.status === "confirmed" || a.status === "pending"
+      )
+      .sort(
+        (a, b) =>
+          parseAppointmentDate(a).getTime() -
+          parseAppointmentDate(b).getTime()
+      )[0];
+  }, [patientAppointments]);
 
   const [viewMode, setViewMode] = useState<"calendar" | "list">("list");
-  const [selectedFilter, setSelectedFilter] = useState("Upcoming");
+  const [filterTab, setFilterTab] = useState<"Upcoming" | "Canceled" | "All">(
+    "Upcoming"
+  );
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState("Date");
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageLimit = 10;
+  const [sortBy, setSortBy] = useState("Monthly");
+  const [cancelTarget, setCancelTarget] = useState<any>(null);
 
-  const [selectedPatient, setSelectedPatient] = useState<PatientDetails | null>(null);
-  const [showPatientModal, setShowPatientModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [editingAppointment, setEditingAppointment] = useState<DoctorAppointment | null>(null);
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-
-  const {
-    appointments,
-    loading,
-    error,
-    totalPages,
-    fetchList,
-    fetchCalendar,
-    fetchAppointmentListView,
-    fetchPatientDetails,
-    updateStatus,
-    createAppointment,
-    updateAppointment,
-  } = useAppointments(viewMode, selectedFilter, searchQuery, currentPage, pageLimit);
-
-  const stats = useStats(appointments);
-
-  useEffect(() => {
-    if (authUser?.id && appointments.length === 0 && !loading) {
-      fetchAppointmentListView(authUser.id);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authUser?.id]);
-
-  const handlePatientClick = async (apt: DoctorAppointment) => {
-    if (!apt._id) return;
-    try {
-      const p = await fetchPatientDetails(apt._id);
-      const details: PatientDetails = {
-        _id: p._id,
-        name: p.name,
-        patientId: p.patientId || `#PAT-${p._id.slice(-6)}`,
-        email: p.email,
-        phone: p.phone,
-        dateOfBirth: p.dateOfBirth,
-        age: calculateAge(p.dateOfBirth),
-        gender: p.gender,
-        bloodType: p.bloodType,
-        address: p.address,
-        avatar: p.avatar,
-        lastVisit: p.lastVisit,
-      };
-      setSelectedPatient(details);
-      setShowPatientModal(true);
-    } catch (e: any) {
-      // error already surfaced via hook
+  const statusColor = (st: string) => {
+    switch (st) {
+      case "confirmed":
+        return "bg-[#1DA68F] text-white";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "cancelled":
+        return "bg-red-100 text-red-800";
+      case "completed":
+        return "bg-blue-100 text-blue-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
-  const handleStatusUpdate = async (id: string, status: string) => {
-    try {
-      await updateStatus(id, status);
-      if (viewMode === "calendar") fetchCalendar();
-      else fetchList();
-    } catch (e: any) {
-      // error already surfaced via hook
-    }
+  const calendarEvents = useMemo(
+    () =>
+      patientAppointments.map((a) => ({
+        id: a._id,
+        title: `${a.type} - ${a.doctorName}`,
+        date: a.date,
+        status: a.status,
+        type: "appointment",
+      })),
+    [patientAppointments]
+  );
+
+  const confirmCancel = () => {
+    if (!cancelTarget) return;
+    dispatch(updateAppointment({ ...cancelTarget, status: "cancelled" }));
+    setCancelTarget(null);
   };
-
-  const handleCreateAppointment = async (data: any) => {
-    try {
-      await createAppointment(data);
-      if (viewMode === "calendar") fetchCalendar();
-      else fetchList();
-    } catch (e: any) {
-      // error already surfaced via hook
-    }
-  };
-
-  const handleEditAppointment = (apt: DoctorAppointment) => {
-    setEditingAppointment(apt);
-    setShowEditModal(true);
-  };
-
-  const calendarEvents = appointments.map((apt) => ({
-    id: apt._id,
-    title: `${apt.patientName || apt.patient?.name|| "Patient"} - ${apt.type || "appointment"}`,
-    date: apt.dateTime.split("T")[0],
-    type: (apt.type?.toLowerCase() || "appointment") as any,
-  }));
-
-  const statsData = [
-    { title: "Hours Available This Week", value: stats.hoursAvailable, icon: <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />, color: "text-blue-600 dark:text-blue-400", bgColor: "bg-blue-50 dark:bg-blue-900/20" },
-    { title: "Appointments Booked", value: stats.appointmentsBooked, icon: <List className="h-4 w-4 sm:h-5 sm:w-5" />, color: "text-green-600 dark:text-green-400", bgColor: "bg-green-50 dark:bg-green-900/20" },
-    { title: "Next Available Slot", value: stats.nextAvailableSlot, icon: <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />, color: "text-orange-600 dark:text-orange-400", bgColor: "bg-orange-50 dark:bg-orange-900/20" },
-  ];
 
   return (
     <ProtectedRoute allowedRoles={["clinic"]}>
-      <div className="flex-1 overflow-y-auto p-3 sm:p-6 bg-background">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-6 sm:mb-8">
-            <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-4 sm:mb-6">Calendly Integrations</h1>
-            <StatsCards data={statsData} />
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mb-6">
-              <ViewToggle
-                viewMode={viewMode}
-                setViewMode={setViewMode}
-                onCalendar={() => fetchCalendar()}
-                onList={() => fetchList()}
-              />
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 px-6 py-6">
+        <div className="max-w-7xl mx-auto space-y-6">
+
+          {/* Header */}
+          <div className="flex justify-between">
+            <div>
+              <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
+                Appointments
+              </h1>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Schedule and manage your appointments
+              </p>
             </div>
+            <Button
+              onClick={() => router.push("/clinic/appointments/book")}
+              className="bg-[#1DA68F] hover:bg-[#168f73] text-white flex gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              New Appointment
+            </Button>
           </div>
 
-          {viewMode === "calendar" ? (
-            <CalendarView
-              currentMonth={currentMonth}
-              setCurrentMonth={setCurrentMonth}
-              calendarEvents={calendarEvents}
+          {/* Cards */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <UpcomingCard
+              appointment={upcomingAppointment}
+              onCancel={(apt) => setCancelTarget(apt)}
             />
+            <StatsCards />
+          </div>
+
+          <ViewToggleBar viewMode={viewMode} setViewMode={setViewMode} />
+
+          {viewMode === "calendar" ? (
+            <CalendarView events={calendarEvents} />
           ) : (
-            <AppointmentList
-              loading={loading}
-              error={error}
-              appointments={appointments}
+            <AppointmentTable
+              appointments={patientAppointments}
+              filterTab={filterTab}
+              setFilterTab={setFilterTab}
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
               sortBy={sortBy}
               setSortBy={setSortBy}
-              selectedFilter={selectedFilter}
-              setSelectedFilter={setSelectedFilter}
-              onStatusUpdate={handleStatusUpdate}
-              onPatientClick={handlePatientClick}
-              onEdit={handleEditAppointment}
-              currentPage={currentPage}
-              setCurrentPage={setCurrentPage}
-              totalPages={totalPages}
+              onCancel={(apt) => setCancelTarget(apt)}
+              statusColor={statusColor}
+              parseDate={parseAppointmentDate}
             />
           )}
         </div>
       </div>
 
-      <PatientModal
-        open={showPatientModal}
-        setOpen={setShowPatientModal}
-        patient={selectedPatient}
-      />
-
-      <EditAppointmentModal
-        open={showEditModal}
-        setOpen={setShowEditModal}
-        appointment={editingAppointment}
-        onSaved={() => {
-          setShowEditModal(false);
-          if (viewMode === "calendar") fetchCalendar();
-          else fetchList();
-        }}
-        onError={(m) => {
-          // surface via toast or setError if desired
-        }}
+      {/* Cancel Modal */}
+      <CancelDialog
+        open={!!cancelTarget}
+        appointment={cancelTarget}
+        onOpenChange={(o) => !o && setCancelTarget(null)}
+        onConfirm={confirmCancel}
       />
     </ProtectedRoute>
   );

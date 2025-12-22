@@ -107,12 +107,12 @@ export default function AudioSummaryHistory() {
 
   // List View Component
   const ListView = () => (
-    <div className="min-h-screen bg-background p-6">
+    <div className="min-h-screen bg-[hsl(var(--background))] p-6">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-          <h1 className="text-2xl font-bold text-foreground">Audio Summary & History</h1>
+          <h1 className="text-2xl font-bold text-[hsl(var(--foreground))]">Audio Summary & History</h1>
           <Button
-            className="bg-[#1DA68F] hover:bg-[#1DA68F]/90 text-white px-4 py-2 rounded-md"
+            className="bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-[hsl(var(--primary-foreground))] px-4 py-2 rounded-md"
             onClick={() => setCurrentView('upload')}
           >
             Audio Summary
@@ -121,27 +121,27 @@ export default function AudioSummaryHistory() {
         
         <div className="space-y-6">
           {records.map((record) => (
-            <Card key={record.id} className="p-6 shadow-sm border border-border bg-card">
+            <Card key={record.id} className="p-6 shadow-sm border border-[hsl(var(--border))] bg-[hsl(var(--card))]">
               <CardContent className="p-0">
                 <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
                   <div className="flex items-center space-x-4">
-                    <div className="bg-muted p-3 rounded-full">
-                      <MicIcon className="w-5 h-5 text-muted-foreground" />
+                    <div className="bg-[hsl(var(--muted))] p-3 rounded-full">
+                      <MicIcon className="w-5 h-5 text-[hsl(var(--muted-foreground))]" />
                     </div>
                     <div>
                       <div className="flex items-center space-x-2">
-                        <h2 className="text-lg font-semibold text-foreground">{record.title}</h2>
+                        <h2 className="text-lg font-semibold text-[hsl(var(--card-foreground))]">{record.title}</h2>
                         <Badge
                           className={`px-2 py-1 rounded-md text-xs font-medium ${
                             record.status === "transcribed"
-                              ? "bg-[#1DA68F] text-white hover:bg-[#1DA68F]"
-                              : "bg-yellow-100 text-yellow-800 hover:bg-yellow-100 dark:bg-yellow-900/30 dark:text-yellow-300"
+                              ? "bg-[hsl(var(--color-brand-teal))] text-[hsl(var(--primary-foreground))] hover:bg-[hsl(var(--color-brand-teal))]"
+                              : "bg-[hsl(var(--color-chart-orange)/0.1)] text-[hsl(var(--color-chart-orange))] hover:bg-[hsl(var(--color-chart-orange)/0.1)]"
                           }`}
                         >
                           {record.status === "transcribed" ? "Transcribed" : "Pending"}
                         </Badge>
                       </div>
-                      <div className="flex flex-wrap items-center text-sm text-muted-foreground mt-1 gap-3">
+                      <div className="flex flex-wrap items-center text-sm text-[hsl(var(--muted-foreground))] mt-1 gap-3">
                         <div className="flex items-center space-x-1">
                           <UserIcon className="w-4 h-4" />
                           <span>{record.patientName}</span>
@@ -153,18 +153,18 @@ export default function AudioSummaryHistory() {
                       </div>
                     </div>
                   </div>
-                  <div className="text-right text-sm text-muted-foreground">
+                  <div className="text-right text-sm text-[hsl(var(--muted-foreground))]">
                     <p>{record.fileSize}</p>
                     <p>{record.recordDate}</p>
                   </div>
                 </div>
                 
                 {record.transcription && (
-                  <div className="bg-muted/50 p-4 rounded-lg mb-4 flex items-start space-x-2 border border-border">
-                    <FileTextIcon className="w-5 h-5 text-muted-foreground mt-0.5" />
+                  <div className="bg-[hsl(var(--muted)/0.5)] p-4 rounded-lg mb-4 flex items-start space-x-2 border border-[hsl(var(--border))]">
+                    <FileTextIcon className="w-5 h-5 text-[hsl(var(--muted-foreground))] mt-0.5" />
                     <div>
-                      <p className="text-sm font-medium text-foreground">Transcription</p>
-                      <p className="text-sm text-muted-foreground mt-1">{record.transcription}</p>
+                      <p className="text-sm font-medium text-[hsl(var(--card-foreground))]">Transcription</p>
+                      <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">{record.transcription}</p>
                     </div>
                   </div>
                 )}
@@ -172,7 +172,7 @@ export default function AudioSummaryHistory() {
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                   <div className="flex flex-wrap gap-2">
                     <Button
-                      className="px-4 py-2 rounded-md flex items-center space-x-2 bg-[#1DA68F] text-white hover:bg-[#1DA68F]/90"
+                      className="px-4 py-2 rounded-md flex items-center space-x-2 bg-[hsl(var(--color-brand-teal))] text-[hsl(var(--primary-foreground))] hover:bg-[hsl(var(--color-brand-teal-dark))]"
                       onClick={() => togglePlayPause(record.id)}
                     >
                       {record.isPlaying ? (
@@ -182,28 +182,28 @@ export default function AudioSummaryHistory() {
                       )}
                       <span>{record.isPlaying ? "Pause" : "Play"}</span>
                     </Button>
-                    <Button className="px-4 py-2 rounded-md flex items-center space-x-2 text-foreground hover:bg-muted/50 border border-border bg-background">
+                    <Button className="px-4 py-2 rounded-md flex items-center space-x-2 text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))] border border-[hsl(var(--border))] bg-[hsl(var(--background))]">
                       <PencilIcon className="w-5 h-5" />
                       <span>Edit</span>
                     </Button>
-                    <Button className="px-4 py-2 rounded-md flex items-center space-x-2 text-foreground hover:bg-muted/50 border border-border bg-background">
+                    <Button className="px-4 py-2 rounded-md flex items-center space-x-2 text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))] border border-[hsl(var(--border))] bg-[hsl(var(--background))]">
                       <DownloadIcon className="w-5 h-5" />
                       <span>Download</span>
                     </Button>
-                    <Button className="px-4 py-2 rounded-md flex items-center space-x-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 border border-red-300 dark:border-red-800 bg-background">
+                    <Button className="px-4 py-2 rounded-md flex items-center space-x-2 text-[hsl(var(--color-status-error))] hover:bg-[hsl(var(--color-status-error-light))] border border-[hsl(var(--color-status-error))] bg-[hsl(var(--background))]">
                       <Trash2Icon className="w-5 h-5" />
                       <span>Delete</span>
                     </Button>
                   </div>
                   {record.isPlaying && (
                     <div className="flex items-center space-x-2 ml-0 md:ml-4 md:flex-1">
-                      <div className="h-2 bg-muted rounded-full flex-1">
+                      <div className="h-2 bg-[hsl(var(--muted))] rounded-full flex-1">
                         <div
-                          className="h-full bg-[#1DA68F] rounded-full"
+                          className="h-full bg-[hsl(var(--color-brand-teal))] rounded-full"
                           style={{ width: `${record.progress}%` }}
                         />
                       </div>
-                      <span className="text-sm text-muted-foreground">3:45</span>
+                      <span className="text-sm text-[hsl(var(--muted-foreground))]">3:45</span>
                     </div>
                   )}
                 </div>
@@ -217,13 +217,13 @@ export default function AudioSummaryHistory() {
 
   // Upload View Component
   const UploadView = () => (
-    <div className="min-h-screen bg-background p-6">
+    <div className="min-h-screen bg-[hsl(var(--background))] p-6">
       <div className="max-w-6xl mx-auto">
         {/* Back button */}
         <div className="mb-8">
           <Button 
             variant="ghost"
-            className="text-[#1DA68F] hover:bg-transparent p-0 h-auto font-normal"
+            className="text-[hsl(var(--color-brand-teal))] hover:bg-transparent p-0 h-auto font-normal"
             onClick={() => setCurrentView('list')}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -232,21 +232,21 @@ export default function AudioSummaryHistory() {
         </div>
 
         {/* Page title */}
-        <h1 className="text-2xl font-bold text-foreground mb-12">Audio Summary & History</h1>
+        <h1 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-12">Audio Summary & History</h1>
 
         {/* Main content grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
           {/* Audio Upload Section */}
-          <div className="bg-card border border-border rounded-lg p-6">
+          <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-lg p-6">
             <div className="flex items-center space-x-3 mb-8">
-              <div className="w-1 h-6 bg-[#1DA68F] rounded-full"></div>
-              <h2 className="text-lg font-semibold text-foreground">Audio Upload</h2>
+              <div className="w-1 h-6 bg-[hsl(var(--color-brand-teal))] rounded-full"></div>
+              <h2 className="text-lg font-semibold text-[hsl(var(--card-foreground))]">Audio Upload</h2>
             </div>
             <div
               className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                 isDragOver
-                  ? "border-[#1DA68F] bg-[#1DA68F]/5"
-                  : "border-border"
+                  ? "border-[hsl(var(--color-brand-teal))] bg-[hsl(var(--color-brand-teal)/0.05)]"
+                  : "border-[hsl(var(--border))]"
               }`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
@@ -254,15 +254,15 @@ export default function AudioSummaryHistory() {
             >
               <div className="flex flex-col items-center space-y-4">
                 <div className="w-16 h-16">
-                  <svg viewBox="0 0 64 64" className="w-full h-full text-muted-foreground">
+                  <svg viewBox="0 0 64 64" className="w-full h-full text-[hsl(var(--muted-foreground))]">
                     <path fill="currentColor" d="M32 8c-1.1 0-2 .9-2 2v20.6l-7.3-7.3c-.8-.8-2-.8-2.8 0s-.8 2 0 2.8l10 10c.4.4.9.6 1.4.6s1-.2 1.4-.6l10-10c.8-.8.8-2 0-2.8s-2-.8-2.8 0L34 30.6V10c0-1.1-.9-2-2-2z"/>
                     <path fill="currentColor" d="M48 32c-1.1 0-2 .9-2 2v18H18V34c0-1.1-.9-2-2-2s-2 .9-2 2v20c0 1.1.9 2 2 2h32c1.1 0 2-.9 2-2V34c0-1.1-.9-2-2-2z"/>
                     <circle fill="currentColor" cx="32" cy="20" r="2"/>
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-lg font-medium text-foreground mb-2">Upload audio file</h3>
-                  <p className="text-sm text-muted-foreground mb-6">
+                  <h3 className="text-lg font-medium text-[hsl(var(--card-foreground))] mb-2">Upload audio file</h3>
+                  <p className="text-sm text-[hsl(var(--muted-foreground))] mb-6">
                     Drag and drop your audio file here, or click to browse
                   </p>
                 </div>
@@ -276,21 +276,21 @@ export default function AudioSummaryHistory() {
                   />
                   <label htmlFor="audio-upload">
                     <Button
-                      className="bg-[#1DA68F] hover:bg-[#1DA68F]/90 text-white px-6 py-2 rounded-md"
+                      className="bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-[hsl(var(--primary-foreground))] px-6 py-2 rounded-md"
                       asChild
                     >
                       <span className="cursor-pointer">Choose File</span>
                     </Button>
                   </label>
                 </div>
-                <p className="text-xs text-muted-foreground mb-4">
+                <p className="text-xs text-[hsl(var(--muted-foreground))] mb-4">
                   Supported formats: MP3, WAV, M4A, AAC (Max: 100MB)
                 </p>
                 
                 {/* Progress bar - shown when file is selected */}
                 {selectedFile && (
                   <div className="w-full">
-                    <div className="bg-[#1DA68F] text-white px-3 py-1 rounded text-sm font-medium inline-block">
+                    <div className="bg-[hsl(var(--color-brand-teal))] text-[hsl(var(--primary-foreground))] px-3 py-1 rounded text-sm font-medium inline-block">
                       {selectedFile.name} ({uploadProgress}%)
                     </div>
                   </div>
@@ -300,14 +300,14 @@ export default function AudioSummaryHistory() {
           </div>
 
           {/* Generated Summary Section */}
-          <div className="bg-card border border-border rounded-lg p-6">
+          <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-lg p-6">
             <div className="flex items-center space-x-3 mb-8">
-              <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
-              <h2 className="text-lg font-semibold text-foreground">Generated Summary</h2>
+              <div className="w-1 h-6 bg-[hsl(var(--color-status-info))] rounded-full"></div>
+              <h2 className="text-lg font-semibold text-[hsl(var(--card-foreground))]">Generated Summary</h2>
             </div>
             <div className="text-center py-16">
               <div className="w-16 h-16 mx-auto mb-6">
-                <svg viewBox="0 0 64 64" className="w-full h-full text-muted-foreground">
+                <svg viewBox="0 0 64 64" className="w-full h-full text-[hsl(var(--muted-foreground))]">
                   <rect x="16" y="8" width="32" height="44" rx="2" fill="none" stroke="currentColor" strokeWidth="2"/>
                   <rect x="20" y="16" width="24" height="2" fill="currentColor"/>
                   <rect x="20" y="22" width="24" height="2" fill="currentColor"/>
@@ -315,7 +315,7 @@ export default function AudioSummaryHistory() {
                   <rect x="12" y="12" width="32" height="36" rx="2" fill="none" stroke="currentColor" strokeWidth="2"/>
                 </svg>
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-[hsl(var(--muted-foreground))]">
                 Upload an audio file to generate a clinical summary
               </p>
             </div>
@@ -324,22 +324,22 @@ export default function AudioSummaryHistory() {
 
         {/* Best Practices Section */}
         <div className="mb-8">
-          <h3 className="text-lg font-semibold text-foreground mb-4">Best Practices for Audio Upload:</h3>
-          <ul className="space-y-2 text-sm text-muted-foreground">
+          <h3 className="text-lg font-semibold text-[hsl(var(--foreground))] mb-4">Best Practices for Audio Upload:</h3>
+          <ul className="space-y-2 text-sm text-[hsl(var(--muted-foreground))]">
             <li className="flex items-start">
-              <span className="text-foreground mr-2">•</span>
+              <span className="text-[hsl(var(--foreground))] mr-2">•</span>
               <span>Ensure clear audio quality with minimal background noise</span>
             </li>
             <li className="flex items-start">
-              <span className="text-foreground mr-2">•</span>
+              <span className="text-[hsl(var(--foreground))] mr-2">•</span>
               <span>Speak clearly and at normal pace</span>
             </li>
             <li className="flex items-start">
-              <span className="text-foreground mr-2">•</span>
+              <span className="text-[hsl(var(--foreground))] mr-2">•</span>
               <span>Include patient consent for recording when applicable</span>
             </li>
             <li className="flex items-start">
-              <span className="text-foreground mr-2">•</span>
+              <span className="text-[hsl(var(--foreground))] mr-2">•</span>
               <span>Review generated summary for accuracy before saving</span>
             </li>
           </ul>
@@ -347,27 +347,27 @@ export default function AudioSummaryHistory() {
 
         {/* Action Buttons */}
         <div className="flex flex-wrap justify-end gap-3 mb-8">
-          <Button className="bg-[#1DA68F] hover:bg-[#1DA68F]/90 text-white px-6 py-2 rounded-md flex items-center space-x-2">
+          <Button className="bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-[hsl(var(--primary-foreground))] px-6 py-2 rounded-md flex items-center space-x-2">
             <span>✓</span>
             <span>Save</span>
           </Button>
-          <Button variant="outline" className="px-6 py-2 rounded-md border-border text-foreground hover:bg-muted/50 flex items-center space-x-2">
+          <Button variant="outline" className="px-6 py-2 rounded-md border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))] flex items-center space-x-2">
             <span>✏️</span>
             <span>Edit</span>
           </Button>
-          <Button variant="outline" className="text-red-600 border-red-300 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/20 px-6 py-2 rounded-md flex items-center space-x-2">
+          <Button variant="outline" className="text-[hsl(var(--color-status-error))] border-[hsl(var(--color-status-error))] hover:bg-[hsl(var(--color-status-error-light))] px-6 py-2 rounded-md flex items-center space-x-2">
             <span>🗑️</span>
             <span>Delete</span>
           </Button>
         </div>
 
         {/* Disclaimer */}
-        <div className="bg-muted/50 border border-border rounded-lg p-4">
+        <div className="bg-[hsl(var(--muted)/0.5)] border border-[hsl(var(--border))] rounded-lg p-4">
           <div className="flex items-start space-x-3">
-            <AlertCircle className="w-5 h-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+            <AlertCircle className="w-5 h-5 text-[hsl(var(--muted-foreground))] mt-0.5 flex-shrink-0" />
             <div>
-              <p className="text-sm font-medium text-foreground mb-1">Disclaimer</p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm font-medium text-[hsl(var(--foreground))] mb-1">Disclaimer</p>
+              <p className="text-sm text-[hsl(var(--muted-foreground))]">
                 This is generated using AI and may contain errors. Please review carefully and make necessary corrections before finalizing.
               </p>
             </div>

@@ -16,15 +16,15 @@ export function DashboardKPIs() {
       icon: <FileText className="h-5 w-5 text-[hsl(var(--color-status-error))]" />,
       change: "+2.1%",
       changeColor:
-        "bg-[hsl(var(--color-status-error-light))] text-[hsl(var(--color-status-error))] border border-[hsl(var(--color-status-error-dark))]",
+        "bg-[hsl(var(--color-status-error)/0.1))] text-[hsl(var(--color-status-error))] dark:bg-[hsl(var(--color-status-error)/0.2))] dark:text-[hsl(var(--color-status-error))]",
     },
     {
       label: "Revenue Trend",
       value: "$47,500",
-      icon: <DollarSign className="h-5 w-5 text-[hsl(var(--color-status-success))]" />,
+      icon: <DollarSign className="h-5 w-5 text-[hsl(var(--color-chart-green))]" />,
       change: "+8.2%",
       changeColor:
-        "bg-[hsl(var(--color-status-success-light))] text-[hsl(var(--color-status-success))] border border-[hsl(var(--color-status-success-dark))]",
+        "bg-[hsl(var(--color-chart-green)/0.1))] text-[hsl(var(--color-chart-green))] dark:bg-[hsl(var(--color-chart-green)/0.2))] dark:text-[hsl(var(--color-chart-green))]",
     },
     {
       label: "Payment Methods",
@@ -32,15 +32,15 @@ export function DashboardKPIs() {
       icon: <Clock className="h-5 w-5 text-[hsl(var(--color-chart-blue))]" />,
       change: "+1",
       changeColor:
-        "bg-[hsl(var(--color-chart-blue)/0.2)] text-[hsl(var(--color-chart-blue))] border border-[hsl(var(--color-chart-blue)/0.3)]",
+        "bg-[hsl(var(--color-chart-blue)/0.1))] text-[hsl(var(--color-chart-blue))] dark:bg-[hsl(var(--color-chart-blue)/0.2))] dark:text-[hsl(var(--color-chart-blue))]",
     },
     {
       label: "Paid Invoices",
       value: "1,249",
-      icon: <AlertCircle className="h-5 w-5 text-[hsl(var(--color-status-success))]" />,
+      icon: <AlertCircle className="h-5 w-5 text-[hsl(var(--color-chart-green))]" />,
       change: "+5.4%",
       changeColor:
-        "bg-[hsl(var(--color-status-success-light))] text-[hsl(var(--color-status-success))] border border-[hsl(var(--color-status-success-dark))]",
+        "bg-[hsl(var(--color-chart-green)/0.1))] text-[hsl(var(--color-chart-green))] dark:bg-[hsl(var(--color-chart-green)/0.2))] dark:text-[hsl(var(--color-chart-green))]",
     },
   ];
 
@@ -49,16 +49,16 @@ export function DashboardKPIs() {
       {cards.map((card, i) => (
         <Card
           key={i}
-          className="shadow-sm border-[hsl(var(--border))] bg-[hsl(var(--card))]"
+          className="shadow-sm border-[hsl(var(--border))] dark:border-[hsl(var(--border))] dark:bg-[hsl(var(--card))]"
         >
           <CardHeader className="pb-2 flex flex-row justify-between items-center">
-            <CardTitle className="text-sm font-medium text-[hsl(var(--muted-foreground))]">
+            <CardTitle className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">
               {card.label}
             </CardTitle>
             {card.icon}
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-[hsl(var(--foreground))] mb-1">
+            <div className="text-2xl font-bold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] mb-1">
               {card.value}
             </div>
             <span

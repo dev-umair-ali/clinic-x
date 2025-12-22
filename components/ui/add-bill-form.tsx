@@ -34,47 +34,47 @@ export default function AddBillForm({
   onAddNew,
   onDeleteSaved,
 }: AddBillFormProps) {
-  /*  ⬇️  EVERYTHING THAT WAS AFTER “return” GOES HERE  */
+  /*  ⬇️  EVERYTHING THAT WAS AFTER "return" GOES HERE  */
   return (
-    <div className="p-6 bg-background dark:bg-gray-900 min-h-screen">
+    <div className="p-6 bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))] min-h-screen">
       <button
         onClick={onBack}
-        className="flex items-center gap-2 text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 mb-6 text-sm font-medium"
+        className="flex items-center gap-2 text-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--color-brand-teal))] hover:text-[hsl(var(--color-brand-teal-dark))] dark:hover:text-[hsl(var(--color-brand-teal-dark))] mb-6 text-sm font-medium"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Patient Billing
       </button>
 
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-8">
+      <h1 className="text-2xl font-bold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] mb-8">
         Add Bill
       </h1>
 
       <div className="mb-8">
-        <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
+        <h2 className="text-lg font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] mb-4">
           Saved Bills
         </h2>
-        <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+        <div className="border border-[hsl(var(--border))] dark:border-[hsl(var(--border))] rounded-lg overflow-hidden">
           {savedBills.map((bill, index) => (
             <div
               key={bill.id}
               className={`flex items-center justify-between p-4 ${
                 index !== savedBills.length - 1
-                  ? "border-b border-gray-200 dark:border-gray-700"
+                  ? "border-b border-[hsl(var(--border))] dark:border-[hsl(var(--border))]"
                   : ""
-              } bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700`}
+              } bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))] hover:bg-[hsl(var(--accent))] dark:hover:bg-[hsl(var(--accent))]`}
             >
-              <span className="text-gray-700 dark:text-gray-300 text-sm font-medium">
+              <span className="text-[hsl(var(--card-foreground))] dark:text-[hsl(var(--card-foreground))] text-sm font-medium">
                 {bill.text}
               </span>
               <div className="flex items-center gap-3">
-                <button className="p-1 hover:bg-gray-100 dark:hover:bg-gray-600 rounded">
+                <button className="p-1 hover:bg-[hsl(var(--accent))] dark:hover:bg-[hsl(var(--accent))] rounded">
                   <MdOutlineModeEdit className="w-8 h-8 lg:w-8 lg:h-8" />
                 </button>
                 <button
                   onClick={() => onDeleteSaved(bill.id)}
-                  className="p-1 hover:bg-gray-100 dark:hover:bg-gray-600 rounded"
+                  className="p-1 hover:bg-[hsl(var(--accent))] dark:hover:bg-[hsl(var(--accent))] rounded"
                 >
-                  <Trash2 className="w-4 h-4 text-red-500 dark:text-red-400" />
+                  <Trash2 className="w-4 h-4 text-[hsl(var(--color-status-error))] dark:text-[hsl(var(--color-status-error))]" />
                 </button>
               </div>
             </div>
@@ -85,8 +85,8 @@ export default function AddBillForm({
       <div className="space-y-6 mb-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              CPT Codes <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] mb-2">
+              CPT Codes <span className="text-[hsl(var(--color-status-error))]">*</span>
             </label>
             <input
               type="text"
@@ -95,13 +95,13 @@ export default function AddBillForm({
               onChange={(e) =>
                 setForm((prev) => ({ ...prev, cptCodes: e.target.value }))
               }
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+              className="w-full px-3 py-2 border border-[hsl(var(--border))] dark:border-[hsl(var(--border))] rounded-md focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-brand-teal))] focus:border-[hsl(var(--color-brand-teal))] text-sm bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))] text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Description <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] mb-2">
+              Description <span className="text-[hsl(var(--color-status-error))]">*</span>
             </label>
             <input
               type="text"
@@ -110,14 +110,14 @@ export default function AddBillForm({
               onChange={(e) =>
                 setForm((prev) => ({ ...prev, description: e.target.value }))
               }
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+              className="w-full px-3 py-2 border border-[hsl(var(--border))] dark:border-[hsl(var(--border))] rounded-md focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-brand-teal))] focus:border-[hsl(var(--color-brand-teal))] text-sm bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))] text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]"
             />
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] mb-2">
               Charge
             </label>
             <input
@@ -127,12 +127,12 @@ export default function AddBillForm({
               onChange={(e) =>
                 setForm((prev) => ({ ...prev, charge: e.target.value }))
               }
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+              className="w-full px-3 py-2 border border-[hsl(var(--border))] dark:border-[hsl(var(--border))] rounded-md focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-brand-teal))] focus:border-[hsl(var(--color-brand-teal))] text-sm bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))] text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] mb-2">
               Adjustment
             </label>
             <input
@@ -142,14 +142,14 @@ export default function AddBillForm({
               onChange={(e) =>
                 setForm((prev) => ({ ...prev, adjustment: e.target.value }))
               }
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+              className="w-full px-3 py-2 border border-[hsl(var(--border))] dark:border-[hsl(var(--border))] rounded-md focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-brand-teal))] focus:border-[hsl(var(--color-brand-teal))] text-sm bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))] text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]"
             />
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] mb-2">
               Insurance Paid
             </label>
             <input
@@ -159,12 +159,12 @@ export default function AddBillForm({
               onChange={(e) =>
                 setForm((prev) => ({ ...prev, insurancePaid: e.target.value }))
               }
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+              className="w-full px-3 py-2 border border-[hsl(var(--border))] dark:border-[hsl(var(--border))] rounded-md focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-brand-teal))] focus:border-[hsl(var(--color-brand-teal))] text-sm bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))] text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] mb-2">
               Patient Paid
             </label>
             <input
@@ -174,13 +174,13 @@ export default function AddBillForm({
               onChange={(e) =>
                 setForm((prev) => ({ ...prev, patientPaid: e.target.value }))
               }
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+              className="w-full px-3 py-2 border border-[hsl(var(--border))] dark:border-[hsl(var(--border))] rounded-md focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-brand-teal))] focus:border-[hsl(var(--color-brand-teal))] text-sm bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))] text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] mb-2">
             Patient Responsibility
           </label>
           <input
@@ -190,14 +190,14 @@ export default function AddBillForm({
             onChange={(e) =>
               setForm((prev) => ({ ...prev, patientResponsibility: e.target.value }))
             }
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+            className="w-full px-3 py-2 border border-[hsl(var(--border))] dark:border-[hsl(var(--border))] rounded-md focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-brand-teal))] focus:border-[hsl(var(--color-brand-teal))] text-sm bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))] text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]"
           />
         </div>
       </div>
 
       <button
         onClick={onAddNew}
-        className="flex items-center gap-2 text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium mb-8 text-sm"
+        className="flex items-center gap-2 text-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--color-brand-teal))] hover:text-[hsl(var(--color-brand-teal-dark))] dark:hover:text-[hsl(var(--color-brand-teal-dark))] font-medium mb-8 text-sm"
       >
         <Plus className="w-4 h-4" />
         Add New Bill
@@ -205,7 +205,7 @@ export default function AddBillForm({
 
       <button
         onClick={onSave}
-        className="bg-teal-600 hover:bg-teal-700 text-white px-8 py-2 rounded-md font-medium text-sm"
+        className="bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-[hsl(var(--primary-foreground))] px-8 py-2 rounded-md font-medium text-sm"
       >
         Save
       </button>
