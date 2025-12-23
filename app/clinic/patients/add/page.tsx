@@ -1,21 +1,19 @@
 "use client";
 
-import type React from "react";
-import { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useRouter } from "next/navigation";
-import { ProtectedRoute } from "@/components/ui/protected-route";
-import {
-  createPatientInCollection,
-  fetchPatients,
-} from "@/lib/slices/patientSlice";
-import { fetchDoctors } from "@/lib/slices/doctorSlice";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"; // Import the CSS
+import type React from "react"
+
+import { useState, useEffect } from "react"
+import { useDispatch, useSelector } from "react-redux"
+import { useRouter } from "next/navigation"
+import { ProtectedRoute } from "@/components/ui/protected-route"
+import {  createPatientInCollection, fetchPatients } from "@/lib/slices/patientSlice"
+import { fetchDoctors } from "@/lib/slices/doctorSlice"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { toast, ToastContainer } from "react-toastify"
+import 'react-toastify/dist/ReactToastify.css'; // Import the CSS
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   ArrowLeft,
