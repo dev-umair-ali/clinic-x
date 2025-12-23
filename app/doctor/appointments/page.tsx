@@ -123,17 +123,17 @@ export default function DoctorAppointments() {
   }));
 
   const statsData = [
-    { title: "Hours Available This Week", value: stats.hoursAvailable, icon: <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />, color: "text-blue-600 dark:text-blue-400", bgColor: "bg-blue-50 dark:bg-blue-900/20" },
-    { title: "Appointments Booked", value: stats.appointmentsBooked, icon: <List className="h-4 w-4 sm:h-5 sm:w-5" />, color: "text-green-600 dark:text-green-400", bgColor: "bg-green-50 dark:bg-green-900/20" },
-    { title: "Next Available Slot", value: stats.nextAvailableSlot, icon: <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />, color: "text-orange-600 dark:text-orange-400", bgColor: "bg-orange-50 dark:bg-orange-900/20" },
+    { title: "Hours Available This Week", value: stats.hoursAvailable, icon: <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />, color: "text-[hsl(var(--color-chart-blue))] dark:text-[hsl(var(--color-chart-blue))]", bgColor: "bg-[hsl(var(--color-chart-blue)/0.1)] dark:bg-[hsl(var(--color-chart-blue)/0.2)]" },
+    { title: "Appointments Booked", value: stats.appointmentsBooked, icon: <List className="h-4 w-4 sm:h-5 sm:w-5" />, color: "text-[hsl(var(--color-status-success))] dark:text-[hsl(var(--color-status-success))]", bgColor: "bg-[hsl(var(--color-status-success-light))] dark:bg-[hsl(var(--color-status-success)/0.2)]" },
+    { title: "Next Available Slot", value: stats.nextAvailableSlot, icon: <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />, color: "text-[hsl(var(--color-status-warning))] dark:text-[hsl(var(--color-status-warning))]", bgColor: "bg-[hsl(var(--color-status-warning)/0.1)] dark:bg-[hsl(var(--color-status-warning)/0.2)]" },
   ];
 
   return (
     <ProtectedRoute allowedRoles={["doctor"]}>
-      <div className="flex-1 overflow-y-auto p-3 sm:p-6 bg-background">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-6 bg-[hsl(var(--background))]">
         <div className="max-w-7xl mx-auto">
           <div className="mb-6 sm:mb-8">
-            <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-4 sm:mb-6">Calendly Integration</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-[hsl(var(--foreground))] mb-4 sm:mb-6">Calendly Integration</h1>
             <StatsCards data={statsData} />
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mb-6">
               <ViewToggle

@@ -32,98 +32,78 @@ import { FaRegClipboard } from "react-icons/fa";
 
 const menuItems = {
   admin: [
-    { icon: IoHome, label: "Dashboard", href: "/admin/dashboard" },
-    { icon: HiMiniUserGroup, label: "Doctors", href: "/admin/doctors" },
-    { icon: HiMiniUserGroup, label: "Patients", href: "/admin/patients" },
-    { icon: FaRegClipboard, label: "Dshboard log", href: "/admin/dashlogs" },
-    { icon: FaClinicMedical, label: "Add Clinic", href: "/admin/add-clinic" },
-    {
-      icon: IoIosPersonAdd,
-      label: "Add Assistant",
-      href: "/admin/add-assistant",
-    },
-    {
-      icon: FaCreditCard,
-      label: "theme-settings",
-      href: "/admin/theme-settings",
-    },
-    
+  { icon: IoHome, label: "Dashboard", href: "/admin/dashboard" },
 
-    // { icon: CiCalendar, label: "Appointments", href: "/admin/appointments" },
-  ],
-  doctor: [
-    { icon: IoHome, label: "Dashboard", href: "/doctor/dashboard" },
-    { icon: CiCalendar, label: "Appointments", href: "/doctor/appointments" },
-    // { icon: HiMiniUserGroup, label: "Patients", href: "/doctor/patients" },
-    {
-      icon: FaCreditCard,
-      label: " Patients Billing",
-      href: "/doctor/patients-billing",
-    }, // ✅ Moved to MAIN MENU
-    { icon: TiMicrophone, label: "Prescription", href: "/doctor/prescription" },
-    { icon: RiVolumeUpFill, label: "Patient Notes", href: "/doctor/notes" },
-  ],
-  patient: [
-    { icon: IoHome, label: "Dashboard", href: "/patient/dashboard" },
-    { icon: CiCalendar, label: "Appointments", href: "/patient/appointments" },
-    { icon: AiFillDollarCircle, label: " Billing", href: "/patient/billing" },
-    {
-      icon: TiMicrophone,
-      label: "Prescriptions",
-      href: "/patient/prescriptions",
-    },
-  ],
-  receptionist: [
-    { icon: IoHome, label: "Dashboard", href: "/receptionist/dashboard" },
-    {
-      icon: CiCalendar,
-      label: "Appointments",
-      href: "/receptionist/appointments",
-    },
-    {
-      icon: HiMiniUserGroup,
-      label: "Patients",
-      href: "/receptionist/patients",
-    },
+  { icon: HiMiniUserGroup, label: "Doctors", href: "/admin/doctors" },
+  { icon: HiMiniUserGroup, label: "Patients", href: "/admin/patients" },
 
-    {
-      icon: FaCreditCard,
-      label: " Patients Billing",
-      href: "/receptionist/patients-billing",
-    },
-    {
-      icon: TiMicrophone,
-      label: "Prescription",
-      href: "/receptionist/prescription",
-    },
-      {
-      icon: FaCreditCard,
-      label: "theme-settings",
-      href: "/receptionist/theme-settings",
-    },
-  ],
-  clinic: [
-    { icon: IoHome, label: "Dashboard", href: "/clinic/dashboard" },
-    { icon: CiCalendar, label: "Appointments", href: "/clinic/appointments" },
-    { icon: HiMiniUserGroup, label: "Patients", href: "/clinic/patients" },
-    { icon: FaClinicMedical, label: "Add Clinic", href: "/clinic/add-clinic" },
-    {
-      icon: IoIosPersonAdd,
-      label: "Add Assistant",
-      href: "/clinic/add-assistant",
-    },
-    { icon: FaRegClipboard, label: "Dshboard log", href: "/clinic/dashlogs" },
-    { icon: IoSettingsSharp, label: "Settings", href: "/clinic/settings" },
-    { icon: CiCalendar, label: "patients-billing", href: "/clinic/patients-billing" },
-    { icon: TiMicrophone, label: "Prescription", href: "/clinic/prescription" },
-    { icon: RiVolumeUpFill, label: "Patient Notes", href: "/clinic/notes" },
-    {
-      icon: FaCreditCard,
-      label: "theme-settings",
-      href: "/clinic/theme-settings",
-    },
-    
-  ],
+  { icon: FaClinicMedical, label: "Add Clinic", href: "/admin/add-clinic" },
+  { icon: IoIosPersonAdd, label: "Add Assistant", href: "/admin/add-assistant" },
+
+  { icon: FaRegClipboard, label: "Dashboard Log", href: "/admin/dashlogs" },
+
+  { icon: FaCreditCard, label: "Theme Settings", href: "/admin/theme-settings" },
+],
+
+doctor: [
+  { icon: IoHome, label: "Dashboard", href: "/doctor/dashboard" },
+
+  { icon: CiCalendar, label: "Appointments", href: "/doctor/appointments" },
+  { icon: HiMiniUserGroup, label: "Patients", href: "/doctor/patients" },
+
+  { icon: TiMicrophone, label: "Prescription", href: "/doctor/prescription" },
+  { icon: RiVolumeUpFill, label: "Patient Notes", href: "/doctor/notes" },
+
+  { icon: FaCreditCard, label: "Patients Billing", href: "/doctor/patients-billing" },
+
+],
+
+patient: [
+  { icon: IoHome, label: "Dashboard", href: "/patient/dashboard" },
+
+  { icon: CiCalendar, label: "Appointments", href: "/patient/appointments" },
+
+  { icon: TiMicrophone, label: "Prescriptions", href: "/patient/prescriptions" },
+
+  { icon: AiFillDollarCircle, label: "Billing", href: "/patient/billing" },
+
+  { icon: FaCreditCard, label: "Theme Settings", href: "/patient/theme-settings" },
+],
+
+receptionist: [
+  { icon: IoHome, label: "Dashboard", href: "/receptionist/dashboard" },
+
+  { icon: CiCalendar, label: "Appointments", href: "/receptionist/appointments" },
+
+  { icon: HiMiniUserGroup, label: "Patients", href: "/receptionist/patients" },
+
+  { icon: TiMicrophone, label: "Prescription", href: "/receptionist/prescription" },
+
+  { icon: FaCreditCard, label: "Patients Billing", href: "/receptionist/patients-billing" },
+
+  { icon: FaCreditCard, label: "Theme Settings", href: "/receptionist/theme-settings" },
+],
+
+clinic: [
+  { icon: IoHome, label: "Dashboard", href: "/clinic/dashboard" },
+
+  { icon: CiCalendar, label: "Appointments", href: "/clinic/appointments" },
+
+  { icon: HiMiniUserGroup, label: "Patients", href: "/clinic/patients" },
+
+  { icon: TiMicrophone, label: "Prescription", href: "/clinic/prescription" },
+  { icon: RiVolumeUpFill, label: "Patient Notes", href: "/clinic/notes" },
+
+  { icon: CiCalendar, label: "Patients Billing", href: "/clinic/patients-billing" },
+
+  { icon: FaClinicMedical, label: "Add Clinic", href: "/clinic/add-clinic" },
+  { icon: IoIosPersonAdd, label: "Add Assistant", href: "/clinic/add-assistant" },
+
+  { icon: FaRegClipboard, label: "Dashboard Log", href: "/clinic/dashlogs" },
+
+  { icon: IoSettingsSharp, label: "Settings", href: "/clinic/settings" },
+  { icon: FaCreditCard, label: "Theme Settings", href: "/clinic/theme-settings" },
+],
 };
 
 export function AppSidebar() {
@@ -252,7 +232,7 @@ export function AppSidebar() {
             )}
 
             {/* Logout */}
-            <div className="mb-4">
+           <div className="mb-4">
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton

@@ -176,48 +176,49 @@ export default function EditAppointmentModal({
           !fixed top-0 right-0 h-full
           w-full sm:w-[400px] max-w-full sm:max-w-[400px]
           overflow-y-auto p-0
-          bg-white dark:bg-gray-900
-          border-l border-gray-200 dark:border-gray-700
+          bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))]
+          border-l border-[hsl(var(--border))] dark:border-[hsl(var(--border))]
           shadow-lg rounded-none
           transition-transform duration-300
           translate-x-0 data-[state=closed]:translate-x-full
         "
         style={{ transform: "none", left: "auto" }}
       >
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <div className="flex items-center justify-between p-4 border-b border-[hsl(var(--border))]">
+          <h2 className="text-lg font-semibold text-[hsl(var(--foreground))]">
             Edit Details
           </h2>
           <Button
             variant="ghost"
             size="sm"
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
+            className="p-2 hover:bg-[hsl(var(--muted))]"
             onClick={() => setOpen(false)}
           >
-            <Trash2 className="h-4 w-4 text-red-500" />
+            <Trash2 className="h-4 w-4 text-[hsl(var(--color-status-error))]" />
           </Button>
         </div>
 
         <div className="p-4 space-y-4">
           <div>
-            <label className="text-sm font-medium mb-2 block">
+            <label className="text-sm font-medium mb-2 block text-[hsl(var(--foreground))]">
               Patient Name
             </label>
             <Input
               value={patientName}
               onChange={(e) => setPatientName(e.target.value)}
+              className="bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]"
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-2 block">
+            <label className="text-sm font-medium mb-2 block text-[hsl(var(--foreground))]">
               Available Time Slots
             </label>
             <Select
               value={selectedTimeSlot}
               onValueChange={setSelectedTimeSlot}
             >
-              <SelectTrigger>
+              <SelectTrigger className="bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]">
                 <SelectValue placeholder="Select a time slot" />
               </SelectTrigger>
               <SelectContent>
@@ -232,7 +233,7 @@ export default function EditAppointmentModal({
 
           <Button
             onClick={handleSave}
-            className="w-full bg-teal-600 hover:bg-teal-700 text-white"
+            className="w-full bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-[hsl(var(--primary-foreground))]"
           >
             Save
           </Button>

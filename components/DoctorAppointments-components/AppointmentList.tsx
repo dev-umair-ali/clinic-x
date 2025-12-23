@@ -71,22 +71,22 @@ export default function AppointmentList(props: Props) {
   const formatTime = (d: string) => new Date(d).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
 
   return (
-    <div className="bg-card rounded-lg border border-border">
+    <div className="bg-[hsl(var(--card))] rounded-lg border border-[hsl(var(--border))]">
       <div className="p-3 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          <h2 className="text-lg sm:text-xl font-semibold text-foreground">Appointment List View</h2>
+          <h2 className="text-lg sm:text-xl font-semibold text-[hsl(var(--foreground))]">Appointment List View</h2>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
             <div className="relative w-full sm:w-auto">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[hsl(var(--muted-foreground))] h-4 w-4" />
               <Input
                 placeholder="Search Patient"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 w-full sm:w-64"
+                className="pl-10 w-full bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]"
               />
             </div>
             <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-full sm:w-32">
+              <SelectTrigger className="w-full sm:w-32 bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]">
                 <Filter className="h-4 w-4 mr-2" />
                 <SelectValue />
               </SelectTrigger>
@@ -106,8 +106,8 @@ export default function AppointmentList(props: Props) {
               onClick={() => setSelectedFilter(f)}
               className={`px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 selectedFilter === f
-                  ? "bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-700"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  ? "bg-[hsl(var(--color-brand-teal)/0.1)] dark:bg-[hsl(var(--color-brand-teal)/0.2)] text-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--color-brand-teal))] border border-[hsl(var(--color-brand-teal)/0.3)] dark:border-[hsl(var(--color-brand-teal)/0.4)]"
+                  : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted)/0.8)]"
               }`}
             >
               {f}
@@ -117,32 +117,32 @@ export default function AppointmentList(props: Props) {
 
         {loading && (
           <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            <span className="ml-2 text-gray-600">Loading appointments...</span>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[hsl(var(--color-brand-teal))]"></div>
+            <span className="ml-2 text-[hsl(var(--muted-foreground))]">Loading appointments...</span>
           </div>
         )}
 
         {error && !loading && (
-          <div className="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">{error}</div>
+          <div className="mb-4 bg-[hsl(var(--color-status-error)/0.1)] border border-[hsl(var(--color-status-error)/0.2)] text-[hsl(var(--color-status-error))] px-4 py-3 rounded-lg text-sm">{error}</div>
         )}
 
         {/* Mobile cards */}
         {!loading && (
           <div className="block sm:hidden space-y-3">
             {filtered.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">No appointments found</div>
+              <div className="text-center py-8 text-[hsl(var(--muted-foreground))]">No appointments found</div>
             ) : (
               filtered.map((a) => (
-                <div key={a._id} className="bg-muted/50 rounded-lg p-4 border border-border">
+                <div key={a._id} className="bg-[hsl(var(--muted)/0.5)] rounded-lg p-4 border border-[hsl(var(--border))]">
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <button
                         onClick={() => onPatientClick(a)}
-                        className="font-medium text-foreground hover:text-primary"
+                        className="font-medium text-[hsl(var(--foreground))] hover:text-[hsl(var(--color-brand-teal))]"
                       >
                         {a.patientName || (typeof a.patient === 'object' ? a.patient?.name : null) || "Patient"}
                       </button>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-[hsl(var(--muted-foreground))]">
                         {formatDate(a.dateTime)} {formatTime(a.dateTime)}
                       </p>
                     </div>
@@ -162,12 +162,12 @@ export default function AppointmentList(props: Props) {
                     </DropdownMenu>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">{a.type || "Appointment"}</span>
+                    <span className="text-sm text-[hsl(var(--muted-foreground))]">{a.type || "Appointment"}</span>
                     <Select
                       value={a.status}
                       onValueChange={(v) => onStatusUpdate(a._id, v)}
                     >
-                      <SelectTrigger className="w-24">
+                      <SelectTrigger className="w-24 bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -185,41 +185,41 @@ export default function AppointmentList(props: Props) {
 
         {/* Desktop table */}
         {!loading && (
-          <div className="hidden sm:block overflow-hidden rounded-lg border border-border">
+          <div className="hidden sm:block overflow-hidden rounded-lg border border-[hsl(var(--border))]">
             {filtered.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">No appointments found</div>
+              <div className="text-center py-8 text-[hsl(var(--muted-foreground))]">No appointments found</div>
             ) : (
               <table className="w-full">
-                <thead className="bg-muted/50">
+                <thead className="bg-[hsl(var(--muted)/0.5)]">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">DATE</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">PATIENT</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">SERVICE</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">STATUS</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">ACTION</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider">DATE</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider">PATIENT</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider">SERVICE</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider">STATUS</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider">ACTION</th>
                   </tr>
                 </thead>
-                <tbody className="bg-card divide-y divide-border">
+                <tbody className="bg-[hsl(var(--card))] divide-y divide-[hsl(var(--border))]">
                   {filtered.map((a) => (
-                    <tr key={a._id} className="hover:bg-muted/50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                    <tr key={a._id} className="hover:bg-[hsl(var(--muted)/0.5)]">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-[hsl(var(--foreground))]">
                         {formatDate(a.dateTime)} {formatTime(a.dateTime)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <button
                           onClick={() => onPatientClick(a)}
-                          className="text-sm text-foreground hover:text-primary font-medium"
+                          className="text-sm text-[hsl(var(--foreground))] hover:text-[hsl(var(--color-brand-teal))] font-medium"
                         >
                           {a.patientName || (typeof a.patient === 'object' ? a.patient?.name : null) || "Patient"}
                         </button>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">{a.type || "Appointment"}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-[hsl(var(--foreground))]">{a.type || "Appointment"}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <Select
                           value={a.status}
                           onValueChange={(v) => onStatusUpdate(a._id, v)}
                         >
-                          <SelectTrigger className="w-32">
+                          <SelectTrigger className="w-32 bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -261,6 +261,7 @@ export default function AppointmentList(props: Props) {
                 size="sm"
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                className="bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]"
               >
                 Previous
               </Button>
@@ -275,7 +276,7 @@ export default function AppointmentList(props: Props) {
                     key={p}
                     variant={currentPage === p ? "default" : "outline"}
                     size="sm"
-                    className={currentPage === p ? "bg-teal-600 hover:bg-teal-700" : ""}
+                    className={currentPage === p ? "bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))]" : "bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]"}
                     onClick={() => setCurrentPage(p)}
                   >
                     {p}
@@ -287,11 +288,12 @@ export default function AppointmentList(props: Props) {
                 size="sm"
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                className="bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]"
               >
                 Next
               </Button>
             </div>
-            <span className="text-sm text-muted-foreground">Page {currentPage} of {totalPages}</span>
+            <span className="text-sm text-[hsl(var(--muted-foreground))]">Page {currentPage} of {totalPages}</span>
           </div>
         )}
       </div>

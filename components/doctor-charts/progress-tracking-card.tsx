@@ -21,11 +21,11 @@ export function ProgressTrackingCard({
     <Card className={cn("text-white shadow-sm")} style={{ background: gradient }}>
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-lg font-semibold text-white">{title}</h3>
-          <span className="text-2xl font-bold text-white">{value}</span>
+          <h3 className="text-lg font-semibold text-[hsl(var(--primary-foreground))]">{title}</h3>
+          <span className="text-2xl font-bold text-[hsl(var(--primary-foreground))]">{value}</span>
         </div>
-        <Progress value={progress} className="h-2 bg-white/30 [&>*]:bg-white" />
-        <p className="text-sm mt-2 text-white/90">{description}</p>
+        <Progress value={progress} className="h-2 bg-[hsl(var(--primary-foreground)/0.3)] [&>*]:bg-[hsl(var(--primary-foreground))]" />
+        <p className="text-sm mt-2 text-[hsl(var(--primary-foreground)/0.9)]">{description}</p>
       </CardContent>
     </Card>
   )

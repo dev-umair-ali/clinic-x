@@ -2,230 +2,242 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ---------- BASE THEME VARIABLES ---------- */
-@layer base {
-  :root {
-    /* Light mode colors */
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --radius: 0.5rem;
+/* ============================================================
+   GLOBAL CSS-CUSTOM-PROPERTIES
+   Must live OUTSIDE any @layer so that Tailwind utilities
+   such as bg-[hsl(var(--color-status-error))] can resolve them.
+   ============================================================ */
 
-    /* Sidebar (light mode) */
-    --sidebar-background: 174 80% 20%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 174 80% 20%;
-    --sidebar-accent: 174 80% 15%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 174 80% 10%;
-    --sidebar-ring: 174 80% 20%;
+:root {
+  /* ---------- Core theme tokens (light) ---------- */
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+  --primary: 222.2 47.4% 11.2%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 222.2 84% 4.9%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 96%;
+  --accent-foreground: 222.2 84% 4.9%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 222.2 84% 4.9%;
+  --radius: 0.5rem;
 
-    /* Gradient */
-    --gradient-start: 167 69% 24%;
-    --gradient-end: 168 69% 38%;
+  /* ---------- Sidebar (light) ---------- */
+  --sidebar-background: 174 80% 20%;
+  --sidebar-foreground: 0 0% 100%;
+  --sidebar-primary: 0 0% 100%;
+  --sidebar-primary-foreground: 174 80% 20%;
+  --sidebar-accent: 174 80% 15%;
+  --sidebar-accent-foreground: 0 0% 100%;
+  --sidebar-border: 174 80% 10%;
+  --sidebar-ring: 174 80% 20%;
 
-    /* Dashboard colors */
-    --custom-dashboard-green-DEFAULT: 160 83% 39%;
-    --custom-dashboard-green-dark: 160 92% 25%;
-    --custom-dashboard-green-light: 160 70% 89%;
-    --custom-dashboard-blue-DEFAULT: 217 91% 60%;
-    --custom-dashboard-orange-DEFAULT: 25 95% 53%;
-    --custom-dashboard-purple-DEFAULT: 252 95% 67%;
-    --custom-dashboard-red-DEFAULT: 0 84% 60%;
+  /* ---------- Gradients ---------- */
+  --gradient-start: 167 69% 24%;
+  --gradient-end: 168 69% 38%;
 
-    /* SEMANTIC COLOR TOKENS (with real color comments) */
-    /* Brand / Teal */
-    --color-brand-teal: 167 69% 39%;        /* #1DA68F  |  Teal brand */
-    --color-brand-teal-dark: 167 69% 29%;   /* #168f73  |  Teal hover */
-    --color-brand-teal-light: 167 70% 89%;  /* #d1f5ef  |  Teal bg */
+  /* ---------- Dashboard palette ---------- */
+  --custom-dashboard-green-DEFAULT: 160 83% 39%;
+  --custom-dashboard-green-dark: 160 92% 25%;
+  --custom-dashboard-green-light: 160 70% 89%;
+  --custom-dashboard-blue-DEFAULT: 217 91% 60%;
+  --custom-dashboard-orange-DEFAULT: 25 95% 53%;
+  --custom-dashboard-purple-DEFAULT: 252 95% 67%;
+  --custom-dashboard-red-DEFAULT: 0 84% 60%;
 
-    /* Status / Feedback */
-    --color-status-success: 160 83% 39%;    /* #0aca7a  |  Success green */
-    --color-status-success-dark: 160 92% 25%;
-    --color-status-success-light: 160 70% 89%;
-    --color-status-error: 0 84% 60%;        /* #ef4444  |  Error red */
-    --color-status-error-dark: 0 62% 30%;
-    --color-status-warning: 25 95% 53%;     /* #f97316  |  Warning orange */
-    --color-status-info: 217 91% 60%;       /* #3b82f6  |  Info blue */
+  /* ---------- Brand / Teal ---------- */
+  --color-brand-teal: 167 69% 39%;        /* #1DA68F */
+  --color-brand-teal-dark: 167 69% 29%;   /* #168f73 */
+  --color-brand-teal-light: 167 70% 89%;  /* #d1f5ef */
 
-    /* Charts / UI accents */
-    --color-chart-blue: 217 91% 60%;        /* #3b82f6  |  Chart blue */
-    --color-chart-purple: 252 95% 67%;      /* #8b5cf6  |  Chart purple */
-    --color-chart-orange: 25 95% 53%;       /* #f97316  |  Chart orange */
-    --color-chart-green: 160 83% 39%;       /* #0aca7a  |  Chart green */
-    --color-chart-red: 0 84% 60%;           /* #ef4444  |  Chart red */
+  /* ---------- Status / Feedback ---------- */
+  --color-status-success: 160 83% 39%;    /* #0aca7a */
+  --color-status-success-dark: 160 92% 25%;
+  --color-status-success-light: 160 70% 89%;
+  --color-status-error: 0 84% 60%;        /* #ef4444 */
+  --color-status-error-dark: 0 62% 30%;
+  --color-status-warning: 25 95% 53%;     /* #f97316 */
+  --color-status-info: 217 91% 60%;       /* #3b82f6 */
 
-    /* Sidebar new tokens */
-    --gradient-sidebar-start: 167 55% 23%;     /* #126A5C  |  Deep teal  */
-    --gradient-sidebar-end: 167 69% 39%;       /* #1DA68F  |  Brand teal */
-    --color-white-alpha-20: 0 0% 100% / 0.2;   /* white/20 */
-    --color-white-alpha-10: 0 0% 100% / 0.1;   /* white/10 */
-    --color-white-alpha-60: 0 0% 100% / 0.6;   /* white/60 */
-    --color-white-alpha-80: 0 0% 100% / 0.8;   /* white/80 */
-    --color-white-alpha-90: 0 0% 100% / 0.9;   /* white/90 */
-    --color-teal-gradient-mid: 167 69% 49%;    /* #27DEBF  |  Mid teal   */
+  /* ---------- Chart / UI accents ---------- */
+  --color-chart-blue: 217 91% 60%;        /* #3b82f6 */
+  --color-chart-purple: 252 95% 67%;      /* #8b5cf6 */
+  --color-chart-orange: 355 77% 41%;       /* #f97316 */
+  --color-chart-green: 160 83% 39%;       /* #0aca7a */
+  --color-chart-red: 0 84% 60%;           /* #ef4444 */
+--color-chart-blue-dark:   217 91% 45%;  /* #1D4ED9  – darker blue */
+  
+  /* ---------- Sidebar gradient helpers ---------- */
+  --gradient-sidebar-start: 167 55% 23%;     /* #126A5C */
+  --gradient-sidebar-end: 167 69% 39%;       /* #1DA68F */
+  --color-white-alpha-20: 0 0% 100% / 0.2;
+  --color-white-alpha-10: 0 0% 100% / 0.1;
+  --color-white-alpha-60: 0 0% 100% / 0.6;
+  --color-white-alpha-80: 0 0% 100% / 0.8;
+  --color-white-alpha-90: 0 0% 100% / 0.9;
+  --color-teal-gradient-mid: 167 69% 49%;    /* #27DEBF */
 
-    /* Extra dashboard colours */
-    --color-gold-dark: 43 84% 31%;             /* #947311  |  Dark amber / gold */
-    --color-pink-vibrant: 307 76% 48%;         /* #D022C4  |  Vibrant pink */
-    --color-bg-teal-tint: 167 70% 89%;         /* very-light teal bg */
-    --color-bg-orange-tint: 25 95% 93%;        /* very-light orange bg */
-    --color-bg-blue-tint: 217 91% 93%;         /* very-light blue bg */
-    --color-bg-pink-tint: 307 76% 93%;         /* very-light pink bg */
+  /* ---------- Extra dashboard colours ---------- */
+  --color-gold-dark: 43 84% 31%;             /* #947311 */
+  --color-pink-vibrant: 307 76% 48%;         /* #D022C4 */
+  --color-bg-teal-tint: 167 70% 89%;
+  --color-bg-orange-tint: 25 95% 93%;
+  --color-bg-blue-tint: 217 91% 93%;
+  --color-bg-pink-tint: 307 76% 93%;
 
-    /* Input backgrounds */
-    --color-input-bg: 0 0% 96%; /* #F6F6F6 */
+  /* ---------- Input background ---------- */
+  --color-input-bg: 0 0% 96%;                /* #F6F6F6 */
 
-    /* Semantic UI accents */
-    --color-medical: 160 83% 39%; /* dashboard green */
-    --color-info: 217 91% 60%; /* dashboard blue */
+  /* ---------- Semantic UI accents ---------- */
+  --color-medical: 160 83% 39%;
+  --color-info: 217 91% 60%;
 
-    /* ========== MISSING COLORS FROM YOUR COMPONENTS - EXACT TAILWIND VALUES ========== */
-    
-    /* Gray Colors - EXACT Tailwind Values */
-    --color-gray-50: 210 20% 98%;    /* #F9FAFB */
-    --color-gray-100: 210 16% 96%;   /* #F3F4F6 */
-    --color-gray-200: 214 14% 92%;   /* #E5E7EB */
-    --color-gray-300: 212 10% 84%;   /* #D1D5DB */
-    --color-gray-400: 210 6% 64%;    /* #9CA3AF */
-    --color-gray-500: 212 4% 52%;    /* #6B7280 */
-    --color-gray-600: 213 4% 46%;    /* #4B5563 */
-    --color-gray-700: 215 4% 38%;    /* #374151 */
-    --color-gray-800: 215 6% 28%;    /* #1F2937 */
-    --color-gray-900: 218 8% 18%;    /* #111827 */
+  /* ---------- Tailwind 1-to-1 greys ---------- */
+  --color-gray-50: 210 20% 98%;    /* #F9FAFB */
+  --color-gray-100: 210 16% 96%;   /* #F3F4F6 */
+  --color-gray-200: 214 14% 92%;   /* #E5E7EB */
+  --color-gray-300: 212 10% 84%;   /* #D1D5DB */
+  --color-gray-400: 210 6% 64%;    /* #9CA3AF */
+  --color-gray-500: 212 4% 52%;    /* #6B7280 */
+  --color-gray-600: 213 4% 46%;    /* #4B5563 */
+  --color-gray-700: 215 4% 38%;    /* #374151 */
+  --color-gray-800: 215 6% 28%;    /* #1F2937 */
+  --color-gray-900: 218 8% 18%;    /* #111827 */
 
-    /* Slate Colors - EXACT Tailwind Values */
-    --color-slate-50: 210 40% 98%;   /* #F8FAFC */
-    --color-slate-100: 210 40% 96%;  /* #F1F5F9 */
-    --color-slate-200: 214 32% 91%;  /* #E2E8F0 */
-    --color-slate-300: 212 26% 84%;  /* #CBD5E1 */
-    --color-slate-400: 209 13% 73%;  /* #94A3B8 */
-    --color-slate-500: 213 9% 57%;   /* #64748B */
-    --color-slate-600: 215 14% 46%;  /* #475569 */
-    --color-slate-700: 215 19% 35%;  /* #334155 */
-    --color-slate-800: 215 28% 22%;  /* #1E293B */
-    --color-slate-900: 222 47% 11%;  /* #0F172A */
+  /* ---------- Tailwind 1-to-1 slates ---------- */
+  --color-slate-50: 210 40% 98%;   /* #F8FAFC */
+  --color-slate-100: 210 40% 96%;  /* #F1F5F9 */
+  --color-slate-200: 214 32% 91%;  /* #E2E8F0 */
+  --color-slate-300: 212 26% 84%;  /* #CBD5E1 */
+  --color-slate-400: 209 13% 73%;  /* #94A3B8 */
+  --color-slate-500: 213 9% 57%;   /* #64748B */
+  --color-slate-600: 215 14% 46%;  /* #475569 */
+  --color-slate-700: 215 19% 35%;  /* #334155 */
+  --color-slate-800: 215 28% 22%;  /* #1E293B */
+  --color-slate-900: 222 47% 11%;  /* #0F172A */
 
-    /* Red Colors - EXACT Tailwind Values */
-    --color-red-500: 0 84% 60%;      /* #EF4444 */
-    --color-red-600: 0 72% 51%;      /* #DC2626 */
-    --color-red-700: 0 68% 42%;      /* #B91C1C */
-    --color-red-800: 0 65% 37%;      /* #991B1B */
+  /* ---------- Tailwind 1-to-1 reds ---------- */
+  --color-red-500: 0 84% 60%;      /* #EF4444 */
+  --color-red-600: 0 72% 51%;      /* #DC2626 */
+  --color-red-700: 0 68% 42%;      /* #B91C1C */
+  --color-red-800: 0 65% 37%;      /* #991B1B */
 
-    /* Green Colors - EXACT Tailwind Values */
-    --color-green-500: 142 76% 45%;  /* #22C55E */
-    --color-emerald-500: 160 84% 45%; /* #10B981 */
+  /* ---------- Tailwind 1-to-1 greens ---------- */
+  --color-green-500: 142 76% 45%;  /* #22C55E */
+  --color-emerald-500: 160 84% 45%; /* #10B981 */
 
-    /* Blue Colors - EXACT Tailwind Values */
-    --color-blue-500: 213 94% 68%;   /* #3B82F6 */
-    --color-sky-500: 199 89% 56%;    /* #0EA5E9 */
+  /* ---------- Tailwind 1-to-1 blues ---------- */
+  --color-blue-500: 213 94% 68%;   /* #3B82F6 */
+  --color-sky-500: 199 89% 56%;    /* #0EA5E9 */
 
-    /* Amber Colors - EXACT Tailwind Values */
-    --color-amber-500: 38 92% 50%;   /* #F59E0B */
+  /* ---------- Tailwind 1-to-1 ambers ---------- */
+  --color-amber-500: 38 92% 50%;   /* #F59E0B */
 
-    /* Purple Colors - EXACT Tailwind Values */
-    --color-purple-500: 262 83% 58%; /* #8B5CF6 */
-    --color-violet-500: 262 89% 58%; /* #8B5CF6 */
+  /* ---------- Tailwind 1-to-1 purples ---------- */
+  --color-purple-500: 262 83% 58%; /* #8B5CF6 */
+  --color-violet-500: 262 89% 58%; /* #8B5CF6 */
 
-    /* Background & Foreground Semantic Mapping */
-    --color-bg-primary: var(--background);
-    --color-bg-secondary: var(--card);
-    --color-bg-tertiary: var(--secondary);
-    --color-bg-success: 142 76% 45%; /* green-500 */
-    --color-bg-error: 0 84% 60%;     /* red-500 */
-    --color-bg-warning: 38 92% 50%;  /* amber-500 */
-    --color-bg-info: 213 94% 68%;    /* blue-500 */
+  /* ---------- Semantic background aliases ---------- */
+  --color-bg-primary: var(--background);
+  --color-bg-secondary: var(--card);
+  --color-bg-tertiary: var(--secondary);
+  --color-bg-success: 142 76% 45%; /* green-500 */
+  --color-bg-error: 0 84% 60%;     /* red-500 */
+  --color-bg-warning: 38 92% 50%;  /* amber-500 */
+  --color-bg-info: 213 94% 68%;    /* blue-500 */
 
-    --color-text-primary: var(--foreground);
-    --color-text-secondary: var(--muted-foreground);
-    --color-text-success: 142 61% 34%; /* green-700 */
-    --color-text-error: 0 68% 42%;     /* red-700 */
-    --color-text-warning: 32 95% 44%;  /* amber-700 */
-    --color-text-info: 199 89% 36%;    /* sky-700 */
+  /* ---------- Semantic text aliases ---------- */
+  --color-text-primary: var(--foreground);
+  --color-text-secondary: var(--muted-foreground);
+  --color-text-success: 142 61% 34%; /* green-700 */
+  --color-text-error: 0 68% 42%;     /* red-700 */
+  --color-text-warning: 32 95% 44%;  /* amber-700 */
+  --color-text-info: 199 89% 36%;    /* sky-700 */
 
-    --color-border-primary: var(--border);
-    --color-border-secondary: var(--input);
-    --color-border-focus: var(--ring);
-  }
-
-  /* ---------- ENHANCED DARK MODE ---------- */
-  .dark {
-    --background: 222.2 84% 4.9%; /* Rich dark background */
-    --foreground: 210 40% 98%; /* High contrast text */
-    --card: 222.2 84% 4.9%; /* Same as background for seamless look */
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 174 80% 35%; /* Enhanced teal primary */
-    --primary-foreground: 222.2 84% 4.9%;
-    --secondary: 217.2 32.6% 17.5%; /* Better secondary */
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%; /* Improved muted */
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%; /* Darker destructive */
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%; /* Enhanced borders */
-    --input: 217.2 32.6% 17.5%; /* Better inputs */
-    --ring: 212.7 26.8% 83.9%; /* Light ring for focus */
-
-    /* Enhanced Sidebar (dark mode) */
-    --sidebar-background: 222.2 84% 4.9%; /* Match main background */
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 174 80% 35%; /* Enhanced sidebar primary */
-    --sidebar-primary-foreground: 222.2 84% 4.9%;
-    --sidebar-accent: 217.2 32.6% 17.5%; /* Better sidebar accent */
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 217.2 32.6% 17.5%; /* Enhanced sidebar border */
-    --sidebar-ring: 217.2 91.2% 59.8%;
-
-    /* Dark mode semantic mappings */
-    --color-bg-primary: var(--background);
-    --color-bg-secondary: var(--card);
-    --color-bg-tertiary: var(--secondary);
-    --color-bg-success: 160 84% 25%; /* dark green */
-    --color-bg-error: 0 62% 30%;     /* dark red */
-    --color-bg-warning: 32 95% 44%;  /* dark amber */
-    --color-bg-info: 199 89% 36%;    /* dark sky */
-
-    --color-text-primary: var(--foreground);
-    --color-text-secondary: var(--muted-foreground);
-    --color-text-success: 142 70% 89%; /* light green */
-    --color-text-error: 0 84% 60%;     /* light red */
-    --color-text-warning: 38 92% 93%;  /* light amber */
-    --color-text-info: 199 89% 93%;    /* light sky */
-
-    --color-border-primary: var(--border);
-    --color-border-secondary: var(--input);
-    --color-border-focus: var(--ring);
-
-    /* ... existing dark tokens ... */
-
-    --color-input-bg: 222.2 32.6% 17.5%;
-    --color-medical: 160 70% 89%;
-    --color-info: 217 91% 93%;
-  }
+  /* ---------- Semantic border aliases ---------- */
+  --color-border-primary: var(--border);
+  --color-border-secondary: var(--input);
+  --color-border-focus: var(--ring);
 }
 
-/* ---------- BASE ELEMENTS ---------- */
+/* ============================================================
+   DARK-MODE OVERRIDES
+   ============================================================ */
+.dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+  --card: 222.2 84% 4.9%;
+  --card-foreground: 210 40% 98%;
+  --popover: 222.2 84% 4.9%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 174 80% 35%;
+  --primary-foreground: 222.2 84% 4.9%;
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+  --accent: 217.2 32.6% 17.5%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --ring: 212.7 26.8% 83.9%;
+
+  /* Sidebar dark */
+  --sidebar-background: 222.2 84% 4.9%;
+  --sidebar-foreground: 0 0% 100%;
+  --sidebar-primary: 174 80% 35%;
+  --sidebar-primary-foreground: 222.2 84% 4.9%;
+  --sidebar-accent: 217.2 32.6% 17.5%;
+  --sidebar-accent-foreground: 0 0% 100%;
+  --sidebar-border: 217.2 32.6% 17.5%;
+  --sidebar-ring: 217.2 91.2% 59.8%;
+
+  /* Semantic dark backgrounds */
+  --color-bg-primary: var(--background);
+  --color-bg-secondary: var(--card);
+  --color-bg-tertiary: var(--secondary);
+  --color-bg-success: 160 84% 25%; /* dark green */
+  --color-bg-error: 0 62% 30%;     /* dark red */
+  --color-bg-warning: 32 95% 44%;  /* dark amber */
+  --color-bg-info: 199 89% 36%;    /* dark sky */
+
+  /* Semantic dark text */
+  --color-text-primary: var(--foreground);
+  --color-text-secondary: var(--muted-foreground);
+  --color-text-success: 142 70% 89%; /* light green */
+  --color-text-error: 0 84% 60%;     /* light red */
+  --color-text-warning: 38 92% 93%;  /* light amber */
+  --color-text-info: 199 89% 93%;    /* light sky */
+
+  /* Semantic dark borders */
+  --color-border-primary: var(--border);
+  --color-border-secondary: var(--input);
+  --color-border-focus: var(--ring);
+
+  /* Component-specific dark tweaks */
+  --color-input-bg: 222.2 32.6% 17.5%;
+  --color-medical: 160 70% 89%;
+  --color-info: 217 91% 93%;
+
+  /* =====  MISSING SWATCHES  ===== */
+--color-yellow-500: 355 77% 41%; /* #B71D19 */
+--color-amber-500:    355 77% 41%;       /* #F59E0B  – old Tailwind bg-amber-500  */
+}
+
+/* ============================================================
+   TAILWIND BASE LAYER
+   ============================================================ */
 @layer base {
   * {
     @apply border-border;
@@ -235,29 +247,30 @@
   }
 }
 
-/* ---------- BEAUTIFUL CUSTOM SCROLLBAR ---------- */
+/* ============================================================
+   CUSTOM STYLES
+   ============================================================ */
+
+/* ---------- Custom scrollbar ---------- */
 ::-webkit-scrollbar {
-  width: 8px; /* a little thicker for better look */
-  height: 8px; /* for horizontal scrollbars */
+  width: 8px;
+  height: 8px;
 }
-
 ::-webkit-scrollbar-track {
-  background: transparent; /* keep it clean */
+  background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--color-brand-teal)); /* your green */
+  background: hsl(var(--color-brand-teal));
   border-radius: 8px;
-  border: 2px solid transparent; /* creates spacing effect */
-  background-clip: content-box; /* keeps the rounded edge effect */
+  border: 2px solid transparent;
+  background-clip: content-box;
   transition: background 0.3s ease;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--color-brand-teal-dark)); /* darker green on hover */
+  background: hsl(var(--color-brand-teal-dark));
 }
 
-/* ---------- SIDEBAR GRADIENT ---------- */
+/* ---------- Sidebar gradient helper ---------- */
 .bg-sidebar-gradient {
   background: linear-gradient(
     94.25deg,
@@ -266,9 +279,13 @@
   );
 }
 
-/* ---------- ACTIVE MENU ---------- */
+/* ---------- Active menu item ---------- */
 .menu-active-gradient {
-  background: linear-gradient(94.25deg, hsl(var(--color-brand-teal)) 0%, hsl(var(--color-teal-gradient-mid)) 100%);
+  background: linear-gradient(
+    94.25deg,
+    hsl(var(--color-brand-teal)) 0%,
+    hsl(var(--color-teal-gradient-mid)) 100%
+  );
   color: white;
   padding: 9px 13.5px;
   border-radius: 16px;

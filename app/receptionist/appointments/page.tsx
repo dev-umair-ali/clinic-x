@@ -253,13 +253,13 @@ export default function PatientAppointmentsPage() {
   const statusColor = (status: Appointment["status"]) => {
     switch (status) {
       case "confirmed":
-        return "bg-[hsl(var(--color-status-success))] text-white";
+        return "bg-[hsl(var(--color-brand-teal))] text-white";
       case "pending":
-        return "bg-[hsl(var(--color-chart-orange)/0.1)] text-[hsl(var(--color-chart-orange))] dark:bg-[hsl(var(--color-chart-orange))/0.2] dark:text-[hsl(var(--color-chart-orange))]";
+        return "bg-[hsl(var(--color-chart-orange)/0.1)] text-[hsl(var(--color-chart-orange))] dark:bg-[hsl(var(--color-chart-orange)/0.1)] dark:text-[hsl(var(--color-chart-orange))]";
       case "cancelled":
-        return "bg-[hsl(var(--color-status-error-light))] text-[hsl(var(--color-status-error))] dark:bg-[hsl(var(--color-status-error))/0.2] dark:text-[hsl(var(--color-status-error))]";
+        return "bg-[hsl(var(--color-status-error)/0.1)] text-[hsl(var(--color-status-error))] dark:bg-[hsl(var(--color-status-error)/0.1)] dark:text-[hsl(var(--color-status-error))]";
       case "completed":
-        return "bg-[hsl(var(--color-chart-blue)/0.1)] text-[hsl(var(--color-chart-blue))] dark:bg-[hsl(var(--color-chart-blue))/0.2] dark:text-[hsl(var(--color-chart-blue))]";
+        return "bg-[hsl(var(--color-chart-blue)/0.1)] text-[hsl(var(--color-chart-blue))] dark:bg-[hsl(var(--color-chart-blue)/0.1)] dark:text-[hsl(var(--color-chart-blue))]";
       default:
         return "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] dark:bg-[hsl(var(--muted))] dark:text-[hsl(var(--muted-foreground))]";
     }
@@ -271,7 +271,7 @@ export default function PatientAppointmentsPage() {
 
   return (
     <ProtectedRoute allowedRoles={["receptionist"]}>
-      <div className="min-h-screen bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))]">
+      <div className="min-h-screen bg-[hsl(var(--color-gray-50))] dark:bg-[hsl(var(--background))]">
         <div className="px-6 py-6">
           <div className="max-w-7xl mx-auto space-y-6">
             <div className="flex items-start justify-between mb-6">
@@ -294,17 +294,17 @@ export default function PatientAppointmentsPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div>
-                <Card className="bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))] shadow-sm h-full">
+                <Card className="bg-[hsl(var(--card))] shadow-sm h-full">
                   <CardContent className="p-6 h-full flex flex-col">
                     <div className="flex items-center gap-2 mb-4">
                       <Calendar className="h-5 w-5 text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]" />
-                      <h2 className="text-lg font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
+                      <h2 className="text-lg font-semibold text-[hsl(var(--card-foreground))] dark:text-[hsl(var(--card-foreground))]">
                         Upcoming Appointment
                       </h2>
                     </div>
 
                     <div className="space-y-4 flex-1 flex flex-col">
-                      <div className="flex items-start justify-between bg-[hsl(var(--muted))]/30 dark:bg-[hsl(var(--muted))]/20 p-4 rounded-lg flex-1">
+                      <div className="flex items-start justify-between bg-[hsl(var(--muted))] dark:bg-[hsl(var(--muted))] p-4 rounded-lg flex-1">
                         <div className="flex-1">
                           <h3 className="text-xl font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] mb-1">
                             Annual Physical Exam
@@ -317,7 +317,8 @@ export default function PatientAppointmentsPage() {
                           </p>
                         </div>
                         <div className="ml-4">
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-[hsl(var(--color-status-success-light))] text-[hsl(var(--color-status-success))] dark:bg-[hsl(var(--color-status-success))/0.2] dark:text-[hsl(var(--color-status-success))]">
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-[hsl(var(--color-status-success-light))] dark:bg-[hsl(var(--color-status-success-light))] text-white dark:text-white">
+                            {" "}
                             Confirmed
                           </span>
                         </div>
@@ -330,14 +331,14 @@ export default function PatientAppointmentsPage() {
                             setShowEditModal(true);
                           }}
                           variant="outline"
-                          className="text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] border-[hsl(var(--border))] dark:border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))]/50 dark:hover:bg-[hsl(var(--muted))]/50 bg-transparent"
+                          className="text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] border-[hsl(var(--border))] dark:border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))] dark:hover:bg-[hsl(var(--muted))] bg-transparent"
                         >
                           Reschedule
                         </Button>
                         <Button
                           onClick={() => onCancel(dummyAppointments[0])}
                           variant="outline"
-                          className="text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] border-[hsl(var(--border))] dark:border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))]/50 dark:hover:bg-[hsl(var(--muted))]/50 bg-transparent"
+                          className="text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] border-[hsl(var(--border))] dark:border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))] dark:hover:bg-[hsl(var(--muted))] bg-transparent"
                         >
                           Cancel
                         </Button>
@@ -348,17 +349,17 @@ export default function PatientAppointmentsPage() {
               </div>
 
               <div className="space-y-4 h-full flex flex-col">
-                <Card className="bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))] shadow-sm flex-1">
+                <Card className="bg-[hsl(var(--card))] shadow-sm flex-1">
                   <CardContent className="p-4 h-full flex items-center">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-[hsl(var(--color-chart-blue))/0.1] dark:bg-[hsl(var(--color-chart-blue))/0.1] rounded-lg">
+                      <div className="p-2 bg-[hsl(var(--color-chart-blue)/0.1)] dark:bg-[hsl(var(--color-chart-blue)/0.1)] rounded-lg">
                         <Clock className="h-5 w-5 text-[hsl(var(--color-chart-blue))] dark:text-[hsl(var(--color-chart-blue))]" />
                       </div>
                       <div>
                         <p className="text-sm text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">
                           Total Visits This Year
                         </p>
-                        <p className="text-2xl font-bold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
+                        <p className="text-2xl font-bold text-[hsl(var(--card-foreground))] dark:text-[hsl(var(--card-foreground))]">
                           32
                         </p>
                       </div>
@@ -366,23 +367,25 @@ export default function PatientAppointmentsPage() {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))] shadow-sm flex-1">
+
+                 <Card className="bg-[hsl(var(--card))] shadow-sm flex-1">
                   <CardContent className="p-4 h-full flex items-center">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-[hsl(var(--color-status-success))/0.1] dark:bg-[hsl(var(--color-status-success))/0.1] rounded-lg">
-                        <DollarSign className="h-5 w-5 text-[hsl(var(--color-status-success))] dark:text-[hsl(var(--color-status-success))]" />
+                      <div className="p-2 bg-[hsl(var(--color-chart-blue)/0.1)] dark:bg-[hsl(var(--color-chart-blue)/0.1)] rounded-lg">
+                        <DollarSign  className="h-5 w-5 text-[hsl(var(--color-chart-blue))] dark:text-[hsl(var(--color-chart-blue))]" />
                       </div>
                       <div>
                         <p className="text-sm text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">
                           Appointments Scheduled
                         </p>
-                        <p className="text-2xl font-bold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
-                          03
+                        <p className="text-2xl font-bold text-[hsl(var(--card-foreground))] dark:text-[hsl(var(--card-foreground))]">
+                          32
                         </p>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
+                
               </div>
             </div>
 
@@ -393,7 +396,7 @@ export default function PatientAppointmentsPage() {
                 className={`flex items-center gap-2 ${
                   viewMode === "calendar"
                     ? "bg-[hsl(var(--foreground))] text-[hsl(var(--background))] dark:bg-[hsl(var(--background))] dark:text-[hsl(var(--foreground))]"
-                    : "text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] border-[hsl(var(--border))] dark:border-[hsl(var(--border))] bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))]"
+                    : "text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] border-[hsl(var(--border))] dark:border-[hsl(var(--border))] bg-[hsl(var(--background))] dark:bg-[hsl(var(--card))]"
                 }`}
               >
                 <Calendar className="h-4 w-4" /> Calendar View
@@ -404,7 +407,7 @@ export default function PatientAppointmentsPage() {
                 className={`flex items-center gap-2 ${
                   viewMode === "list"
                     ? "bg-[hsl(var(--color-brand-teal))] text-white hover:bg-[hsl(var(--color-brand-teal-dark))]"
-                    : "text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] border-[hsl(var(--border))] dark:border-[hsl(var(--border))] bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))]"
+                    : "text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] border-[hsl(var(--border))] dark:border-[hsl(var(--border))] bg-[hsl(var(--background))] dark:bg-[hsl(var(--card))]"
                 }`}
               >
                 <List className="h-4 w-4" /> Appointment List View
@@ -414,9 +417,9 @@ export default function PatientAppointmentsPage() {
             {viewMode === "calendar" ? (
               <CalendarView events={calendarEvents} />
             ) : (
-              <div className="bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))] rounded-lg border border-[hsl(var(--border))]">
-                <div className="p-6 border-b border-[hsl(var(--border))]">
-                  <h3 className="text-lg font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] mb-4">
+              <div className="bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))] rounded-lg border border-[hsl(var(--border))] dark:border-[hsl(var(--border))]">
+                <div className="p-6 border-b border-[hsl(var(--border))] dark:border-[hsl(var(--border))]">
+                  <h3 className="text-lg font-semibold text-[hsl(var(--card-foreground))] dark:text-[hsl(var(--card-foreground))] mb-4">
                     Appointment List View
                   </h3>
                   <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -429,7 +432,7 @@ export default function PatientAppointmentsPage() {
                           className={`text-sm px-4 py-2 ${
                             filterTab === tab
                               ? "bg-[hsl(var(--foreground))] text-[hsl(var(--background))] dark:bg-[hsl(var(--background))] dark:text-[hsl(var(--foreground))]"
-                              : "text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] border-[hsl(var(--border))] dark:border-[hsl(var(--border))] bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))]"
+                              : "text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] border-[hsl(var(--border))] dark:border-[hsl(var(--border))] bg-[hsl(var(--background))] dark:bg-[hsl(var(--card))]"
                           }`}
                         >
                           {tab}
@@ -438,19 +441,19 @@ export default function PatientAppointmentsPage() {
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] h-4 w-4" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(var(--muted-foreground))] h-4 w-4" />
                         <Input
                           placeholder="Search Appointment"
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
-                          className="pl-9 w-full sm:w-64 border-[hsl(var(--border))] dark:border-[hsl(var(--border))] bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))]"
+                          className="pl-9 w-full sm:w-64 border-[hsl(var(--border))] dark:border-[hsl(var(--border))] bg-[hsl(var(--background))] dark:bg-[hsl(var(--card))]"
                         />
                       </div>
                       <Select value={sortBy} onValueChange={setSortBy}>
-                        <SelectTrigger className="w-[140px] border-[hsl(var(--border))] dark:border-[hsl(var(--border))] bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))]">
+                        <SelectTrigger className="w-[140px] border-[hsl(var(--border))] dark:border-[hsl(var(--border))] bg-[hsl(var(--background))] dark:bg-[hsl(var(--card))]">
                           <SelectValue placeholder="Sort By" />
                         </SelectTrigger>
-                        <SelectContent className="bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))] border-[hsl(var(--border))] dark:border-[hsl(var(--border))]">
+                        <SelectContent>
                           <SelectItem value="Monthly">Monthly</SelectItem>
                           <SelectItem value="Weekly">Weekly</SelectItem>
                         </SelectContent>
@@ -461,31 +464,31 @@ export default function PatientAppointmentsPage() {
 
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead className="bg-[hsl(var(--muted))]/30 dark:bg-[hsl(var(--muted))]/20">
+                    <thead className="bg-[hsl(var(--muted))] dark:bg-[hsl(var(--muted))]">
                       <tr>
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
+                        <th className="px-6 py-4 text-left text-xs font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] uppercase tracking-wider">
                           DOCTOR
                         </th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
+                        <th className="px-6 py-4 text-left text-xs font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] uppercase tracking-wider">
                           DATE
                         </th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
+                        <th className="px-6 py-4 text-left text-xs font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] uppercase tracking-wider">
                           TIME
                         </th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
+                        <th className="px-6 py-4 text-left text-xs font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] uppercase tracking-wider">
                           SERVICE
                         </th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
+                        <th className="px-6 py-4 text-left text-xs font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] uppercase tracking-wider">
                           STATUS
                         </th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] uppercase tracking-wider"></th>
+                        <th className="px-6 py-4 text-left text-xs font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] uppercase tracking-wider"></th>
                       </tr>
                     </thead>
                     <tbody className="bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))] divide-y divide-[hsl(var(--border))] dark:divide-[hsl(var(--border))]">
                       {dummyAppointments.map((appointment) => (
                         <tr
                           key={appointment.id}
-                          className="hover:bg-[hsl(var(--muted))]/30 dark:hover:bg-[hsl(var(--muted))]/20"
+                          className="hover:bg-[hsl(var(--muted))] dark:hover:bg-[hsl(var(--muted))]"
                         >
                           <td className="px-6 py-4 text-sm font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
                             Dr. {appointment.doctorName}
@@ -519,7 +522,7 @@ export default function PatientAppointmentsPage() {
                           <td className="px-6 py-4 text-sm">
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <button className="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] dark:hover:text-[hsl(var(--foreground))] p-1">
+                                <button className="text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] dark:hover:text-[hsl(var(--foreground))] p-1">
                                   <MoreHorizontal className="h-5 w-5" />
                                 </button>
                               </DropdownMenuTrigger>
@@ -529,9 +532,9 @@ export default function PatientAppointmentsPage() {
                               >
                                 <DropdownMenuItem
                                   onClick={() =>
-                                    router.push("/receptionist/appointments/book")
+                                    router.push("/patient/appointments/book")
                                   }
-                                  className="text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50 dark:hover:bg-[hsl(var(--muted))]/50"
+                                  className="text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))] dark:hover:bg-[hsl(var(--muted))]"
                                 >
                                   Mark Complete
                                 </DropdownMenuItem>
@@ -540,13 +543,13 @@ export default function PatientAppointmentsPage() {
                                     setEditingAppointment(appointment);
                                     setShowEditModal(true);
                                   }}
-                                  className="text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50 dark:hover:bg-[hsl(var(--muted))]/50"
+                                  className="text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))] dark:hover:bg-[hsl(var(--muted))]"
                                 >
                                   Reschedule
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                   onClick={() => onCancel(appointment)}
-                                  className="text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]/50 dark:hover:bg-[hsl(var(--muted))]/50"
+                                  className="text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))] dark:hover:bg-[hsl(var(--muted))]"
                                 >
                                   Cancel
                                 </DropdownMenuItem>
@@ -559,18 +562,18 @@ export default function PatientAppointmentsPage() {
                   </table>
                 </div>
 
-                <div className="px-6 py-4 border-t border-[hsl(var(--border))] flex items-center justify-between">
+                <div className="px-6 py-4 border-t border-[hsl(var(--border))] dark:border-[hsl(var(--border))] flex items-center justify-between">
                   <div className="flex items-center gap-1">
-                    <button className="px-3 py-2 text-sm text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] dark:hover:text-[hsl(var(--foreground))]">
+                    <button className="px-3 py-2 text-sm text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] dark:hover:text-[hsl(var(--foreground))]">
                       Previous
                     </button>
                     <button className="px-3 py-2 text-sm bg-[hsl(var(--color-brand-teal))] text-white rounded font-medium">
                       1
                     </button>
-                    <button className="px-3 py-2 text-sm text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] dark:hover:text-[hsl(var(--foreground))]">
+                    <button className="px-3 py-2 text-sm text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] dark:hover:text-[hsl(var(--foreground))]">
                       2
                     </button>
-                    <button className="px-3 py-2 text-sm text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] dark:hover:text-[hsl(var(--foreground))]">
+                    <button className="px-3 py-2 text-sm text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] dark:hover:text-[hsl(var(--foreground))]">
                       Next
                     </button>
                   </div>
@@ -580,7 +583,6 @@ export default function PatientAppointmentsPage() {
                 </div>
               </div>
             )}
-
           </div>
         </div>
       </div>
@@ -623,28 +625,28 @@ export default function PatientAppointmentsPage() {
           <div className="p-3">
             <DialogHeader className="flex flex-row items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-[hsl(var(--color-status-error-light))] dark:bg-[hsl(var(--color-status-error))/0.2] rounded-full flex items-center justify-center"></div>
+                <div className="w-8 h-8 bg-[hsl(var(--color-status-error)/0.1)] dark:bg-[hsl(var(--color-status-error)/0.1)] rounded-full flex items-center justify-center"></div>
                 <DialogTitle className="text-lg font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
                   Appointment Cancel
                 </DialogTitle>
               </div>
               <button
                 onClick={() => setShowCancelDialog(false)}
-                className="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] dark:hover:text-[hsl(var(--foreground))]"
+                className="text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] dark:hover:text-[hsl(var(--foreground))]"
               >
                 <X className="h-4 w-4" />
               </button>
             </DialogHeader>
             {cancelTarget && (
               <div className="space-y-4">
-                <div className="bg-[hsl(var(--color-brand-teal-light))] dark:bg-[hsl(var(--color-brand-teal))/0.1] rounded-lg p-4">
+                <div className="bg-[hsl(var(--color-brand-teal-light))] dark:bg-[hsl(var(--color-brand-teal)/0.1)] rounded-lg p-4">
                   <h4 className="font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] mb-1">
                     {cancelTarget.type}
                   </h4>
                   <p className="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] text-sm mb-2">
                     Dr. {cancelTarget.doctorName} - Internal Medicine
                   </p>
-                  <p className="text-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--color-brand-teal))] text-sm font-medium">
+                  <p className="text-[hsl(var(--color-brand-teal))] text-sm font-medium">
                     {new Date(cancelTarget.date).toLocaleDateString("en-US", {
                       month: "short",
                       day: "numeric",
@@ -658,7 +660,7 @@ export default function PatientAppointmentsPage() {
                 </p>
                 <Button
                   onClick={confirmCancel}
-                  className="w-full bg-[hsl(var(--color-status-error))] hover:bg-[hsl(var(--color-status-error-dark))] text-white py-3 rounded-lg font-medium"
+                  className="w-full bg-[hsl(var(--color-status-error))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-white py-3 rounded-lg font-medium"
                 >
                   Yes, Cancel Appointment
                 </Button>

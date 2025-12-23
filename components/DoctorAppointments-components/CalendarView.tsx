@@ -62,21 +62,21 @@ export default function CalendarView({
   const days = useMemo(() => getDaysInMonth(currentMonth), [currentMonth]);
 
   return (
-    <div className="bg-card rounded-lg border border-border">
+    <div className="bg-[hsl(var(--card))] rounded-lg border border-[hsl(var(--border))]">
       <div className="p-3 sm:p-6">
         <div className="flex items-center justify-between mb-4 sm:mb-6">
           <button
             onClick={() => navigate("prev")}
-            className="p-2 hover:bg-muted rounded transition-colors"
+            className="p-2 hover:bg-[hsl(var(--muted))] rounded transition-colors"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
-          <h3 className="text-base sm:text-lg font-semibold text-foreground">
+          <h3 className="text-base sm:text-lg font-semibold text-[hsl(var(--foreground))]">
             {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
           </h3>
           <button
             onClick={() => navigate("next")}
-            className="p-2 hover:bg-muted rounded transition-colors"
+            className="p-2 hover:bg-[hsl(var(--muted))] rounded transition-colors"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
@@ -84,7 +84,7 @@ export default function CalendarView({
 
         <div className="grid grid-cols-7 gap-1 mb-2">
           {weekDays.map((d) => (
-            <div key={d} className="p-1 sm:p-2 text-center text-xs sm:text-sm font-medium text-muted-foreground">
+            <div key={d} className="p-1 sm:p-2 text-center text-xs sm:text-sm font-medium text-[hsl(var(--muted-foreground))]">
               {d}
             </div>
           ))}
@@ -97,13 +97,13 @@ export default function CalendarView({
             return (
               <div
                 key={idx}
-                className={`p-1 sm:p-2 h-16 sm:h-20 border border-border ${
-                  day.isCurrentMonth ? "bg-card" : "bg-muted/50"
-                } relative cursor-pointer hover:bg-muted/50 transition-colors`}
+                className={`p-1 sm:p-2 h-16 sm:h-20 border border-[hsl(var(--border))] ${
+                  day.isCurrentMonth ? "bg-[hsl(var(--card))]" : "bg-[hsl(var(--muted)/0.5)]"
+                } relative cursor-pointer hover:bg-[hsl(var(--muted)/0.5)] transition-colors`}
               >
                 <span
                   className={`text-xs sm:text-sm ${
-                    day.isCurrentMonth ? "text-foreground" : "text-muted-foreground"
+                    day.isCurrentMonth ? "text-[hsl(var(--foreground))]" : "text-[hsl(var(--muted-foreground))]"
                   }`}
                 >
                   {day.date}
@@ -115,17 +115,17 @@ export default function CalendarView({
                         key={e.id}
                         className={`text-xs px-1 py-0.5 rounded truncate ${
                           e.type === "follow-up"
-                            ? "bg-teal-100 dark:bg-teal-900/30 text-teal-800 dark:text-teal-200"
+                            ? "bg-[hsl(var(--color-brand-teal-light))] dark:bg-[hsl(var(--color-brand-teal)/0.3)] text-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--color-brand-teal))]"
                             : e.type === "consultation"
-                            ? "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200"
-                            : "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200"
+                            ? "bg-[hsl(var(--color-chart-blue)/0.1)] dark:bg-[hsl(var(--color-chart-blue)/0.3)] text-[hsl(var(--color-chart-blue))] dark:text-[hsl(var(--color-chart-blue))]"
+                            : "bg-[hsl(var(--color-status-success-light))] dark:bg-[hsl(var(--color-status-success)/0.3)] text-[hsl(var(--color-status-success))] dark:text-[hsl(var(--color-status-success))]"
                         }`}
                       >
                         {e.title.split(" - ")[1] || e.type}
                       </div>
                     ))}
                     {evts.length > 2 && (
-                      <div className="text-xs text-muted-foreground">+{evts.length - 2} more</div>
+                      <div className="text-xs text-[hsl(var(--muted-foreground))]">+{evts.length - 2} more</div>
                     )}
                   </div>
                 )}

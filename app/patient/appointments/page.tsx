@@ -82,15 +82,15 @@ export default function PatientAppointmentsPage() {
   const statusColor = (st: string) => {
     switch (st) {
       case "confirmed":
-        return "bg-[#1DA68F] text-white";
+        return "bg-[hsl(var(--color-brand-teal))] text-white";
       case "pending":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-[hsl(var(--color-chart-orange)/0.1)] text-[hsl(var(--color-chart-orange))]";
       case "cancelled":
-        return "bg-red-100 text-red-800";
+        return "bg-[hsl(var(--color-status-error)/0.1)] text-[hsl(var(--color-status-error))]";
       case "completed":
-        return "bg-blue-100 text-blue-800";
+        return "bg-[hsl(var(--color-chart-blue)/0.1)] text-[hsl(var(--color-chart-blue))]";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]";
     }
   };
 
@@ -114,22 +114,22 @@ export default function PatientAppointmentsPage() {
 
   return (
     <ProtectedRoute allowedRoles={["patient"]}>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 px-6 py-6">
+      <div className="min-h-screen bg-[hsl(var(--color-gray-50))] dark:bg-[hsl(var(--background))] px-6 py-6">
         <div className="max-w-7xl mx-auto space-y-6">
 
           {/* Header */}
           <div className="flex justify-between">
             <div>
-              <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
+              <h1 className="text-2xl font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
                 Appointments
               </h1>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">
                 Schedule and manage your appointments
               </p>
             </div>
             <Button
               onClick={() => router.push("/patient/appointments/book")}
-              className="bg-[#1DA68F] hover:bg-[#168f73] text-white flex gap-2"
+              className="bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-white flex gap-2"
             >
               <Plus className="h-4 w-4" />
               New Appointment

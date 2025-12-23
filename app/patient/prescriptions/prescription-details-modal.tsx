@@ -36,18 +36,18 @@ export function PrescriptionDetailsModal({ isOpen, onClose, prescription }: Pres
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto p-0 bg-white dark:bg-background border border-border rounded-lg text-gray-900 dark:text-foreground">
+      <DialogContent className="sm:max-w-lg w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto p-0 bg-[hsl(var(--background))] border border-[hsl(var(--border))] rounded-lg text-[hsl(var(--foreground))]">
         {/* Header */}
-        <DialogHeader className="p-4 pb-0 border-b border-border dark:border-border flex items-center justify-between">
+        <DialogHeader className="p-4 pb-0 border-b border-[hsl(var(--border))] flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <FileText className="h-5 w-5 text-gray-600 dark:text-muted-foreground" />
-            <DialogTitle className="text-base font-semibold text-gray-900 dark:text-foreground">
+            <FileText className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />
+            <DialogTitle className="text-base font-semibold text-[hsl(var(--foreground))]">
               Prescription Details
             </DialogTitle>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-muted text-gray-500 dark:text-muted-foreground"
+            className="p-1 rounded-full hover:bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]"
           >
           </button>
         </DialogHeader>
@@ -55,82 +55,82 @@ export function PrescriptionDetailsModal({ isOpen, onClose, prescription }: Pres
         <div className="p-4 space-y-6">
           {/* Voice Recording */}
           <div>
-            <h4 className="text-sm font-medium mb-2 text-gray-900 dark:text-foreground">Voice Recording from Doctor</h4>
+            <h4 className="text-sm font-medium mb-2 text-[hsl(var(--foreground))]">Voice Recording from Doctor</h4>
             <div className="flex gap-2">
-              <Button className="bg-[#1DA68F] hover:bg-[#178C75] text-white flex-[0.7] justify-start dark:bg-[#178C75] dark:hover:bg-[#147A64]">
+              <Button className="bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-white flex-[0.7] justify-start">
                 <Play className="h-4 w-4 mr-1" /> Play
               </Button>
               <Button
                 variant="outline"
-                className="border-gray-300 flex-[0.3] dark:border-border text-gray-700 dark:text-foreground hover:bg-gray-100 dark:hover:bg-muted bg-transparent"
+                className="border-[hsl(var(--border))] flex-[0.3] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))] bg-transparent"
               >
                 <Download className="h-4 w-4 mr-1" /> Download
               </Button>
             </div>
-            <div className="mt-3 border border-gray-200 dark:border-border rounded-md p-3 bg-gray-50 dark:bg-gray-900/20">
-              <h5 className="text-sm font-medium mb-1 flex items-center gap-1 text-gray-900 dark:text-foreground">
-                <FileText className="h-4 w-4 text-gray-500 dark:text-muted-foreground" />
+            <div className="mt-3 border border-[hsl(var(--border))] rounded-md p-3 bg-[hsl(var(--muted))]">
+              <h5 className="text-sm font-medium mb-1 flex items-center gap-1 text-[hsl(var(--foreground))]">
+                <FileText className="h-4 w-4 text-[hsl(var(--muted-foreground))]" />
                 Transcription
               </h5>
-              <p className="text-sm text-gray-700 dark:text-muted-foreground">{prescription.transcription}</p>
+              <p className="text-sm text-[hsl(var(--muted-foreground))]">{prescription.transcription}</p>
             </div>
           </div>
 
           {/* Prescription Info */}
           <div className="grid grid-cols-2 gap-y-3 gap-x-6 text-sm">
             <div>
-              <p className="text-gray-500 dark:text-muted-foreground">State</p>
-              <p className="font-medium text-gray-900 dark:text-foreground">State of New Jersey</p>
+              <p className="text-[hsl(var(--muted-foreground))]">State</p>
+              <p className="font-medium text-[hsl(var(--foreground))]">State of New Jersey</p>
             </div>
             <div>
-              <p className="text-gray-500 dark:text-muted-foreground">Date Prescribed</p>
-              <p className="font-medium text-gray-900 dark:text-foreground">{prescription.datePrescribed}</p>
+              <p className="text-[hsl(var(--muted-foreground))]">Date Prescribed</p>
+              <p className="font-medium text-[hsl(var(--foreground))]">{prescription.datePrescribed}</p>
             </div>
             <div>
-              <p className="text-gray-500 dark:text-muted-foreground">Prescribed by</p>
-              <p className="font-medium text-gray-900 dark:text-foreground">{prescription.producedBy}</p>
+              <p className="text-[hsl(var(--muted-foreground))]">Prescribed by</p>
+              <p className="font-medium text-[hsl(var(--foreground))]">{prescription.producedBy}</p>
             </div>
             <div>
-              <p className="text-gray-500 dark:text-muted-foreground">Prescriber Address</p>
-              <p className="font-medium text-gray-900 dark:text-foreground">{prescription.patientAddress}</p>
+              <p className="text-[hsl(var(--muted-foreground))]">Prescriber Address</p>
+              <p className="font-medium text-[hsl(var(--foreground))]">{prescription.patientAddress}</p>
             </div>
             <div>
-              <p className="text-gray-500 dark:text-muted-foreground">Telephone</p>
-              <p className="font-medium text-gray-900 dark:text-foreground">(732) 442-2211</p>
+              <p className="text-[hsl(var(--muted-foreground))]">Telephone</p>
+              <p className="font-medium text-[hsl(var(--foreground))]">(732) 442-2211</p>
             </div>
             <div>
-              <p className="text-gray-500 dark:text-muted-foreground">Fax</p>
-              <p className="font-medium text-gray-900 dark:text-foreground">(732) 326-0517</p>
+              <p className="text-[hsl(var(--muted-foreground))]">Fax</p>
+              <p className="font-medium text-[hsl(var(--foreground))]">(732) 326-0517</p>
             </div>
             <div>
-              <p className="text-gray-500 dark:text-muted-foreground">NPI Number</p>
-              <p className="font-medium text-gray-900 dark:text-foreground">{prescription.npiNumber}</p>
+              <p className="text-[hsl(var(--muted-foreground))]">NPI Number</p>
+              <p className="font-medium text-[hsl(var(--foreground))]">{prescription.npiNumber}</p>
             </div>
             <div>
-              <p className="text-gray-500 dark:text-muted-foreground">License #</p>
-              <p className="font-medium text-gray-900 dark:text-foreground">{prescription.licenseNumber}</p>
+              <p className="text-[hsl(var(--muted-foreground))]">License #</p>
+              <p className="font-medium text-[hsl(var(--foreground))]">{prescription.licenseNumber}</p>
             </div>
             <div className="col-span-2">
-              <p className="text-gray-500 dark:text-muted-foreground">DEA #</p>
-              <p className="font-medium text-gray-900 dark:text-foreground">BS9168091</p>
+              <p className="text-[hsl(var(--muted-foreground))]">DEA #</p>
+              <p className="font-medium text-[hsl(var(--foreground))]">BS9168091</p>
             </div>
           </div>
 
           {/* Patient Details */}
           <div>
-            <h3 className="text-base font-semibold mb-3 text-gray-900 dark:text-foreground">Patient Details</h3>
+            <h3 className="text-base font-semibold mb-3 text-[hsl(var(--foreground))]">Patient Details</h3>
             <div className="grid grid-cols-2 gap-y-3 gap-x-6 text-sm">
               <div>
-                <p className="text-gray-500 dark:text-muted-foreground">Patient Name</p>
-                <p className="font-medium text-gray-900 dark:text-foreground">{prescription.patientName}</p>
+                <p className="text-[hsl(var(--muted-foreground))]">Patient Name</p>
+                <p className="font-medium text-[hsl(var(--foreground))]">{prescription.patientName}</p>
               </div>
               <div>
-                <p className="text-gray-500 dark:text-muted-foreground">Patient Address</p>
-                <p className="font-medium text-gray-900 dark:text-foreground">{prescription.patientAddress}</p>
+                <p className="text-[hsl(var(--muted-foreground))]">Patient Address</p>
+                <p className="font-medium text-[hsl(var(--foreground))]">{prescription.patientAddress}</p>
               </div>
               <div className="col-span-2">
-                <p className="text-gray-500 dark:text-muted-foreground">Patient Illness Detail</p>
-                <p className="font-medium text-gray-900 dark:text-foreground">{prescription.patientIllnessDetail}</p>
+                <p className="text-[hsl(var(--muted-foreground))]">Patient Illness Detail</p>
+                <p className="font-medium text-[hsl(var(--foreground))]">{prescription.patientIllnessDetail}</p>
               </div>
             </div>
           </div>
@@ -138,45 +138,45 @@ export function PrescriptionDetailsModal({ isOpen, onClose, prescription }: Pres
           {/* Medication Details */}
           <div className="grid grid-cols-2 gap-y-3 gap-x-6 text-sm">
             <div>
-              <p className="text-gray-500 dark:text-muted-foreground">Substitution Permissible</p>
-              <p className="font-medium text-gray-900 dark:text-foreground">{prescription.substitutionPermissible}</p>
+              <p className="text-[hsl(var(--muted-foreground))]">Substitution Permissible</p>
+              <p className="font-medium text-[hsl(var(--foreground))]">{prescription.substitutionPermissible}</p>
             </div>
             <div>
-              <p className="text-gray-500 dark:text-muted-foreground">Do Not Substitute</p>
-              <p className="font-medium text-gray-900 dark:text-foreground">{prescription.doNotSubstitute}</p>
+              <p className="text-[hsl(var(--muted-foreground))]">Do Not Substitute</p>
+              <p className="font-medium text-[hsl(var(--foreground))]">{prescription.doNotSubstitute}</p>
             </div>
             <div>
-              <p className="text-gray-500 dark:text-muted-foreground">Do Not Refill</p>
-              <p className="font-medium text-gray-900 dark:text-foreground">{prescription.doNotRefill}</p>
+              <p className="text-[hsl(var(--muted-foreground))]">Do Not Refill</p>
+              <p className="font-medium text-[hsl(var(--foreground))]">{prescription.doNotRefill}</p>
             </div>
             <div>
-              <p className="text-gray-500 dark:text-muted-foreground">Refill Times</p>
-              <p className="font-medium text-gray-900 dark:text-foreground">{prescription.refillTimes}</p>
+              <p className="text-[hsl(var(--muted-foreground))]">Refill Times</p>
+              <p className="font-medium text-[hsl(var(--foreground))]">{prescription.refillTimes}</p>
             </div>
             <div>
-              <p className="text-gray-500 dark:text-muted-foreground">Medication</p>
-              <p className="font-medium text-gray-900 dark:text-foreground">{prescription.medication}</p>
+              <p className="text-[hsl(var(--muted-foreground))]">Medication</p>
+              <p className="font-medium text-[hsl(var(--foreground))]">{prescription.medication}</p>
             </div>
             <div>
-              <p className="text-gray-500 dark:text-muted-foreground">Dosage</p>
-              <p className="font-medium text-gray-900 dark:text-foreground">{prescription.dosage}</p>
+              <p className="text-[hsl(var(--muted-foreground))]">Dosage</p>
+              <p className="font-medium text-[hsl(var(--foreground))]">{prescription.dosage}</p>
             </div>
             <div className="col-span-2">
-              <p className="text-gray-500 dark:text-muted-foreground">Instructions</p>
-              <p className="font-medium text-gray-900 dark:text-foreground">{prescription.instructions}</p>
+              <p className="text-[hsl(var(--muted-foreground))]">Instructions</p>
+              <p className="font-medium text-[hsl(var(--foreground))]">{prescription.instructions}</p>
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <DialogFooter className="p-4 border-t border-border dark:border-border flex gap-2">
-          <Button className="bg-[#1DA68F] hover:bg-[#178C75] text-white flex-1 dark:bg-[#178C75] dark:hover:bg-[#147A64]">
+        <DialogFooter className="p-4 border-t border-[hsl(var(--border))] flex gap-2">
+          <Button className="bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-white flex-1">
             Download
           </Button>
           <Button
             variant="outline"
             onClick={onClose}
-            className="border-gray-300 dark:border-border flex-1 text-gray-700 dark:text-foreground hover:bg-gray-100 dark:hover:bg-muted bg-transparent"
+            className="border-[hsl(var(--border))] flex-1 text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))] bg-transparent"
           >
             Close
           </Button>

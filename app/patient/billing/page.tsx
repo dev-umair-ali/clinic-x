@@ -1,5 +1,4 @@
-"use client"
-
+"use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
@@ -90,16 +89,16 @@ export default function PatientBilling() {
   }
 
   return (
-    <div className="">
+    <div className="min-h-screen bg-[hsl(var(--background))]">
       <div className="max-w-7xl mx-auto p-5 space-y-6">
-        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-6">
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-1">
+        <div className="bg-[hsl(var(--card))] border-b border-[hsl(var(--border))] px-6 py-6">
+          <h1 className="text-2xl font-semibold text-[hsl(var(--foreground))] mb-1">
             Manage your payments and billing history
           </h1>
-          <p className="text-gray-600 dark:text-gray-300">Manage your payments and billing history</p>
+          <p className="text-[hsl(var(--muted-foreground))]">Manage your payments and billing history</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-6">
-          <div className="bg-emerald-500 text-white p-6 rounded-xl w-full sm:w-80 h-48 flex flex-col justify-between">
+          <div className="bg-[hsl(var(--color-brand-teal))] text-[hsl(var(--primary-foreground))] p-6 rounded-xl w-full sm:w-80 h-48 flex flex-col justify-between">
             <div className="flex justify-between items-start">
               <span className="text-sm opacity-90">Current Balance</span>
               <span className="text-lg font-bold">VISA</span>
@@ -121,217 +120,217 @@ export default function PatientBilling() {
               </div>
             </div>
           </div>
-          <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl w-full sm:w-80 h-48 flex flex-col items-center justify-center hover:border-gray-400 dark:hover:border-gray-500 cursor-pointer">
-            <div className="w-12 h-12 rounded-full border-2 border-gray-300 dark:border-gray-600 flex items-center justify-center mb-3">
-              <Plus className="h-6 w-6 text-gray-400 dark:text-gray-500" />
+          <div className="border-2 border-dashed border-[hsl(var(--border))] rounded-xl w-full sm:w-80 h-48 flex flex-col items-center justify-center hover:border-[hsl(var(--muted-foreground))] cursor-pointer">
+            <div className="w-12 h-12 rounded-full border-2 border-[hsl(var(--border))] flex items-center justify-center mb-3">
+              <Plus className="h-6 w-6 text-[hsl(var(--muted-foreground))]" />
             </div>
-            <span className="text-gray-500 dark:text-gray-400 font-medium">Add new Card</span>
+            <span className="text-[hsl(var(--muted-foreground))] font-medium">Add new Card</span>
           </div>
         </div>
         <div className="grid grid-cols-3 gap-6">
-          <Card className="bg-white dark:bg-gray-800 p-6">
+          <Card className="bg-[hsl(var(--card))] p-6 border border-[hsl(var(--border))]">
             <div className="flex items-start space-x-3">
-              <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
-                <DollarSign className="h-5 w-5 text-green-600 dark:text-green-400" />
+              <div className="w-10 h-10 rounded-full bg-[hsl(var(--color-chart-blue)/0.1)] flex items-center justify-center">
+                <DollarSign className="h-5 w-5 text-[hsl(var(--color-chart-blue))]" />
               </div>
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">Outstanding Balance</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">$295.00</p>
+                <p className="text-sm text-[hsl(var(--muted-foreground))] mb-1">Outstanding Balance</p>
+                <p className="text-2xl font-bold text-[hsl(var(--foreground))]">$295.00</p>
               </div>
             </div>
           </Card>
-          <Card className="bg-white dark:bg-gray-800 p-6">
+          <Card className="bg-[hsl(var(--card))] p-6 border border-[hsl(var(--border))]">
             <div className="flex items-start space-x-3">
-              <div className="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900 flex items-center justify-center">
-                <Clock className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+              <div className="w-10 h-10 rounded-full bg-[hsl(var(--color-status-warning)/0.1)] flex items-center justify-center">
+                <Clock className="h-5 w-5 text-[hsl(var(--color-status-warning))]" />
               </div>
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">Total Paid</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">$95.50</p>
+                <p className="text-sm text-[hsl(var(--muted-foreground))] mb-1">Total Paid</p>
+                <p className="text-2xl font-bold text-[hsl(var(--foreground))]">$95.50</p>
               </div>
             </div>
           </Card>
-          <Card className="bg-white dark:bg-gray-800 p-6">
+          <Card className="bg-[hsl(var(--card))] p-6 border border-[hsl(var(--border))]">
             <div className="flex items-start space-x-3">
-              <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-                <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <div className="w-10 h-10 rounded-full bg-[hsl(var(--color-chart-blue)/0.1)] flex items-center justify-center">
+                <Shield className="h-5 w-5 text-[hsl(var(--color-chart-blue))]" />
               </div>
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">Insurance Coverage</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">BlueCross</p>
+                <p className="text-sm text-[hsl(var(--muted-foreground))] mb-1">Insurance Coverage</p>
+                <p className="text-2xl font-bold text-[hsl(var(--foreground))]">BlueCross</p>
               </div>
             </div>
           </Card>
         </div>
-        <Card className="bg-white dark:bg-gray-800">
+        <Card className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]">
           <CardHeader>
-            <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">Billing History</CardTitle>
+            <CardTitle className="text-lg font-semibold text-[hsl(var(--foreground))]">Billing History</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-gray-50 dark:bg-gray-700">
-                    <TableHead className="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  <TableRow className="bg-[hsl(var(--muted)/0.5)]">
+                    <TableHead className="text-xs font-semibold text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
                       CPT CODE
                     </TableHead>
-                    <TableHead className="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    <TableHead className="text-xs font-semibold text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
                       DOCTOR
                     </TableHead>
-                    <TableHead className="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    <TableHead className="text-xs font-semibold text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
                       CO PAY
                     </TableHead>
-                    <TableHead className="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    <TableHead className="text-xs font-semibold text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
                       DESCRIPTION
                     </TableHead>
-                    <TableHead className="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    <TableHead className="text-xs font-semibold text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
                       CHARGE
                     </TableHead>
-                    <TableHead className="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    <TableHead className="text-xs font-semibold text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
                       ADJUSTMENT
                     </TableHead>
-                    <TableHead className="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    <TableHead className="text-xs font-semibold text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
                       INSURANCE PAID
                     </TableHead>
-                    <TableHead className="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    <TableHead className="text-xs font-semibold text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
                       PATIENT PAID
                     </TableHead>
-                    <TableHead className="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    <TableHead className="text-xs font-semibold text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
                       DATE
                     </TableHead>
-                    <TableHead className="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    <TableHead className="text-xs font-semibold text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
                       PATIENT RESPONSIBILITY
                     </TableHead>
-                    <TableHead className="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    <TableHead className="text-xs font-semibold text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
                       REASON
                     </TableHead>
-                    <TableHead className="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    <TableHead className="text-xs font-semibold text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
                       STATUS
                     </TableHead>
-                    <TableHead className="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    <TableHead className="text-xs font-semibold text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
                       ACTION
                     </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {mockBillingData.map((bill, index) => (
-                    <TableRow key={index} className="border-b border-gray-200 dark:border-gray-700">
-                      <TableCell className="text-sm text-gray-900 dark:text-gray-100">
+                    <TableRow key={index} className="border-b border-[hsl(var(--border))]">
+                      <TableCell className="text-sm text-[hsl(var(--foreground))]">
                         {editingRowIndex === index ? (
                           <Input
                             value={editableData.cptCode || bill.cptCode}
                             onChange={(e) => handleInputChange("cptCode", e.target.value)}
-                            className="h-8 text-sm"
+                            className="h-8 text-sm bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]"
                           />
                         ) : (
                           bill.cptCode
                         )}
                       </TableCell>
-                      <TableCell className="text-sm text-gray-900 dark:text-gray-100">
+                      <TableCell className="text-sm text-[hsl(var(--foreground))]">
                         {editingRowIndex === index ? (
                           <Input
                             value={editableData.doctor || bill.doctor}
                             onChange={(e) => handleInputChange("doctor", e.target.value)}
-                            className="h-8 text-sm"
+                            className="h-8 text-sm bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]"
                           />
                         ) : (
                           bill.doctor
                         )}
                       </TableCell>
-                      <TableCell className="text-sm text-gray-900 dark:text-gray-100">
+                      <TableCell className="text-sm text-[hsl(var(--foreground))]">
                         {editingRowIndex === index ? (
                           <Input
                             value={editableData.coPay || bill.coPay}
                             onChange={(e) => handleInputChange("coPay", e.target.value)}
-                            className="h-8 text-sm"
+                            className="h-8 text-sm bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]"
                           />
                         ) : (
                           bill.coPay
                         )}
                       </TableCell>
-                      <TableCell className="text-sm text-gray-900 dark:text-gray-100">
+                      <TableCell className="text-sm text-[hsl(var(--foreground))]">
                         {editingRowIndex === index ? (
                           <Input
                             value={editableData.description || bill.description}
                             onChange={(e) => handleInputChange("description", e.target.value)}
-                            className="h-8 text-sm"
+                            className="h-8 text-sm bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]"
                           />
                         ) : (
                           bill.description
                         )}
                       </TableCell>
-                      <TableCell className="text-sm text-gray-900 dark:text-gray-100">
+                      <TableCell className="text-sm text-[hsl(var(--foreground))]">
                         {editingRowIndex === index ? (
                           <Input
                             value={editableData.charge || bill.charge}
                             onChange={(e) => handleInputChange("charge", e.target.value)}
-                            className="h-8 text-sm"
+                            className="h-8 text-sm bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]"
                           />
                         ) : (
                           bill.charge
                         )}
                       </TableCell>
-                      <TableCell className="text-sm text-gray-900 dark:text-gray-100">
+                      <TableCell className="text-sm text-[hsl(var(--foreground))]">
                         {editingRowIndex === index ? (
                           <Input
                             value={editableData.adjustment || bill.adjustment}
                             onChange={(e) => handleInputChange("adjustment", e.target.value)}
-                            className="h-8 text-sm"
+                            className="h-8 text-sm bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]"
                           />
                         ) : (
                           bill.adjustment
                         )}
                       </TableCell>
-                      <TableCell className="text-sm text-gray-900 dark:text-gray-100">
+                      <TableCell className="text-sm text-[hsl(var(--foreground))]">
                         {editingRowIndex === index ? (
                           <Input
                             value={editableData.insurancePaid || bill.insurancePaid}
                             onChange={(e) => handleInputChange("insurancePaid", e.target.value)}
-                            className="h-8 text-sm"
+                            className="h-8 text-sm bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]"
                           />
                         ) : (
                           bill.insurancePaid
                         )}
                       </TableCell>
-                      <TableCell className="text-sm text-gray-900 dark:text-gray-100">
+                      <TableCell className="text-sm text-[hsl(var(--foreground))]">
                         {editingRowIndex === index ? (
                           <Input
                             value={editableData.patientPaid || bill.patientPaid}
                             onChange={(e) => handleInputChange("patientPaid", e.target.value)}
-                            className="h-8 text-sm"
+                            className="h-8 text-sm bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]"
                           />
                         ) : (
                           bill.patientPaid
                         )}
                       </TableCell>
-                      <TableCell className="text-sm text-gray-900 dark:text-gray-100">
+                      <TableCell className="text-sm text-[hsl(var(--foreground))]">
                         {editingRowIndex === index ? (
                           <Input
                             value={editableData.date || bill.date}
                             onChange={(e) => handleInputChange("date", e.target.value)}
-                            className="h-8 text-sm"
+                            className="h-8 text-sm bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]"
                           />
                         ) : (
                           bill.date
                         )}
                       </TableCell>
-                      <TableCell className="text-sm text-gray-900 dark:text-gray-100">
+                      <TableCell className="text-sm text-[hsl(var(--foreground))]">
                         {editingRowIndex === index ? (
                           <Input
                             value={editableData.patientResponsibility || bill.patientResponsibility}
                             onChange={(e) => handleInputChange("patientResponsibility", e.target.value)}
-                            className="h-8 text-sm"
+                            className="h-8 text-sm bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]"
                           />
                         ) : (
                           bill.patientResponsibility
                         )}
                       </TableCell>
-                      <TableCell className="text-sm text-gray-900 dark:text-gray-100">
+                      <TableCell className="text-sm text-[hsl(var(--foreground))]">
                         {editingRowIndex === index ? (
                           <Input
                             value={editableData.reason || bill.reason}
                             onChange={(e) => handleInputChange("reason", e.target.value)}
-                            className="h-8 text-sm"
+                            className="h-8 text-sm bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]"
                           />
                         ) : (
                           bill.reason
@@ -339,7 +338,7 @@ export default function PatientBilling() {
                       </TableCell>
                       <TableCell>
                         <Select defaultValue={bill.status}>
-                          <SelectTrigger className="w-24 h-8 text-xs">
+                          <SelectTrigger className="w-24 h-8 text-xs bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -375,20 +374,20 @@ export default function PatientBilling() {
               </Table>
             </div>
             <div className="flex items-center justify-start mt-6">
-              <Button variant="outline" size="sm" className="text-gray-600 dark:text-gray-300 bg-transparent">
+              <Button variant="outline" size="sm" className="text-[hsl(var(--muted-foreground))] bg-transparent border-[hsl(var(--border))]">
                 Previous
               </Button>
               <div className="flex items-center gap-2">
-                <Button size="sm" className="bg-emerald-500 hover:bg-emerald-600 text-white">
+                <Button size="sm" className="bg-[hsl(var(--color-brand-teal))] text-[hsl(var(--primary-foreground))] hover:bg-[hsl(var(--color-brand-teal-dark))]">
                   1
                 </Button>
-                <Button variant="outline" size="sm" className="text-gray-600 dark:text-gray-300 bg-transparent">
+                <Button variant="outline" size="sm" className="text-[hsl(var(--foreground))] bg-transparent border-[hsl(var(--border))]">
                   2
                 </Button>
-                <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-300">
+                <Button variant="ghost" size="sm" className="text-[hsl(var(--muted-foreground))]">
                   Next
                 </Button>
-                <span className="text-sm text-gray-500 dark:text-gray-400 ml-4">10 /Pages</span>
+                <span className="text-sm text-[hsl(var(--muted-foreground))] ml-4">10 /Pages</span>
               </div>
             </div>
           </CardContent>

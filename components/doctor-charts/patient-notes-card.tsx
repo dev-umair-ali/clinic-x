@@ -18,14 +18,14 @@ export function PatientNotesCard() {
   return (
     <Card className="shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-lg font-semibold text-foreground">
+        <CardTitle className="text-lg font-semibold text-[hsl(var(--foreground))]">
           Patient Notes
         </CardTitle>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button 
               variant="outline" 
-              className="text-foreground border-border hover:bg-muted"
+              className="text-[hsl(var(--foreground))] border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))]"
             >
               Weekly <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
@@ -40,15 +40,15 @@ export function PatientNotesCard() {
       <CardContent>
         <BarChartGrouped
           data={patientNotesData}
-          voiceNotesColor="#0E84EB"
-          manualNotesColor="#1DA68F"
+          voiceNotesColor="hsl(var(--color-brand-teal))"
+          manualNotesColor="hsl(var(--custom-dashboard-blue-DEFAULT))"
         />
-        <div className="flex justify-center gap-6 mt-4 text-sm text-muted-foreground">
+        <div className="flex justify-center gap-6 mt-4 text-sm text-[hsl(var(--muted-foreground))]">
           <div className="flex items-center">
-            <span className="h-3 w-3 rounded-full bg-[#1DA68F] mr-2" /> Voice Notes
+            <span className="h-3 w-3 rounded-full bg-[hsl(var(--color-brand-teal))] mr-2" /> Voice Notes
           </div>
           <div className="flex items-center">
-            <span className="h-3 w-3 rounded-full bg-[#0E84EB] mr-2" /> Manual Notes
+            <span className="h-3 w-3 rounded-full bg-[hsl(var(--custom-dashboard-blue-DEFAULT))] mr-2" /> Manual Notes
           </div>
         </div>
       </CardContent>

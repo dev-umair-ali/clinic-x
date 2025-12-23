@@ -15,8 +15,8 @@ export default function ViewToggleBar({ viewMode, setViewMode }: Props) {
         onClick={() => setViewMode("calendar")}
         className={`flex items-center gap-2 ${
           viewMode === "calendar"
-            ? "bg-gray-900 text-white dark:bg-white dark:text-gray-900"
-            : "text-gray-600 dark:text-gray-400 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+            ? "bg-[hsl(var(--foreground))] text-[hsl(var(--background))] dark:bg-[hsl(var(--background))] dark:text-[hsl(var(--foreground))]"
+            : "text-[hsl(var(--muted-foreground))] border-[hsl(var(--border))] bg-[hsl(var(--background))]"
         }`}
       >
         <Calendar className="h-4 w-4" /> Calendar View
@@ -26,8 +26,8 @@ export default function ViewToggleBar({ viewMode, setViewMode }: Props) {
         onClick={() => setViewMode("list")}
         className={`flex items-center gap-2 ${
           viewMode === "list"
-            ? "bg-[#1DA68F] text-white hover:bg-[#168f73]"
-            : "text-gray-600 dark:text-gray-400 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+            ? "bg-[hsl(var(--color-brand-teal))] text-[hsl(var(--primary-foreground))] hover:bg-[hsl(var(--color-brand-teal-dark))]"
+            : "text-[hsl(var(--muted-foreground))] border-[hsl(var(--border))] bg-[hsl(var(--background))]"
         }`}
       >
         <List className="h-4 w-4" /> Appointment List View

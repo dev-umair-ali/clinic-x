@@ -28,8 +28,8 @@ export function BillingInsightsSection() {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold text-foreground">Billing Insights</h2>
-        <Button className="bg-[#1DA68F] text-white hover:bg-teal-700 transition-colors flex items-center gap-2 rounded-lg">
+        <h2 className="text-xl font-semibold text-[hsl(var(--foreground))]">Billing Insights</h2>
+        <Button className="bg-[hsl(var(--color-brand-teal))] text-[hsl(var(--primary-foreground))] hover:bg-[hsl(var(--color-brand-teal-dark))] transition-colors flex items-center gap-2 rounded-lg">
           View Bills <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </div>
@@ -41,10 +41,10 @@ export function BillingInsightsSection() {
           change="+8%"
           changeType="positive"
           icon={<AlertCircle />}
-          iconBgColor="bg-red-50 dark:bg-red-900/20"
-          iconColor="text-red-600 dark:text-red-400"
+          iconBgColor="bg-[hsl(var(--color-status-error)/0.1)] dark:bg-[hsl(var(--color-status-error)/0.2)]"
+          iconColor="text-[hsl(var(--color-status-error))] dark:text-[hsl(var(--color-status-error))]"
           chartData={pendingBillsData}
-          chartColor="hsl(var(--custom-dashboard-green-DEFAULT))" // Green
+          chartColor="hsl(var(--custom-dashboard-green-DEFAULT))"
         />
         <BillingInsightCard
           title="Insurance Claims"
@@ -53,10 +53,10 @@ export function BillingInsightsSection() {
           change="-2%"
           changeType="negative"
           icon={<FileText />}
-          iconBgColor="bg-blue-50 dark:bg-blue-900/20"
-          iconColor="text-blue-600 dark:text-blue-400"
+          iconBgColor="bg-[hsl(var(--color-chart-blue)/0.1)] dark:bg-[hsl(var(--color-chart-blue)/0.2)]"
+          iconColor="text-[hsl(var(--color-chart-blue))] dark:text-[hsl(var(--color-chart-blue))]"
           chartData={insuranceClaimsData}
-          chartColor="hsl(var(--custom-dashboard-red-DEFAULT))" // Red
+          chartColor="hsl(var(--custom-dashboard-red-DEFAULT))"
         />
         <BillingInsightCard
           title="Co-Pay Collected"
@@ -65,10 +65,10 @@ export function BillingInsightsSection() {
           change="+8%"
           changeType="positive"
           icon={<DollarSign />}
-          iconBgColor="bg-green-50 dark:bg-green-900/20"
-          iconColor="text-green-600 dark:text-green-400"
+          iconBgColor="bg-[hsl(var(--color-status-success-light))] dark:bg-[hsl(var(--color-status-success)/0.2)]"
+          iconColor="text-[hsl(var(--color-status-success))] dark:text-[hsl(var(--color-status-success))]"
           chartData={coPayCollectedData}
-          chartColor="hsl(var(--custom-dashboard-green-DEFAULT))" // Green
+          chartColor="hsl(var(--custom-dashboard-green-DEFAULT))"
         />
         <BillingInsightCard
           title="Pending Co-Pay"
@@ -77,10 +77,10 @@ export function BillingInsightsSection() {
           change="-2%"
           changeType="negative"
           icon={<CreditCard />}
-          iconBgColor="bg-orange-50 dark:bg-orange-900/20"
-          iconColor="text-orange-600 dark:text-orange-400"
+          iconBgColor="bg-[hsl(var(--color-chart-orange)/0.1)] dark:bg-[hsl(var(--color-chart-orange)/0.2)]"
+          iconColor="text-[hsl(var(--color-chart-orange))] dark:text-[hsl(var(--color-chart-orange))]"
           chartData={pendingCoPayData}
-          chartColor="hsl(var(--custom-dashboard-red-DEFAULT))" // Red
+          chartColor="hsl(var(--custom-dashboard-red-DEFAULT))"
         />
       </div>
     </div>

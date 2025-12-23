@@ -74,11 +74,11 @@ function CalendlyCallbackContent() {
   }, [searchParams, router, toast]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
+    <div className="flex min-h-screen items-center justify-center bg-[hsl(var(--background))]">
       <div className="text-center">
         <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
-        <h2 className="text-xl font-semibold">Processing Calendly Connection...</h2>
-        <p className="text-muted-foreground mt-2">Please wait while we complete the setup.</p>
+        <h2 className="text-xl font-semibold text-[hsl(var(--foreground))]">Processing Calendly Connection...</h2>
+        <p className="text-[hsl(var(--muted-foreground))] mt-2">Please wait while we complete the setup.</p>
       </div>
     </div>
   );
@@ -87,10 +87,10 @@ function CalendlyCallbackContent() {
 export default function CalendlyCallbackPage() {
   return (
     <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-[hsl(var(--background))]">
         <div className="text-center">
           <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div>
-          <h2 className="text-xl font-semibold">Loading...</h2>
+          <h2 className="text-xl font-semibold text-[hsl(var(--foreground))]">Loading...</h2>
         </div>
       </div>
     }>

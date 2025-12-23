@@ -18,7 +18,7 @@ interface CalendarEvent {
   id: string;
   title: string;
   date: string;
-  type: "appointment" | "follow-up" | "consultation" | "check-up"; // Added check-up
+  type: "appointment" | "follow-up" | "consultation" | "check-up";
 }
 
 interface CalendarViewProps {
@@ -38,6 +38,7 @@ export function CalendarView({ events = [] }: CalendarViewProps) {
     ...Array.from({ length: startPaddingDays }, () => null),
     ...(daysInMonth as Date[]), 
   ];
+
   const previousMonth = () => {
     setCurrentDate(subMonths(currentDate, 1));
   };
@@ -57,27 +58,27 @@ export function CalendarView({ events = [] }: CalendarViewProps) {
   const weekDays = ["MON", "TUE", "WED", "THUR", "FRI", "SAT", "SUN"];
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+    <div className="bg-[hsl(var(--card))] rounded-lg shadow-sm border border-[hsl(var(--border))]">
       {/* Calendar Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex items-center justify-between p-4 border-b border-[hsl(var(--border))]">
         <div className="flex items-center gap-4">
           <button
             onClick={previousMonth}
-            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+            className="p-1 hover:bg-[hsl(var(--muted))] rounded"
           >
-            <ChevronLeft className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+            <ChevronLeft className="h-4 w-4 text-[hsl(var(--muted-foreground))]" />
           </button>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+          <h3 className="text-lg font-semibold text-[hsl(var(--foreground))]">
             {format(currentDate, "MMMM yyyy")}
           </h3>
           <button
             onClick={nextMonth}
-            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+            className="p-1 hover:bg-[hsl(var(--muted))] rounded"
           >
-            <ChevronRight className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+            <ChevronRight className="h-4 w-4 text-[hsl(var(--muted-foreground))]" />
           </button>
         </div>
-        <select className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+        <select className="px-3 py-1 border border-[hsl(var(--border))] rounded text-sm bg-[hsl(var(--background))] text-[hsl(var(--foreground))]">
           <option>Weekly</option>
           <option>Monthly</option>
         </select>
@@ -90,7 +91,7 @@ export function CalendarView({ events = [] }: CalendarViewProps) {
           {weekDays.map((day) => (
             <div
               key={day}
-              className="text-center text-[10px] sm:text-xs font-medium text-gray-500 dark:text-gray-400 py-2"
+              className="text-center text-[10px] sm:text-xs font-medium text-[hsl(var(--muted-foreground))] py-2"
             >
               {day}
             </div>
@@ -104,7 +105,7 @@ export function CalendarView({ events = [] }: CalendarViewProps) {
               return (
                 <div
                   key={`empty-${index}`}
-                  className="min-h-[80px] p-2 border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900"
+                  className="min-h-[80px] p-2 border border-[hsl(var(--border))] bg-[hsl(var(--muted)/0.5)]"
                 ></div>
               );
             }
@@ -116,22 +117,22 @@ export function CalendarView({ events = [] }: CalendarViewProps) {
             return (
               <div
                 key={index}
-                className={`min-h-[80px] p-2 border border-gray-100 dark:border-gray-700 ${
+                className={`min-h-[80px] p-2 border border-[hsl(var(--border))] ${
                   isCurrentMonth
-                    ? "bg-white dark:bg-gray-800"
-                    : "bg-gray-50 dark:bg-gray-900"
+                    ? "bg-[hsl(var(--card))]"
+                    : "bg-[hsl(var(--muted)/0.5)]"
                 } ${
                   isCurrentDay
-                    ? "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800"
+                    ? "bg-[hsl(var(--color-chart-blue)/0.1)] dark:bg-[hsl(var(--color-chart-blue)/0.2)] border-[hsl(var(--color-chart-blue)/0.3)] dark:border-[hsl(var(--color-chart-blue)/0.4)]"
                     : ""
                 }`}
               >
                 <div
                   className={`text-sm font-medium mb-1 ${
                     isCurrentMonth
-                      ? "text-gray-900 dark:text-white"
-                      : "text-gray-400 dark:text-gray-600"
-                  } ${isCurrentDay ? "text-blue-600 dark:text-blue-400" : ""}`}
+                      ? "text-[hsl(var(--foreground))]"
+                      : "text-[hsl(var(--muted-foreground))]"
+                  } ${isCurrentDay ? "text-[hsl(var(--color-chart-blue))] dark:text-[hsl(var(--color-chart-blue))]" : ""}`}
                 >
                   {format(day, "d")}
                 </div>
@@ -140,14 +141,14 @@ export function CalendarView({ events = [] }: CalendarViewProps) {
                   {dayEvents.map((event) => (
                     <div
                       key={event.id}
-                      className={`text-xs px-2 py-1 rounded text-white ${
+                      className={`text-xs px-2 py-1 rounded text-[hsl(var(--primary-foreground))] ${
                         event.type === "appointment"
-                          ? "bg-blue-500 dark:bg-blue-600"
+                          ? "bg-[hsl(var(--color-chart-blue))]"
                           : event.type === "follow-up"
-                          ? "bg-green-500 dark:bg-green-600"
+                          ? "bg-[hsl(var(--color-status-success))]"
                           : event.type === "consultation"
-                          ? "bg-purple-500 dark:bg-purple-600"
-                          : "bg-orange-500 dark:bg-orange-600" // For 'check-up' or other types
+                          ? "bg-[hsl(var(--color-chart-purple))]"
+                          : "bg-[hsl(var(--color-chart-orange))]"
                       }`}
                     >
                       {event.title}

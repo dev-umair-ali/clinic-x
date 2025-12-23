@@ -11,16 +11,16 @@ interface AISavingsItemProps {
 
 function AISavingsItem({ icon, title, value }: AISavingsItemProps) {
   return (
-    <div className="flex items-center justify-between p-4 rounded-md bg-muted/50">
+    <div className="flex items-center justify-between p-4 rounded-md bg-[hsl(var(--muted)/0.5)]">
       <div className="flex items-center gap-3">
-        <div className="rounded-md bg-card p-2 text-muted-foreground shadow-sm border border-border">
+        <div className="rounded-md bg-[hsl(var(--card))] p-2 text-[hsl(var(--muted-foreground))] shadow-sm border border-[hsl(var(--border))]">
           {icon}
         </div>
-        <div className="text-sm font-medium text-muted-foreground">{title}</div>
+        <div className="text-sm font-medium text-[hsl(var(--muted-foreground))]">{title}</div>
       </div>
       <div className="text-right">
-        <p className="text-base font-semibold text-foreground">{value}</p>
-        <p className="text-xs text-muted-foreground">Saved</p>
+        <p className="text-base font-semibold text-[hsl(var(--foreground))]">{value}</p>
+        <p className="text-xs text-[hsl(var(--muted-foreground))]">Saved</p>
       </div>
     </div>
   );
@@ -30,7 +30,7 @@ export function AISavingsSection() {
   return (
     <Card className="shadow-sm rounded-xl">
       <CardHeader>
-        <CardTitle className="text-base font-semibold text-foreground">
+        <CardTitle className="text-base font-semibold text-[hsl(var(--foreground))]">
           Clinic X Saved You 7.5 Hours This Week
         </CardTitle>
       </CardHeader>
@@ -42,7 +42,7 @@ export function AISavingsSection() {
             size={110}
             strokeWidth={10}
             label="Efficiency"
-            color="#1da68f"
+            color="hsl(var(--color-brand-teal))"
             bgColor="hsl(var(--muted))"
           />
         </div>

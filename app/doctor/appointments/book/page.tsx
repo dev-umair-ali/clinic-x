@@ -115,27 +115,27 @@ export default function BookAppointmentPage() {
 
   return (
     <ProtectedRoute allowedRoles={["patient", "doctor"]}>
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-6 bg-[hsl(var(--background))]">
         <div className="max-w-7xl mx-auto h-full">
-          <h1 className="text-2xl font-bold text-gray-900 mb-6">Book New Appointment</h1>
-          <form onSubmit={handleSubmit} className="space-y-6 p-6 bg-white rounded-lg shadow-sm border border-gray-200">
+          <h1 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-6">Book New Appointment</h1>
+          <form onSubmit={handleSubmit} className="space-y-6 p-6 bg-[hsl(var(--card))] rounded-lg shadow-sm border border-[hsl(var(--border))]">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">{error}</div>
+              <div className="bg-[hsl(var(--color-status-error)/0.1)] border border-[hsl(var(--color-status-error)/0.2)] text-[hsl(var(--color-status-error))] px-4 py-3 rounded-lg text-sm">{error}</div>
             )}
             {success && (
-              <div className="bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-lg text-sm">
+              <div className="bg-[hsl(var(--color-status-success)/0.1)] border border-[hsl(var(--color-status-success)/0.2)] text-[hsl(var(--color-status-success))] px-4 py-3 rounded-lg text-sm">
                 {success}
               </div>
             )}
 
             <div>
-              <Label htmlFor="patientId">Patient</Label>
+              <Label htmlFor="patientId" className="text-[hsl(var(--foreground))]">Patient</Label>
               <Select
                 onValueChange={(value) => handleSelectChange("patientId", value)}
                 value={formData.patientId}
                 required
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]">
                   <SelectValue placeholder="Select a patient" />
                 </SelectTrigger>
                 <SelectContent>
@@ -150,13 +150,13 @@ export default function BookAppointmentPage() {
 
             {user?.role !== "doctor" && ( // Only show doctor select if not a doctor user
               <div>
-                <Label htmlFor="doctorId">Doctor</Label>
+                <Label htmlFor="doctorId" className="text-[hsl(var(--foreground))]">Doctor</Label>
                 <Select
                   onValueChange={(value) => handleSelectChange("doctorId", value)}
                   value={formData.doctorId}
                   required
                 >
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger className="w-full bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]">
                     <SelectValue placeholder="Select a doctor" />
                   </SelectTrigger>
                   <SelectContent>
@@ -172,35 +172,35 @@ export default function BookAppointmentPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <Label htmlFor="date">Date</Label>
+                <Label htmlFor="date" className="text-[hsl(var(--foreground))]">Date</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant={"outline"}
                       className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !formData.date && "text-muted-foreground",
+                        "w-full justify-start text-left font-normal bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]",
+                        !formData.date && "text-[hsl(var(--muted-foreground))]"
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
                       {formData.date ? format(formData.date, "PPP") : <span>Pick a date</span>}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
+                  <PopoverContent className="w-auto p-0 bg-[hsl(var(--card))] border-[hsl(var(--border))]">
                     <Calendar mode="single" selected={formData.date} onSelect={handleDateChange} initialFocus />
                   </PopoverContent>
                 </Popover>
               </div>
               <div>
-                <Label htmlFor="time">Time</Label>
-                <Input id="time" name="time" type="time" value={formData.time} onChange={handleChange} required />
+                <Label htmlFor="time" className="text-[hsl(var(--foreground))]">Time</Label>
+                <Input id="time" name="time" type="time" value={formData.time} onChange={handleChange} required className="bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]" />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="type">Appointment Type</Label>
+              <Label htmlFor="type" className="text-[hsl(var(--foreground))]">Appointment Type</Label>
               <Select onValueChange={(value) => handleSelectChange("type", value)} value={formData.type} required>
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]">
                   <SelectValue placeholder="Select appointment type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -214,7 +214,7 @@ export default function BookAppointmentPage() {
             </div>
 
             <div>
-              <Label htmlFor="notes">Notes (Optional)</Label>
+              <Label htmlFor="notes" className="text-[hsl(var(--foreground))]">Notes (Optional)</Label>
               <Textarea
                 id="notes"
                 name="notes"
@@ -222,10 +222,11 @@ export default function BookAppointmentPage() {
                 onChange={handleChange}
                 placeholder="Any specific notes for the appointment..."
                 rows={3}
+                className="bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]"
               />
             </div>
 
-            <Button type="submit" disabled={loading} className="w-full">
+            <Button type="submit" disabled={loading} className="w-full bg-[hsl(var(--color-brand-teal))] text-[hsl(var(--primary-foreground))] hover:bg-[hsl(var(--color-brand-teal-dark))]">
               {loading ? "Booking Appointment..." : "Book Appointment"}
             </Button>
           </form>

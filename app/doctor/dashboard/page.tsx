@@ -87,7 +87,7 @@ export default function DoctorDashboard() {
 
   return (
     <ProtectedRoute allowedRoles={["doctor"]}>
-      <div className="flex-1 overflow-y-auto p-6 bg-background">
+      <div className="flex-1 overflow-y-auto p-6 bg-[hsl(var(--background))]">
         <div className="max-w-7xl mx-auto space-y-6 md:space-y-8">
           {/* Welcome Section */}
           <div className="p-4">

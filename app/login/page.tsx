@@ -36,7 +36,7 @@ export default function LoginPage() {
       const user = {
         id: "1",
         email: "email@gmail.com",
-        role: "receptionist",
+        role: "patient",
         name: "Admin User",
         firstName: "Admin",
         lastName: "User",
@@ -53,7 +53,7 @@ export default function LoginPage() {
         clinic: "/clinic/dashboard",
       };
 
-      const userRole = "receptionist";
+      const userRole = "patient";
       router.push(dashboardRoutes[userRole]);
     } catch (err: any) {
       console.error("Login error:", err);

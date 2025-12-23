@@ -21,8 +21,8 @@ export default function ViewToggle({
         }}
         className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors border flex-1 sm:flex-none justify-center ${
           viewMode === "calendar"
-            ? "bg-card text-foreground border-border"
-            : "bg-card text-muted-foreground border-border hover:bg-muted/50"
+            ? "bg-[hsl(var(--card))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]"
+            : "bg-[hsl(var(--card))] text-[hsl(var(--muted-foreground))] border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))]"
         }`}
       >
         <Calendar className="h-4 w-4" />
@@ -36,8 +36,8 @@ export default function ViewToggle({
         }}
         className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors border flex-1 sm:flex-none justify-center ${
           viewMode === "list"
-            ? "bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-700"
-            : "bg-card text-muted-foreground border-border hover:bg-muted/50"
+            ? "bg-[hsl(var(--color-brand-teal)/0.1)] dark:bg-[hsl(var(--color-brand-teal)/0.2)] text-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--color-brand-teal))] border-[hsl(var(--color-brand-teal)/0.3)] dark:border-[hsl(var(--color-brand-teal)/0.4)]"
+            : "bg-[hsl(var(--card))] text-[hsl(var(--muted-foreground))] border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))]"
         }`}
       >
         <List className="h-4 w-4" />
