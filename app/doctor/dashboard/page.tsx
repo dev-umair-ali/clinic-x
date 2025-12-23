@@ -4,15 +4,15 @@ import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/lib/store";
 import { ProtectedRoute } from "@/components/ui/protected-route";
-import { HeaderBanner } from "@/app/doctor/doctor-charts/header-banner";
-import { AISavingsSection } from "@/app/doctor/doctor-charts/ai-savings-section";
+import { HeaderBanner } from "@/components/doctor-charts/header-banner";
+import { AISavingsSection } from "@/components/doctor-charts/ai-savings-section";
 import AppointmentsOverviewSection from "@/components/appointments-overview-section";
-import { PaymentCollectionSection } from "@/app/doctor/doctor-charts/payment-collection-section";
-import { BillingInsightsSection } from "@/app/doctor/doctor-charts/billing-insights-section";
-import { PrescriptionsSection } from "@/app/doctor/doctor-charts/prescriptions-section";
-import { NotesCreditSection } from "@/app/doctor/doctor-charts/notes-credit-section";
-import { RemindersProgressSection } from "@/app/doctor/doctor-charts/reminders-progress-section";
-import { MedicalDashboard } from "@/app/doctor/doctor-charts/medical-dashboard";
+import { PaymentCollectionSection } from "@/components/doctor-charts/payment-collection-section";
+import { BillingInsightsSection } from "@/components/doctor-charts/billing-insights-section";
+import { PrescriptionsSection } from "@/components/doctor-charts/prescriptions-section";
+import { NotesCreditSection } from "@/components/doctor-charts/notes-credit-section";
+import { RemindersProgressSection } from "@/components/doctor-charts/reminders-progress-section";
+import { MedicalDashboard } from "@/components/doctor-charts/medical-dashboard";
 import {
   Dialog,
   DialogContent,
@@ -87,7 +87,7 @@ export default function DoctorDashboard() {
 
   return (
     <ProtectedRoute allowedRoles={["doctor"]}>
-      <div className="flex-1 overflow-y-auto p-6 bg-background">
+      <div className="flex-1 overflow-y-auto p-6 bg-[hsl(var(--background))]">
         <div className="max-w-7xl mx-auto space-y-6 md:space-y-8">
           {/* Welcome Section */}
           <div className="p-4">

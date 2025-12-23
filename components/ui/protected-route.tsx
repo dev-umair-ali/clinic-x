@@ -1,25 +1,30 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { useSelector } from "react-redux"
-import type { RootState } from "@/lib/store"
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/lib/store";
 
 interface ProtectedRouteProps {
-  children: React.ReactNode
-  allowedRoles?: ("admin" | "doctor" | "patient")[]
+  children: React.ReactNode;
+  allowedRoles?: ("admin" | "doctor" | "patient"| "receptionist" | "clinic")[];
 }
 
-export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
-  const router = useRouter()
-  const { isAuthenticated, user } = useSelector((state: RootState) => state.auth)
+export function ProtectedRoute({
+  children,
+  allowedRoles,
+}: ProtectedRouteProps) {
+  const router = useRouter();
+  const { isAuthenticated, user } = useSelector(
+    (state: RootState) => state.auth
+  );
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push("/login")
-      return
+      router.push("/login");
+      return;
     }
 
     if (allowedRoles && user && !allowedRoles.includes(user.role)) {
@@ -28,15 +33,20 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
         admin: "/admin/dashboard",
         doctor: "/doctor/dashboard",
         patient: "/patient/dashboard",
-      }
-      router.push(dashboardRoutes[user.role])
-      return
+        receptionist: "/ receptionist/dashboard",
+        clinic: "/clinic/dashboard",
+      };
+      router.push(dashboardRoutes[user.role]);
+      return;
     }
-  }, [isAuthenticated, user, allowedRoles, router])
+  }, [isAuthenticated, user, allowedRoles, router]);
 
-  if (!isAuthenticated || (allowedRoles && user && !allowedRoles.includes(user.role))) {
-    return <div>Loading...</div>
+  if (
+    !isAuthenticated ||
+    (allowedRoles && user && !allowedRoles.includes(user.role))
+  ) {
+    return <div>Loading...</div>;
   }
 
-  return <>{children}</>
+  return <>{children}</>;
 }

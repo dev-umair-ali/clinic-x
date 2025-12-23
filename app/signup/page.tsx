@@ -1,14 +1,14 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { useDispatch } from "react-redux"
-import Link from "next/link"
-import { loginStart, loginSuccess, loginFailure } from "@/lib/slices/authSlice"
-import { CognitoAuth } from "@/lib/auth/cognito"
-import { Eye, EyeOff } from "lucide-react"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import Link from "next/link";
+import { loginStart, loginSuccess, loginFailure } from "@/lib/slices/authSlice";
+import { CognitoAuth } from "@/lib/auth/cognito";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -17,53 +17,62 @@ export default function SignupPage() {
     password: "",
     confirmPassword: "",
     role: "patient",
-  })
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const router = useRouter()
-  const dispatch = useDispatch()
+  const router = useRouter();
+  const dispatch = useDispatch();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
-    })
-  }
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError("")
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match")
-      setLoading(false)
-      return
+      setError("Passwords do not match");
+      setLoading(false);
+      return;
     }
 
-    dispatch(loginStart())
+    dispatch(loginStart());
 
     try {
-      const result = await CognitoAuth.signUp(formData.email, formData.password, formData.name, formData.role)
-      dispatch(loginSuccess(result))
+      const result = await CognitoAuth.signUp(
+        formData.email,
+        formData.password,
+        formData.name,
+        formData.role
+      );
+      dispatch(loginSuccess(result));
 
       // Redirect based on role
-      const dashboardRoutes = {
+      const dashboardRoutes: Record<string, string> = {
         admin: "/admin/dashboard",
         doctor: "/doctor/dashboard",
         patient: "/patient/dashboard",
-      }
-      router.push(dashboardRoutes[result.user.role])
+        receptionist: "/receptionist/dashboard",
+        clinic: "/clinic/dashboard",
+      };
+      router.push(dashboardRoutes[result.user.role]);
     } catch (err) {
-      setError("Failed to create account")
-      dispatch(loginFailure())
+      setError("Failed to create account");
+      dispatch(loginFailure());
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8 px-4 sm:py-12 sm:px-6 lg:px-8">
@@ -72,18 +81,27 @@ export default function SignupPage() {
           <div className="mx-auto h-12 w-12 bg-primary-600 rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-xl">C</span>
           </div>
-          <h2 className="mt-6 text-center text-2xl sm:text-3xl font-extrabold text-gray-900">Create your account</h2>
-          <p className="mt-2 text-center text-sm text-gray-600">Join Clinic X today</p>
+          <h2 className="mt-6 text-center text-2xl sm:text-3xl font-extrabold text-gray-900">
+            Create your account
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Join Clinic X today
+          </p>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">{error}</div>
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+              {error}
+            </div>
           )}
 
           <div className="space-y-4">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Full Name
               </label>
               <input
@@ -99,7 +117,10 @@ export default function SignupPage() {
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Email address
               </label>
               <input
@@ -116,7 +137,10 @@ export default function SignupPage() {
             </div>
 
             <div>
-              <label htmlFor="role" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="role"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Role
               </label>
               <select
@@ -133,7 +157,10 @@ export default function SignupPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Password
               </label>
               <div className="mt-1 relative">
@@ -163,7 +190,10 @@ export default function SignupPage() {
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Confirm Password
               </label>
               <div className="mt-1 relative">
@@ -206,7 +236,10 @@ export default function SignupPage() {
           <div className="text-center">
             <span className="text-sm text-gray-600">
               Already have an account?{" "}
-              <Link href="/login" className="font-medium text-primary-600 hover:text-primary-500">
+              <Link
+                href="/login"
+                className="font-medium text-primary-600 hover:text-primary-500"
+              >
                 Sign in
               </Link>
             </span>
@@ -214,5 +247,5 @@ export default function SignupPage() {
         </form>
       </div>
     </div>
-  )
+  );
 }

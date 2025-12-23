@@ -332,7 +332,7 @@ export default function AddDoctorPage() {
   return (
     <ProtectedRoute allowedRoles={["admin"]}>
       <ToastContainer />
-      <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 min-h-screen">
+      <div className="flex-1 overflow-y-auto bg-[hsl(var(--color-gray-50))] dark:bg-[hsl(var(--background))] min-h-screen">
         <div className="max-w-7xl mx-auto p-6">
           {/* Header */}
           <div className="flex items-center space-x-4 mb-6">
@@ -340,19 +340,19 @@ export default function AddDoctorPage() {
               variant="ghost"
               size="sm"
               onClick={() => router.push("/admin/doctors")}
-              className="bg-[#1DA68F]/10 flex items-center space-x-2 text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300"
+              className="bg-[hsl(var(--color-brand-teal))/0.1] flex items-center space-x-2 text-[hsl(var(--color-brand-teal))] hover:text-[hsl(var(--color-brand-teal-dark))] dark:text-[hsl(var(--color-brand-teal))] dark:hover:text-[hsl(var(--color-brand-teal-dark))]"
             >
               <ArrowLeft className="h-4 w-4" />
               <span>Back to Doctor</span>
             </Button>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-              <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
+          <div className="bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))] rounded-lg shadow-sm border border-[hsl(var(--border))] dark:border-[hsl(var(--border))]">
+            <div className="p-6 border-b border-[hsl(var(--border))] dark:border-[hsl(var(--border))]">
+              <h1 className="text-xl font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
                 Add New Doctor
               </h1>
-              <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
+              <p className="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] text-sm mt-1">
                 Fill in the details to add a new doctor
               </p>
             </div>
@@ -360,7 +360,7 @@ export default function AddDoctorPage() {
             <form onSubmit={handleSubmit} className="p-6 space-y-8">
               {/* Profile Picture Section */}
               <div>
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                <h3 className="text-lg font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] mb-4">
                   Profile Picture
                 </h3>
                 <div className="flex items-center space-x-4">
@@ -374,7 +374,7 @@ export default function AddDoctorPage() {
                           profileImage || formData.profilePicture || "/placeholder.svg?height=80&width=80"
                         }
                       />
-                      <AvatarFallback className="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-lg">
+                      <AvatarFallback className="bg-[hsl(var(--color-gray-200))] dark:bg-[hsl(var(--color-gray-700))] text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] text-lg">
                         {formData.name
                           ? formData.name
                             .split(" ")
@@ -383,7 +383,7 @@ export default function AddDoctorPage() {
                           : "DR"}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-teal-600 rounded-full flex items-center justify-center">
+                    <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-[hsl(var(--color-brand-teal))] rounded-full flex items-center justify-center">
                       {imageUploading ? (
                         <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
                       ) : (
@@ -400,10 +400,10 @@ export default function AddDoctorPage() {
                     className="hidden"
                   />
                   <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                    <p className="text-sm font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
                       Profile Image
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                    <p className="text-xs text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">
                       The Proposed size is 512 x 512 px and no longer bigger
                       than 2.5 MBs
                     </p>
@@ -414,14 +414,14 @@ export default function AddDoctorPage() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Basic Information */}
                 <div className="space-y-6">
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                  <h3 className="text-lg font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
                     Basic Information
                   </h3>
 
                   <div>
                     <Label
                       htmlFor="firstName"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       First Name *
                     </Label>
@@ -432,7 +432,7 @@ export default function AddDoctorPage() {
                       value={formData.firstName}
                       onChange={handleChange}
                       placeholder="Dr. Sarah Johnson"
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                       required
                     />
                   </div>
@@ -440,7 +440,7 @@ export default function AddDoctorPage() {
                   <div>
                     <Label
                       htmlFor="firstName"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       Last Name *
                     </Label>
@@ -451,7 +451,7 @@ export default function AddDoctorPage() {
                       value={formData.lastName}
                       onChange={handleChange}
                       placeholder="Dr. Sarah Johnson"
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                       required
                     />
                   </div>
@@ -459,7 +459,7 @@ export default function AddDoctorPage() {
                   <div>
                     <Label
                       htmlFor="firstName"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       Full Name *
                     </Label>
@@ -470,7 +470,7 @@ export default function AddDoctorPage() {
                       value={formData.name}
                       // onChange={handleChange}
                       placeholder="Dr. Sarah Johnson"
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                       disabled
                     />
                   </div>
@@ -478,7 +478,7 @@ export default function AddDoctorPage() {
                   <div>
                     <Label
                       htmlFor="email"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       Email Address *
                     </Label>
@@ -489,7 +489,7 @@ export default function AddDoctorPage() {
                       value={formData.email}
                       onChange={handleChange}
                       placeholder="sarah.johnson@clinical.com"
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                       required
                     />
                   </div>
@@ -497,7 +497,7 @@ export default function AddDoctorPage() {
                   <div>
                     <Label
                       htmlFor="email"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       Password *
                     </Label>
@@ -509,14 +509,14 @@ export default function AddDoctorPage() {
                         value={formData.password}
                         onChange={handleChange}
                         placeholder="Enter password"
-                        className="mt-1 pr-10 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                        className="mt-1 pr-10 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                         required
                         minLength={8}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--muted-foreground))] focus:outline-none"
                       >
                         {showPassword ? (
                           <EyeOff className="h-4 w-4" />
@@ -530,7 +530,7 @@ export default function AddDoctorPage() {
                   <div>
                     <Label
                       htmlFor="phone"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       Phone Number *
                     </Label>
@@ -541,7 +541,7 @@ export default function AddDoctorPage() {
                       value={formData.phone}
                       onChange={handleChange}
                       placeholder="(555) 123-4567"
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                       required
                     />
                   </div>
@@ -549,7 +549,7 @@ export default function AddDoctorPage() {
                   <div>
                     <Label
                       htmlFor="age"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       Age *
                     </Label>
@@ -562,7 +562,7 @@ export default function AddDoctorPage() {
                       placeholder="35"
                       min="18"
                       max="100"
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                       required
                     />
                   </div>
@@ -570,7 +570,7 @@ export default function AddDoctorPage() {
                   <div>
                     <Label
                       htmlFor="dateOfBirth"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       Date of Birth *
                     </Label>
@@ -580,7 +580,7 @@ export default function AddDoctorPage() {
                       type="date"
                       value={formData.dateOfBirth}
                       onChange={handleChange}
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                       required
                     />
                   </div>
@@ -588,7 +588,7 @@ export default function AddDoctorPage() {
                   <div>
                     <Label
                       htmlFor="gender"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       Gender *
                     </Label>
@@ -598,25 +598,25 @@ export default function AddDoctorPage() {
                         setFormData({ ...formData, gender: value })
                       }
                     >
-                      <SelectTrigger className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                      <SelectTrigger className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))]">
                         <SelectValue placeholder="Select gender" />
                       </SelectTrigger>
-                      <SelectContent className="dark:bg-gray-700 dark:border-gray-600">
+                      <SelectContent className="dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))]">
                         <SelectItem
                           value="male"
-                          className="dark:text-white dark:hover:bg-gray-600"
+                          className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
                         >
                           Male
                         </SelectItem>
                         <SelectItem
                           value="female"
-                          className="dark:text-white dark:hover:bg-gray-600"
+                          className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
                         >
                           Female
                         </SelectItem>
                         <SelectItem
                           value="other"
-                          className="dark:text-white dark:hover:bg-gray-600"
+                          className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
                         >
                           Other
                         </SelectItem>
@@ -629,7 +629,7 @@ export default function AddDoctorPage() {
                   <div>
                     <Label
                       htmlFor="bio"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       Bio
                     </Label>
@@ -640,7 +640,7 @@ export default function AddDoctorPage() {
                       onChange={handleChange}
                       placeholder="Dr. Sarah Johnson is a board-certified cardiologist with over 15 years of experience in treating cardiovascular diseases. She specializes in preventive cardiology and cardiac rehabilitation."
                       rows={4}
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                     />
                   </div>
 
@@ -649,7 +649,7 @@ export default function AddDoctorPage() {
                   <div>
                     <Label
                       htmlFor="status"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       Status
                     </Label>
@@ -659,19 +659,19 @@ export default function AddDoctorPage() {
                         setFormData({ ...formData, status: value })
                       }
                     >
-                      <SelectTrigger className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                      <SelectTrigger className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))]">
                         <SelectValue placeholder="Active" />
                       </SelectTrigger>
-                      <SelectContent className="dark:bg-gray-700 dark:border-gray-600">
+                      <SelectContent className="dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))]">
                         <SelectItem
                           value="active"
-                          className="dark:text-white dark:hover:bg-gray-600"
+                          className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
                         >
                           Active
                         </SelectItem>
                         <SelectItem
                           value="inactive"
-                          className="dark:text-white dark:hover:bg-gray-600"
+                          className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
                         >
                           Inactive
                         </SelectItem>
@@ -682,14 +682,14 @@ export default function AddDoctorPage() {
 
                 {/* Professional Information */}
                 <div className="space-y-6">
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                  <h3 className="text-lg font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
                     Professional Information
                   </h3>
 
                   <div>
                     <Label
                       htmlFor="education"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       Education
                     </Label>
@@ -699,7 +699,7 @@ export default function AddDoctorPage() {
                       value={formData.educationSummary}
                       onChange={handleChange}
                       placeholder="MD from Johns Hopkins University, Residency at Mayo Clinic"
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                     />
                   </div>
 
@@ -708,7 +708,7 @@ export default function AddDoctorPage() {
                   <div>
                     <Label
                       htmlFor="specialty"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       Specialty *
                     </Label>
@@ -718,37 +718,37 @@ export default function AddDoctorPage() {
                         setFormData({ ...formData, specialization: value })
                       }
                     >
-                      <SelectTrigger className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                      <SelectTrigger className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))]">
                         <SelectValue placeholder="Cardiology" />
                       </SelectTrigger>
-                      <SelectContent className="dark:bg-gray-700 dark:border-gray-600">
+                      <SelectContent className="dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))]">
                         <SelectItem
                           value="cardiology"
-                          className="dark:text-white dark:hover:bg-gray-600"
+                          className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
                         >
                           Cardiology
                         </SelectItem>
                         <SelectItem
                           value="neurology"
-                          className="dark:text-white dark:hover:bg-gray-600"
+                          className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
                         >
                           Neurology
                         </SelectItem>
                         <SelectItem
                           value="orthopedics"
-                          className="dark:text-white dark:hover:bg-gray-600"
+                          className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
                         >
                           Orthopedics
                         </SelectItem>
                         <SelectItem
                           value="pediatrics"
-                          className="dark:text-white dark:hover:bg-gray-600"
+                          className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
                         >
                           Pediatrics
                         </SelectItem>
                         <SelectItem
                           value="dermatology"
-                          className="dark:text-white dark:hover:bg-gray-600"
+                          className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
                         >
                           Dermatology
                         </SelectItem>
@@ -759,7 +759,7 @@ export default function AddDoctorPage() {
                   <div>
                     <Label
                       htmlFor="experience"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       Years of Experience
                     </Label>
@@ -769,16 +769,16 @@ export default function AddDoctorPage() {
                         setFormData({ ...formData, experience: value })
                       }
                     >
-                      <SelectTrigger className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                      <SelectTrigger className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))]">
                         <SelectValue placeholder="15" />
                       </SelectTrigger>
-                      <SelectContent className="dark:bg-gray-700 dark:border-gray-600">
+                      <SelectContent className="dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))]">
                         {Array.from({ length: 50 }, (_, i) => i + 1).map(
                           (year) => (
                             <SelectItem
                               key={year}
                               value={year.toString()}
-                              className="dark:text-white dark:hover:bg-gray-600"
+                              className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
                             >
                               {year}
                             </SelectItem>
@@ -792,7 +792,7 @@ export default function AddDoctorPage() {
                   <div>
                     <Label
                       htmlFor="phone"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       License Number *
                     </Label>
@@ -803,7 +803,7 @@ export default function AddDoctorPage() {
                       value={formData.licenseNumber}
                       onChange={handleChange}
                       placeholder="MD-123456"
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                       required
                     />
                   </div>
@@ -811,7 +811,7 @@ export default function AddDoctorPage() {
                   <div>
                     <Label
                       htmlFor="languages"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       Languages
                     </Label>
@@ -835,11 +835,11 @@ export default function AddDoctorPage() {
                                   });
                                 }
                               }}
-                              className="border-gray-300 dark:border-gray-600"
+                              className="border-[hsl(var(--border))] dark:border-[hsl(var(--border))]"
                             />
                             <Label
                               htmlFor={`language-${language.toLowerCase()}`}
-                              className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer"
+                              className="text-sm text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] cursor-pointer"
                             >
                               {language}
                             </Label>
@@ -851,7 +851,7 @@ export default function AddDoctorPage() {
                           {formData.languages.map((language) => (
                             <span
                               key={language}
-                              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-700"
+                              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[hsl(var(--color-chart-blue)/0.1)] dark:bg-[hsl(var(--color-chart-blue)/0.1)] text-[hsl(var(--color-chart-blue))] dark:text-[hsl(var(--color-chart-blue))] border border-[hsl(var(--color-chart-blue))] dark:border-[hsl(var(--color-chart-blue))]"
                             >
                               {language}
                               <button
@@ -862,7 +862,7 @@ export default function AddDoctorPage() {
                                     languages: formData.languages.filter(lang => lang !== language)
                                   });
                                 }}
-                                className="ml-1.5 inline-flex items-center justify-center w-4 h-4 rounded-full text-blue-400 hover:text-blue-600 hover:bg-blue-200 dark:hover:bg-blue-800"
+                                className="ml-1.5 inline-flex items-center justify-center w-4 h-4 rounded-full text-[hsl(var(--color-chart-blue))] hover:text-[hsl(var(--color-chart-blue))] hover:bg-[hsl(var(--color-chart-blue)/0.2)] dark:hover:bg-[hsl(var(--color-chart-blue)/0.2)]"
                               >
                                 <span className="sr-only">Remove {language}</span>
                                 ×
@@ -877,7 +877,7 @@ export default function AddDoctorPage() {
                   <div>
                     <Label
                       htmlFor="address"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       Address
                     </Label>
@@ -888,7 +888,7 @@ export default function AddDoctorPage() {
                       onChange={handleChange}
                       placeholder="123 Main St, Anytown, USA"
                       rows={4}
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                     />
                   </div>
 
@@ -897,12 +897,12 @@ export default function AddDoctorPage() {
 
               {/* Manage Availability */}
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                <h3 className="text-lg font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
                   Manage Availability
                 </h3>
 
                 <div>
-                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <Label className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">
                     Time Zone
                   </Label>
                   <Select
@@ -911,37 +911,37 @@ export default function AddDoctorPage() {
                       setFormData({ ...formData, timeZone: value })
                     }
                   >
-                    <SelectTrigger className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <SelectTrigger className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))]">
                       <SelectValue placeholder="Asia/Karachi" />
                     </SelectTrigger>
-                    <SelectContent className="dark:bg-gray-700 dark:border-gray-600">
+                    <SelectContent className="dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))]">
                       <SelectItem
                         value="Asia/Karachi"
-                        className="dark:text-white dark:hover:bg-gray-600"
+                        className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
                       >
                         Asia/Karachi (GMT +05:00)
                       </SelectItem>
                       <SelectItem
                         value="UTC"
-                        className="dark:text-white dark:hover:bg-gray-600"
+                        className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
                       >
                         UTC (GMT +00:00)
                       </SelectItem>
                       <SelectItem
                         value="America/New_York"
-                        className="dark:text-white dark:hover:bg-gray-600"
+                        className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
                       >
                         America/New_York (GMT -05:00)
                       </SelectItem>
                       <SelectItem
                         value="Europe/London"
-                        className="dark:text-white dark:hover:bg-gray-600"
+                        className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
                       >
                         Europe/London (GMT +00:00)
                       </SelectItem>
                       <SelectItem
                         value="Asia/Dubai"
-                        className="dark:text-white dark:hover:bg-gray-600"
+                        className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
                       >
                         Asia/Dubai (GMT +04:00)
                       </SelectItem>
@@ -950,7 +950,7 @@ export default function AddDoctorPage() {
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4 block">
+                  <Label className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] mb-4 block">
                     Available Hours
                   </Label>
 
@@ -993,11 +993,11 @@ export default function AddDoctorPage() {
                               handleDayToggle(day.value);
                             }
                           }}
-                          className="data-[state=checked]:bg-teal-600 data-[state=checked]:border-teal-600"
+                          className="data-[state=checked]:bg-[hsl(var(--color-brand-teal))] data-[state=checked]:border-[hsl(var(--color-brand-teal))]"
                         />
                         <Label
                           htmlFor={day.value}
-                          className="text-sm text-gray-700 dark:text-gray-300"
+                          className="text-sm text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                         >
                           {day.label}
                         </Label>
@@ -1019,7 +1019,7 @@ export default function AddDoctorPage() {
                       );
                       return (
                         <div key={day} className="flex items-center space-x-4">
-                          <div className="w-24 text-sm font-medium text-gray-700 dark:text-gray-300">
+                          <div className="w-24 text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">
                             {day}
                           </div>
                           {daySlots.length > 0 ? (
@@ -1030,9 +1030,9 @@ export default function AddDoctorPage() {
                                 onChange={(e) =>
                                   handleTimeChange(day, "from", e.target.value)
                                 }
-                                className="w-32 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                className="w-32 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))]"
                               />
-                              <span className="text-gray-500 dark:text-gray-400 text-sm">
+                              <span className="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] text-sm">
                                 To
                               </span>
                               <Input
@@ -1041,7 +1041,7 @@ export default function AddDoctorPage() {
                                 onChange={(e) =>
                                   handleTimeChange(day, "to", e.target.value)
                                 }
-                                className="w-32 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                className="w-32 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))]"
                               />
                               <Button
                                 type="button"
@@ -1054,7 +1054,7 @@ export default function AddDoctorPage() {
                                     )
                                   )
                                 }
-                                className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                                className="text-[hsl(var(--color-status-error))] hover:text-[hsl(var(--color-status-error))] dark:text-[hsl(var(--color-status-error))] dark:hover:text-[hsl(var(--color-status-error))]"
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -1065,7 +1065,7 @@ export default function AddDoctorPage() {
                               variant="ghost"
                               size="sm"
                               onClick={() => addTimeSlot(day)}
-                              className="text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 flex items-center space-x-1"
+                              className="text-[hsl(var(--color-brand-teal))] hover:text-[hsl(var(--color-brand-teal-dark))] dark:text-[hsl(var(--color-brand-teal))] dark:hover:text-[hsl(var(--color-brand-teal-dark))] flex items-center space-x-1"
                             >
                               <Plus className="h-4 w-4" />
                               <span>Add Time</span>
@@ -1078,22 +1078,22 @@ export default function AddDoctorPage() {
                 </div>
               </div>
 
-              <div className="flex justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex justify-end gap-4 pt-6 border-t border-[hsl(var(--border))] dark:border-[hsl(var(--border))]">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => router.push("/admin/doctors")}
                   disabled={loading}
-                  className="flex-1 px-8 border-gray-300 text-gray-700 hover:bg-gray-50 
-               dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                  className="flex-1 px-8 border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--color-gray-50))]
+               dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-700))]"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 bg-teal-600 hover:bg-teal-700 text-white px-8 flex items-center justify-center space-x-2 
-               dark:bg-teal-500 dark:hover:bg-teal-600"
+                  className="flex-1 bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-white px-8 flex items-center justify-center space-x-2 
+               dark:bg-[hsl(var(--color-brand-teal))] dark:hover:bg-[hsl(var(--color-brand-teal-dark))]"
                 >
                   <Plus className="h-4 w-4" />
                   <span>{loading ? "Adding..." : "Add Doctor"}</span>

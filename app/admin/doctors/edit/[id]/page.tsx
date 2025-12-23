@@ -333,7 +333,7 @@ export default function EditDoctorPage() {
 
         <div className="flex-1 overflow-y-auto p-6">
           <div className="max-w-7xl mx-auto">
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+            <div className="bg-[hsl(var(--color-status-error-light))] border border-[hsl(var(--color-status-error))] text-[hsl(var(--color-status-error))] px-4 py-3 rounded-lg text-sm">
               <h2 className="font-semibold mb-2">Doctor not found</h2>
               <p className="mb-2">Patient ID: {doctorId}</p>
               <p className="mb-2">Total doctors loaded: {doctors.length}</p>
@@ -342,7 +342,7 @@ export default function EditDoctorPage() {
               </p>
               <button
                 onClick={() => dispatch(fetchDoctors())}
-                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                className="px-4 py-2 bg-[hsl(var(--color-status-error))] text-white rounded hover:bg-[hsl(var(--color-status-error-dark))] transition-colors"
               >
                 Refresh Doctor Data
               </button>
@@ -356,14 +356,14 @@ export default function EditDoctorPage() {
   return (
     <ProtectedRoute allowedRoles={["admin"]}>
       <ToastContainer />
-      <div className="min-h-screen bg-white dark:bg-gray-900">
+      <div className="min-h-screen bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))]">
         <div className="max-w-7xl mx-auto py-8 px-6">
           <div className="mb-6">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => router.push("/admin/doctors")}
-              className=" bg-[#1DA68F]/10 flex items-center gap-2 text-teal-600 hover:text-teal-700 hover:bg-teal-50 dark:text-teal-400 dark:hover:text-teal-300 dark:hover:bg-teal-950 p-2 -ml-2"
+              className=" bg-[hsl(var(--color-brand-teal)/0.1)] flex items-center gap-2 text-[hsl(var(--color-brand-teal))] hover:text-[hsl(var(--color-brand-teal-dark))] hover:bg-[hsl(var(--color-brand-teal-light))] dark:text-[hsl(var(--color-brand-teal))] dark:hover:text-[hsl(var(--color-brand-teal-dark))] dark:hover:bg-[hsl(var(--color-brand-teal)/0.1)] p-2 -ml-2"
             >
               <ArrowLeft className="h-4 w-4" />
               <span className="text-sm">Back to Doctor</span>
@@ -371,7 +371,7 @@ export default function EditDoctorPage() {
           </div>
 
           <div className="mb-6">
-            <p className="text-gray-600 dark:text-gray-400 text-sm">
+            <p className="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] text-sm">
               Update doctor information and settings
             </p>
           </div>
@@ -380,7 +380,7 @@ export default function EditDoctorPage() {
             <form onSubmit={handleSubmit} className="p-6 space-y-8">
               {/* Profile Picture Section */}
               <div>
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                <h3 className="text-lg font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] mb-4">
                   Profile Picture
                 </h3>
                 <div className="flex items-center space-x-4">
@@ -394,7 +394,7 @@ export default function EditDoctorPage() {
                           formData.profilePicture || "/placeholder.svg?height=80&width=80"
                         }
                       />
-                      <AvatarFallback className="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-lg">
+                      <AvatarFallback className="bg-[hsl(var(--color-gray-200))] dark:bg-[hsl(var(--color-gray-700))] text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] text-lg">
                         {formData.name
                           ? formData.name
                             .split(" ")
@@ -403,7 +403,7 @@ export default function EditDoctorPage() {
                           : "DR"}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-teal-600 rounded-full flex items-center justify-center">
+                    <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-[hsl(var(--color-brand-teal))] rounded-full flex items-center justify-center">
                       {imageUploading ? (
                         <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
                       ) : (
@@ -420,10 +420,10 @@ export default function EditDoctorPage() {
                     className="hidden"
                   />
                   <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                    <p className="text-sm font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
                       Profile Image
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                    <p className="text-xs text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">
                       The Proposed size is 512 x 512 px and no longer bigger
                       than 2.5 MBs
                     </p>
@@ -434,14 +434,14 @@ export default function EditDoctorPage() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Basic Information */}
                 <div className="space-y-6">
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                  <h3 className="text-lg font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
                     Basic Information
                   </h3>
 
                   <div>
                     <Label
                       htmlFor="firstName"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       First Name *
                     </Label>
@@ -452,7 +452,7 @@ export default function EditDoctorPage() {
                       value={formData.firstName}
                       onChange={handleChange}
                       placeholder="Dr. Sarah Johnson"
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                       required
                     />
                   </div>
@@ -460,7 +460,7 @@ export default function EditDoctorPage() {
                   <div>
                     <Label
                       htmlFor="lastName"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       Last Name *
                     </Label>
@@ -471,7 +471,7 @@ export default function EditDoctorPage() {
                       value={formData.lastName}
                       onChange={handleChange}
                       placeholder="Dr. Sarah Johnson"
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                       required
                     />
                   </div>
@@ -479,7 +479,7 @@ export default function EditDoctorPage() {
                   <div>
                     <Label
                       htmlFor="name"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       Full Name *
                     </Label>
@@ -489,7 +489,7 @@ export default function EditDoctorPage() {
                       type="text"
                       value={formData.name}
                       placeholder="Dr. Sarah Johnson"
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                       disabled
                     />
                   </div>
@@ -497,7 +497,7 @@ export default function EditDoctorPage() {
                   <div>
                     <Label
                       htmlFor="email"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       Email Address *
                     </Label>
@@ -508,7 +508,7 @@ export default function EditDoctorPage() {
                       value={formData.email}
                       onChange={handleChange}
                       placeholder="sarah.johnson@clinical.com"
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                       disabled
                     />
                   </div>
@@ -516,7 +516,7 @@ export default function EditDoctorPage() {
                   <div>
                     <Label
                       htmlFor="phone"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       Phone Number *
                     </Label>
@@ -527,7 +527,7 @@ export default function EditDoctorPage() {
                       value={formData.phone}
                       onChange={handleChange}
                       placeholder="(555) 123-4567"
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                       required
                     />
                   </div>
@@ -535,7 +535,7 @@ export default function EditDoctorPage() {
                   <div>
                     <Label
                       htmlFor="age"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       Age *
                     </Label>
@@ -548,7 +548,7 @@ export default function EditDoctorPage() {
                       placeholder="35"
                       min="18"
                       max="100"
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                       required
                     />
                   </div>
@@ -556,7 +556,7 @@ export default function EditDoctorPage() {
                   <div>
                     <Label
                       htmlFor="dateOfBirth"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       Date of Birth *
                     </Label>
@@ -566,7 +566,7 @@ export default function EditDoctorPage() {
                       type="date"
                       value={formData.dateOfBirth ? moment(formData.dateOfBirth).format('YYYY-MM-DD') : ''}
                       onChange={(e) => setFormData({ ...formData, dateOfBirth: moment(e.target.value).format('YYYY-MM-DD') })}
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                       required
                     />
                   </div>
@@ -574,7 +574,7 @@ export default function EditDoctorPage() {
                   <div>
                     <Label
                       htmlFor="gender"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       Gender *
                     </Label>
@@ -584,25 +584,25 @@ export default function EditDoctorPage() {
                         setFormData({ ...formData, gender: value })
                       }
                     >
-                      <SelectTrigger className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                      <SelectTrigger className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))]">
                         <SelectValue placeholder="Select gender" />
                       </SelectTrigger>
-                      <SelectContent className="dark:bg-gray-700 dark:border-gray-600">
+                      <SelectContent className="dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))]">
                         <SelectItem
                           value="male"
-                          className="dark:text-white dark:hover:bg-gray-600"
+                          className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
                         >
                           Male
                         </SelectItem>
                         <SelectItem
                           value="female"
-                          className="dark:text-white dark:hover:bg-gray-600"
+                          className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
                         >
                           Female
                         </SelectItem>
                         <SelectItem
                           value="other"
-                          className="dark:text-white dark:hover:bg-gray-600"
+                          className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
                         >
                           Other
                         </SelectItem>
@@ -613,7 +613,7 @@ export default function EditDoctorPage() {
                   <div>
                     <Label
                       htmlFor="bio"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       Bio
                     </Label>
@@ -624,14 +624,14 @@ export default function EditDoctorPage() {
                       onChange={handleChange}
                       placeholder="Dr. Sarah Johnson is a board-certified cardiologist with over 15 years of experience in treating cardiovascular diseases. She specializes in preventive cardiology and cardiac rehabilitation."
                       rows={4}
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                     />
                   </div>
 
                   <div>
                     <Label
                       htmlFor="status"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       Status
                     </Label>
@@ -641,19 +641,19 @@ export default function EditDoctorPage() {
                         setFormData({ ...formData, status: value })
                       }
                     >
-                      <SelectTrigger className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                      <SelectTrigger className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))]">
                         <SelectValue placeholder="Active" />
                       </SelectTrigger>
-                      <SelectContent className="dark:bg-gray-700 dark:border-gray-600">
+                      <SelectContent className="dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))]">
                         <SelectItem
                           value="active"
-                          className="dark:text-white dark:hover:bg-gray-600"
+                          className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
                         >
                           Active
                         </SelectItem>
                         <SelectItem
                           value="inactive"
-                          className="dark:text-white dark:hover:bg-gray-600"
+                          className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
                         >
                           Inactive
                         </SelectItem>
@@ -664,14 +664,14 @@ export default function EditDoctorPage() {
 
                 {/* Professional Information */}
                 <div className="space-y-6">
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                  <h3 className="text-lg font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
                     Professional Information
                   </h3>
 
                   <div>
                     <Label
                       htmlFor="education"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       Education
                     </Label>
@@ -681,14 +681,14 @@ export default function EditDoctorPage() {
                       value={formData.educationSummary}
                       onChange={handleChange}
                       placeholder="MD from Johns Hopkins University, Residency at Mayo Clinic"
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                     />
                   </div>
 
                   <div>
                     <Label
                       htmlFor="specialty"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       Specialty *
                     </Label>
@@ -698,37 +698,37 @@ export default function EditDoctorPage() {
                         setFormData({ ...formData, specialization: value })
                       }
                     >
-                      <SelectTrigger className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                      <SelectTrigger className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))]">
                         <SelectValue placeholder="Cardiology" />
                       </SelectTrigger>
-                      <SelectContent className="dark:bg-gray-700 dark:border-gray-600">
+                      <SelectContent className="dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))]">
                         <SelectItem
                           value="cardiology"
-                          className="dark:text-white dark:hover:bg-gray-600"
+                          className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
                         >
                           Cardiology
                         </SelectItem>
                         <SelectItem
                           value="neurology"
-                          className="dark:text-white dark:hover:bg-gray-600"
+                          className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
                         >
                           Neurology
                         </SelectItem>
                         <SelectItem
                           value="orthopedics"
-                          className="dark:text-white dark:hover:bg-gray-600"
+                          className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
                         >
                           Orthopedics
                         </SelectItem>
                         <SelectItem
                           value="pediatrics"
-                          className="dark:text-white dark:hover:bg-gray-600"
+                          className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
                         >
                           Pediatrics
                         </SelectItem>
                         <SelectItem
                           value="dermatology"
-                          className="dark:text-white dark:hover:bg-gray-600"
+                          className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
                         >
                           Dermatology
                         </SelectItem>
@@ -739,7 +739,7 @@ export default function EditDoctorPage() {
                   <div>
                     <Label
                       htmlFor="experience"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       Years of Experience
                     </Label>
@@ -749,16 +749,16 @@ export default function EditDoctorPage() {
                         setFormData({ ...formData, experience: value })
                       }
                     >
-                      <SelectTrigger className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                      <SelectTrigger className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))]">
                         <SelectValue placeholder="15" />
                       </SelectTrigger>
-                      <SelectContent className="dark:bg-gray-700 dark:border-gray-600">
+                      <SelectContent className="dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))]">
                         {Array.from({ length: 50 }, (_, i) => i + 1).map(
                           (year) => (
                             <SelectItem
                               key={year}
                               value={year.toString()}
-                              className="dark:text-white dark:hover:bg-gray-600"
+                              className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
                             >
                               {year}
                             </SelectItem>
@@ -771,7 +771,7 @@ export default function EditDoctorPage() {
                   <div>
                     <Label
                       htmlFor="licenseNumber"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       License Number *
                     </Label>
@@ -782,7 +782,7 @@ export default function EditDoctorPage() {
                       value={formData.licenseNumber}
                       onChange={handleChange}
                       placeholder="MD-123456"
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                       required
                     />
                   </div>
@@ -790,7 +790,7 @@ export default function EditDoctorPage() {
                   <div>
                     <Label
                       htmlFor="languages"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       Languages
                     </Label>
@@ -814,11 +814,11 @@ export default function EditDoctorPage() {
                                   });
                                 }
                               }}
-                              className="border-gray-300 dark:border-gray-600"
+                              className="border-[hsl(var(--border))] dark:border-[hsl(var(--border))]"
                             />
                             <Label
                               htmlFor={`language-${language.toLowerCase()}`}
-                              className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer"
+                              className="text-sm text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] cursor-pointer"
                             >
                               {language}
                             </Label>
@@ -830,7 +830,7 @@ export default function EditDoctorPage() {
                           {formData.languages.map((language) => (
                             <span
                               key={language}
-                              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-700"
+                              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[hsl(var(--color-chart-blue)/0.1)] dark:bg-[hsl(var(--color-chart-blue)/0.1)] text-[hsl(var(--color-chart-blue))] dark:text-[hsl(var(--color-chart-blue))] border border-[hsl(var(--color-chart-blue))] dark:border-[hsl(var(--color-chart-blue))]"
                             >
                               {language}
                               <button
@@ -841,7 +841,7 @@ export default function EditDoctorPage() {
                                     languages: formData.languages.filter(lang => lang !== language)
                                   });
                                 }}
-                                className="ml-1.5 inline-flex items-center justify-center w-4 h-4 rounded-full text-blue-400 hover:text-blue-600 hover:bg-blue-200 dark:hover:bg-blue-800"
+                                className="ml-1.5 inline-flex items-center justify-center w-4 h-4 rounded-full text-[hsl(var(--color-chart-blue))] hover:text-[hsl(var(--color-chart-blue))] hover:bg-[hsl(var(--color-chart-blue)/0.2)] dark:hover:bg-[hsl(var(--color-chart-blue)/0.2)]"
                               >
                                 <span className="sr-only">Remove {language}</span>
                                 ×
@@ -856,7 +856,7 @@ export default function EditDoctorPage() {
                   <div>
                     <Label
                       htmlFor="address"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                     >
                       Address
                     </Label>
@@ -867,7 +867,7 @@ export default function EditDoctorPage() {
                       onChange={handleChange}
                       placeholder="123 Main St, Anytown, USA"
                       rows={4}
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                     />
                   </div>
                 </div>
@@ -875,12 +875,12 @@ export default function EditDoctorPage() {
 
               {/* Manage Availability */}
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                <h3 className="text-lg font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
                   Manage Availability
                 </h3>
 
                 <div>
-                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <Label className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">
                     Time Zone
                   </Label>
                   <Select
@@ -889,37 +889,37 @@ export default function EditDoctorPage() {
                       setFormData({ ...formData, timeZone: value })
                     }
                   >
-                    <SelectTrigger className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <SelectTrigger className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))]">
                       <SelectValue placeholder="Asia/Karachi" />
                     </SelectTrigger>
-                    <SelectContent className="dark:bg-gray-700 dark:border-gray-600">
+                    <SelectContent className="dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))]">
                       <SelectItem
                         value="Asia/Karachi"
-                        className="dark:text-white dark:hover:bg-gray-600"
+                        className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
                       >
                         Asia/Karachi (GMT +05:00)
                       </SelectItem>
                       <SelectItem
                         value="UTC"
-                        className="dark:text-white dark:hover:bg-gray-600"
+                        className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
                       >
                         UTC (GMT +00:00)
                       </SelectItem>
                       <SelectItem
                         value="America/New_York"
-                        className="dark:text-white dark:hover:bg-gray-600"
+                        className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
                       >
                         America/New_York (GMT -05:00)
                       </SelectItem>
                       <SelectItem
                         value="Europe/London"
-                        className="dark:text-white dark:hover:bg-gray-600"
+                        className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
                       >
                         Europe/London (GMT +00:00)
                       </SelectItem>
                       <SelectItem
                         value="Asia/Dubai"
-                        className="dark:text-white dark:hover:bg-gray-600"
+                        className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
                       >
                         Asia/Dubai (GMT +04:00)
                       </SelectItem>
@@ -928,7 +928,7 @@ export default function EditDoctorPage() {
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4 block">
+                  <Label className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] mb-4 block">
                     Available Hours
                   </Label>
 
@@ -971,11 +971,11 @@ export default function EditDoctorPage() {
                               handleDayToggle(day.value);
                             }
                           }}
-                          className="data-[state=checked]:bg-teal-600 data-[state=checked]:border-teal-600"
+                          className="data-[state=checked]:bg-[hsl(var(--color-brand-teal))] data-[state=checked]:border-[hsl(var(--color-brand-teal))]"
                         />
                         <Label
                           htmlFor={day.value}
-                          className="text-sm text-gray-700 dark:text-gray-300"
+                          className="text-sm text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                         >
                           {day.label}
                         </Label>
@@ -997,7 +997,7 @@ export default function EditDoctorPage() {
                       );
                       return (
                         <div key={day} className="flex items-center space-x-4">
-                          <div className="w-24 text-sm font-medium text-gray-700 dark:text-gray-300">
+                          <div className="w-24 text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">
                             {day}
                           </div>
                           {daySlots.length > 0 ? (
@@ -1008,9 +1008,9 @@ export default function EditDoctorPage() {
                                 onChange={(e) =>
                                   handleTimeChange(day, "from", e.target.value)
                                 }
-                                className="w-32 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                className="w-32 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))]"
                               />
-                              <span className="text-gray-500 dark:text-gray-400 text-sm">
+                              <span className="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] text-sm">
                                 To
                               </span>
                               <Input
@@ -1019,7 +1019,7 @@ export default function EditDoctorPage() {
                                 onChange={(e) =>
                                   handleTimeChange(day, "to", e.target.value)
                                 }
-                                className="w-32 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                className="w-32 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))]"
                               />
                               <Button
                                 type="button"
@@ -1032,7 +1032,7 @@ export default function EditDoctorPage() {
                                     )
                                   )
                                 }
-                                className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                                className="text-[hsl(var(--color-status-error))] hover:text-[hsl(var(--color-status-error))] dark:text-[hsl(var(--color-status-error))] dark:hover:text-[hsl(var(--color-status-error))]"
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -1043,7 +1043,7 @@ export default function EditDoctorPage() {
                               variant="ghost"
                               size="sm"
                               onClick={() => addTimeSlot(day)}
-                              className="text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 flex items-center space-x-1"
+                              className="text-[hsl(var(--color-brand-teal))] hover:text-[hsl(var(--color-brand-teal-dark))] dark:text-[hsl(var(--color-brand-teal))] dark:hover:text-[hsl(var(--color-brand-teal-dark))] flex items-center space-x-1"
                             >
                               <Plus className="h-4 w-4" />
                               <span>Add Time</span>
@@ -1056,22 +1056,22 @@ export default function EditDoctorPage() {
                 </div>
               </div>
 
-              <div className="flex justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex justify-end gap-4 pt-6 border-t border-[hsl(var(--border))] dark:border-[hsl(var(--border))]">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => router.push("/admin/doctors")}
                   disabled={loading}
-                  className="flex-1 px-8 border-gray-300 text-gray-700 hover:bg-gray-50 
-               dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                  className="flex-1 px-8 border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--color-gray-50))]
+               dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-700))]"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 bg-teal-600 hover:bg-teal-700 text-white px-8 flex items-center justify-center space-x-2 
-               dark:bg-teal-500 dark:hover:bg-teal-600"
+                  className="flex-1 bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-white px-8 flex items-center justify-center space-x-2 
+               dark:bg-[hsl(var(--color-brand-teal))] dark:hover:bg-[hsl(var(--color-brand-teal-dark))]"
                 >
                   <Plus className="h-4 w-4" />
                   <span>{loading ? "Updating..." : "Update Doctor"}</span>

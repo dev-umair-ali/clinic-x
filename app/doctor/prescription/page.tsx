@@ -3,7 +3,11 @@
 import { useState } from "react";
 import { ProtectedRoute } from "@/components/ui/protected-route";
 import { VoiceRecorder } from "@/components/ui/voice-recorder";
-import { Eye, RotateCcw, ArrowLeft, Plus, FileText, X } from 'lucide-react';
+import { Eye, RotateCcw, ArrowLeft, Plus, FileText, X } from "lucide-react";
+import { AcceptPrescriptionModal } from "@/components/ui/AcceptPrescriptionModal";
+import { RejectPrescriptionModal } from "@/components/ui/RejectPrescriptionModal";
+import { FaCheck } from "react-icons/fa";
+import { FcCancel } from "react-icons/fc";
 
 // Dummy prescription data
 const prescriptionHistory = [
@@ -55,6 +59,31 @@ const dummyPatients = [
 ];
 
 export default function PrescriptionDashboard() {
+  /* ====== MODAL STATE ====== */
+  const [acceptOpen, setAcceptOpen] = useState(false);
+  const [rejectOpen, setRejectOpen] = useState(false);
+  const [selectedRow, setSelectedRow] = useState<
+    (typeof prescriptionHistory)[0] | null
+  >(null);
+
+  const openAccept = (row: (typeof prescriptionHistory)[0]) => {
+    setSelectedRow(row);
+    setAcceptOpen(true);
+  };
+  const openReject = (row: (typeof prescriptionHistory)[0]) => {
+    setSelectedRow(row);
+    setRejectOpen(true);
+  };
+
+  const handleAccept = () => {
+    console.log("✅ ACCEPTED", selectedRow);
+    setAcceptOpen(false);
+  };
+  const handleReject = (reason: string) => {
+    console.log("❌ REJECTED", selectedRow, reason);
+    setRejectOpen(false);
+  };
+
   // Main view state
   const [currentView, setCurrentView] = useState<"list" | "add">("list");
   const [showPrescriptionDetails, setShowPrescriptionDetails] = useState(false);
@@ -143,22 +172,22 @@ export default function PrescriptionDashboard() {
   if (currentView === "add") {
     return (
       <ProtectedRoute allowedRoles={["doctor"]}>
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-[hsl(var(--background))]">
           {/* Header */}
-          <div className="bg-card border-b border-border sticky top-0 z-10">
+          <div className="bg-[hsl(var(--card))] border-b border-[hsl(var(--border))] sticky top-0 z-10">
             <div className="max-w-7xl mx-auto p-4 sm:p-6">
               <div className="flex items-center gap-4">
                 <button
                   onClick={handleBackToList}
-                  className="p-2 hover:bg-muted/50 rounded-lg transition-colors"
+                  className="p-2 hover:bg-[hsl(var(--muted))] rounded-lg transition-colors"
                 >
-                  <ArrowLeft className="h-5 w-5 text-muted-foreground" />
+                  <ArrowLeft className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />
                 </button>
                 <div>
-                  <h1 className="text-xl sm:text-2xl font-semibold text-foreground">
+                  <h1 className="text-xl sm:text-2xl font-semibold text-[hsl(var(--foreground))]">
                     Add Prescription
                   </h1>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-[hsl(var(--muted-foreground))]">
                     Convert voice recordings to structured prescriptions using
                     AI
                   </p>
@@ -171,8 +200,8 @@ export default function PrescriptionDashboard() {
           <div className="max-w-7xl mx-auto p-4 sm:p-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
               <div className="space-y-6">
-                <div className="bg-card rounded-lg p-4 sm:p-6 shadow-sm border border-border">
-                  <h3 className="text-lg font-semibold text-foreground mb-4">
+                <div className="bg-[hsl(var(--card))] rounded-lg p-4 sm:p-6 shadow-sm border border-[hsl(var(--border))]">
+                  <h3 className="text-lg font-semibold text-[hsl(var(--foreground))] mb-4">
                     Select Patient
                   </h3>
                   <div className="relative">
@@ -180,17 +209,19 @@ export default function PrescriptionDashboard() {
                       onClick={() =>
                         setShowPatientDropdown(!showPatientDropdown)
                       }
-                      className="w-full p-3 border border-border rounded-lg text-left bg-background hover:bg-muted/50 flex items-center justify-between transition-colors"
+                      className="w-full p-3 border border-[hsl(var(--border))] rounded-lg text-left bg-[hsl(var(--background))] hover:bg-[hsl(var(--muted))] flex items-center justify-between transition-colors"
                     >
                       <span
                         className={
-                          selectedPatient ? "text-foreground" : "text-muted-foreground"
+                          selectedPatient
+                            ? "text-[hsl(var(--foreground))]"
+                            : "text-[hsl(var(--muted-foreground))]"
                         }
                       >
                         {selectedPatient || "Select Patient"}
                       </span>
                       <svg
-                        className="h-4 w-4 text-muted-foreground"
+                        className="h-4 w-4 text-[hsl(var(--muted-foreground))]"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -204,7 +235,7 @@ export default function PrescriptionDashboard() {
                       </svg>
                     </button>
                     {showPatientDropdown && (
-                      <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg z-20 max-h-48 overflow-y-auto">
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-lg shadow-lg z-20 max-h-48 overflow-y-auto">
                         {dummyPatients.map((patient) => (
                           <button
                             key={patient}
@@ -212,7 +243,7 @@ export default function PrescriptionDashboard() {
                               setSelectedPatient(patient);
                               setShowPatientDropdown(false);
                             }}
-                            className="w-full p-3 text-left hover:bg-muted/50 border-b border-border last:border-b-0 text-foreground transition-colors"
+                            className="w-full p-3 text-left hover:bg-[hsl(var(--muted))] border-b border-[hsl(var(--border))] last:border-b-0 text-[hsl(var(--foreground))] transition-colors"
                           >
                             {patient}
                           </button>
@@ -223,7 +254,7 @@ export default function PrescriptionDashboard() {
                 </div>
 
                 {/* Voice Recording */}
-                <div className="bg-card rounded-lg p-4 sm:p-6 shadow-sm border border-border">
+                <div className="bg-[hsl(var(--card))] rounded-lg p-4 sm:p-6 shadow-sm border border-[hsl(var(--border))]">
                   <VoiceRecorder
                     onTranscription={handleVoiceTranscription}
                     placeholder="Start speaking to dictate prescription..."
@@ -233,36 +264,38 @@ export default function PrescriptionDashboard() {
 
               {/* Right Column */}
               <div className="space-y-6">
-                <div className="bg-card rounded-lg p-4 sm:p-6 shadow-sm border border-border">
+                <div className="bg-[hsl(var(--card))] rounded-lg p-4 sm:p-6 shadow-sm border border-[hsl(var(--border))]">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-2">
-                      <FileText className="h-5 w-5 text-muted-foreground" />
-                      <span className="font-medium text-foreground">Prescription Details</span>
+                      <FileText className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />
+                      <span className="font-medium text-[hsl(var(--foreground))]">
+                        Prescription Details
+                      </span>
                     </div>
-                    <span className="text-sm text-muted-foreground">
+                    <span className="text-sm text-[hsl(var(--muted-foreground))]">
                       {new Date().toLocaleDateString()}
                     </span>
                   </div>
 
                   {/* Saved Medications */}
                   <div className="mb-6">
-                    <h3 className="font-medium text-foreground mb-3">
+                    <h3 className="font-medium text-[hsl(var(--foreground))] mb-3">
                       Saved Medications
                     </h3>
                     <div className="space-y-2">
                       {savedMedications.map((med, index) => (
                         <div
                           key={index}
-                          className="flex items-center justify-between p-3 border border-border rounded bg-muted/30"
+                          className="flex items-center justify-between p-3 border border-[hsl(var(--border))] rounded bg-[hsl(var(--muted)/0.3)]"
                         >
-                          <span className="text-muted-foreground">{med}</span>
+                          <span className="text-[hsl(var(--muted-foreground))]">{med}</span>
                           <button
                             onClick={() =>
                               setSavedMedications(
                                 savedMedications.filter((_, i) => i !== index)
                               )
                             }
-                            className="text-muted-foreground hover:text-red-600 transition-colors"
+                            className="text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--color-status-error))] transition-colors"
                           >
                             <X className="h-4 w-4" />
                           </button>
@@ -279,14 +312,14 @@ export default function PrescriptionDashboard() {
                         placeholder="Medication Name"
                         value={medicationName}
                         onChange={(e) => setMedicationName(e.target.value)}
-                        className="p-3 border border-border rounded focus:ring-2 focus:ring-[#1FA888] focus:border-transparent bg-background text-foreground placeholder:text-muted-foreground"
+                        className="p-3 border border-[hsl(var(--border))] rounded focus:ring-2 focus:ring-[hsl(var(--color-brand-teal))] focus:border-transparent bg-[hsl(var(--background))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
                       />
                       <input
                         type="text"
                         placeholder="Dosage"
                         value={dosage}
                         onChange={(e) => setDosage(e.target.value)}
-                        className="p-3 border border-border rounded focus:ring-2 focus:ring-[#1FA888] focus:border-transparent bg-background text-foreground placeholder:text-muted-foreground"
+                        className="p-3 border border-[hsl(var(--border))] rounded focus:ring-2 focus:ring-[hsl(var(--color-brand-teal))] focus:border-transparent bg-[hsl(var(--background))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
                       />
                     </div>
                     <div className="relative">
@@ -295,11 +328,11 @@ export default function PrescriptionDashboard() {
                         value={instructions}
                         onChange={(e) => setInstructions(e.target.value)}
                         rows={4}
-                        className="w-full p-3 border border-border rounded focus:ring-2 focus:ring-[#1FA888] focus:border-transparent bg-background text-foreground placeholder:text-muted-foreground"
+                        className="w-full p-3 border border-[hsl(var(--border))] rounded focus:ring-2 focus:ring-[hsl(var(--color-brand-teal))] focus:border-transparent bg-[hsl(var(--background))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
                       />
                       {instructions && (
                         <div className="absolute top-2 right-2">
-                          <div className="bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300 px-2 py-1 rounded text-xs font-medium">
+                          <div className="bg-[hsl(var(--color-brand-teal-light))] text-[hsl(var(--color-brand-teal))] dark:bg-[hsl(var(--color-brand-teal)/0.3)] dark:text-[hsl(var(--color-brand-teal))] px-2 py-1 rounded text-xs font-medium">
                             {instructions.includes("voice")
                               ? "Voice Input"
                               : "Text Input"}
@@ -313,7 +346,7 @@ export default function PrescriptionDashboard() {
                         placeholder="Form (tablet, liquid, etc.)"
                         value={form}
                         onChange={(e) => setForm(e.target.value)}
-                        className="p-3 border border-border rounded focus:ring-2 focus:ring-[#1FA888] focus:border-transparent bg-background text-foreground placeholder:text-muted-foreground"
+                        className="p-3 border border-[hsl(var(--border))] rounded focus:ring-2 focus:ring-[hsl(var(--color-brand-teal))] focus:border-transparent bg-[hsl(var(--background))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
                       />
                       {/* Make inner inputs responsive */}
                       <div className="flex flex-col sm:flex-row gap-2">
@@ -322,14 +355,14 @@ export default function PrescriptionDashboard() {
                           placeholder="Refills"
                           value={refills}
                           onChange={(e) => setRefills(e.target.value)}
-                          className="w-full p-3 border border-border rounded focus:ring-2 focus:ring-[#1FA888] focus:border-transparent bg-background text-foreground placeholder:text-muted-foreground"
+                          className="w-full p-3 border border-[hsl(var(--border))] rounded focus:ring-2 focus:ring-[hsl(var(--color-brand-teal))] focus:border-transparent bg-[hsl(var(--background))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
                         />
                         <input
                           type="text"
                           placeholder="Times"
                           value={times}
                           onChange={(e) => setTimes(e.target.value)}
-                          className="w-full p-3 border border-border rounded focus:ring-2 focus:ring-[#1FA888] focus:border-transparent bg-background text-foreground placeholder:text-muted-foreground"
+                          className="w-full p-3 border border-[hsl(var(--border))] rounded focus:ring-2 focus:ring-[hsl(var(--color-brand-teal))] focus:border-transparent bg-[hsl(var(--background))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
                         />
                       </div>
                     </div>
@@ -341,9 +374,11 @@ export default function PrescriptionDashboard() {
                           type="checkbox"
                           checked={doNotRefill}
                           onChange={(e) => setDoNotRefill(e.target.checked)}
-                          className="rounded border-border"
+                          className="rounded border-[hsl(var(--border))] bg-[hsl(var(--background))] text-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]"
                         />
-                        <span className="text-sm text-foreground">Do Not Refill</span>
+                        <span className="text-sm text-[hsl(var(--foreground))]">
+                          Do Not Refill
+                        </span>
                       </label>
                       <label className="flex items-center gap-2">
                         <input
@@ -352,9 +387,9 @@ export default function PrescriptionDashboard() {
                           onChange={(e) =>
                             setSubstitutionPermissible(e.target.checked)
                           }
-                          className="rounded border-border"
+                          className="rounded border-[hsl(var(--border))] bg-[hsl(var(--background))] text-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]"
                         />
-                        <span className="text-sm text-foreground">
+                        <span className="text-sm text-[hsl(var(--foreground))]">
                           Substitution Permissible
                         </span>
                       </label>
@@ -363,9 +398,11 @@ export default function PrescriptionDashboard() {
                           type="checkbox"
                           checked={doNotSubstitute}
                           onChange={(e) => setDoNotSubstitute(e.target.checked)}
-                          className="rounded border-border"
+                          className="rounded border-[hsl(var(--border))] bg-[hsl(var(--background))] text-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]"
                         />
-                        <span className="text-sm text-foreground">Do Not Substitute</span>
+                        <span className="text-sm text-[hsl(var(--foreground))]">
+                          Do Not Substitute
+                        </span>
                       </label>
                     </div>
                     <textarea
@@ -373,22 +410,22 @@ export default function PrescriptionDashboard() {
                       value={diagnosis}
                       onChange={(e) => setDiagnosis(e.target.value)}
                       rows={3}
-                      className="w-full p-3 border border-border rounded focus:ring-2 focus:ring-[#1FA888] focus:border-transparent bg-background text-foreground placeholder:text-muted-foreground"
+                      className="w-full p-3 border border-[hsl(var(--border))] rounded focus:ring-2 focus:ring-[hsl(var(--color-brand-teal))] focus:border-transparent bg-[hsl(var(--background))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
                     />
                     <button
                       onClick={handleAddNewMedication}
                       disabled={!medicationName || !dosage}
-                      className="text-[#1FA888] hover:text-teal-600 font-medium flex items-center gap-2 disabled:text-muted-foreground disabled:cursor-not-allowed transition-colors"
+                      className="text-[hsl(var(--color-brand-teal))] hover:text-[hsl(var(--color-brand-teal-dark))] font-medium flex items-center gap-2 disabled:text-[hsl(var(--muted-foreground))] disabled:cursor-not-allowed transition-colors"
                     >
                       <Plus className="h-4 w-4" />
                       Add New Medication
                     </button>
 
                     {/* Disclaimer */}
-                    <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <div className="bg-[hsl(var(--color-chart-blue)/0.1)] dark:bg-[hsl(var(--color-chart-blue)/0.2)] p-4 rounded-lg border border-[hsl(var(--color-chart-blue)/0.3)] dark:border-[hsl(var(--color-chart-blue)/0.4)]">
                       <div className="flex items-start gap-2">
                         <svg
-                          className="h-5 w-5 text-blue-500 mt-0.5"
+                          className="h-5 w-5 text-[hsl(var(--color-chart-blue))] mt-0.5"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -401,10 +438,10 @@ export default function PrescriptionDashboard() {
                           />
                         </svg>
                         <div>
-                          <p className="font-medium text-blue-900 dark:text-blue-300 text-sm">
+                          <p className="font-medium text-[hsl(var(--color-chart-blue))] dark:text-[hsl(var(--color-chart-blue))] text-sm">
                             ⚠️ AI Disclaimer
                           </p>
-                          <p className="text-blue-800 dark:text-blue-300 text-sm mt-1">
+                          <p className="text-[hsl(var(--color-chart-blue))] dark:text-[hsl(var(--color-chart-blue))] text-sm mt-1">
                             This prescription is generated using AI and may
                             contain errors. Please review carefully and make
                             necessary corrections before finalizing.
@@ -418,7 +455,7 @@ export default function PrescriptionDashboard() {
                       <button
                         onClick={handleSavePrescription}
                         // disabled={!selectedPatient || !medicationName}
-                        className="flex-1 bg-[#1FA888] hover:bg-teal-600 disabled:bg-muted disabled:cursor-not-allowed text-white py-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors"
+                        className="flex-1 bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] disabled:bg-[hsl(var(--muted))] disabled:cursor-not-allowed text-[hsl(var(--primary-foreground))] py-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors"
                       >
                         <svg
                           className="h-4 w-4"
@@ -437,7 +474,7 @@ export default function PrescriptionDashboard() {
                       </button>
                       <button
                         onClick={handleViewPrescription}
-                        className="flex-1 bg-background hover:bg-muted/50 text-foreground border border-border py-3 rounded-lg font-medium transition-colors"
+                        className="flex-1 bg-[hsl(var(--background))] hover:bg-[hsl(var(--muted))] text-[hsl(var(--foreground))] border border-[hsl(var(--border))] py-3 rounded-lg font-medium transition-colors"
                       >
                         View Prescription
                       </button>
@@ -455,21 +492,21 @@ export default function PrescriptionDashboard() {
   // Render Main Prescription List View
   return (
     <ProtectedRoute allowedRoles={["doctor"]}>
-      <div className="flex-1 overflow-y-auto bg-background min-h-screen">
+      <div className="flex-1 overflow-y-auto bg-[hsl(var(--background))] min-h-screen">
         <div className="max-w-7xl mx-auto p-4 sm:p-6">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-4">
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
+              <h1 className="text-xl sm:text-2xl font-bold text-[hsl(var(--foreground))] mb-2">
                 Prescription History
               </h1>
-              <p className="text-sm sm:text-base text-muted-foreground">
+              <p className="text-sm sm:text-base text-[hsl(var(--muted-foreground))]">
                 Convert voice recordings to structured prescriptions using AI
               </p>
             </div>
             <button
               onClick={handleAddPrescription}
-              className="bg-[#1FA888] hover:bg-teal-600 text-white px-4 sm:px-6 py-2 rounded-lg font-medium transition-colors w-full sm:w-auto flex items-center justify-center gap-2"
+              className="bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-[hsl(var(--primary-foreground))] px-4 sm:px-6 py-2 rounded-lg font-medium transition-colors w-full sm:w-auto flex items-center justify-center gap-2"
             >
               <Plus className="h-4 w-4" />
               Add Prescription
@@ -477,9 +514,9 @@ export default function PrescriptionDashboard() {
           </div>
 
           {/* Prescription History Table */}
-          <div className="bg-card rounded-lg shadow-sm overflow-hidden border border-border">
-            <div className="p-4 sm:p-6 border-b border-border">
-              <h2 className="text-lg font-semibold text-foreground">
+          <div className="bg-[hsl(var(--card))] rounded-lg shadow-sm overflow-hidden border border-[hsl(var(--border))]">
+            <div className="p-4 sm:p-6 border-b border-[hsl(var(--border))]">
+              <h2 className="text-lg font-semibold text-[hsl(var(--foreground))]">
                 Prescription History
               </h2>
             </div>
@@ -489,31 +526,31 @@ export default function PrescriptionDashboard() {
               {prescriptionHistory.map((prescription, index) => (
                 <div
                   key={prescription.id}
-                  className="p-4 border-b border-border last:border-b-0"
+                  className="p-4 border-b border-[hsl(var(--border))] last:border-b-0"
                 >
                   <div className="space-y-2">
                     <div className="flex justify-between items-start">
                       <div>
-                        <p className="font-medium text-foreground">
+                        <p className="font-medium text-[hsl(var(--foreground))]">
                           {prescription.medication}
                         </p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-[hsl(var(--muted-foreground))]">
                           {prescription.dosage}
                         </p>
                       </div>
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-sm text-[hsl(var(--muted-foreground))]">
                         {prescription.date}
                       </span>
                     </div>
                     <div className="flex gap-2 pt-2">
                       <button
                         onClick={handleViewPrescription}
-                        className="bg-[#1FA888] hover:bg-teal-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors flex items-center gap-1 flex-1 justify-center"
+                        className="bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-[hsl(var(--primary-foreground))] px-3 py-1 rounded text-sm font-medium transition-colors flex items-center gap-1 flex-1 justify-center"
                       >
                         <Eye className="h-3 w-3" />
                         View
                       </button>
-                      <button className="bg-background hover:bg-muted/50 text-foreground border border-border px-3 py-1 rounded text-sm font-medium transition-colors flex items-center gap-1 flex-1 justify-center">
+                      <button className="bg-[hsl(var(--background))] hover:bg-[hsl(var(--muted))] text-[hsl(var(--foreground))] border border-[hsl(var(--border))] px-3 py-1 rounded text-sm font-medium transition-colors flex items-center gap-1 flex-1 justify-center">
                         <RotateCcw className="h-3 w-3" />
                         Refill
                       </button>
@@ -526,18 +563,18 @@ export default function PrescriptionDashboard() {
             {/* Desktop Table View */}
             <div className="hidden sm:block overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-muted/30">
+                <thead className="bg-[hsl(var(--muted)/0.3)]">
                   <tr>
-                    <th className="text-left py-3 px-6 font-medium text-foreground">
+                    <th className="text-left py-3 px-6 font-medium text-[hsl(var(--foreground))]">
                       DATE
                     </th>
-                    <th className="text-left py-3 px-6 font-medium text-foreground">
+                    <th className="text-left py-3 px-6 font-medium text-[hsl(var(--foreground))]">
                       MEDICATION
                     </th>
-                    <th className="text-left py-3 px-6 font-medium text-foreground">
+                    <th className="text-left py-3 px-6 font-medium text-[hsl(var(--foreground))]">
                       DOSAGE
                     </th>
-                    <th className="text-left py-3 px-6 font-medium text-foreground">
+                    <th className="text-left py-3 px-6 font-medium text-[hsl(var(--foreground))]">
                       ACTION
                     </th>
                   </tr>
@@ -546,29 +583,41 @@ export default function PrescriptionDashboard() {
                   {prescriptionHistory.map((prescription, index) => (
                     <tr
                       key={prescription.id}
-                      className={`${index % 2 === 0 ? "bg-card" : "bg-muted/30"} hover:bg-muted/50 transition-colors`}
+                      className={`${
+                        index % 2 === 0 ? "bg-[hsl(var(--card))]" : "bg-[hsl(var(--muted)/0.3)]"
+                      } hover:bg-[hsl(var(--muted)/0.5)] transition-colors`}
                     >
-                      <td className="py-4 px-6 text-foreground">
+                      <td className="py-4 px-6 text-[hsl(var(--foreground))]">
                         {prescription.date}
                       </td>
-                      <td className="py-4 px-6 text-foreground">
+                      <td className="py-4 px-6 text-[hsl(var(--foreground))]">
                         {prescription.medication}
                       </td>
-                      <td className="py-4 px-6 text-foreground">
+                      <td className="py-4 px-6 text-[hsl(var(--foreground))]">
                         {prescription.dosage}
                       </td>
                       <td className="py-4 px-6">
                         <div className="flex gap-2">
                           <button
                             onClick={handleViewPrescription}
-                            className="bg-[#1FA888] hover:bg-teal-600 text-white px-4 py-1 rounded text-sm font-medium transition-colors flex items-center gap-1"
+                            className="bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-[hsl(var(--primary-foreground))] px-4 py-1 rounded text-sm font-medium transition-colors flex items-center gap-1"
                           >
                             <Eye className="h-3 w-3" />
                             View
                           </button>
-                          <button className="bg-background hover:bg-muted/50 text-foreground border border-border px-4 py-1 rounded text-sm font-medium transition-colors flex items-center gap-1">
-                            <RotateCcw className="h-3 w-3" />
-                            Refill
+                          <button
+                            onClick={() => openAccept(prescription)}
+                            className="bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-[hsl(var(--primary-foreground))] px-4 py-1 rounded text-sm font-medium transition-colors flex items-center gap-1"
+                          >
+                            <FaCheck className="h-3 w-3" />
+                            Accept
+                          </button>
+                          <button
+                            onClick={() => openReject(prescription)}
+                            className="bg-[hsl(var(--background))] hover:bg-[hsl(var(--muted))] text-[hsl(var(--foreground))] border border-[hsl(var(--border))] px-4 py-1 rounded text-sm font-medium transition-colors flex items-center gap-1"
+                          >
+                            <FcCancel className="h-3 w-3" />
+                            Reject
                           </button>
                         </div>
                       </td>
@@ -579,21 +628,23 @@ export default function PrescriptionDashboard() {
             </div>
 
             {/* Pagination */}
-            <div className="p-4 sm:p-6 border-t border-border">
+            <div className="p-4 sm:p-6 border-t border-[hsl(var(--border))]">
               <div className="flex items-center justify-center sm:justify-start gap-2">
-                <button className="px-3 py-1 text-muted-foreground hover:text-foreground text-sm transition-colors">
+                <button className="px-3 py-1 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] text-sm transition-colors">
                   Previous
                 </button>
-                <button className="px-3 py-1 bg-[#1FA888] text-white rounded text-sm">
+                <button className="px-3 py-1 bg-[hsl(var(--color-brand-teal))] text-[hsl(var(--primary-foreground))] rounded text-sm">
                   1
                 </button>
-                <button className="px-3 py-1 text-foreground hover:text-foreground text-sm transition-colors">
+                <button className="px-3 py-1 text-[hsl(var(--foreground))] hover:text-[hsl(var(--foreground))] text-sm transition-colors">
                   2
                 </button>
-                <button className="px-3 py-1 text-muted-foreground hover:text-foreground text-sm transition-colors">
+                <button className="px-3 py-1 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] text-sm transition-colors">
                   Next
                 </button>
-                <span className="ml-4 text-muted-foreground text-sm">10 /Pages</span>
+                <span className="ml-4 text-[hsl(var(--muted-foreground))] text-sm">
+                  10 /Pages
+                </span>
               </div>
             </div>
           </div>
@@ -602,18 +653,18 @@ export default function PrescriptionDashboard() {
         {/* Prescription Details Modal */}
         {showPrescriptionDetails && (
           <div className="fixed inset-0 flex items-center justify-center z-50 p-4 pointer-events-none bg-black/50">
-            <div className="bg-card rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-border pointer-events-auto">
-              <div className="p-4 sm:p-6 border-b border-border">
+            <div className="bg-[hsl(var(--card))] rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-[hsl(var(--border))] pointer-events-auto">
+              <div className="p-4 sm:p-6 border-b border-[hsl(var(--border))]">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <FileText className="h-5 w-5 text-blue-500" />
-                    <h2 className="text-lg sm:text-xl font-semibold text-foreground">
+                    <FileText className="h-5 w-5 text-[hsl(var(--color-chart-blue))]" />
+                    <h2 className="text-lg sm:text-xl font-semibold text-[hsl(var(--foreground))]">
                       Prescription Details
                     </h2>
                   </div>
                   <button
                     onClick={() => setShowPrescriptionDetails(false)}
-                    className="text-muted-foreground hover:text-foreground transition-colors"
+                    className="text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] transition-colors"
                   >
                     <X className="h-6 w-6" />
                   </button>
@@ -623,72 +674,88 @@ export default function PrescriptionDashboard() {
                 {/* State and Date */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
-                    <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                    <h3 className="text-sm font-medium text-[hsl(var(--muted-foreground))] mb-1">
                       State
                     </h3>
-                    <p className="font-medium text-foreground">State of New Jersey</p>
+                    <p className="font-medium text-[hsl(var(--foreground))]">
+                      State of New Jersey
+                    </p>
                   </div>
                   <div>
-                    <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                    <h3 className="text-sm font-medium text-[hsl(var(--muted-foreground))] mb-1">
                       Date Prescribed
                     </h3>
-                    <p className="font-medium text-foreground">Dec 15, 2024</p>
+                    <p className="font-medium text-[hsl(var(--foreground))]">Dec 15, 2024</p>
                   </div>
                 </div>
 
                 {/* Prescriber Info */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
-                    <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                    <h3 className="text-sm font-medium text-[hsl(var(--muted-foreground))] mb-1">
                       Prescriber Name
                     </h3>
-                    <p className="font-medium text-foreground">
+                    <p className="font-medium text-[hsl(var(--foreground))]">
                       PANKAJ RAMANLAL SHIROLWALA, M.D.
                     </p>
-                    <p className="text-sm text-muted-foreground mt-2">(732) 442-2211</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-[hsl(var(--muted-foreground))] mt-2">
+                      (732) 442-2211
+                    </p>
+                    <p className="text-sm text-[hsl(var(--muted-foreground))]">
                       NPI Number: 1003882523
                     </p>
-                    <p className="text-sm text-muted-foreground mt-2">DEA: BS9168091</p>
+                    <p className="text-sm text-[hsl(var(--muted-foreground))] mt-2">
+                      DEA: BS9168091
+                    </p>
                   </div>
                   <div>
-                    <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                    <h3 className="text-sm font-medium text-[hsl(var(--muted-foreground))] mb-1">
                       Prescriber Address
                     </h3>
-                    <p className="text-sm text-foreground">609 AMBOY AVENUE, SUITE 101,</p>
-                    <p className="text-sm text-foreground">PERTH AMBOY, NJ 08861</p>
-                    <p className="text-sm text-muted-foreground mt-2">(732) 326-0517</p>
+                    <p className="text-sm text-[hsl(var(--foreground))]">
+                      609 AMBOY AVENUE, SUITE 101,
+                    </p>
+                    <p className="text-sm text-[hsl(var(--foreground))]">
+                      PERTH AMBOY, NJ 08861
+                    </p>
+                    <p className="text-sm text-[hsl(var(--muted-foreground))] mt-2">
+                      (732) 326-0517
+                    </p>
                   </div>
                 </div>
 
                 {/* Patient Details */}
                 <div>
-                  <h3 className="text-lg font-semibold text-foreground mb-4">
+                  <h3 className="text-lg font-semibold text-[hsl(var(--foreground))] mb-4">
                     Patient Details
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
-                      <h4 className="text-sm font-medium text-muted-foreground mb-1">
+                      <h4 className="text-sm font-medium text-[hsl(var(--muted-foreground))] mb-1">
                         Patient Name
                       </h4>
-                      <p className="font-medium text-foreground">
+                      <p className="font-medium text-[hsl(var(--foreground))]">
                         {selectedPatient || "Sarah Conner"}
                       </p>
-                      <h4 className="text-sm font-medium text-muted-foreground mb-1 mt-4">
+                      <h4 className="text-sm font-medium text-[hsl(var(--muted-foreground))] mb-1 mt-4">
                         Patient Details
                       </h4>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-[hsl(var(--muted-foreground))]">
                         Complete medical history available in patient records.
                         Regular checkups recommended for ongoing treatment
                         monitoring.
                       </p>
                     </div>
                     <div>
-                      <h4 className="text-sm font-medium text-muted-foreground mb-1">
+                      <h4 className="text-sm font-medium text-[hsl(var(--muted-foreground))] mb-1">
                         Patient Address
                       </h4>
-                      <p className="text-sm text-foreground">609 AMBOY AVENUE, SUITE 101,</p>
-                      <p className="text-sm text-foreground">PERTH AMBOY, NJ 08861</p>
+                      <p className="text-sm text-[hsl(var(--foreground))]">
+                        609 AMBOY AVENUE, SUITE 101,
+                      </p>
+                      <p className="text-sm text-[hsl(var(--foreground))]">
+                        PERTH AMBOY, NJ 08861
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -696,38 +763,42 @@ export default function PrescriptionDashboard() {
                 {/* Prescription Details */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
-                    <h4 className="text-sm font-medium text-muted-foreground mb-1">
+                    <h4 className="text-sm font-medium text-[hsl(var(--muted-foreground))] mb-1">
                       Substitution Permissible
                     </h4>
-                    <p className="font-medium text-foreground">
+                    <p className="font-medium text-[hsl(var(--foreground))]">
                       {substitutionPermissible ? "YES" : "NO"}
                     </p>
-                    <h4 className="text-sm font-medium text-muted-foreground mb-1 mt-4">
+                    <h4 className="text-sm font-medium text-[hsl(var(--muted-foreground))] mb-1 mt-4">
                       Generic Substitute
                     </h4>
-                    <p className="font-medium text-foreground">
+                    <p className="font-medium text-[hsl(var(--foreground))]">
                       {!doNotSubstitute ? "YES" : "NO"}
                     </p>
-                    <h4 className="text-sm font-medium text-muted-foreground mb-1 mt-4">
+                    <h4 className="text-sm font-medium text-[hsl(var(--muted-foreground))] mb-1 mt-4">
                       Medication
                     </h4>
-                    <p className="font-medium text-foreground">
+                    <p className="font-medium text-[hsl(var(--foreground))]">
                       {medicationName || "Amoxicillin 500mg"}
                     </p>
                   </div>
                   <div>
-                    <h4 className="text-sm font-medium text-muted-foreground mb-1">
+                    <h4 className="text-sm font-medium text-[hsl(var(--muted-foreground))] mb-1">
                       Do Not Refill
                     </h4>
-                    <p className="font-medium text-foreground">{doNotRefill ? "YES" : "NO"}</p>
-                    <h4 className="text-sm font-medium text-muted-foreground mb-1 mt-4">
+                    <p className="font-medium text-[hsl(var(--foreground))]">
+                      {doNotRefill ? "YES" : "NO"}
+                    </p>
+                    <h4 className="text-sm font-medium text-[hsl(var(--muted-foreground))] mb-1 mt-4">
                       Refills
                     </h4>
-                    <p className="font-medium text-foreground">{refills || "2 Times Weekly"}</p>
-                    <h4 className="text-sm font-medium text-muted-foreground mb-1 mt-4">
+                    <p className="font-medium text-[hsl(var(--foreground))]">
+                      {refills || "2 Times Weekly"}
+                    </p>
+                    <h4 className="text-sm font-medium text-[hsl(var(--muted-foreground))] mb-1 mt-4">
                       Dosage
                     </h4>
-                    <p className="font-medium text-foreground">
+                    <p className="font-medium text-[hsl(var(--foreground))]">
                       {dosage || "500mg twice daily"}
                     </p>
                   </div>
@@ -735,10 +806,10 @@ export default function PrescriptionDashboard() {
 
                 {/* Instructions */}
                 <div>
-                  <h4 className="text-sm font-medium text-muted-foreground mb-1">
+                  <h4 className="text-sm font-medium text-[hsl(var(--muted-foreground))] mb-1">
                     Instructions
                   </h4>
-                  <p className="text-sm text-foreground">
+                  <p className="text-sm text-[hsl(var(--foreground))]">
                     {instructions ||
                       "Take with food for 7 days. Complete the full course even if symptoms improve."}
                   </p>
@@ -746,24 +817,24 @@ export default function PrescriptionDashboard() {
 
                 {diagnosis && (
                   <div>
-                    <h4 className="text-sm font-medium text-muted-foreground mb-1">
+                    <h4 className="text-sm font-medium text-[hsl(var(--muted-foreground))] mb-1">
                       Diagnosis/Notes
                     </h4>
-                    <p className="text-sm text-foreground">{diagnosis}</p>
+                    <p className="text-sm text-[hsl(var(--foreground))]">{diagnosis}</p>
                   </div>
                 )}
 
                 {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                  <button className="flex-1 bg-[#1FA888] hover:bg-teal-600 text-white py-3 rounded-lg font-medium transition-colors">
-                     Download
+                  <button className="flex-1 bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-[hsl(var(--primary-foreground))] py-3 rounded-lg font-medium transition-colors">
+                    Download
                   </button>
                   {/* <button className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg font-medium transition-colors">
                     📧 Send to Pharmacy
                   </button> */}
                   <button
                     onClick={() => setShowPrescriptionDetails(false)}
-                    className="flex-1 bg-background hover:bg-muted/50 text-foreground border border-border py-3 rounded-lg font-medium transition-colors"
+                    className="flex-1 bg-[hsl(var(--background))] hover:bg-[hsl(var(--muted))] text-[hsl(var(--foreground))] border border-[hsl(var(--border))] py-3 rounded-lg font-medium transition-colors"
                   >
                     Close
                   </button>
@@ -773,6 +844,21 @@ export default function PrescriptionDashboard() {
           </div>
         )}
       </div>
+      {/* ===== MODALS ===== */}
+      <AcceptPrescriptionModal
+        open={acceptOpen}
+        onClose={() => setAcceptOpen(false)}
+        onConfirm={handleAccept}
+        medication={selectedRow?.medication || ""}
+        dosage={selectedRow?.dosage || ""}
+      />
+      <RejectPrescriptionModal
+        open={rejectOpen}
+        onClose={() => setRejectOpen(false)}
+        onConfirm={handleReject}
+        medication={selectedRow?.medication || ""}
+        dosage={selectedRow?.dosage || ""}
+      />
     </ProtectedRoute>
   );
 }

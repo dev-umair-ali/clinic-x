@@ -1,6 +1,7 @@
 import api from '../axios';
 
 export interface Appointment {
+  doctorName: any;
   _id: string;
   doctor: string;
   patient: string;
