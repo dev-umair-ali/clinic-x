@@ -1,490 +1,503 @@
 "use client"
 
-import type React from "react"
-import { useState } from "react"
+import React, { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   Building2,
   MapPin,
-  Phone,
-  Clock,
   User,
-  FileText,
   Upload,
-  X,
-  Plus,
-  ArrowLeft,
-  Save,
-  CheckCircle,
   Loader2,
+  Save,
+  ArrowLeft,
+  CheckCircle,
+  AlertCircle
 } from "lucide-react"
-
-/* ---------  NEW  COMPONENTS  --------- */
-import ClinicBasicInfo   from "@/components/Admin-Clinic/ClinicBasicInfo"
-import ClinicAddress     from "@/components/Admin-Clinic/ClinicAddress"
-import ClinicContact     from "@/components/Admin-Clinic/ClinicContact"
-import ClinicOperating   from "@/components/Admin-Clinic/ClinicOperating"
+import api from "@/lib/api/axios"
 
 /* ---------  STATIC DATA  --------- */
-const specializationOptions = [
-  "General Medicine","Cardiology","Dermatology","Orthopedics","Pediatrics","Gynecology",
-  "Neurology","Ophthalmology","ENT","Dentistry","Psychiatry","Radiology",
-]
-const facilityOptions = [
-  "Emergency Services","Laboratory","Pharmacy","X-Ray","Ultrasound","ECG",
-  "MRI","CT Scan","Ambulance","Parking","Wheelchair Access","Cafeteria",
+const timezones = [
+  "UTC",
+  "America/New_York",
+  "America/Chicago",
+  "America/Denver",
+  "America/Los_Angeles",
+  "Europe/London",
+  "Europe/Paris",
+  "Europe/Berlin",
+  "Asia/Dubai",
+  "Asia/Kolkata",
+  "Asia/Singapore",
+  "Asia/Tokyo",
+  "Australia/Sydney"
 ]
 
 /* ---------  TYPES  --------- */
 interface ClinicFormData {
+  // Clinic Info
   clinicName: string
-  clinicType: string
-  registrationNumber: string
-  taxId: string
-  address: string
+  timezone: string
+
+  // Address
+  street: string
   city: string
   state: string
   zipCode: string
   country: string
-  phoneNumber: string
-  alternatePhone: string
-  email: string
-  website: string
-  openingTime: string
-  closingTime: string
-  workingDays: string[]
-  ownerName: string
-  ownerPhone: string
+
+  // Owner Info (for Signup)
+  ownerFirstName: string
+  ownerLastName: string
   ownerEmail: string
-  totalDoctors: string
-  totalStaff: string
-  specializations: string[]
-  facilities: string[]
-  description: string
+  ownerPhone: string
+  ownerPassword: string
+  hipaaConsent: boolean
+
+  // Logo
   logo: File | null
-  documents: File[]
 }
 
-/* ---------  MAIN PAGE  --------- */
 export default function AddClinicPage() {
+  const router = useRouter()
+
+  /* ---------  STATE  --------- */
   const [formData, setFormData] = useState<ClinicFormData>({
     clinicName: "",
-    clinicType: "",
-    registrationNumber: "",
-    taxId: "",
-    address: "",
+    timezone: "UTC", // Default
+    street: "",
     city: "",
     state: "",
     zipCode: "",
     country: "",
-    phoneNumber: "",
-    alternatePhone: "",
-    email: "",
-    website: "",
-    openingTime: "09:00",
-    closingTime: "18:00",
-    workingDays: ["Monday","Tuesday","Wednesday","Thursday","Friday"],
-    ownerName: "",
-    ownerPhone: "",
+    ownerFirstName: "",
+    ownerLastName: "",
     ownerEmail: "",
-    totalDoctors: "",
-    totalStaff: "",
-    specializations: [],
-    facilities: [],
-    description: "",
+    ownerPhone: "",
+    ownerPassword: "",
+    hipaaConsent: false,
     logo: null,
-    documents: [],
   })
 
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
-  const [errors, setErrors] = useState<string[]>([])
+  const [error, setError] = useState<string | null>(null)
 
   /* ----------  HANDLERS  ---------- */
-  const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field as keyof ClinicFormData]: value as any }))
+  const handleInputChange = (field: keyof ClinicFormData, value: any) => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const handleWorkingDayToggle = (day: string) => {
-    setFormData((p) => ({
-      ...p,
-      workingDays: p.workingDays.includes(day)
-        ? p.workingDays.filter((d) => d !== day)
-        : [...p.workingDays, day],
-    }))
-  }
-
-  const handleSpecializationToggle = (spec: string) => {
-    setFormData((p) => ({
-      ...p,
-      specializations: p.specializations.includes(spec)
-        ? p.specializations.filter((s) => s !== spec)
-        : [...p.specializations, spec],
-    }))
-  }
-
-  const handleFacilityToggle = (facility: string) => {
-    setFormData((p) => ({
-      ...p,
-      facilities: p.facilities.includes(facility)
-        ? p.facilities.filter((f) => f !== facility)
-        : [...p.facilities, facility],
-    }))
-  }
-
-  const handleLogoUpload = (file: File) => {
-    setFormData((p) => ({ ...p, logo: file }))
-    const reader = new FileReader()
-    reader.onloadend = () => setLogoPreview(reader.result as string)
-    reader.readAsDataURL(file)
-  }
-
-  const handleDocumentUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files
-    if (files) setFormData((p) => ({ ...p, documents: [...p.documents, ...Array.from(files)] }))
-  }
-
-  const removeDocument = (index: number) => {
-    setFormData((p) => ({ ...p, documents: p.documents.filter((_, i) => i !== index) }))
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0]
+      setFormData((p) => ({ ...p, logo: file }))
+      const reader = new FileReader()
+      reader.onloadend = () => setLogoPreview(reader.result as string)
+      reader.readAsDataURL(file)
+    }
   }
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault()
-
-    const newErrors: string[] = []
-    if (!formData.clinicName.trim()) newErrors.push("Clinic Name is required")
-    if (!formData.clinicType) newErrors.push("Clinic Type is required")
-    if (!formData.registrationNumber.trim()) newErrors.push("Registration Number is required")
-    if (!formData.address.trim()) newErrors.push("Address is required")
-    if (!formData.city.trim()) newErrors.push("City is required")
-    if (!formData.state.trim()) newErrors.push("State is required")
-    if (!formData.zipCode.trim()) newErrors.push("ZIP Code is required")
-    if (!formData.country.trim()) newErrors.push("Country is required")
-    if (!formData.phoneNumber.trim()) newErrors.push("Phone Number is required")
-    if (!formData.email.trim()) newErrors.push("Email is required")
-    if (!formData.ownerName.trim()) newErrors.push("Owner Name is required")
-
-    if (newErrors.length) {
-      setErrors(newErrors)
-      window.scrollTo({ top: 0, behavior: "smooth" })
-      return
-    }
-
-    setErrors([])
+    setError(null)
     setIsLoading(true)
-    await new Promise((r) => setTimeout(r, 1500))
-    setIsLoading(false)
-    setShowSuccess(true)
-    setTimeout(() => setShowSuccess(false), 3000)
+
+    try {
+      // 1. Validate Basic
+      if (!formData.hipaaConsent) {
+        throw new Error("Owner must consent to HIPAA regulations.")
+      }
+
+      // 2. Create Owner User
+      const signupPayload = {
+        email: formData.ownerEmail,
+        password: formData.ownerPassword,
+        firstName: formData.ownerFirstName,
+        lastName: formData.ownerLastName,
+        role: "clinic_admin",
+        phoneNumber: formData.ownerPhone,
+        hipaaConsent: formData.hipaaConsent,
+      }
+
+      let ownerId = ""
+      try {
+        await api.post("/auth/signup", signupPayload)
+
+        const loginRes = await api.post("/auth/login", {
+          email: formData.ownerEmail,
+          password: formData.ownerPassword
+        })
+
+        const token = loginRes.data?.token || loginRes.data?.accessToken
+        const user = loginRes.data?.user
+
+        if (user && user._id) {
+          ownerId = user._id
+        } else if (token) {
+          throw new Error("Could not retrieve new user ID after signup. Please check console.")
+        } else {
+          throw new Error("Login failed after signup.")
+        }
+
+      } catch (err: any) {
+        throw new Error(err.response?.data?.message || "Failed to create owner user.")
+      }
+
+      // 3. Create Clinic
+      let createdBy = "68ff956bbcd478cb86c3e773" // Default fallback from example
+      try {
+        const storedUser = localStorage.getItem('clinic-ai-user')
+        if (storedUser) {
+          const parsedUser = JSON.parse(storedUser)
+          if (parsedUser._id) createdBy = parsedUser._id
+        }
+      } catch (e) {
+        console.warn("Could not retrieve current user ID for createdBy field", e)
+      }
+
+      const clinicPayload = {
+        name: formData.clinicName,
+        clinicName: formData.clinicName, // Redundant but requested
+        createdBy: createdBy,
+        ownerUser: ownerId,
+        address: {
+          street: formData.street,
+          city: formData.city,
+          state: formData.state,
+          zipCode: formData.zipCode,
+          country: formData.country,
+        },
+        phone: formData.ownerPhone, // Using owner contact as primary clinic contact
+        email: formData.ownerEmail,
+        settings: {
+          timezone: formData.timezone,
+          currency: "USD",
+        },
+      }
+
+      const clinicRes = await api.post("/clinics", clinicPayload)
+      const clinicId = clinicRes.data?._id || clinicRes.data?.id
+
+      // 4. Upload Logo if exists
+      if (formData.logo && clinicId) {
+        const logoFormData = new FormData()
+        logoFormData.append("file", formData.logo)
+        await api.post(`/admin/clinics/${clinicId}/logo`, logoFormData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        })
+      }
+
+      setShowSuccess(true)
+      setTimeout(() => router.push("/admin/clinics"), 2000)
+
+    } catch (err: any) {
+      console.error(err)
+      setError(err.message || "Something went wrong.")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   /* ----------  RENDER  ---------- */
   return (
-    <div className="min-h-screen bg-[hsl(var(--background))]">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-20">
+
+      {/* Feedback */}
       {showSuccess && (
         <div className="fixed top-4 right-4 z-50 bg-[hsl(var(--color-status-success))] text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-in slide-in-from-top-2">
           <CheckCircle className="h-5 w-5" />
-          Clinic saved successfully!
+          Clinic and Owner created successfully!
+        </div>
+      )}
+      {error && (
+        <div className="fixed top-4 right-4 z-50 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-in slide-in-from-top-2">
+          <AlertCircle className="h-5 w-5" />
+          {error}
         </div>
       )}
 
       {/* Header */}
-      <div className="bg-[hsl(var(--card))] border-b border-[hsl(var(--border))] px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 sticky top-0 z-40">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="text-[hsl(var(--muted-foreground))]">
+            <Button variant="ghost" size="icon" onClick={() => router.back()}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-2xl font-bold text-[hsl(var(--foreground))]">Add New Clinic</h1>
-              <p className="text-sm text-[hsl(var(--muted-foreground))]">Fill in the details to register a new clinic</p>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Add New Clinic</h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Create a clinic and its administrator account.</p>
             </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Button variant="outline" className="border-[hsl(var(--border))] bg-transparent">
-              Cancel
-            </Button>
-            <Button
-              onClick={() => handleSubmit()}
-              disabled={isLoading}
-              className="bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-white"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save className="h-4 w-4 mr-2" />
-                  Save Clinic
-                </>
-              )}
-            </Button>
           </div>
         </div>
       </div>
 
-      {/* Body */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {errors.length > 0 && (
-          <div className="mb-6 bg-[hsl(var(--color-status-error-light))] border border-[hsl(var(--color-status-error-dark))] rounded-lg p-4">
-            <h3 className="text-[hsl(var(--color-status-error-dark))] font-medium mb-2">Please fix the following errors:</h3>
-            <ul className="list-disc list-inside text-[hsl(var(--color-status-error-dark))] text-sm space-y-1">
-              {errors.map((err, i) => (
-                <li key={i}>{err}</li>
-              ))}
-            </ul>
-          </div>
-        )}
+      {/* Content */}
+      <div className="max-w-5xl mx-auto px-6 py-8">
+        <form onSubmit={handleSubmit} className="space-y-8">
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* 1  Basic Info */}
-          <ClinicBasicInfo
-            data={{
-              clinicName: formData.clinicName,
-              clinicType: formData.clinicType,
-              registrationNumber: formData.registrationNumber,
-              taxId: formData.taxId,
-              totalDoctors: formData.totalDoctors,
-              totalStaff: formData.totalStaff,
-              logo: formData.logo,
-            }}
-            onChange={handleInputChange}
-            onLogo={handleLogoUpload}
-            logoPreview={logoPreview}
-          />
+          {/* Section 1: Clinic Details */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-1">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <Building2 className="h-5 w-5 text-[#1DA68F]" />
+                Clinic Details
+              </h3>
+              <p className="text-sm text-gray-500 mt-2">
+                Basic information about the healthcare facility.
+              </p>
+            </div>
 
-          {/* 2  Address */}
-          <ClinicAddress
-            data={{
-              address: formData.address,
-              city: formData.city,
-              state: formData.state,
-              zipCode: formData.zipCode,
-              country: formData.country,
-            }}
-            onChange={handleInputChange}
-          />
+            <Card className="lg:col-span-2 border-gray-200 dark:border-gray-700 shadow-sm">
+              <CardContent className="p-6 space-y-4">
 
-          {/* 3  Contact */}
-          <ClinicContact
-            data={{
-              phoneNumber: formData.phoneNumber,
-              alternatePhone: formData.alternatePhone,
-              email: formData.email,
-              website: formData.website,
-            }}
-            onChange={handleInputChange}
-          />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="clinicName">Clinic Name *</Label>
+                    <Input
+                      id="clinicName"
+                      placeholder="e.g. City Health Center"
+                      value={formData.clinicName}
+                      onChange={(e) => handleInputChange("clinicName", e.target.value)}
+                      required
+                    />
+                  </div>
 
-          {/* 4  Operating Hours */}
-          <ClinicOperating
-            data={{
-              openingTime: formData.openingTime,
-              closingTime: formData.closingTime,
-              workingDays: formData.workingDays,
-            }}
-            onChange={handleInputChange}
-            onToggleDay={handleWorkingDayToggle}
-          />
-
-          {/* 5  Owner / Admin */}
-          <Card className="border-[hsl(var(--border))] shadow-sm">
-            <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
-              <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
-                <User className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
-                Owner / Administrator Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6 bg-[hsl(var(--card))]">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="ownerName" className="text-[hsl(var(--foreground))]">
-                    Owner Name <span className="text-[hsl(var(--destructive))]">*</span>
-                  </Label>
-                  <Input
-                    id="ownerName"
-                    value={formData.ownerName}
-                    onChange={(e) => handleInputChange("ownerName", e.target.value)}
-                    placeholder="Enter owner name"
-                    className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="ownerPhone" className="text-[hsl(var(--foreground))]">
-                    Owner Phone <span className="text-[hsl(var(--destructive))]">*</span>
-                  </Label>
-                  <Input
-                    id="ownerPhone"
-                    type="tel"
-                    value={formData.ownerPhone}
-                    onChange={(e) => handleInputChange("ownerPhone", e.target.value)}
-                    placeholder="+1 (555) 000-0000"
-                    className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="ownerEmail" className="text-[hsl(var(--foreground))]">
-                    Owner Email <span className="text-[hsl(var(--destructive))]">*</span>
-                  </Label>
-                  <Input
-                    id="ownerEmail"
-                    type="email"
-                    value={formData.ownerEmail}
-                    onChange={(e) => handleInputChange("ownerEmail", e.target.value)}
-                    placeholder="owner@example.com"
-                    className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]"
-                    required
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* 6  Specializations & Facilities */}
-          <Card className="border-[hsl(var(--border))] shadow-sm">
-            <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
-              <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
-                <Plus className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
-                Specializations & Facilities
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6 bg-[hsl(var(--card))]">
-              <div className="space-y-6">
-                <div>
-                  <Label className="text-[hsl(var(--foreground))] mb-3 block">Specializations</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {specializationOptions.map((spec) => (
-                      <button
-                        key={spec}
-                        type="button"
-                        onClick={() => handleSpecializationToggle(spec)}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
-                          formData.specializations.includes(spec)
-                            ? "bg-[hsl(var(--color-brand-teal))] text-white border-[hsl(var(--color-brand-teal))]"
-                            : "bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border-[hsl(var(--border))] hover:border-[hsl(var(--color-brand-teal))]"
-                        }`}
-                      >
-                        {spec}
-                      </button>
-                    ))}
+                  <div className="space-y-2">
+                    <Label htmlFor="timezone">Timezone *</Label>
+                    <Select
+                      value={formData.timezone}
+                      onValueChange={(val) => handleInputChange("timezone", val)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Timezone" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {timezones.map((tz) => (
+                          <SelectItem key={tz} value={tz}>{tz}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
-                <div>
-                  <Label className="text-[hsl(var(--foreground))] mb-3 block">Available Facilities</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {facilityOptions.map((facility) => (
-                      <button
-                        key={facility}
-                        type="button"
-                        onClick={() => handleFacilityToggle(facility)}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
-                          formData.facilities.includes(facility)
-                            ? "bg-[hsl(var(--color-brand-teal))] text-white border-[hsl(var(--color-brand-teal))]"
-                            : "bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border-[hsl(var(--border))] hover:border-[hsl(var(--color-brand-teal))]"
-                        }`}
-                      >
-                        {facility}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* 7  Documents & Description */}
-          <Card className="border-[hsl(var(--border))] shadow-sm">
-            <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
-              <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
-                <FileText className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
-                Documents & Description
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6 bg-[hsl(var(--card))]">
-              <div className="space-y-6">
-                <div>
-                  <Label className="text-[hsl(var(--foreground))] mb-3 block">
-                    Upload Documents (License, Certificates, etc.)
-                  </Label>
-                  <div className="border-2 border-dashed border-[hsl(var(--border))] rounded-lg p-6 text-center">
-                    <Upload className="h-10 w-10 text-[hsl(var(--muted-foreground))] mx-auto mb-3" />
-                    <label htmlFor="document-upload" className="cursor-pointer">
-                      <span className="text-[hsl(var(--color-brand-teal))] font-medium hover:underline">Click to upload</span>
-                      <span className="text-[hsl(var(--muted-foreground))]"> or drag and drop</span>
-                      <input
-                        id="document-upload"
-                        type="file"
-                        multiple
-                        className="hidden"
-                        onChange={handleDocumentUpload}
-                      />
-                    </label>
-                    <p className="text-xs text-[hsl(var(--muted-foreground))] mt-1">PDF, DOC, JPG, PNG up to 10MB each</p>
-                  </div>
-
-                  {formData.documents.length > 0 && (
-                    <div className="mt-4 space-y-2">
-                      {formData.documents.map((doc, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-center justify-between bg-[hsl(var(--accent))] p-3 rounded-lg"
-                        >
-                          <div className="flex items-center gap-2">
-                            <FileText className="h-4 w-4 text-[hsl(var(--color-brand-teal))]" />
-                            <span className="text-sm text-[hsl(var(--foreground))]">{doc.name}</span>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => removeDocument(idx)}
-                            className="text-[hsl(var(--color-status-error))] hover:text-[hsl(var(--color-status-error-dark))]"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        </div>
-                      ))}
+                <div className="space-y-2">
+                  <Label>Clinic Logo</Label>
+                  <div className="flex items-center gap-4">
+                    <div className="h-16 w-16 rounded-lg bg-gray-100 dark:bg-gray-800 border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden">
+                      {logoPreview ? (
+                        <img src={logoPreview} alt="Preview" className="h-full w-full object-cover" />
+                      ) : (
+                        <Upload className="h-6 w-6 text-gray-400" />
+                      )}
                     </div>
-                  )}
+                    <div>
+                      <Label htmlFor="logo-upload" className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2">
+                        Choose File
+                      </Label>
+                      <Input
+                        id="logo-upload"
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleLogoUpload}
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Recommended: Square, PNG or JPG.</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Section 2: Address */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-1">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-[#1DA68F]" />
+                Location
+              </h3>
+              <p className="text-sm text-gray-500 mt-2">
+                Physical address of the clinic.
+              </p>
+            </div>
+
+            <Card className="lg:col-span-2 border-gray-200 dark:border-gray-700 shadow-sm">
+              <CardContent className="p-6 space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="street">Street Address *</Label>
+                  <Input
+                    id="street"
+                    value={formData.street}
+                    onChange={(e) => handleInputChange("street", e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="city">City *</Label>
+                    <Input
+                      id="city"
+                      value={formData.city}
+                      onChange={(e) => handleInputChange("city", e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="state">State/Province *</Label>
+                    <Input
+                      id="state"
+                      value={formData.state}
+                      onChange={(e) => handleInputChange("state", e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="zipCode">Zip/Postal Code *</Label>
+                    <Input
+                      id="zipCode"
+                      value={formData.zipCode}
+                      onChange={(e) => handleInputChange("zipCode", e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="country">Country *</Label>
+                    <Input
+                      id="country"
+                      value={formData.country}
+                      onChange={(e) => handleInputChange("country", e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Section 3: Owner / Admin */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-1">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <User className="h-5 w-5 text-[#1DA68F]" />
+                Administrator
+              </h3>
+              <p className="text-sm text-gray-500 mt-2">
+                Create the main administrator account for this clinic.
+              </p>
+            </div>
+
+            <Card className="lg:col-span-2 border-gray-200 dark:border-gray-700 shadow-sm">
+              <CardContent className="p-6 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="ownerFirstName">First Name *</Label>
+                    <Input
+                      id="ownerFirstName"
+                      value={formData.ownerFirstName}
+                      onChange={(e) => handleInputChange("ownerFirstName", e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="ownerLastName">Last Name *</Label>
+                    <Input
+                      id="ownerLastName"
+                      value={formData.ownerLastName}
+                      onChange={(e) => handleInputChange("ownerLastName", e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="ownerEmail">Owner Email *</Label>
+                    <Input
+                      id="ownerEmail"
+                      type="email"
+                      value={formData.ownerEmail}
+                      onChange={(e) => handleInputChange("ownerEmail", e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="ownerPhone">Owner Phone</Label>
+                    <Input
+                      id="ownerPhone"
+                      type="tel"
+                      value={formData.ownerPhone}
+                      onChange={(e) => handleInputChange("ownerPhone", e.target.value)}
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description" className="text-[hsl(var(--foreground))]">
-                    Clinic Description
-                  </Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => handleInputChange("description", e.target.value)}
-                    placeholder="Enter a brief description of your clinic, services offered, and any special features..."
-                    className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))] min-h-[120px]"
+                  <Label htmlFor="ownerPassword">Password *</Label>
+                  <Input
+                    id="ownerPassword"
+                    type="password"
+                    placeholder="••••••••"
+                    minLength={6}
+                    value={formData.ownerPassword}
+                    onChange={(e) => handleInputChange("ownerPassword", e.target.value)}
+                    required
                   />
                 </div>
-              </div>
-            </CardContent>
-          </Card>
 
-          {/* Bottom actions */}
-          <div className="flex items-center justify-end gap-4 pt-4">
-            <Button type="button" variant="outline" className="border-[hsl(var(--border))] px-8 bg-transparent">
+                <div className="flex items-start space-x-2 pt-2">
+                  <Checkbox
+                    id="hipaaConsent"
+                    checked={formData.hipaaConsent}
+                    onCheckedChange={(c) => handleInputChange("hipaaConsent", c === true)}
+                  />
+                  <div className="grid gap-1.5 leading-none">
+                    <Label
+                      htmlFor="hipaaConsent"
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      I confirm I have obtained HIPAA consent from this user.
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      This user will be created as a generic clinic_admin.
+                    </p>
+                  </div>
+                </div>
+
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Actions */}
+          <div className="flex justify-end gap-4 pt-4">
+            <Button type="button" variant="outline" onClick={() => router.back()}>
               Cancel
             </Button>
-            <Button type="submit" className="bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-white px-8">
-              <Save className="h-4 w-4 mr-2" />
-              Save Clinic
+            <Button type="submit" className="bg-[#1DA68F] hover:bg-[#168f73] min-w-[140px]" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  Create Records
+                </>
+              )}
             </Button>
           </div>
+
         </form>
       </div>
     </div>
