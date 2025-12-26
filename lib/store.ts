@@ -11,6 +11,7 @@ import billingSlice from "./slices/billingSlice"
 import refillSlice from "./slices/refillSlice"
 import reportsSlice from "./slices/reportsSlice"
 import uploadSlice from "./slices/uploadSlice"
+import clinicSlice from "./slices/clinicSlice"
 
 const rootReducer = combineReducers({
   auth: authSlice,
@@ -24,6 +25,7 @@ const rootReducer = combineReducers({
   refills: refillSlice,
   reports: reportsSlice,
   upload: uploadSlice,
+  clinics: clinicSlice,
 })
 
 // Load state from localStorage

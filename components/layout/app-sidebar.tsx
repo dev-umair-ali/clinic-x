@@ -37,7 +37,7 @@ const menuItems = {
   { icon: HiMiniUserGroup, label: "Doctors", href: "/admin/doctors" },
   { icon: HiMiniUserGroup, label: "Patients", href: "/admin/patients" },
 
-  { icon: FaClinicMedical, label: "Add Clinic", href: "/admin/add-clinic" },
+  { icon: FaClinicMedical, label: "Clinics", href: "/admin/clinics" },
   { icon: IoIosPersonAdd, label: "Add Assistant", href: "/admin/add-assistant" },
 
   { icon: FaRegClipboard, label: "Dashboard Log", href: "/admin/dashlogs" },
@@ -96,7 +96,7 @@ clinic: [
 
   { icon: CiCalendar, label: "Patients Billing", href: "/clinic/patients-billing" },
 
-  { icon: FaClinicMedical, label: "Add Clinic", href: "/clinic/add-clinic" },
+  { icon: FaClinicMedical, label: "Clinics", href: "/clinic/clinics" },
   { icon: IoIosPersonAdd, label: "Add Assistant", href: "/clinic/add-assistant" },
 
   { icon: FaRegClipboard, label: "Dashboard Log", href: "/clinic/dashlogs" },

@@ -2,6 +2,8 @@
 
 import React, { useState } from "react"
 import { useRouter } from "next/navigation"
+import { useDispatch } from "react-redux"
+import type { AppDispatch } from "@/lib/store"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -19,7 +21,8 @@ import {
   CheckCircle,
   AlertCircle
 } from "lucide-react"
-import api from "@/lib/api/axios"
+import { authService, uploadService, type CreateClinicRequest } from "@/lib/api"
+import { createClinic, updateClinic, uploadClinicLogo } from "@/lib/slices/clinicSlice"
 
 /* ---------  STATIC DATA  --------- */
 const timezones = [
@@ -43,6 +46,7 @@ interface ClinicFormData {
   // Clinic Info
   clinicName: string
   timezone: string
+  ownerName: string  // Owner name (not user ID)
 
   // Address
   street: string
@@ -51,13 +55,9 @@ interface ClinicFormData {
   zipCode: string
   country: string
 
-  // Owner Info (for Signup)
-  ownerFirstName: string
-  ownerLastName: string
-  ownerEmail: string
-  ownerPhone: string
-  ownerPassword: string
-  hipaaConsent: boolean
+  // Contact Info
+  email: string
+  phone: string
 
   // Logo
   logo: File | null
@@ -65,22 +65,20 @@ interface ClinicFormData {
 
 export default function AddClinicPage() {
   const router = useRouter()
+  const dispatch = useDispatch<AppDispatch>()
 
   /* ---------  STATE  --------- */
   const [formData, setFormData] = useState<ClinicFormData>({
     clinicName: "",
     timezone: "UTC", // Default
+    ownerName: "",
     street: "",
     city: "",
     state: "",
     zipCode: "",
     country: "",
-    ownerFirstName: "",
-    ownerLastName: "",
-    ownerEmail: "",
-    ownerPhone: "",
-    ownerPassword: "",
-    hipaaConsent: false,
+    email: "",
+    phone: "",
     logo: null,
   })
 
@@ -110,63 +108,36 @@ export default function AddClinicPage() {
     setIsLoading(true)
 
     try {
-      // 1. Validate Basic
-      if (!formData.hipaaConsent) {
-        throw new Error("Owner must consent to HIPAA regulations.")
-      }
-
-      // 2. Create Owner User
-      const signupPayload = {
-        email: formData.ownerEmail,
-        password: formData.ownerPassword,
-        firstName: formData.ownerFirstName,
-        lastName: formData.ownerLastName,
-        role: "clinic_admin",
-        phoneNumber: formData.ownerPhone,
-        hipaaConsent: formData.hipaaConsent,
-      }
-
-      let ownerId = ""
-      try {
-        await api.post("/auth/signup", signupPayload)
-
-        const loginRes = await api.post("/auth/login", {
-          email: formData.ownerEmail,
-          password: formData.ownerPassword
-        })
-
-        const token = loginRes.data?.token || loginRes.data?.accessToken
-        const user = loginRes.data?.user
-
-        if (user && user._id) {
-          ownerId = user._id
-        } else if (token) {
-          throw new Error("Could not retrieve new user ID after signup. Please check console.")
-        } else {
-          throw new Error("Login failed after signup.")
-        }
-
-      } catch (err: any) {
-        throw new Error(err.response?.data?.message || "Failed to create owner user.")
-      }
-
-      // 3. Create Clinic
-      let createdBy = "68ff956bbcd478cb86c3e773" // Default fallback from example
+      // 1. Get current logged-in user ID for both createdBy and ownerUser
+      let currentUserId = ""
       try {
         const storedUser = localStorage.getItem('clinic-ai-user')
         if (storedUser) {
           const parsedUser = JSON.parse(storedUser)
-          if (parsedUser._id) createdBy = parsedUser._id
+          // Try different possible ID fields from localStorage
+          currentUserId = parsedUser._id || parsedUser.id || ""
         }
       } catch (e) {
-        console.warn("Could not retrieve current user ID for createdBy field", e)
+        console.warn("Could not retrieve current user ID", e)
       }
 
-      const clinicPayload = {
+      // If no user ID found, throw error
+      if (!currentUserId) {
+        throw new Error("You must be logged in to create a clinic. Please log in and try again.")
+      }
+
+      console.log("Creating clinic with user ID:", currentUserId)
+
+      // 2. Note: Logo upload will be available in the edit page after clinic creation
+      // For now, we're skipping logo upload during creation to ensure smooth clinic creation
+      // Users can add the logo by editing the clinic afterward
+
+      // 3. Create Clinic with all required fields
+      const clinicPayload: CreateClinicRequest = {
         name: formData.clinicName,
-        clinicName: formData.clinicName, // Redundant but requested
-        createdBy: createdBy,
-        ownerUser: ownerId,
+        clinicName: formData.clinicName, // Required field (API documentation exception)
+        createdBy: currentUserId, // Current logged-in user
+        ownerUser: formData.ownerName, // Owner name from form input (not user ID)
         address: {
           street: formData.street,
           city: formData.city,
@@ -174,32 +145,46 @@ export default function AddClinicPage() {
           zipCode: formData.zipCode,
           country: formData.country,
         },
-        phone: formData.ownerPhone, // Using owner contact as primary clinic contact
-        email: formData.ownerEmail,
+        phone: formData.phone,
+        email: formData.email,
         settings: {
           timezone: formData.timezone,
           currency: "USD",
         },
       }
 
-      const clinicRes = await api.post("/clinics", clinicPayload)
-      const clinicId = clinicRes.data?._id || clinicRes.data?.id
+      console.log("Clinic payload:", clinicPayload)
 
-      // 4. Upload Logo if exists
-      if (formData.logo && clinicId) {
-        const logoFormData = new FormData()
-        logoFormData.append("file", formData.logo)
-        await api.post(`/admin/clinics/${clinicId}/logo`, logoFormData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        })
+      const clinicResult = await dispatch(createClinic(clinicPayload)).unwrap()
+      
+      console.log("Clinic API response:", clinicResult)
+      console.log("Clinic ID:", clinicResult?._id)
+
+      if (!clinicResult || !clinicResult._id) {
+        throw new Error("Clinic created but no ID returned. Response: " + JSON.stringify(clinicResult))
       }
+
+      const clinicId = clinicResult._id
+      console.log("Clinic created successfully with ID:", clinicId)
+
+      // Note: Logo upload functionality will be added to the edit page
+      // For now, clinic is created without a logo
 
       setShowSuccess(true)
       setTimeout(() => router.push("/admin/clinics"), 2000)
 
     } catch (err: any) {
-      console.error(err)
-      setError(err.message || "Something went wrong.")
+      console.error("Error creating clinic:", err)
+      
+      // Enhanced error message handling
+      let errorMessage = err.message || err.error || err || "Something went wrong."
+      
+      // Check for duplicate email error
+      if (errorMessage.includes("E11000") || errorMessage.includes("duplicate key") || errorMessage.includes("email_1")) {
+        errorMessage = "This email is already in use by another clinic. Please use a different email address."
+      }
+      
+      setError(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -213,7 +198,7 @@ export default function AddClinicPage() {
       {showSuccess && (
         <div className="fixed top-4 right-4 z-50 bg-[hsl(var(--color-status-success))] text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-in slide-in-from-top-2">
           <CheckCircle className="h-5 w-5" />
-          Clinic and Owner created successfully!
+          Clinic created successfully!
         </div>
       )}
       {error && (
@@ -232,7 +217,7 @@ export default function AddClinicPage() {
             </Button>
             <div>
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Add New Clinic</h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Create a clinic and its administrator account.</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Create a new clinic in the system.</p>
             </div>
           </div>
         </div>
@@ -257,59 +242,42 @@ export default function AddClinicPage() {
             <Card className="lg:col-span-2 border-gray-200 dark:border-gray-700 shadow-sm">
               <CardContent className="p-6 space-y-4">
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="clinicName">Clinic Name *</Label>
-                    <Input
-                      id="clinicName"
-                      placeholder="e.g. City Health Center"
-                      value={formData.clinicName}
-                      onChange={(e) => handleInputChange("clinicName", e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="timezone">Timezone *</Label>
-                    <Select
-                      value={formData.timezone}
-                      onValueChange={(val) => handleInputChange("timezone", val)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Timezone" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {timezones.map((tz) => (
-                          <SelectItem key={tz} value={tz}>{tz}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="clinicName">Clinic Name *</Label>
+                  <Input
+                    id="clinicName"
+                    placeholder="e.g. City Health Center"
+                    value={formData.clinicName}
+                    onChange={(e) => handleInputChange("clinicName", e.target.value)}
+                    required
+                  />
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Clinic Logo</Label>
-                  <div className="flex items-center gap-4">
-                    <div className="h-16 w-16 rounded-lg bg-gray-100 dark:bg-gray-800 border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden">
-                      {logoPreview ? (
-                        <img src={logoPreview} alt="Preview" className="h-full w-full object-cover" />
-                      ) : (
-                        <Upload className="h-6 w-6 text-gray-400" />
-                      )}
-                    </div>
-                    <div>
-                      <Label htmlFor="logo-upload" className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2">
-                        Choose File
-                      </Label>
-                      <Input
-                        id="logo-upload"
-                        type="file"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={handleLogoUpload}
-                      />
-                      <p className="text-xs text-gray-500 mt-1">Recommended: Square, PNG or JPG.</p>
-                    </div>
+                  <Label htmlFor="timezone">Timezone *</Label>
+                  <Select
+                    value={formData.timezone}
+                    onValueChange={(val) => handleInputChange("timezone", val)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Timezone" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {timezones.map((tz) => (
+                        <SelectItem key={tz} value={tz}>{tz}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Logo upload temporarily disabled - will be available in edit page */}
+                <div className="space-y-2">
+                  <Label className="text-gray-500">Clinic Logo</Label>
+                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                    <p className="text-sm text-blue-800 dark:text-blue-300 flex items-center gap-2">
+                      <Upload className="h-4 w-4" />
+                      Logo upload will be available after creating the clinic. You can add it by editing the clinic.
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -385,95 +353,58 @@ export default function AddClinicPage() {
             </Card>
           </div>
 
-          {/* Section 3: Owner / Admin */}
+          {/* Section 3: Owner Details */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-1">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                 <User className="h-5 w-5 text-[#1DA68F]" />
-                Administrator
+                Owner Details
               </h3>
               <p className="text-sm text-gray-500 mt-2">
-                Create the main administrator account for this clinic.
+                Contact information for the clinic owner.
               </p>
             </div>
 
             <Card className="lg:col-span-2 border-gray-200 dark:border-gray-700 shadow-sm">
               <CardContent className="p-6 space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="ownerFirstName">First Name *</Label>
-                    <Input
-                      id="ownerFirstName"
-                      value={formData.ownerFirstName}
-                      onChange={(e) => handleInputChange("ownerFirstName", e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="ownerLastName">Last Name *</Label>
-                    <Input
-                      id="ownerLastName"
-                      value={formData.ownerLastName}
-                      onChange={(e) => handleInputChange("ownerLastName", e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="ownerEmail">Owner Email *</Label>
-                    <Input
-                      id="ownerEmail"
-                      type="email"
-                      value={formData.ownerEmail}
-                      onChange={(e) => handleInputChange("ownerEmail", e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="ownerPhone">Owner Phone</Label>
-                    <Input
-                      id="ownerPhone"
-                      type="tel"
-                      value={formData.ownerPhone}
-                      onChange={(e) => handleInputChange("ownerPhone", e.target.value)}
-                    />
-                  </div>
-                </div>
-
                 <div className="space-y-2">
-                  <Label htmlFor="ownerPassword">Password *</Label>
+                  <Label htmlFor="ownerName">Owner Name *</Label>
                   <Input
-                    id="ownerPassword"
-                    type="password"
-                    placeholder="••••••••"
-                    minLength={6}
-                    value={formData.ownerPassword}
-                    onChange={(e) => handleInputChange("ownerPassword", e.target.value)}
+                    id="ownerName"
+                    placeholder="e.g. Dr. John Smith"
+                    value={formData.ownerName}
+                    onChange={(e) => handleInputChange("ownerName", e.target.value)}
                     required
                   />
                 </div>
-
-                <div className="flex items-start space-x-2 pt-2">
-                  <Checkbox
-                    id="hipaaConsent"
-                    checked={formData.hipaaConsent}
-                    onCheckedChange={(c) => handleInputChange("hipaaConsent", c === true)}
-                  />
-                  <div className="grid gap-1.5 leading-none">
-                    <Label
-                      htmlFor="hipaaConsent"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      I confirm I have obtained HIPAA consent from this user.
-                    </Label>
-                    <p className="text-sm text-muted-foreground">
-                      This user will be created as a generic clinic_admin.
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Owner Email *</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="owner@clinic.com"
+                      value={formData.email}
+                      onChange={(e) => handleInputChange("email", e.target.value)}
+                      required
+                    />
+                    <p className="text-xs text-gray-500">
+                      Must be unique - cannot use existing clinic email
                     </p>
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Owner Phone *</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      placeholder="+1 (555) 123-4567"
+                      value={formData.phone}
+                      onChange={(e) => handleInputChange("phone", e.target.value)}
+                      required
+                    />
+                  </div>
                 </div>
-
               </CardContent>
             </Card>
           </div>
@@ -492,7 +423,7 @@ export default function AddClinicPage() {
               ) : (
                 <>
                   <Save className="h-4 w-4 mr-2" />
-                  Create Records
+                  Create Clinic
                 </>
               )}
             </Button>
