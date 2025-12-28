@@ -5,12 +5,13 @@ import { Textarea } from "@/components/ui/textarea"
 import type React from "react"
 
 import { ProtectedRoute } from "@/components/ui/protected-route"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import { useRouter } from "next/navigation"
-// import { createAppointment } from "@/lib/slices/appointmentSlice"
-// import type { Appointment } from "@/lib/api/services/appointmentService"
-import type { RootState } from "@/lib/store"
+import { useRouter, useSearchParams } from "next/navigation"
+import { createAppointment } from "@/lib/slices/appointmentSlice"
+import { fetchPatients } from "@/lib/slices/patientSlice"
+import type { CreateAppointmentRequest } from "@/lib/api/services/appointmentService"
+import type { RootState, AppDispatch } from "@/lib/store"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
@@ -20,18 +21,24 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format } from "date-fns"
 import { CalendarIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { doctorService } from "@/lib/api/services/doctorService"
 
 export default function BookAppointmentPage() {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch<AppDispatch>()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { patients } = useSelector((state: RootState) => state.patients)
   const { doctors } = useSelector((state: RootState) => state.doctors)
   const { user } = useSelector((state: RootState) => state.auth)
 
+  // Get date from URL parameter if provided
+  const dateParam = searchParams.get('date')
+  const initialDate = dateParam ? new Date(dateParam) : new Date()
+
   const [formData, setFormData] = useState({
     patientId: "",
-    doctorId: user?.role === "doctor" ? user.id : "", // Pre-fill if doctor
-    date: new Date(),
+    doctorId: "", // Will be set based on user
+    date: initialDate,
     time: "",
     type: "",
     notes: "",
@@ -39,8 +46,32 @@ export default function BookAppointmentPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
+  const [doctorMongoId, setDoctorMongoId] = useState<string>("")
 
   const appointmentTypes = ["Consultation", "Follow-up", "Emergency", "Check-up"]
+
+  // Fetch patients on mount
+  useEffect(() => {
+    dispatch(fetchPatients())
+  }, [dispatch])
+
+  // Fetch current doctor's MongoDB ID from the backend
+  useEffect(() => {
+    const fetchDoctorProfile = async () => {
+      if (user?.role === "doctor" && !formData.doctorId) {
+        try {
+          const response = await doctorService.getCurrentDoctor()
+          if (response.success && response.data.user.id) {
+            setFormData(prev => ({ ...prev, doctorId: response.data.user.id }))
+            setDoctorMongoId(response.data.user.id)
+          }
+        } catch (error) {
+          console.error("Failed to fetch doctor profile:", error)
+        }
+      }
+    }
+    fetchDoctorProfile()
+  }, [user, formData.doctorId])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -63,54 +94,44 @@ export default function BookAppointmentPage() {
     setSuccess("")
 
     // Basic validation
-    if (!formData.patientId || !formData.doctorId || !formData.date || !formData.time || !formData.type) {
-      setError("Please fill in all required fields.")
+    if (!formData.patientId || !formData.doctorId || !formData.date || !formData.time) {
+      setError(`Please fill in all required fields. Missing: ${!formData.patientId ? 'Patient ' : ''}${!formData.doctorId ? 'Doctor ' : ''}${!formData.date ? 'Date ' : ''}${!formData.time ? 'Time' : ''}`)
       setLoading(false)
       return
     }
 
-    const selectedPatient = patients.find((p) => p.id === formData.patientId)
-    const selectedDoctor = doctors.find((d) => d.id === formData.doctorId)
+    // Combine date and time into ISO datetime string
+    const dateStr = format(formData.date, "yyyy-MM-dd")
+    const dateTime = new Date(`${dateStr}T${formData.time}:00`).toISOString()
 
-    if (!selectedPatient || !selectedDoctor) {
-      setError("Invalid patient or doctor selected.")
-      setLoading(false)
-      return
+    const appointmentData: CreateAppointmentRequest = {
+      doctorId: formData.doctorId,
+      patientId: formData.patientId,
+      dateTime: dateTime,
+      status: "scheduled",
+      notes: formData.notes || undefined,
     }
 
-    // const newAppointment: Appointment = {
-    //   id: `apt${Date.now()}`,
-    //   patientId: formData.patientId,
-    //   patientName: selectedPatient.name,
-    //   patientAvatar: selectedPatient.avatar,
-    //   doctorId: formData.doctorId,
-    //   doctorName: selectedDoctor.name,
-    //   date: formData.date.toISOString().split("T")[0], // YYYY-MM-DD
-    //   time: formData.time,
-    //   type: formData.type,
-    //   status: "scheduled", // Default status
-    //   notes: formData.notes,
-    // }
-
-    // try {
-    //   await dispatch(createAppointment(newAppointment)).unwrap()
-    //   setSuccess("Appointment booked successfully!")
-    //   setFormData({
-    //     patientId: "",
-    //     doctorId: user?.role === "doctor" ? user.id : "",
-    //     date: new Date(),
-    //     time: "",
-    //     type: "",
-    //     notes: "",
-    //   })
-    //   setTimeout(() => {
-    //     router.push(user?.role === "patient" ? "/patient/appointments" : "/doctor/appointments")
-    //   }, 1500)
-    // } catch (err) {
-    //   setError("Failed to book appointment. Please try again.")
-    // } finally {
-    //   setLoading(false)
-    // }
+    try {
+      const result = await dispatch(createAppointment(appointmentData)).unwrap()
+      setSuccess("Appointment booked successfully!")
+      setFormData({
+        patientId: "",
+        doctorId: user?.role === "doctor" ? user.id : "",
+        date: new Date(),
+        time: "",
+        type: "",
+        notes: "",
+      })
+      setTimeout(() => {
+        router.push(user?.role === "patient" ? "/patient/appointments" : "/doctor/appointments")
+      }, 1500)
+    } catch (err: any) {
+      console.error('Appointment creation error:', err) // Debug log
+      setError(err?.message || err || "Failed to book appointment. Please try again.")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -139,11 +160,17 @@ export default function BookAppointmentPage() {
                   <SelectValue placeholder="Select a patient" />
                 </SelectTrigger>
                 <SelectContent>
-                  {patients.map((patient) => (
-                    <SelectItem key={patient.id} value={patient.id}>
-                      {patient.firstName} {patient.lastName}
-                    </SelectItem>
-                  ))}
+                  {patients && patients.length > 0 ? (
+                    patients.map((patient) => (
+                      <SelectItem key={patient.id} value={patient.id}>
+                        {patient.firstName} {patient.lastName}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <div className="px-2 py-1.5 text-sm text-[hsl(var(--muted-foreground))]">
+                      No patients available
+                    </div>
+                  )}
                 </SelectContent>
               </Select>
             </div>

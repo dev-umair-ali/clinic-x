@@ -13,8 +13,8 @@ export interface Appointment {
 }
 
 export interface CreateAppointmentRequest {
-  doctor: string;
-  patient: string;
+  doctorId: string;
+  patientId: string;
   dateTime: string;
   status?: "scheduled" | "completed" | "cancelled";
   notes?: string;
@@ -206,8 +206,8 @@ export const appointmentService = {
 
   async createAppointment(appointmentData: CreateAppointmentRequest): Promise<AppointmentResponse> {
     // Validate required fields
-    if (!appointmentData.doctor || !appointmentData.patient || !appointmentData.dateTime) {
-      throw new Error('Missing required fields: doctor, patient, and dateTime are required');
+    if (!appointmentData.doctorId || !appointmentData.patientId || !appointmentData.dateTime) {
+      throw new Error('Missing required fields: doctorId, patientId, and dateTime are required');
     }
     
     // Validate dateTime format
@@ -275,6 +275,78 @@ export const appointmentService = {
     }
   },
 
+  async cancelAppointment(id: string): Promise<AppointmentResponse> {
+    if (!id || typeof id !== 'string' || id.trim() === '') {
+      throw new Error('Invalid appointment ID provided');
+    }
+    
+    try {
+      // Use the doctor-specific status update endpoint
+      const response = await api.put(`/doctors/appointments/updatestatus/${id}`, {
+        status: 'cancelled'
+      });
+      
+      if (!response || !response.data) {
+        throw new Error('Invalid response from server');
+      }
+      
+      validateResponse(response.data, ['success']);
+      
+      if (!response.data.success) {
+        throw new Error(response.data.message || 'Failed to cancel appointment');
+      }
+      
+      return response.data;
+    } catch (error: any) {
+      const errorMessage = formatError(error, 'Failed to cancel appointment');
+      const enhancedError = new Error(errorMessage);
+      (enhancedError as any).originalError = error;
+      (enhancedError as any).status = error.response?.status;
+      throw enhancedError;
+    }
+  },
+
+  async rescheduleAppointment(id: string, dateTime: string, notes?: string): Promise<AppointmentResponse> {
+    if (!id || typeof id !== 'string' || id.trim() === '') {
+      throw new Error('Invalid appointment ID provided');
+    }
+    
+    if (!dateTime || isNaN(new Date(dateTime).getTime())) {
+      throw new Error('Invalid dateTime format');
+    }
+    
+    try {
+      // Parse dateTime into date and time for the backend
+      const dt = new Date(dateTime);
+      const date = dt.toISOString().split('T')[0]; // YYYY-MM-DD
+      const time = dt.toTimeString().split(' ')[0].substring(0, 5); // HH:MM
+      
+      const response = await api.put(`/doctors/appointments/updatestatus/${id}`, {
+        date,
+        time,
+        status: 'rescheduled' // Backend expects 'rescheduled' status for date/time updates
+      });
+      
+      if (!response || !response.data) {
+        throw new Error('Invalid response from server');
+      }
+      
+      validateResponse(response.data, ['success']);
+      
+      if (!response.data.success) {
+        throw new Error(response.data.message || 'Failed to reschedule appointment');
+      }
+      
+      return response.data;
+    } catch (error: any) {
+      const errorMessage = formatError(error, 'Failed to reschedule appointment');
+      const enhancedError = new Error(errorMessage);
+      (enhancedError as any).originalError = error;
+      (enhancedError as any).status = error.response?.status;
+      throw enhancedError;
+    }
+  },
+
   async deleteAppointment(id: string): Promise<{ success: boolean; message?: string }> {
     if (!id || typeof id !== 'string' || id.trim() === '') {
       throw new Error('Invalid appointment ID provided');
@@ -298,9 +370,14 @@ export const appointmentService = {
   },
 
   // Doctor-specific appointment methods
-  async getDoctorAppointmentsCalendar(): Promise<DoctorAppointmentsListResponse> {
+  async getDoctorAppointmentsCalendar(startDate?: string, endDate?: string): Promise<DoctorAppointmentsListResponse> {
     try {
-      const response = await api.get('/doctors/appointments/calendar');
+      const params = new URLSearchParams();
+      if (startDate) params.append('startDate', startDate);
+      if (endDate) params.append('endDate', endDate);
+      
+      const url = `/doctors/appointments/calendar${params.toString() ? `?${params.toString()}` : ''}`;
+      const response = await api.get(url);
       
       if (!response || !response.data) {
         throw new Error('Invalid response from server');

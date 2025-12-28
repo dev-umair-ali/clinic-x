@@ -16,21 +16,6 @@ export default function ViewToggle({
     <div className="flex gap-2 sm:gap-4">
       <button
         onClick={() => {
-          setViewMode("calendar");
-          onCalendar();
-        }}
-        className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors border flex-1 sm:flex-none justify-center ${
-          viewMode === "calendar"
-            ? "bg-[hsl(var(--card))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]"
-            : "bg-[hsl(var(--card))] text-[hsl(var(--muted-foreground))] border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))]"
-        }`}
-      >
-        <Calendar className="h-4 w-4" />
-        <span className="hidden sm:inline">Calendar View</span>
-        <span className="sm:hidden">Calendar</span>
-      </button>
-      <button
-        onClick={() => {
           setViewMode("list");
           onList();
         }}
@@ -43,6 +28,21 @@ export default function ViewToggle({
         <List className="h-4 w-4" />
         <span className="hidden sm:inline">Appointment List View</span>
         <span className="sm:hidden">List View</span>
+      </button>
+      <button
+        onClick={() => {
+          setViewMode("calendar");
+          onCalendar();
+        }}
+        className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors border flex-1 sm:flex-none justify-center ${
+          viewMode === "calendar"
+            ? "bg-[hsl(var(--card))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]"
+            : "bg-[hsl(var(--card))] text-[hsl(var(--muted-foreground))] border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))]"
+        }`}
+      >
+        <Calendar className="h-4 w-4" />
+        <span className="hidden sm:inline">Calendar View</span>
+        <span className="sm:hidden">Calendar</span>
       </button>
     </div>
   );

@@ -10,6 +10,8 @@ export interface User {
   role: "admin" | "doctor" | "patient" | "receptionist" | "clinic";
   profilePicture?: string;
   hasCompletedOnboarding?: boolean;
+  doctorId?: string; // MongoDB doctor ID for doctor users
+  _id?: string; // MongoDB user ID
 }
 
 interface AuthState {

@@ -77,13 +77,14 @@ export default function useAppointments(
     }
   };
 
-  const fetchCalendar = async () => {
+  const fetchCalendar = async (startDate?: string, endDate?: string) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await appointmentService.getDoctorAppointmentsCalendar();
+      const res = await appointmentService.getDoctorAppointmentsCalendar(startDate, endDate);
       if (res?.success && res.data) {
-        setAppointments(Array.isArray(res.data) ? res.data : []);
+        const appts = Array.isArray(res.data) ? res.data : [];
+        setAppointments(appts);
       } else {
         setAppointments([]);
         setError(res?.message || "No calendar appointments found");
@@ -130,7 +131,7 @@ export default function useAppointments(
   };
 
   const createAppointment = async (data: CreateAppointmentRequest) => {
-    if (!data.doctor || !data.patient || !data.dateTime) throw new Error("Missing required fields");
+    if (!data.doctorId || !data.patientId || !data.dateTime) throw new Error("Missing required fields");
     const res = await appointmentService.createAppointment(data);
     if (res?.success) return;
     throw new Error(res?.message || "Failed to create appointment");

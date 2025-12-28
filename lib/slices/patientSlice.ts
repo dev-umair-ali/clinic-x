@@ -219,7 +219,7 @@ const patientSlice = createSlice({
               dateOfBirth: patient.dateOfBirth || '',
               gender: patient.gender || 'male',
               bloodType: patient.bloodType || '',
-              assignedDoctor: patient.assignedDoctor || '',
+              assignedDoctor: Array.isArray(patient.assignedDoctor) ? patient.assignedDoctor[0] || '' : patient.assignedDoctor || '',
               insuranceInfo: patient.insuranceInfo || '',
               medicalHistory: patient.medicalHistory || '',
               address: patient.address || '',

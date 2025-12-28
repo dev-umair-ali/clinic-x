@@ -185,8 +185,9 @@ export interface PatientsListResponse {
 export const patientService = {
   async getPatients(): Promise<PatientsListResponse> {
     try {
-
-      const response = await api.get('/admin/patients');
+      // Use /doctors/patients for doctors, which filters by assigned doctor
+      const endpoint = '/doctors/patients';
+      const response = await api.get(endpoint);
       return response.data;
     } catch (error: any) {
       throw error;

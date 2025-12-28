@@ -107,6 +107,15 @@ export interface DoctorsListResponse {
 }
 
 export const doctorService = {
+  async getCurrentDoctor(): Promise<DoctorResponse> {
+    try {
+      const response = await api.get('/doctors/me');
+      return response.data;
+    } catch (error: any) {
+      throw error;
+    }
+  },
+
   async getDoctors(): Promise<DoctorsListResponse> {
     try {
       
