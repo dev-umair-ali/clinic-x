@@ -19,9 +19,8 @@ export default function useAppointments(
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
-    if (viewMode === "calendar") {
-      fetchCalendar();
-    } else {
+    // Only auto-fetch for list view - calendar view is fetched manually with date range
+    if (viewMode === "list") {
       fetchList();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

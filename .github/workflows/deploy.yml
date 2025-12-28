@@ -36,6 +36,7 @@ jobs:
             rm -rf .next
 
             echo "Building Next.js app..."
+            npm i sharp
             npm run build
 
             echo "Restarting app with PM2..."

@@ -236,7 +236,6 @@ export default function CalendarView({
         selectedDate={selectedDate}
         doctorId={doctorId}
         onSuccess={() => {
-          setBookingModalOpen(false);
           if (onAppointmentChange) {
             onAppointmentChange();
           }
@@ -248,7 +247,6 @@ export default function CalendarView({
         onClose={() => setDetailsModalOpen(false)}
         appointment={selectedAppointment}
         onSuccess={() => {
-          setDetailsModalOpen(false);
           if (onAppointmentChange) {
             onAppointmentChange();
           }

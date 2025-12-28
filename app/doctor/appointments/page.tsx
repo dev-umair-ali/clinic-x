@@ -3,7 +3,7 @@ import { ProtectedRoute } from "@/components/ui/protected-route";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/lib/store";
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { Calendar, List } from "lucide-react";
 import StatsCards from "@/components/DoctorAppointments-components/StatsCards";
 import ViewToggle from "@/components/DoctorAppointments-components/ViewToggle";
@@ -42,6 +42,10 @@ export default function DoctorAppointments() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<DoctorAppointment | null>(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  
+  // Track if initial fetch has been done and last fetched month for calendar
+  const initialFetchDone = useRef(false);
+  const lastFetchedCalendarMonth = useRef<string>("");
 
   // Helper to get month date range - wrapped in useCallback
   const getMonthRange = useCallback((date: Date) => {
@@ -69,20 +73,32 @@ export default function DoctorAppointments() {
   const stats = useStats(appointments);
 
   useEffect(() => {
-    if (authUser?.id && appointments.length === 0 && !loading) {
-      fetchAppointmentListView(authUser.id);
+    if (authUser?.id && appointments.length === 0 && !loading && !initialFetchDone.current) {
+      initialFetchDone.current = true;
+      fetchList();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authUser?.id]);
 
   // Fetch appointments when view mode or month changes
   useEffect(() => {
+    if (!authUser?.id) return;
+    
     if (viewMode === "calendar") {
       const { startDate, endDate } = getMonthRange(currentMonth);
-      fetchCalendar(startDate, endDate);
+      const monthKey = `${currentMonth.getFullYear()}-${currentMonth.getMonth()}`;
+      
+      // Only fetch if this month hasn't been fetched yet
+      if (lastFetchedCalendarMonth.current !== monthKey) {
+        lastFetchedCalendarMonth.current = monthKey;
+        fetchCalendar(startDate, endDate);
+      }
     } else {
-      if (authUser?.id) {
-        fetchAppointmentListView(authUser.id);
+      // In list view, fetchList will be triggered by the hook's useEffect based on selectedFilter
+      // Only fetch if appointments are empty and initial fetch hasn't been done
+      if (appointments.length === 0 && !initialFetchDone.current) {
+        initialFetchDone.current = true;
+        fetchList();
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -151,9 +167,11 @@ export default function DoctorAppointments() {
     if (authUser?.id) {
       if (viewMode === "calendar") {
         const { startDate, endDate } = getMonthRange(currentMonth);
+        const monthKey = `${currentMonth.getFullYear()}-${currentMonth.getMonth()}`;
+        lastFetchedCalendarMonth.current = monthKey;
         fetchCalendar(startDate, endDate);
       } else {
-        fetchAppointmentListView(authUser.id);
+        fetchList();
       }
     }
   };

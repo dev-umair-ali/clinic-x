@@ -25,7 +25,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={inter.variable} suppressHydrationWarning>
-      <body className="font-sans min-h-screen overflow-x-hidden antialiased">
+      <body className="font-sans min-h-screen overflow-x-hidden antialiased" suppressHydrationWarning>
         <ReduxProvider>
           <ThemeProvider>
             <MainLayoutWrapper>{children}</MainLayoutWrapper>

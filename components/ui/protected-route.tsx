@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/lib/store";
@@ -20,8 +20,15 @@ export function ProtectedRoute({
   const { isAuthenticated, user } = useSelector(
     (state: RootState) => state.auth
   );
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return;
+    
     if (!isAuthenticated) {
       router.push("/login");
       return;
@@ -39,7 +46,12 @@ export function ProtectedRoute({
       router.push(dashboardRoutes[user.role]);
       return;
     }
-  }, [isAuthenticated, user, allowedRoles, router]);
+  }, [isMounted, isAuthenticated, user, allowedRoles, router]);
+
+  // Render loading state until client-side is mounted
+  if (!isMounted) {
+    return <div suppressHydrationWarning><div>Loading...</div></div>;
+  }
 
   if (
     !isAuthenticated ||

@@ -41,25 +41,27 @@ const loadState = () => {
   }
 }
 
-// Create store with preloaded state
+// Create store - only load persisted state on client side
 export const store = configureStore({
   reducer: rootReducer,
-  preloadedState: loadState(),
+  preloadedState: typeof window !== "undefined" ? loadState() : undefined,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: false, // Disable if needed
     }),
 })
 
-// Save state to localStorage on every change
-store.subscribe(() => {
-  try {
-    const state = store.getState()
-    localStorage.setItem("clinic-ai-state", JSON.stringify(state))
-  } catch (error) {
-    console.error("Error saving state to localStorage:", error)
-  }
-})
+// Save state to localStorage on every change (client-side only)
+if (typeof window !== "undefined") {
+  store.subscribe(() => {
+    try {
+      const state = store.getState()
+      localStorage.setItem("clinic-ai-state", JSON.stringify(state))
+    } catch (error) {
+      console.error("Error saving state to localStorage:", error)
+    }
+  })
+}
 
 export type RootState = ReturnType<typeof store.getState>
 export type AppDispatch = typeof store.dispatch

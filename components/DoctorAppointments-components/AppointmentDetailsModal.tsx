@@ -132,8 +132,11 @@ export default function AppointmentDetailsModal({
         variant: "default",
       })
       
-      // Call onSuccess and let parent handle closing
-      onSuccess?.()
+      // Call onSuccess first (parent will refresh data), then close
+      if (onSuccess) {
+        onSuccess();
+      }
+      onClose()
     } catch (err: any) {
       setError(err?.message || "Failed to update appointment. Please try again.")
       
@@ -169,9 +172,12 @@ export default function AppointmentDetailsModal({
         variant: "default",
       })
       
-      // Call onSuccess and let parent handle closing
-      onSuccess?.()
+      // Call onSuccess first (parent will refresh data)
+      if (onSuccess) {
+        onSuccess();
+      }
       setShowCancelDialog(false)
+      onClose()
     } catch (err: any) {
       setError(err?.message || "Failed to cancel appointment. Please try again.")
       setShowCancelDialog(false)

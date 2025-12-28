@@ -99,8 +99,11 @@ export default function AppointmentBookingModal({
         variant: "default",
       })
       
-      // Call onSuccess and let parent handle closing
-      onSuccess?.()
+      // Call onSuccess first (parent will refresh data), then close
+      if (onSuccess) {
+        onSuccess();
+      }
+      onClose()
     } catch (err: any) {
       console.error("Appointment creation error:", err);
       setError(err?.message || "Failed to book appointment. Please try again.")

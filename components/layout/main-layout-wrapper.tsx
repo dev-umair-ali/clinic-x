@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { usePathname } from "next/navigation"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/layout/app-sidebar"
@@ -13,11 +13,21 @@ export function MainLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const dispatch = useDispatch()
   const isAuthPage = pathname === "/login" || pathname === "/signup"
+  const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
+    setIsMounted(true)
     // Initialize auth state and set axios headers
     dispatch(initializeAuth());
   }, [dispatch]);
+
+  // Prevent hydration mismatch by rendering simple version on server
+  if (!isMounted) {
+    if (isAuthPage) {
+      return <div suppressHydrationWarning>{children}</div>
+    }
+    return <div suppressHydrationWarning>{children}</div>
+  }
 
   if (isAuthPage) {
     return <>{children}</>

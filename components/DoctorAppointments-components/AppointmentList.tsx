@@ -59,16 +59,34 @@ export default function AppointmentList(props: Props) {
     let f = [...appointments];
     if (selectedFilter === "Upcoming") {
       const now = new Date();
-      f = f.filter((a) => new Date(a.dateTime) >= now && a.status !== "cancelled");
+      f = f.filter((a) => {
+        const dateTime = a.dateTime || a.date;
+        if (!dateTime) return false;
+        const appointmentDate = new Date(dateTime);
+        return appointmentDate >= now && a.status !== "cancelled" && !isNaN(appointmentDate.getTime());
+      });
     } else if (selectedFilter === "Canceled") {
       f = f.filter((a) => a.status === "cancelled");
     }
-    f.sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
+    f.sort((a, b) => {
+      const dateA = new Date((a.dateTime || a.date) as string);
+      const dateB = new Date((b.dateTime || b.date) as string);
+      return dateA.getTime() - dateB.getTime();
+    });
     return f;
   }, [appointments, selectedFilter]);
 
-  const formatDate = (d: string) => new Date(d).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
-  const formatTime = (d: string) => new Date(d).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+  const formatDate = (d: string | undefined) => {
+    if (!d) return "N/A";
+    const date = new Date(d);
+    return isNaN(date.getTime()) ? "Invalid Date" : date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+  };
+  
+  const formatTime = (d: string | undefined) => {
+    if (!d) return "";
+    const date = new Date(d);
+    return isNaN(date.getTime()) ? "" : date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+  };
 
   return (
     <div className="bg-[hsl(var(--card))] rounded-lg border border-[hsl(var(--border))]">
@@ -143,7 +161,7 @@ export default function AppointmentList(props: Props) {
                         {a.patientName || (typeof a.patient === 'object' ? a.patient?.name : null) || "Patient"}
                       </button>
                       <p className="text-sm text-[hsl(var(--muted-foreground))]">
-                        {formatDate(a.dateTime)} {formatTime(a.dateTime)}
+                        {formatDate(a.dateTime || a.date)} {formatTime(a.dateTime || a.date)}
                       </p>
                     </div>
                     <DropdownMenu>
@@ -203,7 +221,7 @@ export default function AppointmentList(props: Props) {
                   {filtered.map((a) => (
                     <tr key={a._id} className="hover:bg-[hsl(var(--muted)/0.5)]">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-[hsl(var(--foreground))]">
-                        {formatDate(a.dateTime)} {formatTime(a.dateTime)}
+                        {formatDate(a.dateTime || a.date)} {formatTime(a.dateTime || a.date)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <button
