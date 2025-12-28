@@ -206,7 +206,7 @@ export default function Onboarding() {
   };
 
   return (
-    <ProtectedRoute allowedRoles={['receptionist', 'clinic']}>
+    <ProtectedRoute allowedRoles={['receptionist', 'clinic', 'patient']}>
       <AuthContext.Provider value={{ user }}>   {/* expose user to hook */}
         <div className="min-h-screen bg-[hsl(var(--background))]">
           {/* Header */}
