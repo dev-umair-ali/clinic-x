@@ -3,6 +3,7 @@
 import { Textarea } from "@/components/ui/textarea"
 
 import type React from "react"
+import { Suspense } from "react"
 
 import { ProtectedRoute } from "@/components/ui/protected-route"
 import { useState, useEffect } from "react"
@@ -23,7 +24,7 @@ import { CalendarIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { doctorService } from "@/lib/api/services/doctorService"
 
-export default function BookAppointmentPage() {
+function BookAppointmentForm() {
   const dispatch = useDispatch<AppDispatch>()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -127,7 +128,7 @@ export default function BookAppointmentPage() {
         router.push(user?.role === "patient" ? "/patient/appointments" : "/doctor/appointments")
       }, 1500)
     } catch (err: any) {
-      console.error('Appointment creation error:', err) // Debug log
+      console.error('Appointment creation error:', err)
       setError(err?.message || err || "Failed to book appointment. Please try again.")
     } finally {
       setLoading(false)
@@ -260,5 +261,32 @@ export default function BookAppointmentPage() {
         </div>
       </div>
     </ProtectedRoute>
+  )
+}
+
+export default function BookAppointmentPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex-1 overflow-y-auto p-6 bg-[hsl(var(--background))]">
+        <div className="max-w-7xl mx-auto h-full">
+          <h1 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-6">Book New Appointment</h1>
+          <div className="p-6 bg-[hsl(var(--card))] rounded-lg shadow-sm border border-[hsl(var(--border))]">
+            <div className="animate-pulse space-y-6">
+              <div className="h-10 bg-[hsl(var(--muted))] rounded"></div>
+              <div className="h-10 bg-[hsl(var(--muted))] rounded"></div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="h-10 bg-[hsl(var(--muted))] rounded"></div>
+                <div className="h-10 bg-[hsl(var(--muted))] rounded"></div>
+              </div>
+              <div className="h-10 bg-[hsl(var(--muted))] rounded"></div>
+              <div className="h-24 bg-[hsl(var(--muted))] rounded"></div>
+              <div className="h-10 bg-[hsl(var(--muted))] rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }>
+      <BookAppointmentForm />
+    </Suspense>
   )
 }
