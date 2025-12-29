@@ -139,7 +139,7 @@ export default function AddPatientStyled() {
     formData.append("file", file);
 
     // Get the authentication token from localStorage
-    const token = localStorage.getItem("receptionist-ai-token");
+    const token = localStorage.getItem("assistant-ai-token");
 
     if (!token) {
       toast.error("No authentication token found. Please login again.");
@@ -266,7 +266,7 @@ export default function AddPatientStyled() {
     //     setIsLoading(false)
     //     toast.success("Patient added successfully!")
     //     await dispatch(fetchPatients())
-    router.push(`/receptionist/patients/onboarding`);
+    router.push(`/assistant/patients/onboarding`);
     //   }
     // } catch (err: any) {
     //   toast.error(err)
@@ -275,7 +275,7 @@ export default function AddPatientStyled() {
   };
 
   return (
-    <ProtectedRoute allowedRoles={["receptionist"]}>
+    <ProtectedRoute allowedRoles={["assistant"]}>
       <div className="min-h-screen bg-gradient-to-br from-[hsl(var(--background))] via-[hsl(var(--secondary)/0.2)] to-[hsl(var(--primary)/0.05)]">
         <ToastContainer />
         <div className="flex-1 overflow-y-auto p-4 sm:p-6">

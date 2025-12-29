@@ -47,7 +47,7 @@ export default function BookStep(props: Props) {
     <Button
   variant="ghost"
   size="sm"
-  onClick={() => router.push("/receptionist/appointments")}
+  onClick={() => router.push("/assistant/appointments")}
   className="flex items-center gap-1 text-sm text-white
              bg-[hsl(var(--color-brand-teal-light))] hover:bg-[hsl(var(--color-brand-teal-light))/80]
              dark:bg-[hsl(var(--color-brand-teal-light))] dark:hover:bg-[hsl(var(--color-brand-teal-light))/80]"

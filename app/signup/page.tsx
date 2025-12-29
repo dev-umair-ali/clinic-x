@@ -62,7 +62,7 @@ export default function SignupPage() {
         admin: "/admin/dashboard",
         doctor: "/doctor/dashboard",
         patient: "/patient/dashboard",
-        receptionist: "/receptionist/dashboard",
+        assistant: "/assistant/dashboard",
         clinic: "/clinic/dashboard",
       };
       router.push(dashboardRoutes[result.user.role]);

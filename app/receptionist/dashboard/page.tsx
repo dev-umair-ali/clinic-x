@@ -127,14 +127,14 @@ export default function AdminDashboard() {
             </div>
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
               {/* <button
-                onClick={() => handleNavigation("/receptionist/patients/add")}
+                onClick={() => handleNavigation("/assistant/patients/add")}
                 className="bg-white dark:bg-gray-800 text-teal-600 dark:text-teal-400 px-4 py-2 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 <Plus className="w-4 h-4" />
                 Add Doctor
               </button> */}
               <button
-                onClick={() => handleNavigation("/receptionist/patients/add")}
+                onClick={() => handleNavigation("/assistant/patients/add")}
                 className="bg-white dark:bg-gray-800 text-teal-600 dark:text-teal-400 px-4 py-2 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 <Plus className="w-4 h-4" />

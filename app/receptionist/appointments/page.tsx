@@ -270,7 +270,7 @@ export default function PatientAppointmentsPage() {
   }
 
   return (
-    <ProtectedRoute allowedRoles={["receptionist"]}>
+    <ProtectedRoute allowedRoles={["assistant"]}>
       <div className="min-h-screen bg-[hsl(var(--color-gray-50))] dark:bg-[hsl(var(--background))]">
         <div className="px-6 py-6">
           <div className="max-w-7xl mx-auto space-y-6">
@@ -284,7 +284,7 @@ export default function PatientAppointmentsPage() {
                 </p>
               </div>
               <Button
-                onClick={() => router.push("/receptionist/appointments/book")}
+                onClick={() => router.push("/assistant/appointments/book")}
                 className="bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2"
               >
                 <Plus className="h-4 w-4" />

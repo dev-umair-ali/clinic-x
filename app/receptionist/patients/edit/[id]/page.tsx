@@ -157,7 +157,7 @@ export default function EditPatientPage() {
     formData.append('file', file);
 
     // Get the authentication token from localStorage
-    const token = localStorage.getItem('receptionist-ai-token');
+    const token = localStorage.getItem('assistant-ai-token');
 
     if (!token) {
       toast.error('No authentication token found. Please login again.');
@@ -293,7 +293,7 @@ export default function EditPatientPage() {
 
   if (loading) {
     return (
-      <ProtectedRoute allowedRoles={["receptionist"]}>
+      <ProtectedRoute allowedRoles={["assistant"]}>
         <div className="flex-1 overflow-y-auto p-6 bg-[hsl(var(--color-gray-50))] dark:bg-[hsl(var(--background))]">
           <div className="max-w-4xl mx-auto">
             <div className="flex items-center justify-center h-64">
@@ -310,13 +310,13 @@ export default function EditPatientPage() {
 
   if (!patient) {
     return (
-      <ProtectedRoute allowedRoles={["receptionist"]}>
+      <ProtectedRoute allowedRoles={["assistant"]}>
         <div className="flex-1 overflow-y-auto p-6 bg-[hsl(var(--color-gray-50))] dark:bg-[hsl(var(--background))]">
           <div className="max-w-4xl mx-auto">
             <div className="flex items-center justify-center h-64">
               <div className="text-center">
                 <p className="text-[hsl(var(--muted-foreground))] mb-4">Patient not found</p>
-                <Button onClick={() => router.push("/receptionist/patients")}>
+                <Button onClick={() => router.push("/assistant/patients")}>
                   Back to Patients
                 </Button>
               </div>
@@ -328,7 +328,7 @@ export default function EditPatientPage() {
   }
 
   return (
-    <ProtectedRoute allowedRoles={["receptionist"]}>
+    <ProtectedRoute allowedRoles={["assistant"]}>
       <div className="min-h-screen bg-gradient-to-br from-[hsl(var(--background))] via-[hsl(var(--secondary))]/20 to-[hsl(var(--primary))]/5 dark:from-[hsl(var(--background))] dark:via-[hsl(var(--card))]/20 dark:to-[hsl(var(--primary))]/10">
         <ToastContainer />
         <div className="flex-1 overflow-y-auto p-4 sm:p-6">

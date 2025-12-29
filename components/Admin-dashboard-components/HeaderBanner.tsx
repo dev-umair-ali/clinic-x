@@ -24,13 +24,13 @@ const BANNER_CONFIG: Record<
       { label: "Add Patient", path: "/admin/patients/add" },
     ],
   },
-  receptionist: {
+  assistant: {
     buttons: [
       {
         label: "Add Doctor",
-        path: "/receptionist/doctors/add",
+        path: "/assistant/doctors/add",
       },
-      { label: "Add Patient", path: "/receptionist/patients/add" },
+      { label: "Add Patient", path: "/assistant/patients/add" },
     ],
   },
   clinic: {

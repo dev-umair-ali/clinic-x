@@ -9,7 +9,7 @@ import type { RootState } from "@/lib/store";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  allowedRoles?: ("admin" | "doctor" | "patient"| "receptionist" | "clinic")[];
+  allowedRoles?: ("admin" | "doctor" | "patient"| "assistant" | "clinic")[];
 }
 
 export function ProtectedRoute({
@@ -40,7 +40,7 @@ export function ProtectedRoute({
         admin: "/admin/dashboard",
         doctor: "/doctor/dashboard",
         patient: "/patient/dashboard",
-        receptionist: "/ receptionist/dashboard",
+        assistant: "/ assistant/dashboard",
         clinic: "/clinic/dashboard",
       };
       router.push(dashboardRoutes[user.role]);
