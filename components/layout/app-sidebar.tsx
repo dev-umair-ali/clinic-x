@@ -75,6 +75,7 @@ doctor: [
   { icon: RiVolumeUpFill, label: "Patient Notes", href: "/doctor/notes" },
   { icon: TiMicrophone, label: "Prescription", href: "/doctor/prescription" },
   { icon: FaCreditCard, label: "Patients Billing", href: "/doctor/patients-billing" },
+  { icon: IoSettingsSharp, label: "Settings", href: "/doctor/settings" },
 ],
 
 patient: [

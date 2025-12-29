@@ -54,7 +54,21 @@ export default function useAppointments(
         }
         return;
       } else if (selectedFilter === "Upcoming") {
-        params.status = "scheduled";
+        // Fetch all appointments and filter for upcoming (scheduled OR rescheduled)
+        const allRes = await appointmentService.getDoctorAppointments({ page: 1, limit: 1000 });
+        if (allRes?.success && allRes.data) {
+          const upcomingAppts = Array.isArray(allRes.data) 
+            ? allRes.data.filter((apt: any) => 
+                apt.status === "scheduled" || apt.status === "rescheduled"
+              )
+            : [];
+          setAppointments(upcomingAppts);
+          setTotalPages(1);
+        } else {
+          setAppointments([]);
+          setTotalPages(1);
+        }
+        return;
       }
 
       const res = await appointmentService.getDoctorAppointments(params);
@@ -123,14 +137,19 @@ export default function useAppointments(
 
   const updateStatus = async (id: string, status: string) => {
     if (!id) throw new Error("Invalid appointment ID");
-    if (!["scheduled", "completed", "cancelled"].includes(status)) throw new Error("Invalid status");
+    // Valid statuses: scheduled, rescheduled, completed, cancelled
+    if (!["scheduled", "rescheduled", "completed", "cancelled"].includes(status)) {
+      throw new Error("Invalid status");
+    }
     const res = await appointmentService.updateDoctorAppointmentStatus(id, status);
     if (res?.success) return;
     throw new Error(res?.message || "Failed to update appointment status");
   };
 
   const createAppointment = async (data: CreateAppointmentRequest) => {
-    if (!data.doctorId || !data.patientId || !data.dateTime) throw new Error("Missing required fields");
+    if (!data.doctorRef || !data.patientRef || !data.date || !data.time) {
+      throw new Error("Missing required fields: doctorRef, patientRef, date, and time are required");
+    }
     const res = await appointmentService.createAppointment(data);
     if (res?.success) return;
     throw new Error(res?.message || "Failed to create appointment");

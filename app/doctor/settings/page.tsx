@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -10,9 +10,11 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { ArrowLeft, Plus, Trash2, Camera, ArrowRight, X } from "lucide-react"
+import { ArrowLeft, Plus, Trash2, Camera, ArrowRight, X, Copy } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { ProtectedRoute } from "@/components/ui/protected-route"
+import { getAvailability, updateAvailability } from "@/lib/api/services/availabilityService"
+import { useToast } from "@/hooks/use-toast"
 
 type SettingsSection = "availability" | "roles" | "profile" | "appearance"
 
@@ -28,7 +30,8 @@ interface DaySchedule {
 
 export function DoctorSettings() {
   const router = useRouter()
-  const [currentSection, setCurrentSection] = useState<SettingsSection>("roles")
+  const { toast } = useToast()
+  const [currentSection, setCurrentSection] = useState<SettingsSection>("availability")
   const [showAddPatientModal, setShowAddPatientModal] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [patientData, setPatientData] = useState({
@@ -38,23 +41,29 @@ export function DoctorSettings() {
   })
   const [selectedRole, setSelectedRole] = useState<string>("doctor")
   const [selectedDays, setSelectedDays] = useState({
-    sun: true,
+    sun: false,
     mon: true,
     tue: true,
     wed: true,
     thu: true,
     fri: true,
-    sat: true,
+    sat: false,
   })
 
+  // Availability states
+  const [selectedTimeZone, setSelectedTimeZone] = useState<string>("EST - Eastern Time (UTC-5)")
+  const [isLoadingAvailability, setIsLoadingAvailability] = useState(false)
+  const [isSavingAvailability, setIsSavingAvailability] = useState(false)
+  const [hoveredDay, setHoveredDay] = useState<string | null>(null)
+
   const [schedule, setSchedule] = useState<DaySchedule>({
-    sunday: [{ id: "1", start: "01:00 PM", end: "02:00 PM" }],
-    monday: [{ id: "2", start: "09:00 AM", end: "10:00 PM" }],
-    tuesday: [{ id: "3", start: "09:00 AM", end: "10:00 PM" }],
-    wednesday: [{ id: "4", start: "09:00 AM", end: "10:00 PM" }],
-    thursday: [{ id: "5", start: "09:00 AM", end: "10:00 PM" }],
-    friday: [{ id: "6", start: "09:00 AM", end: "10:00 PM" }],
-    saturday: [{ id: "7", start: "09:00 AM", end: "10:00 PM" }],
+    sunday: [],
+    monday: [{ id: "1", start: "09:00 AM", end: "05:00 PM" }],
+    tuesday: [{ id: "2", start: "09:00 AM", end: "05:00 PM" }],
+    wednesday: [{ id: "3", start: "09:00 AM", end: "05:00 PM" }],
+    thursday: [{ id: "4", start: "09:00 AM", end: "05:00 PM" }],
+    friday: [{ id: "5", start: "09:00 AM", end: "05:00 PM" }],
+    saturday: [],
   })
 
   const [permissions, setPermissions] = useState({
@@ -174,11 +183,31 @@ export function DoctorSettings() {
     { key: "sat", label: "Sat", full: "saturday" },
   ]
 
+  // Generate time options in 12-hour format with AM/PM
+  const generateTimeOptions = () => {
+    const times: string[] = []
+    const hours = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    const minutes = ['00', '30']
+    const periods = ['AM', 'PM']
+    
+    periods.forEach(period => {
+      hours.forEach(hour => {
+        minutes.forEach(minute => {
+          times.push(`${hour.toString().padStart(2, '0')}:${minute} ${period}`)
+        })
+      })
+    })
+    
+    return times
+  }
+
+  const timeOptions = generateTimeOptions()
+
   const addTimeSlot = (day: string) => {
     const newSlot: TimeSlot = {
       id: Date.now().toString(),
       start: "09:00 AM",
-      end: "10:00 PM",
+      end: "05:00 PM",
     }
     setSchedule((prev) => ({
       ...prev,
@@ -199,6 +228,178 @@ export function DoctorSettings() {
       [day]: prev[day]?.map((slot) => (slot.id === slotId ? { ...slot, [field]: value } : slot)) || [],
     }))
   }
+
+  // Copy time slots from one day to all other days
+  const copyToAllDays = (sourceDay: string) => {
+    console.log('copyToAllDays called with:', sourceDay)
+    
+    setSchedule((prev) => {
+      const sourceSlots = prev[sourceDay] || []
+      console.log('Source slots:', sourceSlots)
+      
+      if (sourceSlots.length === 0) {
+        toast({
+          title: "No Time Slots",
+          description: "Please add at least one time slot before copying",
+          variant: "destructive"
+        })
+        return prev // Return unchanged state
+      }
+
+      // Create new schedule with copied slots for all days
+      const newSchedule: DaySchedule = {}
+      let counter = 0
+      
+      days.forEach((day) => {
+        // Create deep copy of source slots with new unique IDs
+        newSchedule[day.full] = sourceSlots.map((slot) => ({
+          id: `${Date.now()}-${counter++}-${Math.random()}`,
+          start: slot.start,
+          end: slot.end
+        }))
+      })
+
+      console.log('New schedule created:', newSchedule)
+
+      toast({
+        title: "Success",
+        description: `Copied ${sourceDay}'s schedule to all days`
+      })
+
+      return newSchedule
+    })
+    
+    // Select all days
+    setSelectedDays({
+      sun: true,
+      mon: true,
+      tue: true,
+      wed: true,
+      thu: true,
+      fri: true,
+      sat: true,
+    })
+  }
+
+  // Load availability from backend
+  const loadAvailability = async () => {
+    setIsLoadingAvailability(true)
+    try {
+      const response = await getAvailability()
+      if (response.data) {
+        const { timeZone, availableDays } = response.data
+        
+        // Set timezone (default to EST if not set or old format)
+        if (timeZone && timeZone.includes('EST') || timeZone?.includes('Eastern')) {
+          setSelectedTimeZone("EST - Eastern Time (UTC-5)")
+        } else if (timeZone && timeZone.includes('CST') || timeZone?.includes('Central')) {
+          setSelectedTimeZone("CST - Central Time (UTC-6)")
+        } else if (timeZone && timeZone.includes('MST') || timeZone?.includes('Mountain')) {
+          setSelectedTimeZone("MST - Mountain Time (UTC-7)")
+        } else if (timeZone && timeZone.includes('PST') || timeZone?.includes('Pacific')) {
+          setSelectedTimeZone("PST - Pacific Time (UTC-8)")
+        } else if (timeZone && timeZone.includes('AKST') || timeZone?.includes('Alaska')) {
+          setSelectedTimeZone("AKST - Alaska Time (UTC-9)")
+        } else if (timeZone && timeZone.includes('HST') || timeZone?.includes('Hawaii')) {
+          setSelectedTimeZone("HST - Hawaii Time (UTC-10)")
+        } else {
+          setSelectedTimeZone("EST - Eastern Time (UTC-5)") // Default to EST
+        }
+        
+        // Convert backend format to frontend format
+        const newSchedule: DaySchedule = {}
+        const newSelectedDays = {
+          sun: false,
+          mon: false,
+          tue: false,
+          wed: false,
+          thu: false,
+          fri: false,
+          sat: false,
+        }
+        
+        availableDays.forEach((dayData) => {
+          const dayLower = dayData.day.toLowerCase()
+          newSchedule[dayLower] = [{
+            id: Date.now().toString() + Math.random(),
+            start: dayData.from,
+            end: dayData.to
+          }]
+          
+          // Mark day as selected
+          const dayKey = dayLower.substring(0, 3) as keyof typeof newSelectedDays
+          newSelectedDays[dayKey] = true
+        })
+        
+        setSchedule(newSchedule)
+        setSelectedDays(newSelectedDays)
+      }
+    } catch (error: any) {
+      console.error('Failed to load availability:', error)
+      toast({
+        title: "Error",
+        description: error.message || "Failed to load availability settings",
+        variant: "destructive"
+      })
+    } finally {
+      setIsLoadingAvailability(false)
+    }
+  }
+
+  // Save availability to backend
+  const saveAvailability = async () => {
+    setIsSavingAvailability(true)
+    try {
+      // Convert frontend format to backend format
+      const availableDays = Object.entries(schedule)
+        .filter(([day]) => {
+          const dayKey = day.substring(0, 3) as keyof typeof selectedDays
+          return selectedDays[dayKey]
+        })
+        .flatMap(([day, slots]) => 
+          slots.map(slot => ({
+            day: day.charAt(0).toUpperCase() + day.slice(1),
+            from: slot.start,
+            to: slot.end
+          }))
+        )
+
+      if (availableDays.length === 0) {
+        toast({
+          title: "Validation Error",
+          description: "Please select at least one day and time slot",
+          variant: "destructive"
+        })
+        return
+      }
+
+      await updateAvailability({
+        timeZone: selectedTimeZone,
+        availableDays
+      })
+
+      toast({
+        title: "Success",
+        description: "Availability updated successfully"
+      })
+    } catch (error: any) {
+      console.error('Failed to save availability:', error)
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update availability",
+        variant: "destructive"
+      })
+    } finally {
+      setIsSavingAvailability(false)
+    }
+  }
+
+  // Load availability when component mounts or when switching to availability section
+  useEffect(() => {
+    if (currentSection === "availability") {
+      loadAvailability()
+    }
+  }, [currentSection])
 
   const handleBack = () => {
     if (currentSection === "roles" || currentSection === "profile" || currentSection === "appearance") {
@@ -249,12 +450,24 @@ export function DoctorSettings() {
       <div className="space-y-2">
         <div
           className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
+            currentSection === "availability" ? "bg-[#1DA68F] text-white" : "text-muted-foreground hover:bg-muted/50"
+          }`}
+          onClick={() => setCurrentSection("availability")}
+        >
+          <span className="w-6 h-6 rounded-full bg-[#1DA68F] text-white text-xs flex items-center justify-center font-medium">
+            1
+          </span>
+          <span className="text-sm">Availability</span>
+        </div>
+
+        <div
+          className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
             currentSection === "appearance" ? "bg-[#1DA68F] text-white" : "text-muted-foreground hover:bg-muted/50"
           }`}
           onClick={() => setCurrentSection("appearance")}
         >
           <span className="w-6 h-6 rounded-full bg-[#1DA68F] text-white text-xs flex items-center justify-center font-medium">
-            1
+            2
           </span>
           <span className="text-sm">Clinic Info</span>
         </div>
@@ -266,7 +479,7 @@ export function DoctorSettings() {
           onClick={() => setCurrentSection("profile")}
         >
           <span className="w-6 h-6 rounded-full bg-[#1DA68F] text-white text-xs flex items-center justify-center font-medium">
-            2
+            3
           </span>
           <span className="text-sm">User Info</span>
         </div>
@@ -278,7 +491,7 @@ export function DoctorSettings() {
           onClick={() => setCurrentSection("roles")}
         >
           <span className="w-6 h-6 rounded-full bg-[#1DA68F] text-white text-xs flex items-center justify-center font-medium">
-            3
+            4
           </span>
           <span className="text-sm">Roles & Permissions</span>
         </div>
@@ -293,45 +506,50 @@ export function DoctorSettings() {
           <h1 className="text-2xl font-bold text-foreground mb-1">Settings</h1>
           <p className="text-muted-foreground">Manage your account preferences and system settings</p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-          <Button
-            className="bg-[#1DA68F] hover:bg-[#1DA68F]/80 text-white px-4 py-2 w-full sm:w-auto"
-            onClick={() => setShowAddPatientModal(true)}
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Add Patient
-          </Button>
-          <Button
-            className="bg-[#1DA68F] hover:bg-[#1DA68F]/80 text-white px-4 py-2 w-full sm:w-auto"
-            onClick={() => setCurrentSection("appearance")}
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Other Settings
-          </Button>
-        </div>
       </div>
 
       <div className="bg-card rounded-lg border border-border p-6">
         <h2 className="text-lg font-semibold text-foreground mb-6">Manage Availability</h2>
 
-        <div className="mb-6">
-          <Label className="text-sm font-medium text-foreground mb-2 block">Time Zone</Label>
-          <Select defaultValue="gmt+5">
-            <SelectTrigger className="w-full sm:w-64 bg-background border-border">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-card border-border">
-              <SelectItem value="gmt+5" className="text-foreground hover:bg-muted/50">
-                GMT + 05:00 Asia/Karachi (PKT)
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        {isLoadingAvailability ? (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">Loading availability...</p>
+          </div>
+        ) : (
+          <>
+            <div className="mb-6">
+              <Label className="text-sm font-medium text-foreground mb-2 block">Time Zone</Label>
+              <Select value={selectedTimeZone} onValueChange={setSelectedTimeZone}>
+                <SelectTrigger className="w-full sm:w-64 bg-background border-border">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-card border-border">
+                  <SelectItem value="EST - Eastern Time (UTC-5)" className="text-foreground hover:bg-muted/50">
+                    EST - Eastern Time (UTC-5)
+                  </SelectItem>
+                  <SelectItem value="CST - Central Time (UTC-6)" className="text-foreground hover:bg-muted/50">
+                    CST - Central Time (UTC-6)
+                  </SelectItem>
+                  <SelectItem value="MST - Mountain Time (UTC-7)" className="text-foreground hover:bg-muted/50">
+                    MST - Mountain Time (UTC-7)
+                  </SelectItem>
+                  <SelectItem value="PST - Pacific Time (UTC-8)" className="text-foreground hover:bg-muted/50">
+                    PST - Pacific Time (UTC-8)
+                  </SelectItem>
+                  <SelectItem value="AKST - Alaska Time (UTC-9)" className="text-foreground hover:bg-muted/50">
+                    AKST - Alaska Time (UTC-9)
+                  </SelectItem>
+                  <SelectItem value="HST - Hawaii Time (UTC-10)" className="text-foreground hover:bg-muted/50">
+                    HST - Hawaii Time (UTC-10)
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-        <div className="mb-6">
-          <h3 className="text-base font-semibold text-foreground mb-4">Available Hours</h3>
+            <div className="mb-6">
+              <h3 className="text-base font-semibold text-foreground mb-4">Available Hours</h3>
 
-          <div className="flex flex-wrap gap-2 mb-6">
+              <div className="flex flex-wrap gap-2 mb-6">
             <Button
               variant="outline"
               size="sm"
@@ -372,22 +590,47 @@ export function DoctorSettings() {
 
           <div className="space-y-4">
             {days.map((day) => (
-              <div key={day.full} className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <div 
+                key={day.full} 
+                className="flex flex-col sm:flex-row items-start sm:items-center gap-4"
+                onMouseEnter={() => setHoveredDay(day.full)}
+                onMouseLeave={() => setHoveredDay(null)}
+              >
                 <div className="w-full sm:w-20 text-sm text-foreground capitalize font-medium">{day.full}</div>
                 <div className="flex-1 space-y-2">
                   {schedule[day.full]?.map((slot) => (
                     <div key={slot.id} className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                      <Input
+                      <Select 
                         value={slot.start}
-                        onChange={(e) => updateTimeSlot(day.full, slot.id, "start", e.target.value)}
-                        className="w-full sm:w-24 text-sm bg-background border-border"
-                      />
+                        onValueChange={(value) => updateTimeSlot(day.full, slot.id, "start", value)}
+                      >
+                        <SelectTrigger className="w-full sm:w-32 text-sm bg-background border-border">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-card border-border max-h-60">
+                          {timeOptions.map((time) => (
+                            <SelectItem key={time} value={time} className="text-foreground hover:bg-muted/50">
+                              {time}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <span className="text-muted-foreground text-sm hidden sm:inline">To</span>
-                      <Input
+                      <Select 
                         value={slot.end}
-                        onChange={(e) => updateTimeSlot(day.full, slot.id, "end", e.target.value)}
-                        className="w-full sm:w-24 text-sm bg-background border-border"
-                      />
+                        onValueChange={(value) => updateTimeSlot(day.full, slot.id, "end", value)}
+                      >
+                        <SelectTrigger className="w-full sm:w-32 text-sm bg-background border-border">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-card border-border max-h-60">
+                          {timeOptions.map((time) => (
+                            <SelectItem key={time} value={time} className="text-foreground hover:bg-muted/50">
+                              {time}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <Button
                         variant="ghost"
                         size="sm"
@@ -398,22 +641,43 @@ export function DoctorSettings() {
                       </Button>
                     </div>
                   ))}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => addTimeSlot(day.full)}
-                    className="text-[#1DA68F] hover:text-[#1DA68F]/80 hover:bg-[#1DA68F]/10 w-full sm:w-auto"
-                  >
-                    <Plus className="w-4 h-4 mr-1" />
-                    Add Time
-                  </Button>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => addTimeSlot(day.full)}
+                      className="text-[#1DA68F] hover:text-[#1DA68F]/80 hover:bg-[#1DA68F]/10 w-full sm:w-auto"
+                    >
+                      <Plus className="w-4 h-4 mr-1" />
+                      Add Time
+                    </Button>
+                    {hoveredDay === day.full && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => copyToAllDays(day.full)}
+                        className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 border-blue-200 dark:border-blue-800 w-full sm:w-auto transition-all duration-200"
+                      >
+                        <Copy className="w-4 h-4 mr-1" />
+                        Copy to All
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        <Button className="bg-[#1DA68F] hover:bg-[#1DA68F]/80 text-white w-full sm:w-auto">Update Availability</Button>
+            <Button 
+              className="bg-[#1DA68F] hover:bg-[#1DA68F]/80 text-white w-full sm:w-auto"
+              onClick={saveAvailability}
+              disabled={isSavingAvailability || isLoadingAvailability}
+            >
+              {isSavingAvailability ? "Saving..." : "Update Availability"}
+            </Button>
+          </>
+        )}
       </div>
     </div>
   )

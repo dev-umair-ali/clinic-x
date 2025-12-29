@@ -11,6 +11,7 @@ export interface User {
   profilePicture?: string;
   hasCompletedOnboarding?: boolean;
   doctorId?: string; // MongoDB doctor ID for doctor users
+  patientId?: string; // MongoDB patient ID for patient users
   _id?: string; // MongoDB user ID
 }
 

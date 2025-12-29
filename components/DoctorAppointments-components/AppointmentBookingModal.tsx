@@ -13,9 +13,11 @@ import { Input } from "@/components/ui/input"
 import { createAppointment } from "@/lib/slices/appointmentSlice"
 import { fetchPatients } from "@/lib/slices/patientSlice"
 import type { CreateAppointmentRequest } from "@/lib/api/services/appointmentService"
+import { appointmentService } from "@/lib/api/services/appointmentService"
 import type { RootState, AppDispatch } from "@/lib/store"
 import { cn } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
+import { getAvailableTimeSlots, type TimeSlot, type DoctorAvailability } from "@/lib/utils/timeSlots"
 
 interface AppointmentBookingModalProps {
   isOpen: boolean
@@ -36,6 +38,7 @@ export default function AppointmentBookingModal({
   const { patients } = useSelector((state: RootState) => state.patients)
   const { toast } = useToast()
 
+  const [internalSelectedDate, setInternalSelectedDate] = useState(selectedDate)
   const [formData, setFormData] = useState({
     patientId: "",
     time: "",
@@ -44,19 +47,17 @@ export default function AppointmentBookingModal({
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [timeZone, setTimeZone] = useState<string>("")
+  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([])
+  const [loadingSlots, setLoadingSlots] = useState(false)
 
   const appointmentTypes = ["Consultation", "Follow-up", "Emergency", "Check-up"]
 
-  // Generate time slots (9 AM to 5 PM)
-  const timeSlots = Array.from({ length: 17 }, (_, i) => {
-    const hour = Math.floor(9 + i / 2)
-    const minute = i % 2 === 0 ? "00" : "30"
-    return `${hour.toString().padStart(2, "0")}:${minute}`
-  })
-
   useEffect(() => {
     if (isOpen) {
+      setInternalSelectedDate(selectedDate)
       dispatch(fetchPatients())
+      
       // Reset form when modal opens
       setFormData({
         patientId: "",
@@ -66,7 +67,56 @@ export default function AppointmentBookingModal({
       })
       setError("")
     }
-  }, [isOpen, dispatch])
+  }, [isOpen, dispatch, selectedDate])
+
+  // Separate effect for fetching availability when date changes
+  useEffect(() => {
+    if (!isOpen) return
+    // Fetch doctor's availability and existing appointments
+    const fetchAvailabilityAndAppointments = async () => {
+      setLoadingSlots(true)
+      try {
+        // Fetch availability
+        const availabilityRes = await appointmentService.getDoctorAvailability(doctorId)
+        
+        if (availabilityRes?.success && availabilityRes.data) {
+          setTimeZone(availabilityRes.data.timeZone)
+          
+          // Fetch existing appointments for this doctor on selected date
+          const dateStr = format(internalSelectedDate, "yyyy-MM-dd")
+          const appointmentsRes = await appointmentService.getDoctorAppointmentsForDate(doctorId, dateStr)
+          
+          const existingApts = appointmentsRes?.success ? (appointmentsRes.data || []) : []
+          
+          // Generate time slots with availability checking
+          const slots = getAvailableTimeSlots(
+            availabilityRes.data,
+            internalSelectedDate,
+            existingApts
+          )
+          
+          setTimeSlots(slots)
+        }
+      } catch (err) {
+        console.error("❌ Error fetching availability:", err)
+        // Fallback to basic time slots if fetch fails
+        const fallbackSlots = Array.from({ length: 17 }, (_, i) => {
+          const hour = Math.floor(9 + i / 2)
+          const minute = i % 2 === 0 ? "00" : "30"
+          const time24 = `${hour.toString().padStart(2, "0")}:${minute}`
+          const hour12 = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour
+          const ampm = hour >= 12 ? 'PM' : 'AM'
+          const displayTime = `${hour12}:${minute} ${ampm}`
+          return { time: time24, displayTime, available: true }
+        })
+        setTimeSlots(fallbackSlots)
+      } finally {
+        setLoadingSlots(false)
+      }
+    }
+    
+    fetchAvailabilityAndAppointments()
+  }, [isOpen, doctorId, internalSelectedDate])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -79,13 +129,15 @@ export default function AppointmentBookingModal({
       return
     }
 
-    const dateStr = format(selectedDate, "yyyy-MM-dd")
-    const dateTime = new Date(`${dateStr}T${formData.time}:00`).toISOString()
-
+    const dateStr = format(internalSelectedDate, "yyyy-MM-dd")
+    
+    // Backend expects doctorRef, patientRef, date (string), and time (string)
     const appointmentData: CreateAppointmentRequest = {
-      doctorId: doctorId,
-      patientId: formData.patientId,
-      dateTime: dateTime,
+      doctorRef: doctorId,
+      patientRef: formData.patientId,
+      date: dateStr, // Send as YYYY-MM-DD string
+      time: formData.time,
+      service: formData.type || "Consultation",
       status: "scheduled",
       notes: formData.notes || undefined,
     }
@@ -130,7 +182,7 @@ export default function AppointmentBookingModal({
             New Appointment
           </DialogTitle>
           <p className="text-sm text-primary-foreground/90 mt-2">
-            {format(selectedDate, "EEEE, MMMM d, yyyy")}
+            {format(internalSelectedDate, "EEEE, MMMM d, yyyy")}
           </p>
         </DialogHeader>
 
@@ -179,32 +231,75 @@ export default function AppointmentBookingModal({
             </Select>
           </div>
 
+          {/* Date Selection */}
+          <div className="space-y-2">
+            <Label htmlFor="date" className="text-sm font-medium flex items-center gap-2">
+              <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+              Appointment Date
+            </Label>
+            <input
+              type="date"
+              id="date"
+              value={format(internalSelectedDate, "yyyy-MM-dd")}
+              onChange={(e) => {
+                const newDate = new Date(e.target.value)
+                setInternalSelectedDate(newDate)
+                setFormData({ ...formData, time: "" }) // Reset time when date changes
+              }}
+              min={format(new Date(), "yyyy-MM-dd")}
+              className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+
           {/* Time Selection */}
           <div className="space-y-2">
-            <Label htmlFor="time" className="text-sm font-medium flex items-center gap-2">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              Time
+            <Label htmlFor="time" className="text-sm font-medium flex items-center gap-2 justify-between">
+              <span className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                Available Time Slots (30 minutes)
+              </span>
+              {timeZone && (
+                <span className="text-xs text-muted-foreground font-normal">
+                  {timeZone}
+                </span>
+              )}
             </Label>
-            <Select
-              value={formData.time}
-              onValueChange={(value) => setFormData({ ...formData, time: value })}
-            >
-              <SelectTrigger
-                className={cn(
-                  "w-full bg-background border-border focus:ring-2 focus:ring-primary/20",
-                  !formData.time && "text-muted-foreground"
-                )}
-              >
-                <SelectValue placeholder="Select time" />
-              </SelectTrigger>
-              <SelectContent className="max-h-[200px]">
-                {timeSlots.map((time) => (
-                  <SelectItem key={time} value={time}>
-                    {time}
-                  </SelectItem>
+            {loadingSlots ? (
+              <div className="flex items-center justify-center py-8 text-muted-foreground">
+                <div className="h-6 w-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin mr-2" />
+                Loading available slots...
+              </div>
+            ) : timeSlots.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[200px] overflow-y-auto p-2 border rounded-lg">
+                {timeSlots.map((slot) => (
+                  <button
+                    key={slot.time}
+                    type="button"
+                    disabled={!slot.available}
+                    onClick={() => {
+                      setFormData({ ...formData, time: slot.time })
+                    }}
+                    className={cn(
+                      "px-3 py-2 rounded-md text-sm font-medium transition-colors border-2",
+                      formData.time === slot.time
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : slot.available
+                        ? "bg-background hover:bg-muted border-border"
+                        : "bg-muted text-muted-foreground border-border cursor-not-allowed opacity-50"
+                    )}
+                  >
+                    {slot.displayTime}
+                    {!slot.available && slot.reason && (
+                      <span className="block text-xs mt-1">({slot.reason})</span>
+                    )}
+                  </button>
                 ))}
-              </SelectContent>
-            </Select>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground text-sm">
+                No slots available for this date
+              </div>
+            )}
           </div>
 
           {/* Appointment Type */}

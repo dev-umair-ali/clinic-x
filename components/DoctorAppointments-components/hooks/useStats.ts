@@ -32,10 +32,15 @@ export default function useStats(appointments: any[]) {
   const fetchWeeklyCount = async () => {
     try {
       const res = await appointmentService.getDoctorWeeklyCount();
-      if (res?.success && typeof res.data?.count === "number") {
-        setStats((s) => ({ ...s, appointmentsBooked: res.data.count.toString() }));
+      console.log('📊 Weekly count response:', res);
+      
+      if (res?.success) {
+        // Handle the actual response structure: { success, totalAppointmentsThisWeek: { totalAppointments, startDate, endDate } }
+        const count = res.totalAppointmentsThisWeek?.totalAppointments || res.data?.count || 0;
+        setStats((s) => ({ ...s, appointmentsBooked: count.toString() }));
       }
     } catch (e) {
+      console.error('Error fetching weekly count:', e);
       // keep default
     }
   };

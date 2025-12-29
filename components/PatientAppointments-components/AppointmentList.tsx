@@ -29,9 +29,8 @@ interface Props {
   selectedFilter: string;
   setSelectedFilter: (f: string) => void;
   onStatusUpdate: (id: string, status: string) => void;
-  onPatientClick: (apt: DoctorAppointment) => void;
+  onDoctorClick: (apt: DoctorAppointment) => void;
   onEdit: (apt: DoctorAppointment) => void;
-  onStartVisit: (apt: DoctorAppointment) => void;
   currentPage: number;
   setCurrentPage: (p: number | ((prev: number) => number)) => void;
   totalPages: number;
@@ -49,9 +48,8 @@ export default function AppointmentList(props: Props) {
     selectedFilter,
     setSelectedFilter,
     onStatusUpdate,
-    onPatientClick,
+    onDoctorClick,
     onEdit,
-    onStartVisit,
     currentPage,
     setCurrentPage,
     totalPages,
@@ -84,22 +82,7 @@ export default function AppointmentList(props: Props) {
     return isNaN(date.getTime()) ? "Invalid Date" : date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
   };
   
-  const formatTime = (apt: any) => {
-    // If time field exists (e.g., "12:30" or "12:30 PM"), use it directly
-    if (apt.time) {
-      // If time is in 24-hour format (HH:MM), convert to 12-hour format
-      if (apt.time.match(/^\d{1,2}:\d{2}$/)) {
-        const [hours, minutes] = apt.time.split(':').map(Number);
-        const period = hours >= 12 ? 'PM' : 'AM';
-        const hour12 = hours % 12 || 12;
-        return `${hour12}:${minutes.toString().padStart(2, '0')} ${period}`;
-      }
-      // If already in 12-hour format, return as-is
-      return apt.time;
-    }
-    
-    // Fall back to parsing dateTime
-    const d = apt.dateTime || apt.date;
+  const formatTime = (d: string | undefined) => {
     if (!d) return "";
     const date = new Date(d);
     return isNaN(date.getTime()) ? "" : date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
@@ -172,13 +155,13 @@ export default function AppointmentList(props: Props) {
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <button
-                        onClick={() => onPatientClick(a)}
+                        onClick={() => onDoctorClick(a)}
                         className="font-medium text-[hsl(var(--foreground))] hover:text-[hsl(var(--color-brand-teal))]"
                       >
-                        {a.patientName || (typeof a.patient === 'object' ? a.patient?.name : null) || "Patient"}
+                        Dr. {(a as any).doctorName || (typeof a.doctor === 'object' && (a.doctor as any)?.name) || "Doctor"}
                       </button>
                       <p className="text-sm text-[hsl(var(--muted-foreground))]">
-                        {formatDate(a.dateTime || a.date)} {formatTime(a)}
+                        {formatDate(a.dateTime || a.date)} {formatTime(a.dateTime || a.date)}
                       </p>
                     </div>
                     <DropdownMenu>
@@ -188,7 +171,6 @@ export default function AppointmentList(props: Props) {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => onStartVisit(a)}>Start Visit</DropdownMenuItem>
                         <DropdownMenuItem onClick={() => onEdit(a)}>Reschedule</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -236,14 +218,14 @@ export default function AppointmentList(props: Props) {
                   {filtered.map((a) => (
                     <tr key={a._id} className="hover:bg-[hsl(var(--muted)/0.5)]">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-[hsl(var(--foreground))]">
-                        {formatDate(a.dateTime || a.date)} {formatTime(a)}
+                        {formatDate(a.dateTime || a.date)} {formatTime(a.dateTime || a.date)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <button
-                          onClick={() => onPatientClick(a)}
+                          onClick={() => onDoctorClick(a)}
                           className="text-sm text-[hsl(var(--foreground))] hover:text-[hsl(var(--color-brand-teal))] font-medium"
                         >
-                          {a.patientName || (typeof a.patient === 'object' ? a.patient?.name : null) || "Patient"}
+                          Dr. {(a as any).doctorName || (typeof a.doctor === 'object' && (a.doctor as any)?.name) || "Doctor"}
                         </button>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-[hsl(var(--foreground))]">{a.type || "Appointment"}</td>
@@ -271,7 +253,6 @@ export default function AppointmentList(props: Props) {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => onStartVisit(a)}>Start Visit</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => onEdit(a)}>Reschedule</DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>

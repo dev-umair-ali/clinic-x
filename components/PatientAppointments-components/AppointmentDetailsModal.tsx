@@ -68,8 +68,6 @@ export default function AppointmentDetailsModal({
 
   const appointmentTypes = ["Consultation", "Follow-up", "Emergency", "Check-up"]
 
-  // Helper function to safely get appointment date  const appointmentTypes = ["Consultation", "Follow-up", "Emergency", "Check-up"]
-
   // Helper function to safely get appointment date
   const getAppointmentDate = () => {
     if (!appointment) return new Date();
@@ -316,6 +314,8 @@ export default function AppointmentDetailsModal({
     switch (status?.toLowerCase()) {
       case "scheduled":
         return "bg-blue-500/10 text-blue-700 dark:text-blue-400"
+      case "rescheduled":
+        return "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400"
       case "completed":
         return "bg-green-500/10 text-green-700 dark:text-green-400"
       case "cancelled":
@@ -325,10 +325,15 @@ export default function AppointmentDetailsModal({
     }
   }
 
-  const patientName = appointment?.patientName || 
-    appointment?.patient?.name ||
-    `${appointment?.patient?.firstName || ""} ${appointment?.patient?.lastName || ""}`.trim() ||
-    "Unknown Patient"
+  // Get doctor name from appointment data
+  const doctorName = (appointment as any)?.doctorName || 
+    (typeof (appointment as any)?.doctor === 'object' 
+      ? `${(appointment as any)?.doctor?.firstName || ''} ${(appointment as any)?.doctor?.lastName || ''}`.trim()
+      : '') ||
+    (typeof (appointment as any)?.doctorRef === 'object'
+      ? `${(appointment as any)?.doctorRef?.firstName || ''} ${(appointment as any)?.doctorRef?.lastName || ''}`.trim()
+      : '') ||
+    "Unknown Doctor"
 
   // Don't render if no appointment data
   if (!appointment && isOpen) {
@@ -378,8 +383,8 @@ export default function AppointmentDetailsModal({
                   <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
                     <User className="h-5 w-5 text-muted-foreground" />
                     <div>
-                      <p className="text-xs text-muted-foreground">Patient</p>
-                      <p className="font-medium">{patientName}</p>
+                      <p className="text-xs text-muted-foreground">Doctor</p>
+                      <p className="font-medium">{doctorName}</p>
                     </div>
                   </div>
 
@@ -396,7 +401,7 @@ export default function AppointmentDetailsModal({
                   <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
                     <FileText className="h-5 w-5 text-muted-foreground" />
                     <div>
-                      <p className="text-xs text-muted-foreground">Type</p>
+                      <p className="text-xs text-muted-foreground">Appointment Type</p>
                       <p className="font-medium">{appointment?.type || appointment?.service || "Consultation"}</p>
                     </div>
                   </div>
@@ -434,15 +439,15 @@ export default function AppointmentDetailsModal({
             ) : (
               // Edit Mode
               <form onSubmit={handleUpdate} className="space-y-5">
-                {/* Patient Display (Read-only) */}
+                {/* Doctor Display (Read-only) */}
                 <div className="space-y-2">
-                  <Label htmlFor="patient" className="text-sm font-medium flex items-center gap-2">
+                  <Label htmlFor="doctor" className="text-sm font-medium flex items-center gap-2">
                     <User className="h-4 w-4 text-muted-foreground" />
-                    Patient
+                    Doctor
                   </Label>
                   <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border border-border">
                     <User className="h-5 w-5 text-muted-foreground" />
-                    <p className="font-medium">{patientName}</p>
+                    <p className="font-medium">{doctorName}</p>
                   </div>
                 </div>
 
@@ -457,6 +462,7 @@ export default function AppointmentDetailsModal({
                     value={formData.date}
                     onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                     className="w-full px-3 py-2 bg-background border border-border rounded-md focus:ring-2 focus:ring-primary/20 focus:outline-none"
+                    min={format(new Date(), "yyyy-MM-dd")}
                   />
                 </div>
 
@@ -474,8 +480,9 @@ export default function AppointmentDetailsModal({
                     )}
                   </Label>
                   {loadingSlots ? (
-                    <div className="flex items-center justify-center p-4 border rounded-lg">
-                      <p className="text-sm text-muted-foreground">Loading available slots...</p>
+                    <div className="flex items-center justify-center py-8 text-muted-foreground">
+                      <div className="h-6 w-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin mr-2" />
+                      Loading available slots...
                     </div>
                   ) : timeSlots.length > 0 ? (
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[200px] overflow-y-auto p-2 border rounded-lg">
@@ -484,27 +491,26 @@ export default function AppointmentDetailsModal({
                           key={slot.time}
                           type="button"
                           disabled={!slot.available}
-                          onClick={() => slot.available && setFormData({ ...formData, time: slot.time })}
+                          onClick={() => setFormData({ ...formData, time: slot.time })}
                           className={cn(
                             "px-3 py-2 rounded-md text-sm font-medium transition-colors border-2",
-                            !slot.available && "opacity-50 cursor-not-allowed",
                             formData.time === slot.time
                               ? "bg-primary text-primary-foreground border-primary"
-                              : slot.available 
-                                ? "bg-background hover:bg-muted border-border"
-                                : "bg-muted/30 border-border/50"
+                              : slot.available
+                              ? "bg-background hover:bg-muted border-border"
+                              : "bg-muted text-muted-foreground border-border cursor-not-allowed opacity-50"
                           )}
                         >
                           {slot.displayTime}
-                          {!slot.available && (
-                            <span className="block text-xs mt-0.5">(Booked)</span>
+                          {!slot.available && slot.reason && (
+                            <span className="block text-xs mt-1">({slot.reason})</span>
                           )}
                         </button>
                       ))}
                     </div>
                   ) : (
-                    <div className="flex items-center justify-center p-4 border rounded-lg">
-                      <p className="text-sm text-muted-foreground">No time slots available for this date</p>
+                    <div className="text-center py-8 text-muted-foreground text-sm">
+                      No slots available for this date
                     </div>
                   )}
                 </div>
@@ -587,7 +593,7 @@ export default function AppointmentDetailsModal({
               Cancel Appointment?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to cancel this appointment with <strong>{patientName}</strong> on{" "}
+              Are you sure you want to cancel this appointment with Dr. <strong>{doctorName}</strong> on{" "}
               <strong>{format(getAppointmentDate(), "MMMM d, yyyy 'at' h:mm a")}</strong>?
               This action cannot be undone.
             </AlertDialogDescription>

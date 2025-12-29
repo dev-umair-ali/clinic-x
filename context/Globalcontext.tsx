@@ -24,8 +24,6 @@ interface PatientBilling {
 }
 interface SessionData {
     user: SessionUser
-    calendlyConnected?: boolean
-
 }
 
 interface MainContextType {
@@ -61,9 +59,6 @@ export const MainProvider = ({ children }: { children: ReactNode }) => {
                 const role = attributes['custom:role'] || 'doctor'; // fallback default
                 const username = user.username;
 
-                const statusRes = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/api/calendly/status/${username}`);
-                const statusData = await statusRes.json();
-
                 setSession({
                     user: {
                         name: name ?? '',
@@ -72,7 +67,6 @@ export const MainProvider = ({ children }: { children: ReactNode }) => {
                         role,
                         raw: { ...user, attributes },
                     },
-                    calendlyConnected: statusData.connected,
                 });
 
                 // // Only fetch timings if Calendly is connected

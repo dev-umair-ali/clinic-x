@@ -11,10 +11,12 @@ import CalendarView from "@/components/DoctorAppointments-components/CalendarVie
 import AppointmentList from "@/components/DoctorAppointments-components/AppointmentList";
 import PatientModal from "@/components/DoctorAppointments-components/PatientModal";
 import EditAppointmentModal from "@/components/DoctorAppointments-components/EditAppointmentModal";
+import AppointmentBookingModal from "@/components/DoctorAppointments-components/AppointmentBookingModal";
 import useAppointments from "@/components/DoctorAppointments-components/hooks/useAppointments";
 import useStats from "@/components/DoctorAppointments-components/hooks/useStats";
 import { DoctorAppointment, PatientDetails } from "@/lib/api/services/appointmentService";
 import { Toaster } from "@/components/ui/toaster";
+import { Button } from "@/components/ui/button";
 
 function calculateAge(dob?: string): number {
   if (!dob) return 0;
@@ -40,6 +42,7 @@ export default function DoctorAppointments() {
   const [selectedPatient, setSelectedPatient] = useState<PatientDetails | null>(null);
   const [showPatientModal, setShowPatientModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showBookingModal, setShowBookingModal] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<DoctorAppointment | null>(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   
@@ -162,6 +165,11 @@ export default function DoctorAppointments() {
     setShowEditModal(true);
   };
 
+  const handleStartVisit = async (apt: DoctorAppointment) => {
+    // Update status to in-progress when starting a visit
+    await handleStatusUpdate(apt._id, "in-progress");
+  };
+
   const handleAppointmentChange = () => {
     // Refresh the appointments list when an appointment is created, updated, or cancelled
     if (authUser?.id) {
@@ -239,6 +247,30 @@ export default function DoctorAppointments() {
           {viewMode === "list" ? (
             <>
               <StatsCards data={statsData} />
+              
+              {/* New Appointment Button */}
+              <div className="mb-6 flex justify-end">
+                <Button
+                  onClick={() => setShowBookingModal(true)}
+                  className="w-full sm:w-auto"
+                  size="lg"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 mr-2"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  New Appointment
+                </Button>
+              </div>
+              
               <AppointmentList
                 loading={loading}
                 error={error}
@@ -252,6 +284,7 @@ export default function DoctorAppointments() {
                 onStatusUpdate={handleStatusUpdate}
                 onPatientClick={handlePatientClick}
                 onEdit={handleEditAppointment}
+                onStartVisit={handleStartVisit}
                 currentPage={currentPage}
                 setCurrentPage={setCurrentPage}
                 totalPages={totalPages}
@@ -279,6 +312,7 @@ export default function DoctorAppointments() {
         open={showEditModal}
         setOpen={setShowEditModal}
         appointment={editingAppointment}
+        doctorId={authUser?.doctorId || authUser?.id || ""}
         onSaved={() => {
           setShowEditModal(false);
           if (viewMode === "calendar") fetchCalendar();
@@ -286,6 +320,17 @@ export default function DoctorAppointments() {
         }}
         onError={(m) => {
           // surface via toast or setError if desired
+        }}
+      />
+      
+      <AppointmentBookingModal
+        isOpen={showBookingModal}
+        onClose={() => setShowBookingModal(false)}
+        selectedDate={new Date()}
+        doctorId={authUser?.doctorId || authUser?.id || ""}
+        onSuccess={() => {
+          setShowBookingModal(false);
+          handleAppointmentChange();
         }}
       />
       
