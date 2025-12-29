@@ -5,7 +5,7 @@ export class CognitoAuth {
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // Mock user data based on email
-let role: "admin" | "doctor" | "patient" | "receptionist" | "clinic" = "patient";
+let role: "admin" | "doctor" | "patient" | "assistant" | "clinic" = "patient";
     let name = "User";
 
     if (email.includes("admin")) {
@@ -45,7 +45,7 @@ let role: "admin" | "doctor" | "patient" | "receptionist" | "clinic" = "patient"
         id: Math.random().toString(36).substr(2, 9),
         email,
         name,
-        role: role as "admin" | "doctor" | "patient" | "receptionist" | "clinic",
+        role: role as "admin" | "doctor" | "patient" | "assistant" | "clinic",
         avatar: "/placeholder.svg?height=40&width=40",
       },
       token: "mock-jwt-token-" + Math.random().toString(36).substr(2, 9),

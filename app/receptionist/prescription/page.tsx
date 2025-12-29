@@ -171,7 +171,7 @@ export default function PrescriptionDashboard() {
   // Render Add Prescription View
   if (currentView === "add") {
     return (
-      <ProtectedRoute allowedRoles={["receptionist", "clinic", "admin"]}>
+      <ProtectedRoute allowedRoles={["assistant", "clinic", "admin"]}>
         <div className="min-h-screen bg-[hsl(var(--background))]">
           {/* Header */}
           <div className="bg-[hsl(var(--card))] border-b border-[hsl(var(--border))] sticky top-0 z-10">
@@ -491,7 +491,7 @@ export default function PrescriptionDashboard() {
 
   // Render Main Prescription List View
   return (
-    <ProtectedRoute allowedRoles={["receptionist", "clinic", "admin"]}>
+    <ProtectedRoute allowedRoles={["assistant", "clinic", "admin"]}>
       <div className="flex-1 overflow-y-auto bg-[hsl(var(--background))] min-h-screen">
         <div className="max-w-7xl mx-auto p-4 sm:p-6">
           {/* Header */}

@@ -123,7 +123,7 @@ export default function DoctorBillingPage() {
 
   if (showAddBillPage) {
     return (
-      <ProtectedRoute allowedRoles={["receptionist"]}>
+      <ProtectedRoute allowedRoles={["assistant"]}>
         <AddBillForm
           savedBills={savedBills}
           form={addBillForm}
@@ -141,7 +141,7 @@ export default function DoctorBillingPage() {
   const doAddMore = () => handleAddMoreBilling();
 
   return (
-    <ProtectedRoute allowedRoles={["receptionist"]}>
+    <ProtectedRoute allowedRoles={["assistant"]}>
       <div className="p-6 max-w-7xl mx-auto bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))] min-h-screen">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">

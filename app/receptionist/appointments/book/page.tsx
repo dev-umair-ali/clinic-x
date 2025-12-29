@@ -80,7 +80,7 @@ export default function BookAppointmentPage() {
   const [doctorId, setDoctorId] = useState<string | undefined>();
 
   return (
-    <ProtectedRoute allowedRoles={["receptionist"]}>
+    <ProtectedRoute allowedRoles={["assistant"]}>
       <div className="min-h-screen bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))] py-4 px-4 sm:px-6 lg:px-8">
         {/* LEFT-ALIGNED WRAPPER */}
         <div className={`${wrapperWidth} ml-0`}>

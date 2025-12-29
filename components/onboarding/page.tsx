@@ -148,7 +148,7 @@ export default function Onboarding() {
     const target =
       user?.role === 'clinic'
         ? '/clinic/appointments'
-        : '/receptionist/appointments';
+        : '/assistant/appointments';
     router.push(target);
   };
 
@@ -206,7 +206,7 @@ export default function Onboarding() {
   };
 
   return (
-    <ProtectedRoute allowedRoles={['receptionist', 'clinic', 'patient']}>
+    <ProtectedRoute allowedRoles={['assistant', 'clinic', 'patient']}>
       <AuthContext.Provider value={{ user }}>   {/* expose user to hook */}
         <div className="min-h-screen bg-[hsl(var(--background))]">
           {/* Header */}

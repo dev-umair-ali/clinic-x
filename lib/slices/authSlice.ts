@@ -7,7 +7,7 @@ export interface User {
   name: string;
   firstName?: string;
   lastName?: string;
-  role: "admin" | "doctor" | "patient" | "receptionist" | "clinic";
+  role: "admin" | "doctor" | "patient" | "assistant" | "clinic";
   profilePicture?: string;
   hasCompletedOnboarding?: boolean;
   doctorId?: string; // MongoDB doctor ID for doctor users

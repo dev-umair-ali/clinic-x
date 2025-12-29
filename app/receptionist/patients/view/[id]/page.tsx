@@ -49,7 +49,7 @@ export default function ViewPatientPage() {
 
   if (loading) {
     return (
-      <ProtectedRoute allowedRoles={["receptionist"]}>
+      <ProtectedRoute allowedRoles={["assistant"]}>
         <div className="flex-1 overflow-y-auto p-6 bg-[hsl(var(--color-gray-50))] dark:bg-[hsl(var(--background))]">
           <div className="max-w-7xl mx-auto">
             <div className="flex items-center justify-center h-64">
@@ -66,7 +66,7 @@ export default function ViewPatientPage() {
 
   if (!patient) {
     return (
-      <ProtectedRoute allowedRoles={["receptionist"]}>
+      <ProtectedRoute allowedRoles={["assistant"]}>
         <div className="flex-1 overflow-y-auto p-6 bg-[hsl(var(--color-gray-50))] dark:bg-[hsl(var(--background))]">
           <div className="max-w-7xl mx-auto">
             <div className="flex items-center justify-center h-64">
@@ -74,7 +74,7 @@ export default function ViewPatientPage() {
                 <XCircle className="h-12 w-12 text-[hsl(var(--color-status-error))] mx-auto mb-4" />
                 <p className="text-[hsl(var(--muted-foreground))]">Patient not found</p>
                 <Button
-                  onClick={() => router.push("/receptionist/patients")}
+                  onClick={() => router.push("/assistant/patients")}
                   className="mt-4"
                 >
                   Back to Patients
@@ -178,14 +178,14 @@ export default function ViewPatientPage() {
   ];
 console.log(doctorName, "doctorName")
   return (
-    <ProtectedRoute allowedRoles={["receptionist"]}>
+    <ProtectedRoute allowedRoles={["assistant"]}>
       <div className="flex-1 overflow-y-auto p-6 bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))]">
         <div className="max-w-7xl mx-auto">
           {/* Header Section */}
           <div className="flex items-center gap-4 mb-6">
             <Button
               variant="ghost"
-              onClick={() => router.push("/receptionist/patients")}
+              onClick={() => router.push("/assistant/patients")}
               className="p-2 text-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-light))] dark:hover:bg-[hsl(var(--color-brand-teal-light))]/20 bg-[hsl(var(--color-brand-teal-light))] dark:bg-[hsl(var(--color-brand-teal-light))]/10"
             >
               <ArrowLeft className="h-5 w-5" />
@@ -202,7 +202,7 @@ console.log(doctorName, "doctorName")
             <div className="flex gap-2">
               <Button
                 variant="outline"
-                onClick={() => router.push(`/receptionist/patients/edit/${patientId}`)}
+                onClick={() => router.push(`/assistant/patients/edit/${patientId}`)}
                 className="text-[hsl(var(--color-brand-teal))] border-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal))] hover:text-white dark:border-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--color-brand-teal))] dark:hover:bg-[hsl(var(--color-brand-teal))] dark:hover:text-white"
               >
                 <Edit className="h-4 w-4 mr-2" />

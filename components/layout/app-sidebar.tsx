@@ -44,6 +44,8 @@ const menuItems = {
 
 clinic: [
   { icon: IoHome, label: "Dashboard", href: "/clinic/dashboard" },
+    { icon: HiMiniUserGroup, label: "Doctors", href: "/clinic/doctors" },
+
   { icon: IoIosPersonAdd, label: "Assistants", href: "/clinic/add-assistant" },
   { icon: HiMiniUserGroup, label: "Patients", href: "/clinic/patients" },
   
@@ -56,14 +58,14 @@ clinic: [
   { icon: FaCreditCard, label: "Theme Settings", href: "/clinic/theme-settings" },
 ],
 
-receptionist: [
-  { icon: IoHome, label: "Dashboard", href: "/receptionist/dashboard" },
+assistant: [
+  { icon: IoHome, label: "Dashboard", href: "/assistant/dashboard" },
 
-  { icon: HiMiniUserGroup, label: "Patients", href: "/receptionist/patients" },
+  { icon: HiMiniUserGroup, label: "Patients", href: "/assistant/patients" },
 
-  { icon: CiCalendar, label: "Appointments", href: "/receptionist/appointments" },
-  { icon: TiMicrophone, label: "Prescription", href: "/receptionist/prescription" },
-  { icon: FaCreditCard, label: "Patients Billing", href: "/receptionist/patients-billing" },
+  { icon: CiCalendar, label: "Appointments", href: "/assistant/appointments" },
+  { icon: TiMicrophone, label: "Prescription", href: "/assistant/prescription" },
+  { icon: FaCreditCard, label: "Patients Billing", href: "/assistant/patients-billing" },
 ],
 
 doctor: [
