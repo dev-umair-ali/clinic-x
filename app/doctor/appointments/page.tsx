@@ -17,6 +17,7 @@ import useStats from "@/components/DoctorAppointments-components/hooks/useStats"
 import { DoctorAppointment, PatientDetails } from "@/lib/api/services/appointmentService";
 import { Toaster } from "@/components/ui/toaster";
 import { Button } from "@/components/ui/button";
+import Procedure from "@/components/patients/Procedure"; // <-- NEW LINE
 
 function calculateAge(dob?: string): number {
   if (!dob) return 0;
@@ -45,12 +46,14 @@ export default function DoctorAppointments() {
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<DoctorAppointment | null>(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  
-  // Track if initial fetch has been done and last fetched month for calendar
+
   const initialFetchDone = useRef(false);
   const lastFetchedCalendarMonth = useRef<string>("");
 
-  // Helper to get month date range - wrapped in useCallback
+  // NEW – navigation states
+  const [view, setView] = useState<"list" | "procedure">("list");
+  const [activeAppointment, setActiveAppointment] = useState<DoctorAppointment | null>(null);
+
   const getMonthRange = useCallback((date: Date) => {
     const year = date.getFullYear();
     const month = date.getMonth();
@@ -80,31 +83,23 @@ export default function DoctorAppointments() {
       initialFetchDone.current = true;
       fetchList();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authUser?.id]);
 
-  // Fetch appointments when view mode or month changes
   useEffect(() => {
     if (!authUser?.id) return;
-    
     if (viewMode === "calendar") {
       const { startDate, endDate } = getMonthRange(currentMonth);
       const monthKey = `${currentMonth.getFullYear()}-${currentMonth.getMonth()}`;
-      
-      // Only fetch if this month hasn't been fetched yet
       if (lastFetchedCalendarMonth.current !== monthKey) {
         lastFetchedCalendarMonth.current = monthKey;
         fetchCalendar(startDate, endDate);
       }
     } else {
-      // In list view, fetchList will be triggered by the hook's useEffect based on selectedFilter
-      // Only fetch if appointments are empty and initial fetch hasn't been done
       if (appointments.length === 0 && !initialFetchDone.current) {
         initialFetchDone.current = true;
         fetchList();
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [viewMode, currentMonth.getFullYear(), currentMonth.getMonth()]);
 
   const handlePatientClick = async (apt: DoctorAppointment) => {
@@ -127,9 +122,7 @@ export default function DoctorAppointments() {
       };
       setSelectedPatient(details);
       setShowPatientModal(true);
-    } catch (e: any) {
-      // error already surfaced via hook
-    }
+    } catch {}
   };
 
   const handleStatusUpdate = async (id: string, status: string) => {
@@ -141,9 +134,7 @@ export default function DoctorAppointments() {
       } else {
         fetchList();
       }
-    } catch (e: any) {
-      // error already surfaced via hook
-    }
+    } catch {}
   };
 
   const handleCreateAppointment = async (data: any) => {
@@ -155,9 +146,7 @@ export default function DoctorAppointments() {
       } else {
         fetchList();
       }
-    } catch (e: any) {
-      // error already surfaced via hook
-    }
+    } catch {}
   };
 
   const handleEditAppointment = (apt: DoctorAppointment) => {
@@ -165,59 +154,42 @@ export default function DoctorAppointments() {
     setShowEditModal(true);
   };
 
+  // NEW – switch to Procedure view
   const handleStartVisit = async (apt: DoctorAppointment) => {
-    // Update status to in-progress when starting a visit
     await handleStatusUpdate(apt._id, "in-progress");
+    setActiveAppointment(apt);
+    setView("procedure");
   };
 
   const handleAppointmentChange = () => {
-    // Refresh the appointments list when an appointment is created, updated, or cancelled
-    if (authUser?.id) {
-      if (viewMode === "calendar") {
-        const { startDate, endDate } = getMonthRange(currentMonth);
-        const monthKey = `${currentMonth.getFullYear()}-${currentMonth.getMonth()}`;
-        lastFetchedCalendarMonth.current = monthKey;
-        fetchCalendar(startDate, endDate);
-      } else {
-        fetchList();
-      }
+    if (!authUser?.id) return;
+    if (viewMode === "calendar") {
+      const { startDate, endDate } = getMonthRange(currentMonth);
+      const monthKey = `${currentMonth.getFullYear()}-${currentMonth.getMonth()}`;
+      lastFetchedCalendarMonth.current = monthKey;
+      fetchCalendar(startDate, endDate);
+    } else {
+      fetchList();
     }
   };
 
   const calendarEvents = useMemo(() => {
     return appointments.map((apt: any) => {
-      // Handle both dateTime (ISO string) and separate date fields
-      let dateStr = '';
-      
+      let dateStr = "";
       if (apt.dateTime) {
-        // Parse the ISO string and format as local date YYYY-MM-DD
-        const date = new Date(apt.dateTime);
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        dateStr = `${year}-${month}-${day}`;
+        const d = new Date(apt.dateTime);
+        dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
       } else if (apt.date) {
-        // If date is a Date object or string, convert to local YYYY-MM-DD format
-        const dateObj = typeof apt.date === 'string' ? new Date(apt.date) : apt.date;
-        const year = dateObj.getFullYear();
-        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-        const day = String(dateObj.getDate()).padStart(2, '0');
-        dateStr = `${year}-${month}-${day}`;
+        const d = typeof apt.date === "string" ? new Date(apt.date) : apt.date;
+        dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
       }
-      
-      // Normalize the appointment object to ensure _id exists for the modal
-      const normalizedAppointment = {
-        ...apt,
-        _id: apt._id || apt.id, // Ensure _id exists (calendar API uses 'id', list API uses '_id')
-        id: apt.id || apt._id,  // Keep id as well for compatibility
-      };
-      
+      const normalized = { ...apt, _id: apt._id || apt.id, id: apt.id || apt._id };
       return {
         id: apt._id || apt.id,
-        title: `${apt.patientName || (typeof apt.patient === 'object' ? apt.patient?.name : "Patient")} - ${apt.type || apt.service || "appointment"}`,
+        title: `${apt.patientName || (typeof apt.patient === "object" ? apt.patient?.name : "Patient")} - ${apt.type || apt.service || "appointment"}`,
         date: dateStr,
         type: ((apt.type || apt.service)?.toLowerCase() || "appointment") as any,
-        appointment: normalizedAppointment, // Include normalized appointment data
+        appointment: normalized,
       };
     });
   }, [appointments]);
@@ -245,51 +217,45 @@ export default function DoctorAppointments() {
           </div>
 
           {viewMode === "list" ? (
-            <>
-              <StatsCards data={statsData} />
-              
-              {/* New Appointment Button */}
-              <div className="mb-6 flex justify-end">
-                <Button
-                  onClick={() => setShowBookingModal(true)}
-                  className="w-full sm:w-auto"
-                  size="lg"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 mr-2"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  New Appointment
-                </Button>
-              </div>
-              
-              <AppointmentList
-                loading={loading}
-                error={error}
-                appointments={appointments}
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                sortBy={sortBy}
-                setSortBy={setSortBy}
-                selectedFilter={selectedFilter}
-                setSelectedFilter={setSelectedFilter}
-                onStatusUpdate={handleStatusUpdate}
-                onPatientClick={handlePatientClick}
-                onEdit={handleEditAppointment}
-                onStartVisit={handleStartVisit}
-                currentPage={currentPage}
-                setCurrentPage={setCurrentPage}
-                totalPages={totalPages}
+            view === "procedure" && activeAppointment ? (
+              <Procedure
+                patient={activeAppointment.patient}
+                goBack={() => {
+                  setView("list");
+                  setActiveAppointment(null);
+                }}
               />
-            </>
+            ) : (
+              <>
+                <StatsCards data={statsData} />
+                <div className="mb-6 flex justify-end">
+                  <Button onClick={() => setShowBookingModal(true)} className="w-full sm:w-auto" size="lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                    </svg>
+                    New Appointment
+                  </Button>
+                </div>
+                <AppointmentList
+                  loading={loading}
+                  error={error}
+                  appointments={appointments}
+                  searchQuery={searchQuery}
+                  setSearchQuery={setSearchQuery}
+                  sortBy={sortBy}
+                  setSortBy={setSortBy}
+                  selectedFilter={selectedFilter}
+                  setSelectedFilter={setSelectedFilter}
+                  onStatusUpdate={handleStatusUpdate}
+                  onPatientClick={handlePatientClick}
+                  onEdit={handleEditAppointment}
+                  onStartVisit={handleStartVisit}
+                  currentPage={currentPage}
+                  setCurrentPage={setCurrentPage}
+                  totalPages={totalPages}
+                />
+              </>
+            )
           ) : (
             <CalendarView
               currentMonth={currentMonth}
@@ -302,12 +268,7 @@ export default function DoctorAppointments() {
         </div>
       </div>
 
-      <PatientModal
-        open={showPatientModal}
-        setOpen={setShowPatientModal}
-        patient={selectedPatient}
-      />
-
+      <PatientModal open={showPatientModal} setOpen={setShowPatientModal} patient={selectedPatient} />
       <EditAppointmentModal
         open={showEditModal}
         setOpen={setShowEditModal}
@@ -318,11 +279,7 @@ export default function DoctorAppointments() {
           if (viewMode === "calendar") fetchCalendar();
           else fetchList();
         }}
-        onError={(m) => {
-          // surface via toast or setError if desired
-        }}
       />
-      
       <AppointmentBookingModal
         isOpen={showBookingModal}
         onClose={() => setShowBookingModal(false)}
@@ -333,7 +290,6 @@ export default function DoctorAppointments() {
           handleAppointmentChange();
         }}
       />
-      
       <Toaster />
     </ProtectedRoute>
   );
