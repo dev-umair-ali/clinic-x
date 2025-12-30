@@ -1,6 +1,6 @@
 'use client';
 import { useState, useRef } from "react";
-import { MicrophoneIcon, PlayIcon, StopIcon, ArrowPathIcon } from "@heroicons/react/20/solid";
+import { MicrophoneIcon, ArrowPathIcon, PaperAirplaneIcon, CheckCircleIcon, ExclamationCircleIcon, CloudArrowUpIcon } from "@heroicons/react/20/solid";
 
 const formatTime = (seconds: number) => {
   const mins = Math.floor(seconds / 60);
@@ -15,15 +15,19 @@ type AudioRecorderProps = {
   onTranscription?: (text: string) => void;
 };
 
+type TranscriptionStatus = 'idle' | 'recording' | 'processing' | 'success' | 'error';
+
 const AudioRecorder = ({ label, audioUrl, onSave, onTranscription }: AudioRecorderProps) => {
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
-  const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
   const [isRecording, setIsRecording] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [timerId, setTimerId] = useState<NodeJS.Timeout | null>(null);
   const [localAudioUrl, setLocalAudioUrl] = useState(audioUrl || "");
-  const recognitionRef = useRef<any>(null);
+  const [transcriptionStatus, setTranscriptionStatus] = useState<TranscriptionStatus>('idle');
+  const [transcriptionError, setTranscriptionError] = useState<string>('');
+  const [transcriptionText, setTranscriptionText] = useState<string>('');
+  const audioChunksRef = useRef<Blob[]>([]);
+  const audioBlobRef = useRef<Blob | null>(null);
 
   const clearTimer = () => {
     if (timerId) {
@@ -32,227 +36,273 @@ const AudioRecorder = ({ label, audioUrl, onSave, onTranscription }: AudioRecord
     }
   };
 
-  const startSpeechRecognition = () => {
-    const SpeechRecognition =
-      typeof window !== "undefined"
-        ? (window.SpeechRecognition || (window as any).webkitSpeechRecognition)
-        : null;
+  const transcribeAudio = async (audioBlob: Blob) => {
+    setTranscriptionStatus('processing');
+    setTranscriptionError('');
 
-    if (!SpeechRecognition) {
-      console.warn("Speech Recognition not supported");
-      return;
-    }
+    try {
+      const formData = new FormData();
+      formData.append('audio', audioBlob, 'recording.webm');
+      formData.append('language', 'en');
+      formData.append('formatSOAP', 'true');
+      formData.append('prompt', 'Medical consultation. Patient symptoms, diagnosis, treatment.');
 
-    const recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = "en-US";
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_BASE_URL || 'http://localhost:3000';
+      
+      const response = await fetch(`${backendUrl}/api/transcribe`, {
+        method: 'POST',
+        body: formData,
+      });
 
-    recognition.onresult = (event: any) => {
-      let finalTranscript = "";
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        finalTranscript += event.results[i][0].transcript;
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Transcription failed');
       }
-      onTranscription?.(finalTranscript);
-    };
 
-    recognition.onerror = (event: any) => {
-      console.error("Speech Recognition error", event);
-    };
-
-    recognitionRef.current = recognition;
-    recognition.start();
-  };
-
-  const stopSpeechRecognition = () => {
-    recognitionRef.current?.stop();
-    recognitionRef.current = null;
+      const result = await response.json();
+      
+      if (result.success && result.data?.text) {
+        setTranscriptionText(result.data.text);
+        onTranscription?.(result.data.text);
+        setTranscriptionStatus('success');
+      } else {
+        throw new Error('Invalid response from transcription service');
+      }
+    } catch (error: any) {
+      console.error('Transcription error:', error);
+      setTranscriptionError(error.message || 'Failed to transcribe audio');
+      setTranscriptionStatus('error');
+    }
   };
 
   const startRecording = async () => {
-    if (isRecording) return;
+    if (isRecording) {
+      // Stop recording
+      if (mediaRecorder && mediaRecorder.state === "recording") {
+        mediaRecorder.stop();
+        mediaRecorder.stream.getTracks().forEach(track => track.stop());
+        setIsRecording(false);
+        clearTimer(); // Stop the timer immediately
+      }
+      return;
+    }
 
     try {
+      setTranscriptionStatus('idle');
+      setTranscriptionError('');
+      setTranscriptionText('');
+      
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const recorder = new MediaRecorder(stream);
       const chunks: Blob[] = [];
+      audioChunksRef.current = chunks;
 
-      recorder.ondataavailable = (e) => chunks.push(e.data);
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          chunks.push(e.data);
+          audioChunksRef.current = chunks;
+        }
+      };
+
       recorder.onstop = () => {
-        const blob = new Blob(chunks, { type: "audio/webm" });
+        const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
         const url = URL.createObjectURL(blob);
         setLocalAudioUrl(url);
+        audioBlobRef.current = blob;
         onSave(url);
-        clearTimer();
-        setRecordingTime(0);
-        stopSpeechRecognition();
+        setTranscriptionStatus('idle');
       };
 
       recorder.start();
       setMediaRecorder(recorder);
-      setAudioChunks(chunks);
       setIsRecording(true);
-      setIsPaused(false);
-
-      onTranscription?.("");
-      startSpeechRecognition();
+      setTranscriptionStatus('recording');
+      setRecordingTime(0); // Reset timer to 0 when starting
 
       const interval = setInterval(() => setRecordingTime((t) => t + 1), 1000);
       setTimerId(interval);
     } catch (error) {
       console.error("Error accessing microphone:", error);
+      setTranscriptionError('Microphone access denied');
+      setTranscriptionStatus('error');
     }
   };
 
-  const pauseRecording = () => {
-    if (!mediaRecorder || !isRecording) return;
-    
-    mediaRecorder.pause();
-    setIsRecording(false);
-    setIsPaused(true);
-    clearTimer();
-    stopSpeechRecognition();
-  };
-
-  const resumeRecording = () => {
-    if (!mediaRecorder || !isPaused) return;
-
-    mediaRecorder.resume();
-    setIsRecording(true);
-    setIsPaused(false);
-    startSpeechRecognition();
-
-    const interval = setInterval(() => setRecordingTime((t) => t + 1), 1000);
-    setTimerId(interval);
-  };
-
-  const stopRecording = () => {
-    if (!mediaRecorder) return;
-
-    mediaRecorder.stop();
-    setIsRecording(false);
-    setIsPaused(false);
-    clearTimer();
-    stopSpeechRecognition();
+  const handleSubmit = () => {
+    if (audioBlobRef.current) {
+      transcribeAudio(audioBlobRef.current);
+    }
   };
 
   const resetRecording = () => {
-    if (mediaRecorder?.state === "recording") mediaRecorder.stop();
-    
+    if (mediaRecorder?.state === "recording") {
+      mediaRecorder.stop();
+      mediaRecorder.stream.getTracks().forEach(track => track.stop());
+    }
     setMediaRecorder(null);
-    setAudioChunks([]);
+    audioChunksRef.current = [];
+    audioBlobRef.current = null;
     setIsRecording(false);
-    setIsPaused(false);
     setRecordingTime(0);
     setLocalAudioUrl("");
+    setTranscriptionStatus('idle');
+    setTranscriptionError('');
+    setTranscriptionText('');
     onTranscription?.("");
     clearTimer();
-    stopSpeechRecognition();
     onSave("");
   };
 
+  const handleTranscriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newText = e.target.value;
+    setTranscriptionText(newText);
+    onTranscription?.(newText);
+  };
+
+  const getStatusBadge = () => {
+    switch (transcriptionStatus) {
+      case 'recording':
+        return (
+          <div className="flex items-center gap-2 px-3 py-1 bg-red-500/10 border border-red-500/20 rounded-full">
+            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+            <span className="text-xs font-medium text-red-600 dark:text-red-400">Recording</span>
+          </div>
+        );
+      case 'processing':
+        return (
+          <div className="flex items-center gap-2 px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full">
+            <CloudArrowUpIcon className="w-4 h-4 text-blue-600 dark:text-blue-400 animate-pulse" />
+            <span className="text-xs font-medium text-blue-600 dark:text-blue-400">Transcribing with AI...</span>
+          </div>
+        );
+      case 'success':
+        return (
+          <div className="flex items-center gap-2 px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full">
+            <CheckCircleIcon className="w-4 h-4 text-green-600 dark:text-green-400" />
+            <span className="text-xs font-medium text-green-600 dark:text-green-400">Transcription Complete</span>
+          </div>
+        );
+      case 'error':
+        return (
+          <div className="flex items-center gap-2 px-3 py-1 bg-red-500/10 border border-red-500/20 rounded-full">
+            <ExclamationCircleIcon className="w-4 h-4 text-red-600 dark:text-red-400" />
+            <span className="text-xs font-medium text-red-600 dark:text-red-400">Transcription Failed</span>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
-    <div className="bg-muted/50 dark:bg-card/50 p-4 rounded-lg border border-border flex flex-col gap-4 transition-colors duration-200">
+    <div className="bg-gradient-to-br from-muted/30 to-muted/50 dark:from-card/30 dark:to-card/50 p-6 rounded-xl border border-border shadow-sm">
       {label && (
-        <p className="text-sm font-medium text-foreground">{label}</p>
-      )}
-      
-      <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 sm:justify-between">
-  {/* Recording Button */}
-  <div className="flex-shrink-0">
-    <button
-      onClick={isRecording ? pauseRecording : isPaused ? resumeRecording : startRecording}
-      className={`relative p-4 rounded-full transition-all duration-200 ${
-        isRecording
-          ? "bg-destructive/20 hover:bg-destructive/30"
-          : "bg-[#1FA88824] hover:bg-primary/30"
-      }`}
-    >
-      <div
-        className={`p-3 rounded-full transition-all duration-200 ${
-          isRecording
-            ? "bg-destructive animate-pulse"
-            : "bg-[#1FA888] hover:bg-primary/90"
-        }`}
-      >
-        {isRecording ? (
-          <div className="w-5 h-5 bg-white rounded-sm" />
-        ) : isPaused ? (
-          <PlayIcon className="h-5 w-5 text-primary-foreground dark:text-white" />
-        ) : (
-          <MicrophoneIcon className="h-5 w-5 text-primary-foreground dark:text-white" />
-        )}
-      </div>
-      {isRecording && (
-        <div className="absolute inset-0 rounded-full border-2 border-destructive animate-ping" />
-      )}
-    </button>
-  </div>
-
-  {/* Timer and Status */}
-  <div className="text-center flex-1">
-    <p className="text-2xl font-bold text-foreground tabular-nums">
-      {formatTime(recordingTime)}
-    </p>
-    <p className="text-sm text-muted-foreground mt-1">
-      {isRecording
-        ? "Recording..."
-        : isPaused
-        ? "Paused - Click to resume"
-        : "Click microphone to start recording"}
-    </p>
-  </div>
-
-  {/* Control Buttons */}
-  <div className="flex gap-2 flex-shrink-0">
-    {isPaused && (
-      <button
-        onClick={resumeRecording}
-        className="px-3 py-2 rounded-md bg-[#EAB308] hover:bg-primary/90 
-                   text-primary-foreground dark:text-white
-                   text-xs font-medium transition-colors duration-200 flex items-center gap-1"
-      >
-        <PlayIcon className="h-3 w-3" />
-        Resume
-      </button>
-    )}
-
-    <button
-      onClick={stopRecording}
-      className="px-3 py-2 rounded-md bg-[#EF4444] hover:bg-destructive/90 
-                 disabled:bg-muted disabled:text-muted-foreground 
-                 text-destructive-foreground dark:text-white
-                 text-xs font-medium transition-colors duration-200 flex items-center gap-1"
-    >
-      <StopIcon className="h-3 w-3" />
-      Stop
-    </button>
-
-    <button
-      onClick={resetRecording}
-      className="px-3 py-2 rounded-md bg-[#6B7280] hover:bg-muted/80 
-                 text-white hover:text-foreground dark:text-white
-                 text-xs font-medium transition-colors duration-200 flex items-center gap-1"
-    >
-      <ArrowPathIcon className="h-3 w-3" />
-      Reset
-    </button>
-  </div>
-</div>
-
-      {/* Audio Playback */}
-      {localAudioUrl && (
-        <div className="space-y-2">
-          <label className="text-xs font-medium text-muted-foreground">
-            Recorded Audio:
-          </label>
-          <audio 
-            controls 
-            src={localAudioUrl} 
-            className="w-full rounded border border-border bg-background dark:bg-muted/30"
-          />
+        <div className="mb-4 flex items-center justify-between">
+          <p className="text-sm font-semibold text-foreground">{label}</p>
+          {getStatusBadge()}
         </div>
       )}
+      
+      <div className="flex flex-col items-center gap-6">
+        {/* Microphone Button */}
+        <button 
+          onClick={startRecording} 
+          disabled={transcriptionStatus === 'processing'}
+          className={`relative p-5 rounded-full transition-all duration-300 transform hover:scale-105 active:scale-95 ${
+            isRecording 
+              ? "bg-red-500/20 hover:bg-red-500/30 shadow-lg shadow-red-500/20" 
+              : "bg-[#1FA888]/20 hover:bg-[#1FA888]/30 shadow-lg shadow-[#1FA888]/20"
+          } ${transcriptionStatus === 'processing' ? 'opacity-50 cursor-not-allowed' : ''}`}
+        >
+          <div className={`p-4 rounded-full transition-all duration-300 ${
+            isRecording 
+              ? "bg-gradient-to-br from-red-500 to-red-600 animate-pulse shadow-lg" 
+              : "bg-gradient-to-br from-[#1FA888] to-[#1DA68F] hover:from-[#1DA68F] hover:to-[#1FA888]"
+          }`}>
+            {isRecording ? (
+              <div className="w-6 h-6 bg-white rounded-sm shadow-inner" />
+            ) : (
+              <MicrophoneIcon className="h-6 w-6 text-white drop-shadow-lg" />
+            )}
+          </div>
+          {isRecording && <div className="absolute inset-0 rounded-full border-2 border-red-500 animate-ping opacity-75" />}
+        </button>
+
+        {/* Timer */}
+        <div className="text-center">
+          <p className="text-3xl font-bold text-foreground tabular-nums tracking-tight">{formatTime(recordingTime)}</p>
+          <p className="text-sm text-muted-foreground mt-1 font-medium">
+            {transcriptionStatus === 'processing' 
+              ? <span className="text-blue-600 dark:text-blue-400 flex items-center gap-2 justify-center">
+                  <CloudArrowUpIcon className="w-4 h-4 animate-spin" />
+                  AI is transcribing your audio...
+                </span>
+              : isRecording 
+              ? "Recording... Click again to stop" 
+              : localAudioUrl 
+              ? "Recording ready - Click Submit to transcribe"
+              : "Click microphone to start recording"}
+          </p>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-3 w-full max-w-md">
+          <button 
+            onClick={resetRecording} 
+            disabled={transcriptionStatus === 'processing'}
+            className="flex-1 px-6 py-3 rounded-lg bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 disabled:from-muted disabled:to-muted disabled:text-muted-foreground disabled:cursor-not-allowed text-white text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-95"
+          >
+            <ArrowPathIcon className="h-5 w-5" />
+            Reset
+          </button>
+          <button 
+            onClick={handleSubmit} 
+            disabled={!localAudioUrl || transcriptionStatus === 'processing'}
+            className="flex-1 px-6 py-3 rounded-lg bg-gradient-to-r from-[#1FA888] to-[#1DA68F] hover:from-[#1DA68F] hover:to-[#1FA888] disabled:from-muted disabled:to-muted disabled:text-muted-foreground disabled:cursor-not-allowed text-white text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-95"
+          >
+            {transcriptionStatus === 'processing' ? (
+              <>
+                <CloudArrowUpIcon className="h-5 w-5 animate-pulse" />
+                Processing...
+              </>
+            ) : (
+              <>
+                <PaperAirplaneIcon className="h-5 w-5" />
+                Transcribe
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Audio Preview */}
+      {localAudioUrl && transcriptionStatus !== 'processing' && (
+        <div className="mt-6 p-4 bg-background/50 dark:bg-muted/30 rounded-lg border border-border">
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2 mb-2">
+            <CheckCircleIcon className="w-4 h-4 text-green-500" />
+            Recorded Audio
+          </label>
+          <audio controls src={localAudioUrl} className="w-full rounded-lg border border-border bg-background dark:bg-muted/50 shadow-inner" />
+        </div>
+      )}
+
+      {/* Error Display */}
+      {transcriptionError && (
+        <div className="mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+          <p className="text-sm text-red-600 dark:text-red-400 flex items-center gap-2">
+            <ExclamationCircleIcon className="w-5 h-5" />
+            {transcriptionError}
+          </p>
+        </div>
+      )}
+
+      {/* Instructions */}
+      <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+        <p className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-2">
+          <CloudArrowUpIcon className="w-4 h-4" />
+          <span><strong>How to use:</strong> Click the microphone to record. Click again to stop. Press Transcribe to convert speech to text, or type notes directly below.</span>
+        </p>
+      </div>
     </div>
   );
 };

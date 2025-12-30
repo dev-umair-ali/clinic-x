@@ -61,11 +61,25 @@ export default function AppointmentList(props: Props) {
     let f = [...appointments];
     if (selectedFilter === "Upcoming") {
       const now = new Date();
+      // Reset time to start of today for comparison
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      
       f = f.filter((a) => {
         const dateTime = a.dateTime || a.date;
         if (!dateTime) return false;
         const appointmentDate = new Date(dateTime);
-        return appointmentDate >= now && a.status !== "cancelled" && !isNaN(appointmentDate.getTime());
+        
+        // Reset appointment date to start of day for comparison
+        const appointmentDay = new Date(
+          appointmentDate.getFullYear(), 
+          appointmentDate.getMonth(), 
+          appointmentDate.getDate()
+        );
+        
+        // Include appointments from today onwards that are not cancelled
+        return appointmentDay >= today && 
+               a.status !== "cancelled" && 
+               !isNaN(appointmentDate.getTime());
       });
     } else if (selectedFilter === "Canceled") {
       f = f.filter((a) => a.status === "cancelled");

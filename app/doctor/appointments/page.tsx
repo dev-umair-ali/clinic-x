@@ -156,9 +156,85 @@ export default function DoctorAppointments() {
 
   // NEW – switch to Procedure view
   const handleStartVisit = async (apt: DoctorAppointment) => {
-    await handleStatusUpdate(apt._id, "in-progress");
-    setActiveAppointment(apt);
-    setView("procedure");
+    // Fetch complete patient details first
+    if (!apt._id) return;
+    
+    try {
+      // Try to fetch patient details from API first
+      let patientData;
+      
+      try {
+        const p = await fetchPatientDetails(apt._id);
+        
+        patientData = {
+          _id: p._id,
+          name: p.name,
+          patientId: p.patientId || `#PAT-${p._id.slice(-6)}`,
+          email: p.email,
+          phone: p.phone,
+          dateOfBirth: p.dateOfBirth,
+          age: calculateAge(p.dateOfBirth),
+          gender: p.gender,
+          bloodType: p.bloodType,
+          address: p.address,
+          avatar: p.avatar,
+          lastVisit: p.lastVisit,
+          appointment: apt,
+        };
+      } catch (apiError) {
+        // Fallback: Use patient data from the appointment object
+        const p = apt.patient || apt.patientId;
+        
+        if (!p) {
+          throw new Error("No patient data available in appointment");
+        }
+        
+        // Handle both populated patient object and patient ID string
+        if (typeof p === 'string') {
+          // If it's just an ID, create minimal patient data
+          patientData = {
+            _id: p,
+            name: apt.patientName || "Unknown Patient",
+            patientId: `#PAT-${p.slice(-6)}`,
+            email: "",
+            phone: "",
+            dateOfBirth: "",
+            age: 0,
+            gender: "",
+            bloodType: "",
+            address: "",
+            avatar: "",
+            lastVisit: "",
+            appointment: apt,
+          };
+        } else {
+          // If it's a populated object, use it directly
+          patientData = {
+            _id: (p as any)._id || (p as any).id,
+            name: (p as any).name || apt.patientName || "Unknown Patient",
+            patientId: (p as any).patientId || `#PAT-${((p as any)._id || (p as any).id || '').slice(-6)}`,
+            email: (p as any).email || "",
+            phone: (p as any).phone || "",
+            dateOfBirth: (p as any).dateOfBirth || "",
+            age: calculateAge((p as any).dateOfBirth),
+            gender: (p as any).gender || "",
+            bloodType: (p as any).bloodType || "",
+            address: (p as any).address || "",
+            avatar: (p as any).avatar || "",
+            lastVisit: (p as any).lastVisit || "",
+            appointment: apt,
+          };
+        }
+      }
+      
+      setActiveAppointment({ ...apt, patient: patientData } as any);
+      setView("procedure");
+      
+      // Update status to in-progress after setting the view
+      await handleStatusUpdate(apt._id, "in-progress");
+    } catch (e) {
+      console.error("Error in handleStartVisit:", e);
+    }
   };
 
   const handleAppointmentChange = () => {
@@ -217,12 +293,15 @@ export default function DoctorAppointments() {
           </div>
 
           {viewMode === "list" ? (
-            view === "procedure" && activeAppointment ? (
+            view === "procedure" && activeAppointment && activeAppointment.patient ? (
               <Procedure
                 patient={activeAppointment.patient}
+                doctorId={authUser?.doctorId || authUser?.id || ""}
                 goBack={() => {
                   setView("list");
                   setActiveAppointment(null);
+                  // Refresh appointments list
+                  fetchList();
                 }}
               />
             ) : (
@@ -278,6 +357,10 @@ export default function DoctorAppointments() {
           setShowEditModal(false);
           if (viewMode === "calendar") fetchCalendar();
           else fetchList();
+        }}
+        onError={(message) => {
+          // Error handling can be added here if needed
+          console.error("Edit appointment error:", message);
         }}
       />
       <AppointmentBookingModal
