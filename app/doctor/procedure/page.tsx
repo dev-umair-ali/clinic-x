@@ -1,11 +1,14 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import Procedure from "@/components/patients/Procedure"; // <-- the big component you pasted
+import Procedure from "@/components/patients/Procedure";
 
-export default function DoctorProcedurePage() {
+// Separate component for the content that uses useSearchParams
+function ProcedureContent() {
   const searchParams = useSearchParams();
   const patientId = searchParams.get("patientId") ?? "";
+  const doctorId = searchParams.get("doctorId") ?? "";
 
   // dummy patient object for now – replace with real fetch when ready
   const mockPatient = {
@@ -25,5 +28,14 @@ export default function DoctorProcedurePage() {
 
   const goBack = () => window.history.back();
 
-  return <Procedure patient={mockPatient} goBack={goBack} />;
+  return <Procedure patient={mockPatient} doctorId={doctorId} goBack={goBack} />;
+}
+
+// Main page component with Suspense boundary
+export default function DoctorProcedurePage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+      <ProcedureContent />
+    </Suspense>
+  );
 }
