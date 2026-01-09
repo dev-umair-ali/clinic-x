@@ -11,6 +11,7 @@ export { refillService } from './services/refillService';
 export { reportsService } from './services/reportsService';
 export { uploadService } from './services/uploadService';
 export { clinicService } from './services/clinicService';
+export { default as patientOnboardingService } from './services/patientOnboardingService';
 
 // Export axios instance and utilities
 export { default as api, setAuthToken, clearAuthToken } from './axios';
@@ -28,3 +29,14 @@ export type { RefillRequest, CreateRefillRequest, UpdateRefillStatusRequest, Ref
 export type { Report, CreateReportRequest, MarkReportGeneratedRequest, ReportResponse, ReportsListResponse } from './services/reportsService';
 export type { UploadResponse, UploadProgress } from './services/uploadService';
 export type { Clinic, CreateClinicRequest, UpdateClinicRequest, ClinicResponse, ClinicsListResponse, ClinicDashboard, ClinicDashboardResponse, AppointmentsTrendData, AppointmentsTrendResponse, RevenueTrendData, RevenueTrendResponse, LogoUploadResponse, LogoGetResponse } from './services/clinicService';
+export type { 
+  OnBoardingFormData, 
+  InsuranceFormData, 
+  PresentConditionFormData, 
+  HistoryHealthFormData, 
+  LifeStyleFormData, 
+  WomenFormData, 
+  ConstantLegalFormData,
+  ApiResponse,
+  CompleteOnboardingData
+} from './services/patientOnboardingService';

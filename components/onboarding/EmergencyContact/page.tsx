@@ -24,7 +24,7 @@ export default function EmergencyContact({
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label className="text-sm font-medium text-[hsl(var(--foreground))] mb-2 block">
-            Emergency Contact Name
+            Emergency Contact Name *
           </Label>
           <Input
             placeholder="Person's Name"
@@ -35,7 +35,7 @@ export default function EmergencyContact({
         </div>
         <div>
           <Label className="text-sm font-medium text-[hsl(var(--foreground))] mb-2 block">
-            Emergency Contact Phone
+            Emergency Contact Phone *
           </Label>
           <Input
             placeholder="(555) 123-4567"
@@ -47,7 +47,7 @@ export default function EmergencyContact({
       </div>
       <div className="mt-4">
         <Label className="text-sm font-medium text-[hsl(var(--foreground))] mb-2 block">
-          Relationship to Patient
+          Relationship to Patient *
         </Label>
         <Select
           value={formData.relationshipToPatient}

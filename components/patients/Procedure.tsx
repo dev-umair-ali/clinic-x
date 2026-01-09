@@ -28,6 +28,12 @@ const Procedure = ({
 
   const [activeTab, setActiveTab] = useState("medical-history")
 
+  // Extract patient forms data
+  const patientForms = patient?.forms || null;
+
+  console.log('📋 Procedure component loaded with patient:', patient);
+  console.log('📋 Patient forms:', patientForms);
+
   const updateFormData = (field: string, value: any) => {
     setFormData((prev) => ({
       ...prev,
@@ -134,7 +140,12 @@ const Procedure = ({
         </div>
       </div>
       <div className="mt-6 px-5">
-        <SectionsContent activeTab={activeTab} setActiveTab={setActiveTab} />
+        <SectionsContent 
+          activeTab={activeTab} 
+          setActiveTab={setActiveTab} 
+          patient={patient}
+          patientForms={patientForms}
+        />
       </div>
     </>
   )

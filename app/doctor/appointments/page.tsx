@@ -17,7 +17,8 @@ import useStats from "@/components/DoctorAppointments-components/hooks/useStats"
 import { DoctorAppointment, PatientDetails } from "@/lib/api/services/appointmentService";
 import { Toaster } from "@/components/ui/toaster";
 import { Button } from "@/components/ui/button";
-import Procedure from "@/components/patients/Procedure"; // <-- NEW LINE
+import Procedure from "@/components/patients/Procedure";
+import { patientOnboardingService } from "@/lib/api/services/patientOnboardingService";
 
 function calculateAge(dob?: string): number {
   if (!dob) return 0;
@@ -159,12 +160,19 @@ export default function DoctorAppointments() {
     // Fetch complete patient details first
     if (!apt._id) return;
     
+    console.log('🚀 Starting visit for appointment:', apt._id);
+    console.log('🚀 Appointment patient data:', apt.patient);
+    
     try {
       // Try to fetch patient details from API first
       let patientData;
+      let patientForms = null;
       
       try {
+        console.log('🔄 Fetching patient details...');
         const p = await fetchPatientDetails(apt._id);
+        console.log('✅ Patient details fetched:', p._id);
+        console.log('📋 Patient object:', p);
         
         patientData = {
           _id: p._id,
@@ -181,7 +189,37 @@ export default function DoctorAppointments() {
           lastVisit: p.lastVisit,
           appointment: apt,
         };
+
+        console.log('📋 patientData created:', patientData);
+
+        // Fetch patient onboarding forms
+        try {
+          console.log('🔍 Fetching patient forms for patient ID:', p._id);
+          console.log('🔍 patientOnboardingService available?', !!patientOnboardingService);
+          console.log('🔍 patientOnboardingService.forms available?', !!patientOnboardingService?.forms);
+          console.log('🔍 getFormsByPatientId available?', !!patientOnboardingService?.forms?.getFormsByPatientId);
+          
+          const formsResponse = await patientOnboardingService.forms.getFormsByPatientId(p._id);
+          console.log('📦 Full forms response:', formsResponse);
+          if (formsResponse.success && formsResponse.data) {
+            // formsResponse.data is the entire patient object with populated forms
+            patientForms = formsResponse.data;
+            console.log('✅ Patient data with forms loaded successfully');
+            console.log('📋 Available form fields:', Object.keys(patientForms).filter(key => key.includes('Form') || key.includes('form')));
+            console.log('📄 historyHealthForm:', patientForms.historyHealthForm);
+            console.log('💳 insuranceForm:', patientForms.insuranceForm);
+            console.log('🏃 lifeStyleForm:', patientForms.lifeStyleForm);
+            console.log('🦷 dentalHistoryForm:', patientForms.dentalHistoryForm);
+            console.log('📋 constantLegalForm:', patientForms.constantLegalForm);
+            console.log('👤 onboardingForm:', patientForms.onboardingForm);
+          } else {
+            console.warn('⚠️ Forms response unsuccessful or no data:', formsResponse);
+          }
+        } catch (formError) {
+          console.error('❌ Error loading patient forms:', formError);
+        }
       } catch (apiError) {
+        console.warn('⚠️ fetchPatientDetails failed, using fallback:', apiError);
         // Fallback: Use patient data from the appointment object
         const p = apt.patient || apt.patientId;
         
@@ -227,7 +265,39 @@ export default function DoctorAppointments() {
         }
       }
       
-      setActiveAppointment({ ...apt, patient: patientData } as any);
+      // Always try to fetch forms, regardless of whether patient details succeeded
+      console.log('🔎 Checking if should fetch forms. patientForms:', patientForms, 'patientData._id:', patientData?._id);
+      if (!patientForms && patientData?._id) {
+        try {
+          console.log('🔍 [Fallback] Fetching patient forms for patient ID:', patientData._id);
+          const formsResponse = await patientOnboardingService.forms.getFormsByPatientId(patientData._id);
+          console.log('📦 [Fallback] Full forms response:', formsResponse);
+          if (formsResponse.success && formsResponse.data) {
+            patientForms = formsResponse.data;
+            console.log('✅ [Fallback] Patient data with forms loaded successfully');
+            console.log('📋 [Fallback] Complete forms data:', JSON.stringify(patientForms, null, 2));
+            console.log('📋 [Fallback] Available form fields:', Object.keys(patientForms).filter(key => key.includes('Form') || key.includes('form') || key.includes('History') || key.includes('Style') || key.includes('Legal') || key.includes('Boarding')));
+            console.log('📄 onBoarding:', patientForms.onBoarding);
+            console.log('💳 insurance:', patientForms.insurance);
+            console.log('🏥 history:', patientForms.history);
+            console.log('🏃 lifeStyle:', patientForms.lifeStyle);
+            console.log('🦷 dentalHistory:', patientForms.dentalHistory);
+            console.log('📋 constantLegal:', patientForms.constantLegal);
+          } else {
+            console.warn('⚠️ [Fallback] Forms response unsuccessful or no data:', formsResponse);
+          }
+        } catch (formError) {
+          console.error('❌ [Fallback] Error loading patient forms:', formError);
+        }
+      }
+      
+      // Attach forms data to patient object
+      const patientWithForms = {
+        ...patientData,
+        forms: patientForms
+      };
+      
+      setActiveAppointment({ ...apt, patient: patientWithForms } as any);
       setView("procedure");
       
       // Update status to in-progress after setting the view

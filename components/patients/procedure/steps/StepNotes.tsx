@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import AudioRecorder from "@/components/ui/AudioRecorder";
 import Disclaimer from "@/components/ui/Disclaimer";
 import { PlusIcon, TrashIcon, DocumentTextIcon, CheckCircleIcon } from "@heroicons/react/20/solid";
+import { billingService } from "@/lib/api/services/billingService";
 
 interface Note {
   id: string;
@@ -12,12 +13,37 @@ interface Note {
   createdAt: string;
 }
 
+// Helper function to calculate billing amount from CPT codes
+// Customize pricing as needed or fetch from database
+const calculateBillingAmount = (cptCodes: Array<{ code: string }>): number => {
+  // Default pricing for common CPT codes (customize as needed)
+  const cptPricing: Record<string, number> = {
+    '99213': 120.00, // Office visit - established patient
+    '99214': 180.00, // Office visit - detailed
+    '99215': 250.00, // Office visit - comprehensive
+    '81002': 15.00,  // Urinalysis
+    '87086': 25.00,  // Culture, bacterial
+    '99000': 15.00,  // Handling specimen
+    // Add more CPT codes with pricing as needed
+  };
+
+  let total = 0;
+  for (const cpt of cptCodes) {
+    const price = cptPricing[cpt.code] || 50.00; // Default price if not found
+    total += price;
+    console.log(`  ${cpt.code}: $${price.toFixed(2)}`);
+  }
+
+  return total;
+};
+
 const StepNotes = ({ formData, updateFormData, patient, doctorId }: any) => {
   const [notes, setNotes] = useState<Note[]>([]);
   const [currentTranscript, setCurrentTranscript] = useState<string>("");
   const [currentVoiceUrl, setCurrentVoiceUrl] = useState<string>("");
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [savingStep, setSavingStep] = useState<string>(""); // Track which step is being processed
 
   // Sync notes with formData
   useEffect(() => {
@@ -44,6 +70,7 @@ const StepNotes = ({ formData, updateFormData, patient, doctorId }: any) => {
     }
 
     setIsSaving(true);
+    setSavingStep("Saving note...");
 
     try {
       // Debug: Log the entire patient object
@@ -80,10 +107,14 @@ const StepNotes = ({ formData, updateFormData, patient, doctorId }: any) => {
         console.error("Missing required IDs:", { appointmentId, patientId, doctorId: finalDoctorId });
         alert(`Missing required information. Please try again.\nAppointment ID: ${appointmentId ? '✓' : '✗'}\nPatient ID: ${patientId ? '✓' : '✗'}\nDoctor ID: ${finalDoctorId ? '✓' : '✗'}`);
         setIsSaving(false);
+        setSavingStep("");
         return;
       }
 
-      // Prepare payload
+      // ============================================
+      // STEP 1: Save Note to Database
+      // ============================================
+      console.log("📝 STEP 1: Saving note to database...");
       const payload = {
         appointmentRef: appointmentId,
         doctorRef: finalDoctorId,
@@ -118,33 +149,163 @@ const StepNotes = ({ formData, updateFormData, patient, doctorId }: any) => {
       const result = await response.json();
       console.log("Response result:", result);
 
-      if (result.success) {
-        console.log("Note saved successfully:", result.data);
-        
-        // Add note to local state
-        const newNote: Note = {
-          id: result.data._id || Date.now().toString(),
-          transcript: currentTranscript,
-          voiceUrl: currentVoiceUrl,
-          createdAt: new Date().toISOString(),
-        };
-
-        const currentNotes = Array.isArray(notes) ? notes : [];
-        const updatedNotes = [...currentNotes, newNote];
-        setNotes(updatedNotes);
-        updateFormData("notes", updatedNotes);
-        
-        // Clear current inputs
-        setCurrentTranscript("");
-        setCurrentVoiceUrl("");
-
-        // Show success message
-        setShowSuccessMessage(true);
-        setTimeout(() => setShowSuccessMessage(false), 3000);
-      } else {
+      if (!result.success) {
         console.error("Failed to save note:", result.message);
         alert("Failed to save note: " + result.message);
+        setIsSaving(false);
+        setSavingStep("");
+        return;
       }
+
+      console.log("✅ STEP 1 COMPLETE: Note saved successfully:", result.data);
+      
+      // Add note to local state
+      const newNote: Note = {
+        id: result.data._id || Date.now().toString(),
+        transcript: currentTranscript,
+        voiceUrl: currentVoiceUrl,
+        createdAt: new Date().toISOString(),
+      };
+
+      const currentNotes = Array.isArray(notes) ? notes : [];
+      const updatedNotes = [...currentNotes, newNote];
+      setNotes(updatedNotes);
+      updateFormData("notes", updatedNotes);
+
+      // ============================================
+      // STEP 2: Extract CPT Codes from Billing API
+      // ============================================
+      setSavingStep("Extracting CPT codes...");
+      console.log("💰 STEP 2: Extracting CPT codes from SOAP notes...");
+      
+      try {
+        // Format request according to billing API requirements
+        const billingApiRequest = {
+          soap_note: currentTranscript, // Send as string/multiline text
+          use_fallback: false
+        };
+
+        // Log the raw transcript to verify newlines are preserved
+        console.log("� Raw transcript (with escape sequences visible):");
+        console.log(currentTranscript);
+        console.log("📝 Transcript length:", currentTranscript.length);
+        console.log("📝 Contains newlines:", currentTranscript.includes('\n'));
+        
+        // Log the stringified version that will be sent
+        const jsonString = JSON.stringify(billingApiRequest, null, 2);
+        console.log("📤 JSON string to be sent:");
+        console.log(jsonString);
+        
+        // Verify it's valid JSON
+        try {
+          JSON.parse(jsonString);
+          console.log("✅ JSON is valid");
+        } catch (jsonError) {
+          console.error("❌ JSON is INVALID:", jsonError);
+          throw new Error("Invalid JSON format");
+        }
+
+        const cptResponse = await billingService.extractCPTCodes(billingApiRequest);
+
+        console.log("📥 Billing API response:", cptResponse);
+
+        if (!cptResponse.cpt_codes || cptResponse.cpt_codes.length === 0) {
+          console.log("ℹ️ No CPT codes found in notes or billing API returned no codes");
+          // Still show success for note saving
+          setShowSuccessMessage(true);
+          setTimeout(() => setShowSuccessMessage(false), 3000);
+          alert("✅ Note saved successfully!\n\nℹ️ No billable CPT codes were found in the notes.");
+          
+          // Clear current inputs
+          setCurrentTranscript("");
+          setCurrentVoiceUrl("");
+          setIsSaving(false);
+          setSavingStep("");
+          return;
+        }
+
+        console.log("✅ STEP 2 COMPLETE: CPT codes extracted:", cptResponse.cpt_codes);
+        console.log("📋 Modifier:", cptResponse.modifier);
+        console.log("🤖 Model used:", cptResponse.model_used);
+
+        // ============================================
+        // STEP 3: Create Billing Record
+        // ============================================
+        setSavingStep("Creating billing record...");
+        console.log("💵 STEP 3: Creating billing record...");
+        
+        // Calculate total amount from CPT codes
+        // You can customize pricing in billingService.ts
+        const totalAmount = calculateBillingAmount(cptResponse.cpt_codes);
+
+        if (totalAmount <= 0) {
+          console.log("ℹ️ No billable amount calculated from CPT codes");
+          alert("✅ Note saved successfully!\n\nℹ️ CPT codes found but no billable amount calculated.");
+          
+          // Clear current inputs
+          setCurrentTranscript("");
+          setCurrentVoiceUrl("");
+          setIsSaving(false);
+          setSavingStep("");
+          return;
+        }
+
+        console.log("💵 Creating billing record with amount:", totalAmount);
+        const billingResult = await billingService.createBillingFromCPTCodes(
+          patientId,
+          finalDoctorId,
+          cptResponse.cpt_codes,
+          cptResponse.modifier,
+          totalAmount,
+          appointmentId
+        );
+
+        if (billingResult.success) {
+          console.log("✅ STEP 3 COMPLETE: Billing record created successfully:", billingResult.data);
+          
+          // Show detailed success message
+          const cptCodesList = cptResponse.cpt_codes
+            .map(c => c.code)
+            .join(', ');
+          
+          alert(
+            `✅ SUCCESS! All 3 Steps Completed:\n\n` +
+            `1. ✓ Note saved to database\n` +
+            `2. ✓ CPT codes extracted\n` +
+            `3. ✓ Billing record created\n\n` +
+            `CPT Codes: ${cptCodesList}\n` +
+            `Modifier: ${cptResponse.modifier || 'None'}\n` +
+            `Model Used: ${cptResponse.model_used}\n\n` +
+            `Total Amount: $${totalAmount.toFixed(2)}\n` +
+            `Billing Status: Pending`
+          );
+        } else {
+          console.warn("⚠️ Note saved but billing creation failed:", billingResult.message);
+          alert(
+            `⚠️ Partial Success:\n\n` +
+            `1. ✓ Note saved to database\n` +
+            `2. ✓ CPT codes extracted\n` +
+            `3. ✗ Billing creation failed\n\n` +
+            `Error: ${billingResult.message}`
+          );
+        }
+      } catch (billingError: any) {
+        console.error("❌ Error processing billing:", billingError);
+        alert(
+          `⚠️ Partial Success:\n\n` +
+          `1. ✓ Note saved to database\n` +
+          `2. ✗ CPT extraction or billing failed\n\n` +
+          `Error: ${billingError.message || 'Unknown error'}\n\n` +
+          `The note was saved successfully.`
+        );
+      }
+
+      // Clear current inputs and show success
+      setCurrentTranscript("");
+      setCurrentVoiceUrl("");
+      setShowSuccessMessage(true);
+      setTimeout(() => setShowSuccessMessage(false), 3000);
+
     } catch (error: any) {
       console.error("Error saving note (full error):", error);
       console.error("Error message:", error?.message);
@@ -152,6 +313,7 @@ const StepNotes = ({ formData, updateFormData, patient, doctorId }: any) => {
       alert(`Error saving note. Please try again.\n\nError: ${error?.message || 'Unknown error'}`);
     } finally {
       setIsSaving(false);
+      setSavingStep("");
     }
   };
 
@@ -217,12 +379,12 @@ const StepNotes = ({ formData, updateFormData, patient, doctorId }: any) => {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Saving...
+                <span className="text-xs">{savingStep || "Saving..."}</span>
               </>
             ) : (
               <>
                 <PlusIcon className="h-5 w-5" />
-                Add to Notes
+                Save Note & Bill
               </>
             )}
           </button>
