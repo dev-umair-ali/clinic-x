@@ -2,28 +2,46 @@ import api from '../axios';
 
 export interface Bill {
   _id: string;
-  patient: string;
-  doctor: string;
-  amount: number;
-  status: "unpaid" | "paid" | "pending" | "cancelled";
+  doctorId: string;
+  patientId: string;
+  clinicId: string;
+  appointmentId?: string;
+  serviceCode: string;
+  totalAmount: number;
+  copayAmount: number;
+  remainingAmount: number;
+  status: "pending" | "copay_paid" | "fully_paid";
+  insuranceStatus: "not_submitted" | "submitted" | "processing" | "accepted" | "denied" | "paid";
   notes?: string;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CreateBillRequest {
-  patient: string;
-  doctor: string;
-  amount: number;
-  status?: "unpaid" | "paid" | "pending" | "cancelled";
+  doctorId: string;
+  patientId: string;
+  clinicId: string;
+  appointmentId?: string;
+  serviceCode: string; // CPT codes
+  totalAmount: number;
+  copayAmount: number;
+  remainingAmount: number;
+  status?: "pending" | "copay_paid" | "fully_paid";
+  insuranceStatus?: "not_submitted" | "submitted" | "processing" | "accepted" | "denied" | "paid";
   notes?: string;
 }
 
 export interface UpdateBillRequest {
-  patient?: string;
-  doctor?: string;
-  amount?: number;
-  status?: "unpaid" | "paid" | "pending" | "cancelled";
+  doctorId?: string;
+  patientId?: string;
+  clinicId?: string;
+  appointmentId?: string;
+  serviceCode?: string;
+  totalAmount?: number;
+  copayAmount?: number;
+  remainingAmount?: number;
+  status?: "pending" | "copay_paid" | "fully_paid";
+  insuranceStatus?: "not_submitted" | "submitted" | "processing" | "accepted" | "denied" | "paid";
   notes?: string;
 }
 
@@ -100,7 +118,7 @@ export const billingService = {
 
   async createBill(billData: CreateBillRequest): Promise<BillResponse> {
     try {
-      const response = await api.post('/bills', billData);
+      const response = await api.post('/bills/create', billData);
       return response.data;
     } catch (error: any) {
       console.error('Error creating bill:', error);
@@ -188,11 +206,28 @@ export const billingService = {
   ): Promise<BillResponse> {
     try {
       const cptCodesString = cptCodes.map(c => c.code).join(', ');
+      
+      // Get user data to extract clinicId
+      const userStr = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+      const user = userStr ? JSON.parse(userStr) : null;
+      const clinicId = user?.clinicId || user?.clinic;
+      
+      if (!clinicId) {
+        console.warn('⚠️ No clinicId found in user data');
+      }
+      
+      // Backend expects: doctorId, patientId, clinicId, appointmentId, serviceCode, totalAmount, copayAmount, remainingAmount
       const billData: CreateBillRequest = {
-        patient: patientId,
-        doctor: doctorId,
-        amount: amount,
-        status: 'pending',
+        doctorId: doctorId,
+        patientId: patientId,
+        clinicId: clinicId || doctorId, // fallback to doctorId if no clinicId
+        appointmentId: appointmentId || undefined,
+        serviceCode: cptCodesString, // CPT codes as comma-separated string
+        totalAmount: amount,
+        copayAmount: 0, // Default to 0, can be updated later
+        remainingAmount: amount, // Full amount is remaining initially
+        status: 'pending' as const,
+        insuranceStatus: 'not_submitted' as const,
         notes: `CPT Codes: ${cptCodesString}${modifier ? `\nModifier: ${modifier}` : ''}${appointmentId ? `\nAppointment: ${appointmentId}` : ''}`,
       };
 

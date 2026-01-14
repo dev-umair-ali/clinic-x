@@ -8,7 +8,7 @@
 // Test configuration
 const TEST_CONFIG = {
   patientId: 'YOUR_PATIENT_ID_HERE', // Replace with actual patient ID
-  baseUrl: process.env.NEXT_PUBLIC_BACKEND_BASE_URL || 'http://localhost:5000',
+  baseUrl: process.env.NEXT_PUBLIC_BACKEND_BASE_URL || 'http://localhost:3000',
 };
 
 // Get patient ID from localStorage
