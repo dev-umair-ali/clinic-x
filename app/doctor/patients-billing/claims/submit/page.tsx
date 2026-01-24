@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { exportToCSV, handlePrint } from "@/lib/utils/billing-utils";
-import { doctorBillingAPI } from "@/lib/api/billing";
+import { doctorBillingAPI, claimsAPI } from "@/lib/api/billing";
 import { useToast } from "@/hooks/use-toast";
 import {
   ArrowLeft,
@@ -47,6 +47,7 @@ export default function SubmitClaimPage() {
   const { toast } = useToast();
   const [selectedInvoices, setSelectedInvoices] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [pendingInvoices, setPendingInvoices] = useState<any[]>([]);
   const [currentDoctor, setCurrentDoctor] = useState<any>(null);
   const [formData, setFormData] = useState({
@@ -121,25 +122,48 @@ export default function SubmitClaimPage() {
   const fetchCurrentDoctor = async () => {
     try {
       const token = localStorage.getItem('clinic-ai-token') || sessionStorage.getItem('clinic-ai-token');
-      if (!token) return;
+      if (!token) {
+        console.error('No token found for fetching doctor');
+        return;
+      }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL || 'http://localhost:3000'}/auth/me`, {
+      const baseUrl = process.env.NEXT_PUBLIC_BACKEND_BASE_URL || 'http://localhost:3000';
+      
+      // Get the doctor profile using /doctors/me endpoint
+      const doctorResponse = await fetch(`${baseUrl}/doctors/me`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setCurrentDoctor(data.user);
+      if (!doctorResponse.ok) {
+        console.error('Failed to fetch doctor profile:', doctorResponse.status);
+        const errorText = await doctorResponse.text();
+        console.error('Error details:', errorText);
+        return;
+      }
+
+      const doctorData = await doctorResponse.json();
+      console.log('Doctor profile data from /doctors/me:', doctorData);
+      
+      // Response structure: { success: true, data: { user: {...}, profile: {...} } }
+      const doctor = doctorData.data?.user || doctorData.data?.profile || doctorData.data || doctorData;
+      
+      if (doctor) {
+        setCurrentDoctor(doctor);
+        
         // Set current doctor as default billing provider
-        if (data.user) {
-          setFormData(prev => ({
-            ...prev,
-            billingProvider: data.user._id || data.user.id,
-          }));
-        }
+        const doctorId = doctor.id || doctor._id;
+        console.log('Setting billing provider to doctor ID:', doctorId);
+        console.log('Doctor name:', doctor.firstName, doctor.lastName);
+        
+        setFormData(prev => ({
+          ...prev,
+          billingProvider: doctorId,
+        }));
+      } else {
+        console.error('No doctor data found in response:', doctorData);
       }
     } catch (error) {
       console.error('Error fetching current doctor:', error);
@@ -181,13 +205,108 @@ export default function SubmitClaimPage() {
     0
   );
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Submitting claims:", {
-      invoices: selectedInvoices,
-      ...formData,
-    });
-    router.push("/doctor/patients-billing/claims");
+    
+    if (selectedInvoices.length === 0) {
+      toast({
+        title: "No Invoices Selected",
+        description: "Please select at least one invoice to submit a claim",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.billingProvider) {
+      toast({
+        title: "Billing Provider Required",
+        description: "Please select a billing provider",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      
+      const results = [];
+      const errors = [];
+
+      // Create a claim for each selected invoice
+      for (const invoiceId of selectedInvoices) {
+        const invoice = pendingInvoices.find(inv => inv.id === invoiceId);
+        
+        if (!invoice || !invoice.chargeId) {
+          errors.push(`Invoice ${invoiceId}: Charge ID not found`);
+          continue;
+        }
+
+        try {
+          // Create claim from charge
+          const result = await claimsAPI.createClaim({
+            chargeId: invoice.chargeId,
+            notes: formData.claimNote || '',
+          });
+
+          if (result.success && result.data) {
+            // Optionally submit the claim immediately if submissionType is electronic
+            if (formData.submissionType === 'electronic') {
+              await claimsAPI.submitClaim(result.data._id, {
+                submissionMethod: 'electronic',
+                notes: formData.claimNote || '',
+              });
+            }
+            
+            results.push({
+              invoiceId,
+              claimId: result.data._id,
+              success: true,
+            });
+          } else {
+            errors.push(`Invoice ${invoiceId}: ${result.error || 'Failed to create claim'}`);
+          }
+        } catch (error) {
+          console.error(`Error creating claim for invoice ${invoiceId}:`, error);
+          errors.push(`Invoice ${invoiceId}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
+      }
+
+      // Show results
+      if (results.length > 0) {
+        toast({
+          title: "Claims Submitted Successfully",
+          description: `${results.length} claim(s) created successfully${errors.length > 0 ? `. ${errors.length} failed.` : '.'}`,
+        });
+      }
+
+      if (errors.length > 0) {
+        console.error('Claim submission errors:', errors);
+        if (results.length === 0) {
+          toast({
+            title: "Claim Submission Failed",
+            description: errors[0] || "Failed to create claims",
+            variant: "destructive",
+          });
+        }
+      }
+
+      // Navigate to claims list if at least one succeeded
+      if (results.length > 0) {
+        setTimeout(() => {
+          router.push("/doctor/patients-billing/claims");
+        }, 1500);
+      }
+
+    } catch (error) {
+      console.error('Error submitting claims:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to submit claims",
+        variant: "destructive",
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -270,7 +389,7 @@ export default function SubmitClaimPage() {
                           </SelectTrigger>
                           <SelectContent>
                             {currentDoctor && (
-                              <SelectItem value={currentDoctor._id || currentDoctor.id}>
+                              <SelectItem value={currentDoctor.id || currentDoctor._id}>
                                 Dr. {currentDoctor.firstName} {currentDoctor.lastName}
                               </SelectItem>
                             )}
@@ -491,9 +610,9 @@ export default function SubmitClaimPage() {
                             </div>
 
                             <div className="flex flex-wrap gap-2">
-                              {invoice.cptCodes.map((code: string) => (
+                              {invoice.cptCodes.map((code: string, idx: number) => (
                                 <Badge
-                                  key={code}
+                                  key={`${code}-${idx}`}
                                   variant="secondary"
                                   className="text-xs font-mono"
                                 >
@@ -608,11 +727,20 @@ export default function SubmitClaimPage() {
                       <Button
                         type="submit"
                         className="w-full bg-[#1DA68F] hover:bg-[#1DA68F]/90"
-                        disabled={selectedInvoices.length === 0}
+                        disabled={selectedInvoices.length === 0 || submitting}
                       >
-                        <Send className="w-4 h-4 mr-2" />
-                        Submit {selectedInvoices.length} Claim
-                        {selectedInvoices.length !== 1 ? "s" : ""}
+                        {submitting ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Submitting Claims...
+                          </>
+                        ) : (
+                          <>
+                            <Send className="w-4 h-4 mr-2" />
+                            Submit {selectedInvoices.length} Claim
+                            {selectedInvoices.length !== 1 ? "s" : ""}
+                          </>
+                        )}
                       </Button>
                       <Button
                         type="button"
