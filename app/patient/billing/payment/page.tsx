@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ProtectedRoute } from "@/components/ui/protected-route";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import {
   Calendar,
   Shield,
   Building2,
+  Loader2,
 } from "lucide-react";
 import {
   Card,
@@ -34,7 +35,18 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 
-export default function PaymentPage() {
+function PaymentPageLoading() {
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex items-center gap-2">
+        <Loader2 className="w-6 h-6 animate-spin text-[#1DA68F]" />
+        <span>Loading payment...</span>
+      </div>
+    </div>
+  );
+}
+
+function PaymentPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const invoiceParam = searchParams.get("invoice");
@@ -560,5 +572,13 @@ export default function PaymentPage() {
         </div>
       </div>
     </ProtectedRoute>
+  );
+}
+
+export default function PaymentPage() {
+  return (
+    <Suspense fallback={<PaymentPageLoading />}>
+      <PaymentPageContent />
+    </Suspense>
   );
 }
