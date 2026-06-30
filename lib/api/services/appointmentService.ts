@@ -4,32 +4,30 @@ export interface Appointment {
   doctorName: any;
   _id: string;
   doctor: string;
-  patient: string;
+  patientRef: string;
   dateTime: string;
-  status: "scheduled" | "completed" | "cancelled";
+  status: "scheduled" | "completed" | "cancelled" | "rescheduled" | "no show" | "pending" | "canceled" | "start_visit";
   notes?: string;
+  title?: string;
+  service?: string;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CreateAppointmentRequest {
-  doctorRef: string;
-  patientRef: string;
+  doctorRef?: string;
+  patientRef?: string;
   date: string;
   time: string;
   service: string;
-  status?: "scheduled" | "pending" | "rescheduled" | "canceled" | "completed" | "No Show";
+  title?: string;
+  status?: "scheduled" | "pending" | "rescheduled" | "canceled" | "completed" | "No Show" | "start_visit";
   notes?: string;
   smsReminder?: boolean;
   emailReminder?: boolean;
   totalCharge?: number;
   copay?: boolean;
   payNow?: number;
-  remainingDue?: number;
-  holderName?: string;
-  cardNumber?: string;
-  expDate?: string;
-  cvv?: string;
   slot?: {
     startTime: string;
     endTime: string;
@@ -42,7 +40,7 @@ export interface UpdateAppointmentRequest {
   doctor?: string;
   patient?: string;
   dateTime?: string;
-  status?: "scheduled" | "completed" | "cancelled";
+  status?: "scheduled" | "completed" | "cancelled" | "rescheduled" | "no show" | "pending" | "canceled" | "start_visit";
   notes?: string;
 }
 
@@ -63,7 +61,7 @@ export interface DoctorAppointment {
   doctor: string;
   doctorRef?: any; // For populated doctor data
   doctorName?: string; // Doctor's name
-  patient: string | {
+  patientRef?: {
     _id: string;
     name: string;
     email?: string;
@@ -76,7 +74,7 @@ export interface DoctorAppointment {
   };
   dateTime: string; // Primary field: ISO datetime
   timeZone: string; // Doctor's timezone
-  status: "scheduled" | "completed" | "cancelled" | "rescheduled";
+  status: "scheduled" | "completed" | "cancelled" | "rescheduled" | "no show" | "pending" | "canceled" | "start_visit";
   service?: string; // Appointment type/service
   notes?: string;
   createdAt: string;
@@ -104,7 +102,48 @@ export interface PatientDetails {
   lastVisit?: string;
 }
 
+export interface PatientFullDetails {
+  patient: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phoneNumber: string;
+    dateOfBirth: string;
+    gender: string;
+    bloodType: string;
+    age: number;
+    profilePicture?: string;
+  };
+  lastAppointment?: {
+    appointmentDate: string;
+    appointmentTime: string;
+    service: string;
+    title: string;
+    doctorRef?: any;
+    clinic?: any;
+  };
+  notes?: {
+    title: string;
+    additionalNotes: string;
+    rawText: string;
+  };
+  prescription?: {
+    medication: any[];
+  };
+  billing?: {
+    amount: number;
+    status: string;
+  };
+}
+
+export interface PatientDetailsResponse {
+  success: boolean;
+  data: PatientFullDetails;
+  message?: string;
+}
+
 export interface DoctorAppointmentsListResponse {
+  appointments: any;
   success: boolean;
   data: DoctorAppointment[];
   message?: string;
@@ -130,22 +169,22 @@ export interface WeeklyCountResponse {
 // Helper function to format error messages
 const formatError = (error: any, defaultMessage: string): string => {
   if (!error) return defaultMessage;
-  
+
   // Network error
   if (error.code === 'ECONNABORTED' || error.message === 'Network Error') {
     return 'Network error. Please check your internet connection and try again.';
   }
-  
+
   // Timeout error
   if (error.code === 'ETIMEDOUT') {
     return 'Request timed out. Please try again.';
   }
-  
+
   // Server error with response
   if (error.response) {
     const status = error.response.status;
     const message = error.response?.data?.message || error.response?.data?.error;
-    
+
     switch (status) {
       case 400:
         return message || 'Invalid request. Please check your input and try again.';
@@ -167,7 +206,7 @@ const formatError = (error: any, defaultMessage: string): string => {
         return message || `Error ${status}: ${defaultMessage}`;
     }
   }
-  
+
   // Generic error
   return error.message || defaultMessage;
 };
@@ -177,27 +216,52 @@ const validateResponse = (response: any, expectedFields: string[], context?: str
   if (!response || typeof response !== 'object') {
     return false;
   }
-  
+
   for (const field of expectedFields) {
     if (!(field in response)) {
       console.warn(`Response missing expected field: ${field}`, context ? `(from ${context})` : '', response);
     }
   }
-  
+
   return true;
 };
 
 export const appointmentService = {
-  async getAppointments(): Promise<AppointmentsListResponse> {
+
+  async updateAppointmentStatus(role: string, id: string, status: string): Promise<AppointmentResponse> {
+
     try {
-      const response = await api.get('/appointments');
-      
+      const response = await api.patch(`/${role}/appointments/${id}/status`, { status });
+
       if (!response || !response.data) {
         throw new Error('Invalid response from server');
       }
-      
+
+      validateResponse(response.data, ['success', 'data']);
+
+      if (!response.data.success) {
+        throw new Error(response.data.message || 'Failed to update appointment status');
+      }
+
+      return response.data;
+    } catch (error: any) {
+      const errorMessage = formatError(error, 'Failed to update appointment status');
+      const enhancedError = new Error(errorMessage);
+      (enhancedError as any).originalError = error;
+      throw enhancedError;
+    }
+  },
+
+  async getAppointments(): Promise<AppointmentsListResponse> {
+    try {
+      const response = await api.get('/appointments');
+
+      if (!response || !response.data) {
+        throw new Error('Invalid response from server');
+      }
+
       validateResponse(response.data, ['success', 'data'], 'getAppointments');
-      
+
       return response.data;
     } catch (error: any) {
       const errorMessage = formatError(error, 'Failed to fetch appointments');
@@ -212,16 +276,16 @@ export const appointmentService = {
     if (!id || typeof id !== 'string' || id.trim() === '') {
       throw new Error('Invalid appointment ID provided');
     }
-    
+
     try {
       const response = await api.get(`/appointments/${id}`);
-      
+
       if (!response || !response.data) {
         throw new Error('Invalid response from server');
       }
-      
+
       validateResponse(response.data, ['success', 'data'], 'getAppointmentById');
-      
+
       return response.data;
     } catch (error: any) {
       const errorMessage = formatError(error, 'Failed to fetch appointment');
@@ -232,30 +296,30 @@ export const appointmentService = {
     }
   },
 
-  async createAppointment(appointmentData: CreateAppointmentRequest): Promise<AppointmentResponse> {
+  async createAppointment(role: string, appointmentData: CreateAppointmentRequest): Promise<AppointmentResponse> {
     // Validate required fields
     if (!appointmentData.doctorRef || !appointmentData.patientRef || !appointmentData.date || !appointmentData.time) {
       throw new Error('Missing required fields: doctorRef, patientRef, date, and time are required');
     }
-    
+
     // Validate date format
     if (isNaN(new Date(appointmentData.date).getTime())) {
       throw new Error('Invalid date format. Please provide a valid date.');
     }
-    
+
     try {
-      const response = await api.post('/patients/appointment', appointmentData);
-      
+      const response = await api.post(`/${role}/appointments/create`, appointmentData);
+
       if (!response || !response.data) {
         throw new Error('Invalid response from server');
       }
-      
+
       validateResponse(response.data, ['success', 'data']);
-      
+
       if (!response.data.success) {
         throw new Error(response.data.message || 'Failed to create appointment');
       }
-      
+
       return response.data;
     } catch (error: any) {
       const errorMessage = formatError(error, 'Failed to create appointment');
@@ -270,29 +334,29 @@ export const appointmentService = {
     if (!id || typeof id !== 'string' || id.trim() === '') {
       throw new Error('Invalid appointment ID provided');
     }
-    
+
     if (!appointmentData || Object.keys(appointmentData).length === 0) {
       throw new Error('No update data provided');
     }
-    
+
     // Validate dateTime if provided
     if (appointmentData.dateTime && isNaN(new Date(appointmentData.dateTime).getTime())) {
       throw new Error('Invalid dateTime format. Please provide a valid date and time.');
     }
-    
+
     try {
       const response = await api.put(`/appointments/${id}`, appointmentData);
-      
+
       if (!response || !response.data) {
         throw new Error('Invalid response from server');
       }
-      
+
       validateResponse(response.data, ['success', 'data']);
-      
+
       if (!response.data.success) {
         throw new Error(response.data.message || 'Failed to update appointment');
       }
-      
+
       return response.data;
     } catch (error: any) {
       const errorMessage = formatError(error, 'Failed to update appointment');
@@ -303,27 +367,27 @@ export const appointmentService = {
     }
   },
 
-  async cancelAppointment(id: string): Promise<AppointmentResponse> {
+  async cancelAppointment(role: string, id: string): Promise<AppointmentResponse> {
     if (!id || typeof id !== 'string' || id.trim() === '') {
       throw new Error('Invalid appointment ID provided');
     }
-    
+
     try {
       // Use the general appointments endpoint which supports patient role
-      const response = await api.put(`/appointments/${id}`, {
+      const response = await api.patch(`/${role}/appointments/cancel/${id}`, {
         status: 'cancelled'
       });
-      
+
       if (!response || !response.data) {
         throw new Error('Invalid response from server');
       }
-      
+
       validateResponse(response.data, ['success']);
-      
+
       if (!response.data.success) {
         throw new Error(response.data.message || 'Failed to cancel appointment');
       }
-      
+
       return response.data;
     } catch (error: any) {
       const errorMessage = formatError(error, 'Failed to cancel appointment');
@@ -334,40 +398,40 @@ export const appointmentService = {
     }
   },
 
-  async rescheduleAppointment(id: string, dateTime: string, notes?: string): Promise<AppointmentResponse> {
+  async rescheduleAppointment(role: string, id: string, dateTime: string, notes?: string): Promise<AppointmentResponse> {
     if (!id || typeof id !== 'string' || id.trim() === '') {
       throw new Error('Invalid appointment ID provided');
     }
-    
+
     if (!dateTime || isNaN(new Date(dateTime).getTime())) {
       throw new Error('Invalid dateTime format');
     }
-    
+
     try {
       // Parse dateTime into date and time for the backend
       const dt = new Date(dateTime);
       const date = dt.toISOString().split('T')[0]; // YYYY-MM-DD
       const time = dt.toTimeString().split(' ')[0].substring(0, 5); // HH:MM
-      
+
       // Use the general appointments endpoint which supports patient role
-      const response = await api.put(`/appointments/${id}`, {
+      const response = await api.patch(`/${role}/appointments/reschedule/${id}`, {
         dateTime: dateTime,
         date: dateTime,
         time: time,
         status: 'rescheduled', // Set status to rescheduled when date/time changes
         ...(notes && { notes })
       });
-      
+
       if (!response || !response.data) {
         throw new Error('Invalid response from server');
       }
-      
+
       validateResponse(response.data, ['success']);
-      
+
       if (!response.data.success) {
         throw new Error(response.data.message || 'Failed to reschedule appointment');
       }
-      
+
       return response.data;
     } catch (error: any) {
       const errorMessage = formatError(error, 'Failed to reschedule appointment');
@@ -382,14 +446,14 @@ export const appointmentService = {
     if (!id || typeof id !== 'string' || id.trim() === '') {
       throw new Error('Invalid appointment ID provided');
     }
-    
+
     try {
       const response = await api.delete(`/appointments/${id}`);
-      
+
       if (!response || !response.data) {
         throw new Error('Invalid response from server');
       }
-      
+
       return response.data;
     } catch (error: any) {
       const errorMessage = formatError(error, 'Failed to delete appointment');
@@ -406,16 +470,16 @@ export const appointmentService = {
       const params = new URLSearchParams();
       if (startDate) params.append('startDate', startDate);
       if (endDate) params.append('endDate', endDate);
-      
+
       const url = `/doctors/appointments/calendar${params.toString() ? `?${params.toString()}` : ''}`;
       const response = await api.get(url);
-      
+
       if (!response || !response.data) {
         throw new Error('Invalid response from server');
       }
-      
+
       validateResponse(response.data, ['success', 'data']);
-      
+
       return response.data;
     } catch (error: any) {
       const errorMessage = formatError(error, 'Failed to fetch calendar appointments');
@@ -436,32 +500,32 @@ export const appointmentService = {
     if (params?.page !== undefined && (params.page < 1 || !Number.isInteger(params.page))) {
       throw new Error('Invalid page number. Page must be a positive integer.');
     }
-    
+
     if (params?.limit !== undefined && (params.limit < 1 || !Number.isInteger(params.limit))) {
       throw new Error('Invalid limit. Limit must be a positive integer.');
     }
-    
+
     // Validate status if provided
     if (params?.status && !['scheduled', 'completed', 'cancelled'].includes(params.status)) {
       throw new Error('Invalid status. Status must be one of: scheduled, completed, cancelled');
     }
-    
+
     try {
       const queryParams = new URLSearchParams();
       if (params?.patientName) queryParams.append('patientName', params.patientName.trim());
       if (params?.status) queryParams.append('status', params.status);
       if (params?.page) queryParams.append('page', params.page.toString());
       if (params?.limit) queryParams.append('limit', params.limit.toString());
-      
+
       const url = `/doctors/appointments${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
       const response = await api.get(url);
-      
+
       if (!response || !response.data) {
         throw new Error('Invalid response from server');
       }
-      
+
       validateResponse(response.data, ['success', 'data']);
-      
+
       return response.data;
     } catch (error: any) {
       const errorMessage = formatError(error, 'Failed to fetch appointments');
@@ -476,16 +540,16 @@ export const appointmentService = {
     if (!id || typeof id !== 'string' || id.trim() === '') {
       throw new Error('Invalid appointment ID provided');
     }
-    
+
     try {
       const response = await api.get(`/doctors/appointments/${id}`);
-      
+
       if (!response || !response.data) {
         throw new Error('Invalid response from server');
       }
-      
+
       validateResponse(response.data, ['success', 'data']);
-      
+
       return response.data;
     } catch (error: any) {
       const errorMessage = formatError(error, 'Failed to fetch appointment');
@@ -500,20 +564,20 @@ export const appointmentService = {
     if (!id || typeof id !== 'string' || id.trim() === '') {
       throw new Error('Invalid appointment ID provided');
     }
-    
+
     try {
       const response = await api.get(`/doctors/appointments/${id}/details`);
-      
+
       if (!response || !response.data) {
         throw new Error('Invalid response from server');
       }
-      
+
       validateResponse(response.data, ['success', 'data']);
-      
+
       if (!response.data.data?.patient) {
         throw new Error('Patient details not found in response');
       }
-      
+
       return response.data;
     } catch (error: any) {
       const errorMessage = formatError(error, 'Failed to fetch appointment details');
@@ -528,20 +592,20 @@ export const appointmentService = {
     if (!status || typeof status !== 'string' || status.trim() === '') {
       throw new Error('Status is required');
     }
-    
+
     if (!['scheduled', 'completed', 'cancelled'].includes(status)) {
       throw new Error('Invalid status. Status must be one of: scheduled, completed, cancelled');
     }
-    
+
     try {
       const response = await api.get(`/doctors/appointments/status/${status}`);
-      
+
       if (!response || !response.data) {
         throw new Error('Invalid response from server');
       }
-      
+
       validateResponse(response.data, ['success', 'data']);
-      
+
       return response.data;
     } catch (error: any) {
       const errorMessage = formatError(error, `Failed to fetch ${status} appointments`);
@@ -556,28 +620,28 @@ export const appointmentService = {
     if (!id || typeof id !== 'string' || id.trim() === '') {
       throw new Error('Invalid appointment ID provided');
     }
-    
+
     if (!status || typeof status !== 'string' || status.trim() === '') {
       throw new Error('Status is required');
     }
-    
+
     if (!['scheduled', 'completed', 'cancelled'].includes(status)) {
       throw new Error('Invalid status. Status must be one of: scheduled, completed, cancelled');
     }
-    
+
     try {
       const response = await api.put(`/doctors/appointments/${id}/status`, { status });
-      
+
       if (!response || !response.data) {
         throw new Error('Invalid response from server');
       }
-      
+
       validateResponse(response.data, ['success', 'data']);
-      
+
       if (!response.data.success) {
         throw new Error(response.data.message || 'Failed to update appointment status');
       }
-      
+
       return response.data;
     } catch (error: any) {
       const errorMessage = formatError(error, 'Failed to update appointment status');
@@ -591,14 +655,14 @@ export const appointmentService = {
   async getDoctorWeeklyCount(): Promise<WeeklyCountResponse> {
     try {
       const response = await api.get('/doctors/weekly-count');
-      
+
       if (!response || !response.data) {
         throw new Error('Invalid response from server');
       }
-      
+
       // This endpoint returns { success, totalAppointmentsThisWeek } not { success, data }
       validateResponse(response.data, ['success', 'totalAppointmentsThisWeek'], 'getDoctorWeeklyCount');
-      
+
       return response.data;
     } catch (error: any) {
       const errorMessage = formatError(error, 'Failed to fetch weekly count');
@@ -613,16 +677,16 @@ export const appointmentService = {
     if (!doctorId || typeof doctorId !== 'string' || doctorId.trim() === '') {
       throw new Error('Invalid doctor ID provided');
     }
-    
+
     try {
       const response = await api.get(`/doctors/${doctorId}/appointmentListView`);
-      
+
       if (!response || !response.data) {
         throw new Error('Invalid response from server');
       }
-      
+
       validateResponse(response.data, ['success', 'data']);
-      
+
       return response.data;
     } catch (error: any) {
       const errorMessage = formatError(error, 'Failed to fetch appointment list view');
@@ -634,17 +698,36 @@ export const appointmentService = {
   },
 
   // Doctor and Availability Methods for Patient Booking
-  async getAllDoctors(): Promise<any> {
+  async getAllDoctors(clinicId: string): Promise<any> {
     try {
-      const response = await api.get('/doctors/doctors');
-      
+      const response = await api.get(`/clinic/doctor/list/${clinicId}`);
+
       if (!response || !response.data) {
         throw new Error('Invalid response from server');
       }
-      
-      return response.data;
+
+      return response.data.doctors;
     } catch (error: any) {
       const errorMessage = formatError(error, 'Failed to fetch doctors');
+      const enhancedError = new Error(errorMessage);
+      (enhancedError as any).originalError = error;
+      (enhancedError as any).status = error.response?.status;
+      throw enhancedError;
+    }
+  },
+
+  // Get All clinic Patient
+  async getAllPatient(clinicId: string): Promise<any> {
+    try {
+      const response = await api.get(`/clinic/patient/patient-list/${clinicId}`);
+
+      if (!response || !response.data) {
+        throw new Error('Invalid response from server');
+      }
+
+      return response.data.patients;
+    } catch (error: any) {
+      const errorMessage = formatError(error, 'Failed to fetch patients');
       const enhancedError = new Error(errorMessage);
       (enhancedError as any).originalError = error;
       (enhancedError as any).status = error.response?.status;
@@ -656,14 +739,14 @@ export const appointmentService = {
     if (!doctorId || typeof doctorId !== 'string' || doctorId.trim() === '') {
       throw new Error('Invalid doctor ID provided');
     }
-    
+
     try {
-      const response = await api.get(`/doctors/${doctorId}/availability`);
-      
+      const response = await api.get(`/doctor/availability/${doctorId}`);
+
       if (!response || !response.data) {
         throw new Error('Invalid response from server');
       }
-      
+
       return response.data;
     } catch (error: any) {
       const errorMessage = formatError(error, 'Failed to fetch doctor availability');
@@ -678,16 +761,16 @@ export const appointmentService = {
     if (!doctorId || typeof doctorId !== 'string' || doctorId.trim() === '') {
       throw new Error('Invalid doctor ID provided');
     }
-    
+
     try {
-      const response = await api.get(`/doctors/${doctorId}/appointments`, {
+      const response = await api.get(`/doctor/appointments/${doctorId}`, {
         params: { date }
       });
-      
+
       if (!response || !response.data) {
         throw new Error('Invalid response from server');
       }
-      
+
       return response.data;
     } catch (error: any) {
       const errorMessage = formatError(error, 'Failed to fetch doctor appointments');
@@ -699,23 +782,75 @@ export const appointmentService = {
   },
 
   // Patient Appointment Methods
-  async getPatientAppointments(patientId: string, params?: any): Promise<DoctorAppointmentsListResponse> {
+  async getPatientAppointments(role: string, patientId: string, params?: any): Promise<DoctorAppointmentsListResponse> {
     if (!patientId || typeof patientId !== 'string' || patientId.trim() === '') {
-      throw new Error('Invalid patient ID provided');
+      throw new Error(`Invalid ${role} ID provided`);
     }
-    
+
     try {
-      const response = await api.get(`/patients/appointment/all/${patientId}`, { params });
-      
+      const response = await api.get(`/${role}/appointments/list?patientRef=${patientId}`, { params });
+
       if (!response || !response.data) {
         throw new Error('Invalid response from server');
       }
-      
+
       validateResponse(response.data, ['success', 'data']);
-      
+
       return response.data;
     } catch (error: any) {
-      const errorMessage = formatError(error, 'Failed to fetch patient appointments');
+      const errorMessage = formatError(error, `Failed to fetch ${role} appointments`);
+      const enhancedError = new Error(errorMessage);
+      (enhancedError as any).originalError = error;
+      (enhancedError as any).status = error.response?.status;
+      throw enhancedError;
+    }
+  },
+
+
+  // Doctor Personal Appointment Methods
+  async getDoctorPersonalAppointments(doctorId: string, params?: any): Promise<DoctorAppointmentsListResponse> {
+    if (!doctorId || typeof doctorId !== 'string' || doctorId.trim() === '') {
+      throw new Error('Invalid doctor ID provided');
+    }
+
+    try {
+      const response = await api.get(`/doctor/appointments/list?doctorRef=${doctorId}`, { params });
+
+      if (!response || !response.data) {
+        throw new Error('Invalid response from server');
+      }
+
+      validateResponse(response.data, ['success', 'data']);
+
+      return response.data;
+    } catch (error: any) {
+      const errorMessage = formatError(error, 'Failed to fetch doctor appointments');
+      const enhancedError = new Error(errorMessage);
+      (enhancedError as any).originalError = error;
+      (enhancedError as any).status = error.response?.status;
+      throw enhancedError;
+    }
+  },
+
+
+  // Clinic Appointment Methods
+  async getClinicAppointments(clinicId: string, params?: any): Promise<DoctorAppointmentsListResponse> {
+    if (!clinicId || typeof clinicId !== 'string' || clinicId.trim() === '') {
+      throw new Error('Invalid clinic ID provided');
+    }
+
+    try {
+      const response = await api.get(`/clinic/appointments/list?clinicRef=${clinicId}`, { params });
+
+      if (!response || !response.data) {
+        throw new Error('Invalid response from server');
+      }
+
+      validateResponse(response.data, ['success', 'data']);
+
+      return response.data;
+    } catch (error: any) {
+      const errorMessage = formatError(error, 'Failed to fetch clinic appointments');
       const enhancedError = new Error(errorMessage);
       (enhancedError as any).originalError = error;
       (enhancedError as any).status = error.response?.status;
@@ -727,16 +862,16 @@ export const appointmentService = {
     if (!status || typeof status !== 'string') {
       throw new Error('Invalid status provided');
     }
-    
+
     try {
       const response = await api.get(`/patient/appointment/status/${status}`);
-      
+
       if (!response || !response.data) {
         throw new Error('Invalid response from server');
       }
-      
+
       validateResponse(response.data, ['success', 'data']);
-      
+
       return response.data;
     } catch (error: any) {
       const errorMessage = formatError(error, 'Failed to fetch appointments by status');
@@ -751,16 +886,16 @@ export const appointmentService = {
     if (!appointmentId || typeof appointmentId !== 'string' || appointmentId.trim() === '') {
       throw new Error('Invalid appointment ID provided');
     }
-    
+
     try {
       const response = await api.get(`/patient/appointment/${appointmentId}`);
-      
+
       if (!response || !response.data) {
         throw new Error('Invalid response from server');
       }
-      
+
       validateResponse(response.data, ['success', 'data']);
-      
+
       return response.data;
     } catch (error: any) {
       const errorMessage = formatError(error, 'Failed to fetch appointment details');
@@ -775,20 +910,20 @@ export const appointmentService = {
     if (!appointmentId || typeof appointmentId !== 'string' || appointmentId.trim() === '') {
       throw new Error('Invalid appointment ID provided');
     }
-    
+
     try {
       const response = await api.put(`/patient/appointment/cancel/${appointmentId}`);
-      
+
       if (!response || !response.data) {
         throw new Error('Invalid response from server');
       }
-      
+
       validateResponse(response.data, ['success']);
-      
+
       if (!response.data.success) {
         throw new Error(response.data.message || 'Failed to cancel appointment');
       }
-      
+
       return response.data;
     } catch (error: any) {
       const errorMessage = formatError(error, 'Failed to cancel appointment');
@@ -797,5 +932,28 @@ export const appointmentService = {
       (enhancedError as any).status = error.response?.status;
       throw enhancedError;
     }
-  }
+  },
+
+  async getPatientFullDetails(patientId: string): Promise<PatientDetailsResponse> {
+    if (!patientId || typeof patientId !== 'string' || patientId.trim() === '') {
+      throw new Error('Invalid patient ID provided');
+    }
+
+    try {
+      const response = await api.get(`/doctor/appointments/patient/${patientId}/details`);
+      if (!response || !response.data) {
+        throw new Error('Invalid response from server');
+      }
+
+      validateResponse(response.data, ['success', 'data']);
+
+      return response.data;
+    } catch (error: any) {
+      const errorMessage = formatError(error, 'Failed to fetch patient details');
+      const enhancedError = new Error(errorMessage);
+      (enhancedError as any).originalError = error;
+      (enhancedError as any).status = error.response?.status;
+      throw enhancedError;
+    }
+  },
 };

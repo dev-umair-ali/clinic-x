@@ -95,20 +95,10 @@ export default function DoctorBillingPage() {
       prev.map((item) => (item.id === updatedItem.id ? updatedItem : item))
     );
   };
-  const handleAddMoreBilling = () => console.log("Add more billing clicked");
+
   const handleAddBillingClick = () => setShowAddBillPage(true);
   const handleBackToPatientBilling = () => setShowAddBillPage(false);
   const handleSaveBill = () => {
-    console.log("Saving bill:", addBillForm);
-    setAddBillForm({
-      cptCodes: "",
-      description: "",
-      charge: "",
-      adjustment: "",
-      insurancePaid: "",
-      patientPaid: "",
-      patientResponsibility: "",
-    });
   };
   const handleAddNewBill = () => {
     const newBill = {

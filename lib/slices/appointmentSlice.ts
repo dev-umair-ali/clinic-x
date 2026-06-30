@@ -1,9 +1,10 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { appointmentService, Appointment, CreateAppointmentRequest, UpdateAppointmentRequest } from '../api/services/appointmentService';
+import { appointmentService, Appointment, CreateAppointmentRequest, UpdateAppointmentRequest, PatientFullDetails } from '../api/services/appointmentService';
 
 interface AppointmentState {
   appointments: Appointment[];
   currentAppointment: Appointment | null;
+  patientDetails: PatientFullDetails | null;
   loading: boolean;
   error: string | null;
 }
@@ -11,6 +12,7 @@ interface AppointmentState {
 const initialState: AppointmentState = {
   appointments: [],
   currentAppointment: null,
+  patientDetails: null,
   loading: false,
   error: null,
 };
@@ -42,9 +44,9 @@ export const fetchAppointmentById = createAsyncThunk(
 
 export const createAppointment = createAsyncThunk(
   'appointment/createAppointment',
-  async (appointmentData: CreateAppointmentRequest, { rejectWithValue }) => {
+  async ({ role, appointmentData }: { role: string; appointmentData: CreateAppointmentRequest }, { rejectWithValue }) => {
     try {
-      const response = await appointmentService.createAppointment(appointmentData);
+      const response = await appointmentService.createAppointment(role, appointmentData);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to create appointment');
@@ -76,6 +78,18 @@ export const deleteAppointment = createAsyncThunk(
   }
 );
 
+export const fetchPatientFullDetails = createAsyncThunk(
+  'appointment/fetchPatientFullDetails',
+  async (patientId: string, { rejectWithValue }) => {
+    try {
+      const response = await appointmentService.getPatientFullDetails(patientId);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'Failed to fetch patient details');
+    }
+  }
+);
+
 const appointmentSlice = createSlice({
   name: 'appointment',
   initialState,
@@ -91,6 +105,9 @@ const appointmentSlice = createSlice({
     },
     addAppointment: (state, action: PayloadAction<Appointment>) => {
       state.appointments.push(action.payload);
+    },
+    clearPatientDetails: (state) => {
+      state.patientDetails = null;
     },
   },
   extraReducers: (builder) => {
@@ -168,9 +185,22 @@ const appointmentSlice = createSlice({
       .addCase(deleteAppointment.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+      // Fetch patient full details
+      .addCase(fetchPatientFullDetails.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchPatientFullDetails.fulfilled, (state, action) => {
+        state.loading = false;
+        state.patientDetails = action.payload;
+      })
+      .addCase(fetchPatientFullDetails.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });
 
-export const { clearError, clearCurrentAppointment, clearAppointments, addAppointment } = appointmentSlice.actions;
+export const { clearError, clearCurrentAppointment, clearAppointments, addAppointment, clearPatientDetails } = appointmentSlice.actions;
 export default appointmentSlice.reducer;

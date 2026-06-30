@@ -105,7 +105,7 @@ export function generateTimeSlots(
   const slots: TimeSlot[] = [];
   
   // If no availability data, return empty array
-  if (!availability || !availability.availableDays) {
+  if (!availability) {
     return slots;
   }
 
@@ -164,8 +164,6 @@ export function filterBookedSlots(
   const selectedDay = selectedDate.getDate().toString().padStart(2, '0');
   const selectedDateStr = `${selectedYear}-${selectedMonth}-${selectedDay}`;
 
-  console.log('🔍 filterBookedSlots - Filtering for date:', selectedDateStr);
-
   // Filter appointments for the selected date
   const appointmentsOnDate = existingAppointments.filter((apt) => {
     if (apt.status === 'cancelled') return false;
@@ -182,18 +180,8 @@ export function filterBookedSlots(
     
     const matches = aptDateStr === selectedDateStr;
     
-    if (matches) {
-      console.log('✅ Found appointment on date:', {
-        time: apt.time,
-        dateStr: aptDateStr,
-        status: apt.status
-      });
-    }
-    
     return matches;
   });
-
-  console.log('📋 Total appointments on selected date:', appointmentsOnDate.length);
 
   // Mark slots as unavailable if they overlap with existing appointments
   return slots.map((slot) => {
@@ -282,14 +270,13 @@ export function getAvailableTimeSlots(
   selectedDate: Date,
   existingAppointments: ExistingAppointment[]
 ): TimeSlot[] {
-  // Generate all possible slots based on availability
+  // Generate all possible slots based on availability and selected date (ignoring current time)
   let slots = generateTimeSlots(availability, selectedDate);
-
-  // Filter out booked slots
+  // Filter out booked slots for the selected date only
   slots = filterBookedSlots(slots, existingAppointments, selectedDate);
 
-  // Filter out past slots
-  slots = filterPastSlots(slots, selectedDate);
+  // If you want to filter out past slots for today, uncomment the next line:
+  // slots = filterPastSlots(slots, selectedDate);
 
   return slots;
 }

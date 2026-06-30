@@ -1,9 +1,13 @@
 // src/lib/store.ts
 import { configureStore, combineReducers } from "@reduxjs/toolkit"
 import authSlice from "./slices/authSlice"
+import clinicSlice from "./slices/clinicSlice"
+
+
 import appointmentSlice from "./slices/appointmentSlice"
 import patientSlice from "./slices/patientSlice"
 import doctorSlice from "./slices/doctorSlice"
+import assistantSlice from "./slices/assistantSlice"
 import doctorPatientSlice from "./slices/doctorPatientSlice"
 import profileSlice from "./slices/profileSlice"
 import prescriptionSlice from "./slices/prescriptionSlice"
@@ -11,21 +15,46 @@ import billingSlice from "./slices/billingSlice"
 import refillSlice from "./slices/refillSlice"
 import reportsSlice from "./slices/reportsSlice"
 import uploadSlice from "./slices/uploadSlice"
-import clinicSlice from "./slices/clinicSlice"
+import auditLogSlice from "./slices/auditLogSlice"
+import clinicAssistantSlice from "./slices/clinicAssistantSlice"
+import clinicDoctorSlice from "./slices/clinicDoctorSlice"
+import clinicPatientSlice from "./slices/clinicPatientSlice"
+import assistantDoctorSlice from "./slices/assistantDoctorSlice"
+import assistantPatientSlice from "./slices/assistantPatientSlice"
+import themeSlice from "./slices/themeSlice"
+import googleCalendarSlice from "./slices/googleCalendarSlice"
+import availabilitySlice from "./slices/availabilitySlice"
+import onboardingSlice from "./slices/onboardingSlice"
+import noteSlice from "./slices/noteSlice"
+import dashboardSlice from "./slices/dashboardSlice"
 
 const rootReducer = combineReducers({
   auth: authSlice,
+  clinics: clinicSlice,
+  dashboard: dashboardSlice,
+
   appointments: appointmentSlice,
   patients: patientSlice,
   doctors: doctorSlice,
+  assistants: assistantSlice,
   doctorPatients: doctorPatientSlice,
   profiles: profileSlice,
   prescriptions: prescriptionSlice,
   billing: billingSlice,
+  auditLogs: auditLogSlice,
   refills: refillSlice,
   reports: reportsSlice,
   upload: uploadSlice,
-  clinics: clinicSlice,
+  clinicAssistants: clinicAssistantSlice,
+  clinicDoctors: clinicDoctorSlice,
+  clinicPatients: clinicPatientSlice,
+  assistantDoctors: assistantDoctorSlice,
+  assistantPatients: assistantPatientSlice,
+  theme: themeSlice,
+  googleCalendar: googleCalendarSlice,
+  availability: availabilitySlice,
+  onboarding: onboardingSlice,
+  notes: noteSlice,
 })
 
 // Load state from localStorage

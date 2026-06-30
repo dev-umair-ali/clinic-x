@@ -63,23 +63,23 @@ export default function AppointmentList(props: Props) {
       const now = new Date();
       // Reset time to start of today for comparison
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      
+
       f = f.filter((a) => {
         const dateTime = a.dateTime || a.date;
         if (!dateTime) return false;
         const appointmentDate = new Date(dateTime);
-        
+
         // Reset appointment date to start of day for comparison
         const appointmentDay = new Date(
-          appointmentDate.getFullYear(), 
-          appointmentDate.getMonth(), 
+          appointmentDate.getFullYear(),
+          appointmentDate.getMonth(),
           appointmentDate.getDate()
         );
-        
+
         // Include appointments from today onwards that are not cancelled
-        return appointmentDay >= today && 
-               a.status !== "cancelled" && 
-               !isNaN(appointmentDate.getTime());
+        return appointmentDay >= today &&
+          a.status !== "cancelled" &&
+          !isNaN(appointmentDate.getTime());
       });
     } else if (selectedFilter === "Canceled") {
       f = f.filter((a) => a.status === "cancelled");
@@ -97,7 +97,7 @@ export default function AppointmentList(props: Props) {
     const date = new Date(d);
     return isNaN(date.getTime()) ? "Invalid Date" : date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
   };
-  
+
   const formatTime = (apt: any) => {
     // If time field exists (e.g., "12:30" or "12:30 PM"), use it directly
     if (apt.time) {
@@ -111,7 +111,7 @@ export default function AppointmentList(props: Props) {
       // If already in 12-hour format, return as-is
       return apt.time;
     }
-    
+
     // Fall back to parsing dateTime
     const d = apt.dateTime || apt.date;
     if (!d) return "";
@@ -153,11 +153,10 @@ export default function AppointmentList(props: Props) {
             <button
               key={f}
               onClick={() => setSelectedFilter(f)}
-              className={`px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                selectedFilter === f
+              className={`px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors ${selectedFilter === f
                   ? "bg-[hsl(var(--color-brand-teal)/0.1)] dark:bg-[hsl(var(--color-brand-teal)/0.2)] text-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--color-brand-teal))] border border-[hsl(var(--color-brand-teal)/0.3)] dark:border-[hsl(var(--color-brand-teal)/0.4)]"
                   : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted)/0.8)]"
-              }`}
+                }`}
             >
               {f}
             </button>
@@ -217,6 +216,7 @@ export default function AppointmentList(props: Props) {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="pending">Pending</SelectItem>
                         <SelectItem value="scheduled">Scheduled</SelectItem>
                         <SelectItem value="rescheduled">Rescheduled</SelectItem>
                         <SelectItem value="completed">Completed</SelectItem>
@@ -270,6 +270,7 @@ export default function AppointmentList(props: Props) {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
+                            <SelectItem value="pending">Pending</SelectItem>
                             <SelectItem value="scheduled">Scheduled</SelectItem>
                             <SelectItem value="rescheduled">Rescheduled</SelectItem>
                             <SelectItem value="completed">Completed</SelectItem>

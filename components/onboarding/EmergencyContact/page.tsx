@@ -28,7 +28,7 @@ export default function EmergencyContact({
           </Label>
           <Input
             placeholder="Person's Name"
-            value={formData.emergencyContactName}
+            value={formData?.emergencyContactName}
             onChange={(e) => updateFormData("emergencyContactName", e.target.value)}
             className="bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
           />
@@ -39,8 +39,8 @@ export default function EmergencyContact({
           </Label>
           <Input
             placeholder="(555) 123-4567"
-            value={formData.emergencyContactPhone}
-            onChange={(e) => updateFormData("emergencyContactPhone", e.target.value)}
+            value={formData?.emergencyPhoneNumber}
+            onChange={(e) => updateFormData("emergencyPhoneNumber", e.target.value)}
             className="bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
           />
         </div>
@@ -50,7 +50,7 @@ export default function EmergencyContact({
           Relationship to Patient *
         </Label>
         <Select
-          value={formData.relationshipToPatient}
+          value={formData?.relationshipToPatient}
           onValueChange={(v) => updateFormData("relationshipToPatient", v)}
         >
           <SelectTrigger className="bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]">

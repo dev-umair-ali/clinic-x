@@ -1,22 +1,21 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useState, useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { ProtectedRoute } from "@/components/ui/protected-route";
 import {
-  createDoctorInCollection,
-  fetchDoctors,
-} from "@/lib/slices/doctorSlice";
+  createClinicDoctor,
+  fetchClinicDoctors,
+} from "@/lib/slices/clinicDoctorSlice";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ArrowLeft, Camera, Eye, EyeOff, Plus, Trash2 } from "lucide-react";
-import type { AppDispatch } from "@/lib/store";
-import { toast, ToastContainer } from "react-toastify";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -24,17 +23,43 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
+import {
+  ArrowLeft,
+  Camera,
+  Plus,
+  Loader2,
+  User,
+  Phone,
+  MapPin,
+  Briefcase,
+  Globe,
+} from "lucide-react";
+import { ToastContainer } from "react-toastify";
+import type { AppDispatch, RootState } from "@/lib/store";
+import { DatePicker } from "@/components/ui/date-picker";
+import moment from "moment";
 
-interface AvailableDay {
-  day: string;
-  from: string;
-  to: string;
-}
+import { useToast } from "@/hooks/use-toast";
+import { Toaster } from "@/components/ui/toaster";
+
 
 export default function AddDoctorPage() {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { user } = useSelector((state: RootState) => state.auth);
+  const clinicId = user?.clinicId
+
+  const { toast } = useToast();
+  useEffect(() => {
+    if (!clinicId) {
+      toast({
+        title: "Error",
+        description: "Unable to determine clinic ID. Please log in again.",
+        variant: "destructive",
+      });
+    }
+  }, []);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -42,45 +67,31 @@ export default function AddDoctorPage() {
     name: "",
     email: "",
     password: "",
-    phone: "",
+    phoneNumber: "",
     age: "",
     dateOfBirth: "",
     gender: "",
     specialization: "",
-    assignedClinic: "",
     languages: [] as string[],
-    experience: "",
+    yearOfExperience: "",
     licenseNumber: "",
     bio: "",
     educationSummary: "",
-    address: "",
-    status: "active",
+    address: {
+      street: "",
+      city: "",
+      state: "",
+      zipCode: "",
+      country: "USA",
+    },
     role: "doctor" as const,
     hipaaConsent: true,
     timeZone: "Asia/Karachi",
     profilePicture: "",
-    availableDays: [
-      { day: "Monday", from: "09:00", to: "17:00" },
-      { day: "Tuesday", from: "09:00", to: "17:00" },
-      { day: "Wednesday", from: "09:00", to: "17:00" },
-      { day: "Thursday", from: "09:00", to: "17:00" },
-      { day: "Friday", from: "09:00", to: "17:00" },
-      { day: "Saturday", from: "09:00", to: "17:00" },
-    ] as AvailableDay[],
   });
 
   const [loading, setLoading] = useState(false);
   const [imageUploading, setImageUploading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [selectedDays, setSelectedDays] = useState<string[]>([
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-  ]);
-
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
 
@@ -92,7 +103,6 @@ export default function AddDoctorPage() {
     const { name, value } = e.target;
     const updatedFormData = { ...formData, [name]: value };
 
-    // Auto-concatenate first name and last name for full name
     if (name === "firstName" || name === "lastName") {
       const firstName = name === "firstName" ? value : formData.firstName;
       const lastName = name === "lastName" ? value : formData.lastName;
@@ -102,383 +112,453 @@ export default function AddDoctorPage() {
     setFormData(updatedFormData);
   };
 
-  const handleDayToggle = (day: string) => {
-    if (selectedDays.includes(day)) {
-      setSelectedDays(selectedDays.filter((d) => d !== day));
-    } else {
-      setSelectedDays([...selectedDays, day]);
-    }
+  const handleInputChange = (field: keyof typeof formData, value: string) => {
+    setFormData((prev) => {
+      const updated = { ...prev, [field]: value };
+
+      if (field === "firstName" || field === "lastName") {
+        const fn = field === "firstName" ? value : prev.firstName;
+        const ln = field === "lastName" ? value : prev.lastName;
+        updated.name = `${fn} ${ln}`.trim();
+      }
+
+      return updated;
+    });
   };
 
-  const handleTimeChange = (
-    day: string,
-    field: "from" | "to",
-    value: string
-  ) => {
-    const updatedDays = formData.availableDays.map((availableDay) =>
-      availableDay.day === day
-        ? { ...availableDay, [field]: value }
-        : availableDay
-    );
-    setFormData({ ...formData, availableDays: updatedDays });
-  };
-
-  const addTimeSlot = (day: string) => {
-    const updatedDays = [
-      ...formData.availableDays,
-      { day, from: "09:00", to: "17:00" },
-    ];
-    setFormData({ ...formData, availableDays: updatedDays });
-  };
-
-  const removeTimeSlot = (index: number) => {
-    const updatedDays = formData.availableDays.filter((_, i) => i !== index);
-    setFormData({ ...formData, availableDays: updatedDays });
-  };
+  const handleAddressChange = (k: keyof typeof formData.address, v: string) =>
+    setFormData((p) => ({ ...p, address: { ...p.address, [k]: v } }));
 
   const uploadImage = async (file: File): Promise<string> => {
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
 
-    // Get the authentication token from localStorage
-    const token = localStorage.getItem('clinic-ai-token');
+    const token = localStorage.getItem("clinic-ai-token");
 
     if (!token) {
-      toast.error('No authentication token found. Please login again.');
+      toast({
+        title: "Error",
+        description: "No authentication token found. Please login again.",
+        variant: "destructive",
+      });
       return "";
     }
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}api/upload/image`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-      body: formData,
-    });
-
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/upload/image`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      }
+    );
 
     const result = await response.json();
     if (result.success === true) {
-      toast.success(result.message || 'Image uploaded successfully!');
+      toast({
+        title: "Success",
+        description: "Image uploaded successfully!",
+        variant: "default",
+      });
       return result.fileUrl || result.profilePicture || result.data?.fileUrl;
-    } 
+    }
     return "";
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      // Validate file type
-      if (!file.type.startsWith("image/")) {
-        toast.error("Please select a valid image file");
-        return;
-      }
+    if (!file) return;
 
-      // Validate file size (2.5MB)
-      if (file.size > 2.5 * 1024 * 1024) {
-        toast.error("Image size should not exceed 2.5MB");
-        return;
-      }
-
-      setImageUploading(true);
-      setImageFile(file);
-
-      try {
-        // Upload image to server
-        const profilePicture = await uploadImage(file);
-        // Update form data with the uploaded image URL
-        setFormData(prev => ({
-          ...prev,
-          profilePicture: profilePicture
-        }));
-
-        // Set preview image
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          setProfileImage(e.target?.result as string);
-        };
-        reader.readAsDataURL(file);
-
-        toast.success("Image uploaded successfully!");
-      } catch (error) {
-        toast.error("Failed to upload image. Please try again.");
-        setImageFile(null);
-        setProfileImage(null);
-      } finally {
-        setImageUploading(false);
-      }
+    if (!file.type.startsWith("image/")) {
+      toast({
+        title: "Error",
+        description: "Please upload a valid image file.",
+        variant: "destructive",
+      });
+      return;
     }
-  };
 
-  const triggerImageUpload = () => {
-    document.getElementById("profile-image-input")?.click();
+    if (file.size > 2.5 * 1024 * 1024) {
+      toast({
+        title: "Error",
+        description: "Image size should not exceed 2.5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setImageUploading(true);
+    setImageFile(file);
+    try {
+      const profilePicture = await uploadImage(file);
+      setFormData((prev) => ({ ...prev, profilePicture }));
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setProfileImage(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+
+      toast({
+        title: "Success",
+        description: "Image uploaded successfully!",
+        variant: "default",
+      });
+    } catch (error: any) {
+      console.error("Image upload failed:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to upload image. Please try again.",
+        variant: "destructive",
+      });
+      setImageFile(null);
+      setProfileImage(null);
+      setFormData((prev) => ({ ...prev, profilePicture: "" }));
+    } finally {
+      setImageUploading(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
     if (
       !formData.firstName ||
       !formData.lastName ||
-      !formData.name ||
       !formData.email ||
-      !formData.password ||
-      !formData.phone ||
+      !formData.phoneNumber ||
       !formData.age ||
       !formData.dateOfBirth ||
       !formData.gender ||
       !formData.specialization ||
-      !formData.experience ||
-      !formData.licenseNumber ||
-      !formData.address
+      !formData.yearOfExperience ||
+      !formData.licenseNumber
     ) {
-      toast.error("Please fill in all required fields.");
-      setLoading(false);
-      return;
-    }
-
-    if (formData.password.length < 8) {
-      toast.error("Password must be at least 8 characters long.");
-      setLoading(false);
-      return;
-    }
-
-    // Check for password complexity requirements
-    const hasUpperCase = /[A-Z]/.test(formData.password);
-    const hasLowerCase = /[a-z]/.test(formData.password);
-    const hasNumbers = /\d/.test(formData.password);
-    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(formData.password);
-
-    if (!hasUpperCase || !hasLowerCase || !hasNumbers || !hasSpecialChar) {
-      toast.error(
-        "Password must contain uppercase, lowercase, number, and special character."
-      );
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
       setLoading(false);
       return;
     }
 
     try {
-
-      // Filter availableDays to only include selected days
-      const filteredAvailableDays = formData.availableDays.filter(daySlot =>
-        selectedDays.includes(daySlot.day)
-      );
-
-      // Fix: Convert age and experience to numbers, and ensure gender and status are correct types
       const doctorData = {
         ...formData,
         age: Number.parseInt(formData.age),
-        experience: Number.parseInt(formData.experience),
+        yearOfExperience: Number.parseInt(formData.yearOfExperience),
         gender: formData.gender as "male" | "female" | "other",
-        status: formData.status as "active" | "inactive",
         timeZone: formData.timeZone,
-        availableDays: filteredAvailableDays,
+        clinicRef: clinicId || undefined,
       };
-      const response = await dispatch(createDoctorInCollection(doctorData));
 
-      if(response.meta.requestStatus === 'fulfilled') {
-      // Refresh the doctor list to show the new doctor
-      await dispatch(fetchDoctors());
+      const response = await dispatch(createClinicDoctor(doctorData));
+      if (response.meta.requestStatus === "fulfilled") {
+        await dispatch(fetchClinicDoctors({ clinicRef: clinicId }));
 
-      // Reset form
-      setFormData({
-        firstName: "",
-        lastName: "",
-        name: "",
-        email: "",
-        password: "",
-        phone: "",
-        age: "",
-        dateOfBirth: "",
-        gender: "",
-        specialization: "",
-        experience: "",
-        licenseNumber: "",
-        bio: "",
-        educationSummary: "",
-        address: "",
-        status: "active",
-        role: "doctor",
-        hipaaConsent: true,
-        timeZone: "Asia/Karachi",
-        profilePicture: "",
-        availableDays: [],
-        assignedClinic: "",
-        languages: [],
-      });
-  
-      // Reset image states
-      setProfileImage(null);
-      setImageFile(null);
-      setLoading(false);
+        setFormData({
+          firstName: "",
+          lastName: "",
+          name: "",
+          email: "",
+          password: "",
+          phoneNumber: "",
+          age: "",
+          dateOfBirth: "",
+          gender: "",
+          specialization: "",
+          yearOfExperience: "",
+          licenseNumber: "",
+          bio: "",
+          educationSummary: "",
+          address: {
+            street: "",
+            city: "",
+            state: "",
+            zipCode: "",
+            country: "USA",
+          },
+          role: "doctor",
+          hipaaConsent: true,
+          timeZone: "Asia/Karachi",
+          profilePicture: "",
+          languages: [],
+        });
 
-      toast.success("Doctor added successfully!");
-  
-      // Redirect immediately after success
-      router.push("/admin/doctors");
-    } else {
-      toast.error(response.payload as string);
-      setLoading(false);
-      return;
-    }
+        setProfileImage(null);
+        setImageFile(null);
+        setLoading(false);
 
+        toast({
+          title: "Success",
+          description: "Doctor added successfully!",
+          variant: "default",
+        });
+        router.push(
+          "/clinic/doctors/view/" + `${(response.payload as any)._id}`
+        );
+      } else {
+        toast({
+          title: "Error",
+          description: (typeof response.payload === 'string' ? response.payload : null) || "Failed to add doctor. Please try again.",
+          variant: "destructive",
+        });
+        setLoading(false);
+      }
     } catch (err: any) {
-      toast.error(err);
+      toast({
+        title: "Error",
+        description: err.message || "Failed to add doctor",
+        variant: "destructive",
+      });
       setLoading(false);
-      return;
     }
   };
 
   return (
     <ProtectedRoute allowedRoles={["clinic"]}>
-      <ToastContainer />
-      <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 min-h-screen">
-        <div className="max-w-7xl mx-auto p-6">
-          {/* Header */}
-          <div className="flex items-center space-x-4 mb-6">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push("/admin/doctors")}
-              className="bg-[#1DA68F]/10 flex items-center space-x-2 text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              <span>Back to Doctor</span>
-            </Button>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-              <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
-                Add New Doctor
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
-                Fill in the details to add a new doctor
-              </p>
-            </div>
-
-            <form onSubmit={handleSubmit} className="p-6 space-y-8">
-              {/* Profile Picture Section */}
+      <Toaster />
+      <div className="min-h-screen bg-[hsl(var(--background))]">
+        <ToastContainer />
+        {/* Header */}
+        <div className="bg-[hsl(var(--card))] border-b border-[hsl(var(--border))] px-6 py-4">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-[hsl(var(--muted-foreground))]"
+                onClick={() => router.push("/clinic/doctors")}
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
               <div>
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                <h1 className="text-2xl font-bold text-[hsl(var(--foreground))]">
+                  Add New Doctor
+                </h1>
+                <p className="text-sm text-[hsl(var(--muted-foreground))]">
+                  Register a new doctor for your clinic
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Profile Picture */}
+            <Card className="border-[hsl(var(--border))] shadow-sm">
+              <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
+                <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
+                  <User className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
                   Profile Picture
-                </h3>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 bg-[hsl(var(--card))]">
                 <div className="flex items-center space-x-4">
-                  <div
-                    className={`relative cursor-pointer ${imageUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    onClick={imageUploading ? undefined : triggerImageUpload}
-                  >
+                  <div className="relative">
                     <Avatar className="h-20 w-20">
                       <AvatarImage
                         src={
-                          profileImage || formData.profilePicture || "/placeholder.svg?height=80&width=80"
+                          profileImage ||
+                          formData.profilePicture ||
+                          "/placeholder.svg?height=80&width=80"
                         }
+                        alt="Doctor"
                       />
-                      <AvatarFallback className="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-lg">
+                      <AvatarFallback className="bg-[hsl(var(--color-gray-200))] text-[hsl(var(--muted-foreground))] text-lg">
                         {formData.name
-                          ? formData.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")
+                          ? `${formData.name.split(" ")[0][0]}${formData.name.split(" ")[1]?.[0] || ""
+                          }`
                           : "DR"}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-teal-600 rounded-full flex items-center justify-center">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={imageUploading}
+                      className="absolute -bottom-1 -right-1 w-6 h-6 bg-[hsl(var(--color-brand-teal))] rounded-full flex items-center justify-center hover:bg-[hsl(var(--color-brand-teal-dark))] disabled:opacity-50"
+                    >
                       {imageUploading ? (
-                        <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <Loader2 className="h-3 w-3 text-white animate-spin" />
                       ) : (
                         <Camera className="h-3 w-3 text-white" />
                       )}
-                    </div>
+                    </button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
                   </div>
-                  <input
-                    id="profile-image-input"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    disabled={imageUploading}
-                    className="hidden"
-                  />
                   <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
-                      Profile Image
+                    <p className="text-sm font-medium text-[hsl(var(--foreground))]">
+                      {imageUploading ? "Uploading..." : "Profile Image"}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      The Proposed size is 512 x 512 px and no longer bigger
-                      than 2.5 MBs
+                    <p className="text-xs text-[hsl(var(--muted-foreground))]">
+                      Proposed size 512 × 512 px, max 2.5 MB
                     </p>
                   </div>
                 </div>
-              </div>
+              </CardContent>
+            </Card>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Basic Information */}
-                <div className="space-y-6">
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                    Basic Information
-                  </h3>
-
-                  <div>
+            {/* Personal Information */}
+            <Card className="border-[hsl(var(--border))] shadow-sm">
+              <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
+                <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
+                  <User className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
+                  Personal Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 bg-[hsl(var(--card))]">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
                     <Label
                       htmlFor="firstName"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-[hsl(var(--foreground))]"
                     >
                       First Name *
                     </Label>
                     <Input
                       id="firstName"
                       name="firstName"
-                      type="text"
                       value={formData.firstName}
                       onChange={handleChange}
-                      placeholder="Dr. Sarah Johnson"
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      placeholder="Enter first name"
+                      className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                       required
                     />
                   </div>
 
-                  <div>
+                  <div className="space-y-2">
                     <Label
-                      htmlFor="firstName"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      htmlFor="lastName"
+                      className="text-[hsl(var(--foreground))]"
                     >
                       Last Name *
                     </Label>
                     <Input
                       id="lastName"
                       name="lastName"
-                      type="text"
                       value={formData.lastName}
                       onChange={handleChange}
-                      placeholder="Dr. Sarah Johnson"
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      placeholder="Enter last name"
+                      className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                       required
                     />
                   </div>
 
-                  <div>
-                    <Label
-                      htmlFor="firstName"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                    >
-                      Full Name *
+                  <div className="space-y-2">
+                    <Label className="text-[hsl(var(--foreground))]">
+                      Date of Birth *
                     </Label>
-                    <Input
-                      id="name"
-                      name="name"
-                      type="text"
-                      value={formData.name}
-                      // onChange={handleChange}
-                      placeholder="Dr. Sarah Johnson"
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-                      disabled
+                    <DatePicker
+                      value={formData.dateOfBirth || undefined}
+                      onChange={(iso: string) => {
+                        if (iso) {
+                          // Store in YYYY-MM-DD format
+                          handleInputChange("dateOfBirth", iso);
+
+                          // Calculate age using moment
+                          const age = moment().diff(moment(iso, 'YYYY-MM-DD'), 'years');
+
+                          if (age >= 0) {
+                            handleInputChange("age", age.toString());
+                          }
+                        } else {
+                          handleInputChange("dateOfBirth", "");
+                          handleInputChange("age", "");
+                        }
+                      }}
                     />
                   </div>
 
-                  <div>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="age"
+                      className="text-[hsl(var(--foreground))]"
+                    >
+                      Age
+                    </Label>
+                    <Input
+                      id="age"
+                      name="age"
+                      type="number"
+                      value={formData.age}
+                      onChange={handleChange}
+                      placeholder="Enter age"
+                      className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="gender"
+                      className="text-[hsl(var(--foreground))]"
+                    >
+                      Gender *
+                    </Label>
+                    <Select
+                      value={formData.gender}
+                      onValueChange={(v) => handleInputChange("gender", v)}
+                    >
+                      <SelectTrigger
+                        id="gender"
+                        className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--foreground))]"
+                      >
+                        <SelectValue placeholder="Select gender" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="male">Male</SelectItem>
+                        <SelectItem value="female">Female</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="bio"
+                      className="text-[hsl(var(--foreground))]"
+                    >
+                      Bio
+                    </Label>
+                    <Textarea
+                      id="bio"
+                      name="bio"
+                      value={formData.bio}
+                      onChange={handleChange}
+                      placeholder="Short bio..."
+                      rows={3}
+                      className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Contact Information */}
+            <Card className="border-[hsl(var(--border))] shadow-sm">
+              <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
+                <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
+                  <Phone className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
+                  Contact Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 bg-[hsl(var(--card))]">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
                     <Label
                       htmlFor="email"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="text-[hsl(var(--foreground))]"
                     >
                       Email Address *
                     </Label>
@@ -488,299 +568,209 @@ export default function AddDoctorPage() {
                       type="email"
                       value={formData.email}
                       onChange={handleChange}
-                      placeholder="sarah.johnson@clinical.com"
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      placeholder="Enter email"
+                      className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                       required
                     />
                   </div>
 
-                  <div>
+                  <div className="space-y-2">
                     <Label
-                      htmlFor="email"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                    >
-                      Password *
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        id="password"
-                        name="password"
-                        type={showPassword ? "text" : "password"}
-                        value={formData.password}
-                        onChange={handleChange}
-                        placeholder="Enter password"
-                        className="mt-1 pr-10 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-                        required
-                        minLength={8}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label
-                      htmlFor="phone"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      htmlFor="phoneNumber"
+                      className="text-[hsl(var(--foreground))]"
                     >
                       Phone Number *
                     </Label>
                     <Input
-                      id="phone"
-                      name="phone"
-                      type="text"
-                      value={formData.phone}
+                      id="phoneNumber"
+                      name="phoneNumber"
+                      type="tel"
+                      value={formData.phoneNumber}
                       onChange={handleChange}
-                      placeholder="(555) 123-4567"
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      placeholder="Enter phone"
+                      className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                       required
                     />
-                  </div>
-
-                  <div>
-                    <Label
-                      htmlFor="age"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                    >
-                      Age *
-                    </Label>
-                    <Input
-                      id="age"
-                      name="age"
-                      type="number"
-                      value={formData.age}
-                      onChange={handleChange}
-                      placeholder="35"
-                      min="18"
-                      max="100"
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <Label
-                      htmlFor="dateOfBirth"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                    >
-                      Date of Birth *
-                    </Label>
-                    <Input
-                      id="dateOfBirth"
-                      name="dateOfBirth"
-                      type="date"
-                      value={formData.dateOfBirth}
-                      onChange={handleChange}
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <Label
-                      htmlFor="gender"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                    >
-                      Gender *
-                    </Label>
-                    <Select
-                      value={formData.gender}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, gender: value })
-                      }
-                    >
-                      <SelectTrigger className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                        <SelectValue placeholder="Select gender" />
-                      </SelectTrigger>
-                      <SelectContent className="dark:bg-gray-700 dark:border-gray-600">
-                        <SelectItem
-                          value="male"
-                          className="dark:text-white dark:hover:bg-gray-600"
-                        >
-                          Male
-                        </SelectItem>
-                        <SelectItem
-                          value="female"
-                          className="dark:text-white dark:hover:bg-gray-600"
-                        >
-                          Female
-                        </SelectItem>
-                        <SelectItem
-                          value="other"
-                          className="dark:text-white dark:hover:bg-gray-600"
-                        >
-                          Other
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-
-
-                  <div>
-                    <Label
-                      htmlFor="bio"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                    >
-                      Bio
-                    </Label>
-                    <Textarea
-                      id="bio"
-                      name="bio"
-                      value={formData.bio}
-                      onChange={handleChange}
-                      placeholder="Dr. Sarah Johnson is a board-certified cardiologist with over 15 years of experience in treating cardiovascular diseases. She specializes in preventive cardiology and cardiac rehabilitation."
-                      rows={4}
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-                    />
-                  </div>
-
-
-
-                  <div>
-                    <Label
-                      htmlFor="status"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                    >
-                      Status
-                    </Label>
-                    <Select
-                      value={formData.status}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, status: value })
-                      }
-                    >
-                      <SelectTrigger className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                        <SelectValue placeholder="Active" />
-                      </SelectTrigger>
-                      <SelectContent className="dark:bg-gray-700 dark:border-gray-600">
-                        <SelectItem
-                          value="active"
-                          className="dark:text-white dark:hover:bg-gray-600"
-                        >
-                          Active
-                        </SelectItem>
-                        <SelectItem
-                          value="inactive"
-                          className="dark:text-white dark:hover:bg-gray-600"
-                        >
-                          Inactive
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
 
-                {/* Professional Information */}
-                <div className="space-y-6">
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                    Professional Information
-                  </h3>
-
-                  <div>
+            {/* Address Information */}
+            <Card className="border-[hsl(var(--border))] shadow-sm">
+              <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
+                <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
+                  <MapPin className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
+                  Address Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 bg-[hsl(var(--card))]">
+                <div className="space-y-4">
+                  <div className="space-y-2">
                     <Label
-                      htmlFor="education"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      htmlFor="street"
+                      className="text-[hsl(var(--foreground))]"
                     >
-                      Education
+                      Street Address
                     </Label>
                     <Input
-                      id="education"
-                      name="educationSummary"
-                      value={formData.educationSummary}
-                      onChange={handleChange}
-                      placeholder="MD from Johns Hopkins University, Residency at Mayo Clinic"
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      id="street"
+                      name="street"
+                      value={formData.address.street}
+                      onChange={(e) =>
+                        handleAddressChange("street", e.target.value)
+                      }
+                      placeholder="Enter street"
+                      className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                     />
                   </div>
 
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="city"
+                        className="text-[hsl(var(--foreground))]"
+                      >
+                        City
+                      </Label>
+                      <Input
+                        id="city"
+                        name="city"
+                        value={formData.address.city}
+                        onChange={(e) =>
+                          handleAddressChange("city", e.target.value)
+                        }
+                        placeholder="Enter city"
+                        className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
+                      />
+                    </div>
 
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="state"
+                        className="text-[hsl(var(--foreground))]"
+                      >
+                        State
+                      </Label>
+                      <Input
+                        id="state"
+                        name="state"
+                        value={formData.address.state}
+                        onChange={(e) =>
+                          handleAddressChange("state", e.target.value)
+                        }
+                        placeholder="Enter state"
+                        className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
+                      />
+                    </div>
+                  </div>
 
-                  <div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="zipCode"
+                        className="text-[hsl(var(--foreground))]"
+                      >
+                        Zip Code
+                      </Label>
+                      <Input
+                        id="zipCode"
+                        name="zipCode"
+                        value={formData.address.zipCode}
+                        onChange={(e) =>
+                          handleAddressChange("zipCode", e.target.value)
+                        }
+                        placeholder="Enter zip"
+                        className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="country"
+                        className="text-[hsl(var(--foreground))]"
+                      >
+                        Country
+                      </Label>
+                      <Input
+                        id="country"
+                        name="country"
+                        value={formData.address.country}
+                        onChange={(e) =>
+                          handleAddressChange("country", e.target.value)
+                        }
+                        placeholder="Enter country"
+                        className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Professional Information */}
+            <Card className="border-[hsl(var(--border))] shadow-sm">
+              <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
+                <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
+                  <Briefcase className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
+                  Professional Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 bg-[hsl(var(--card))]">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
                     <Label
-                      htmlFor="specialty"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      htmlFor="specialization"
+                      className="text-[hsl(var(--foreground))]"
                     >
                       Specialty *
                     </Label>
                     <Select
                       value={formData.specialization}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, specialization: value })
+                      onValueChange={(v) =>
+                        handleInputChange("specialization", v)
                       }
                     >
-                      <SelectTrigger className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                        <SelectValue placeholder="Cardiology" />
+                      <SelectTrigger
+                        id="specialization"
+                        className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--foreground))]"
+                      >
+                        <SelectValue placeholder="Select specialty" />
                       </SelectTrigger>
-                      <SelectContent className="dark:bg-gray-700 dark:border-gray-600">
-                        <SelectItem
-                          value="cardiology"
-                          className="dark:text-white dark:hover:bg-gray-600"
-                        >
-                          Cardiology
-                        </SelectItem>
-                        <SelectItem
-                          value="neurology"
-                          className="dark:text-white dark:hover:bg-gray-600"
-                        >
-                          Neurology
-                        </SelectItem>
-                        <SelectItem
-                          value="orthopedics"
-                          className="dark:text-white dark:hover:bg-gray-600"
-                        >
-                          Orthopedics
-                        </SelectItem>
-                        <SelectItem
-                          value="pediatrics"
-                          className="dark:text-white dark:hover:bg-gray-600"
-                        >
-                          Pediatrics
-                        </SelectItem>
-                        <SelectItem
-                          value="dermatology"
-                          className="dark:text-white dark:hover:bg-gray-600"
-                        >
-                          Dermatology
-                        </SelectItem>
+                      <SelectContent>
+                        <SelectItem value="cardiology">Cardiology</SelectItem>
+                        <SelectItem value="neurology">Neurology</SelectItem>
+                        <SelectItem value="orthopedics">Orthopedics</SelectItem>
+                        <SelectItem value="pediatrics">Pediatrics</SelectItem>
+                        <SelectItem value="dermatology">Dermatology</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
-                  <div>
+                  <div className="space-y-2">
                     <Label
-                      htmlFor="experience"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      htmlFor="yearOfExperience"
+                      className="text-[hsl(var(--foreground))]"
                     >
-                      Years of Experience
+                      Years of Experience *
                     </Label>
                     <Select
-                      value={formData.experience}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, experience: value })
+                      value={formData.yearOfExperience}
+                      onValueChange={(v) =>
+                        handleInputChange("yearOfExperience", v)
                       }
                     >
-                      <SelectTrigger className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                        <SelectValue placeholder="15" />
+                      <SelectTrigger
+                        id="yearOfExperience"
+                        className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--foreground))]"
+                      >
+                        <SelectValue placeholder="Select years" />
                       </SelectTrigger>
-                      <SelectContent className="dark:bg-gray-700 dark:border-gray-600">
+                      <SelectContent>
                         {Array.from({ length: 50 }, (_, i) => i + 1).map(
                           (year) => (
-                            <SelectItem
-                              key={year}
-                              value={year.toString()}
-                              className="dark:text-white dark:hover:bg-gray-600"
-                            >
-                              {year}
+                            <SelectItem key={year} value={String(year)}>
+                              {year} {year === 1 ? "year" : "years"}
                             </SelectItem>
                           )
                         )}
@@ -788,319 +778,145 @@ export default function AddDoctorPage() {
                     </Select>
                   </div>
 
-
-                  <div>
+                  <div className="space-y-2">
                     <Label
-                      htmlFor="phone"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      htmlFor="licenseNumber"
+                      className="text-[hsl(var(--foreground))]"
                     >
                       License Number *
                     </Label>
                     <Input
                       id="licenseNumber"
                       name="licenseNumber"
-                      type="text"
                       value={formData.licenseNumber}
                       onChange={handleChange}
-                      placeholder="MD-123456"
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      placeholder="Enter license"
+                      className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                       required
                     />
                   </div>
 
-                  <div>
+                  <div className="space-y-2">
                     <Label
-                      htmlFor="languages"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      htmlFor="educationSummary"
+                      className="text-[hsl(var(--foreground))]"
                     >
-                      Languages
+                      Education Summary
                     </Label>
-                    <div className="mt-1 space-y-3">
-                      <div className="grid grid-cols-2 gap-3">
-                        {["English", "Spanish", "French", "German", "Italian", "Portuguese", "Arabic", "Chinese"].map((language) => (
-                          <div key={language} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={`language-${language.toLowerCase()}`}
-                              checked={formData.languages.includes(language)}
-                              onCheckedChange={(checked) => {
-                                if (checked) {
-                                  setFormData({
-                                    ...formData,
-                                    languages: [...formData.languages, language]
-                                  });
-                                } else {
-                                  setFormData({
-                                    ...formData,
-                                    languages: formData.languages.filter(lang => lang !== language)
-                                  });
-                                }
-                              }}
-                              className="border-gray-300 dark:border-gray-600"
-                            />
-                            <Label
-                              htmlFor={`language-${language.toLowerCase()}`}
-                              className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer"
-                            >
-                              {language}
-                            </Label>
-                          </div>
-                        ))}
-                      </div>
-                      {formData.languages.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {formData.languages.map((language) => (
-                            <span
-                              key={language}
-                              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-700"
-                            >
-                              {language}
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setFormData({
-                                    ...formData,
-                                    languages: formData.languages.filter(lang => lang !== language)
-                                  });
-                                }}
-                                className="ml-1.5 inline-flex items-center justify-center w-4 h-4 rounded-full text-blue-400 hover:text-blue-600 hover:bg-blue-200 dark:hover:bg-blue-800"
-                              >
-                                <span className="sr-only">Remove {language}</span>
-                                ×
-                              </button>
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label
-                      htmlFor="address"
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                    >
-                      Address
-                    </Label>
-                    <Textarea
-                      id="address"
-                      name="address"
-                      value={formData.address}
+                    <Input
+                      id="educationSummary"
+                      name="educationSummary"
+                      value={formData.educationSummary}
                       onChange={handleChange}
-                      placeholder="123 Main St, Anytown, USA"
-                      rows={4}
-                      className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      placeholder="MD from Johns Hopkins, Residency at Mayo"
+                      className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                     />
                   </div>
-
                 </div>
-              </div>
+              </CardContent>
+            </Card>
 
-              {/* Manage Availability */}
-              <div className="space-y-6">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                  Manage Availability
-                </h3>
-
-                <div>
-                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Time Zone
-                  </Label>
-                  <Select
-                    value={formData.timeZone}
-                    onValueChange={(value) =>
-                      setFormData({ ...formData, timeZone: value })
-                    }
-                  >
-                    <SelectTrigger className="mt-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                      <SelectValue placeholder="Asia/Karachi" />
-                    </SelectTrigger>
-                    <SelectContent className="dark:bg-gray-700 dark:border-gray-600">
-                      <SelectItem
-                        value="Asia/Karachi"
-                        className="dark:text-white dark:hover:bg-gray-600"
+            {/* Languages */}
+            <Card className="border-[hsl(var(--border))] shadow-sm">
+              <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
+                <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
+                  <Globe className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
+                  Languages
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 bg-[hsl(var(--card))]">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {[
+                    "English",
+                    "Spanish",
+                    "French",
+                    "German",
+                    "Italian",
+                    "Portuguese",
+                    "Arabic",
+                    "Chinese",
+                  ].map((lang) => (
+                    <div key={lang} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`lang-${lang}`}
+                        checked={formData.languages.includes(lang)}
+                        onCheckedChange={(c) =>
+                          setFormData((p) => ({
+                            ...p,
+                            languages: c
+                              ? [...p.languages, lang]
+                              : p.languages.filter((l) => l !== lang),
+                          }))
+                        }
+                        className="border-[hsl(var(--border))] dark:border-[hsl(var(--border))]"
+                      />
+                      <Label
+                        htmlFor={`lang-${lang}`}
+                        className="text-sm text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                       >
-                        Asia/Karachi (GMT +05:00)
-                      </SelectItem>
-                      <SelectItem
-                        value="UTC"
-                        className="dark:text-white dark:hover:bg-gray-600"
-                      >
-                        UTC (GMT +00:00)
-                      </SelectItem>
-                      <SelectItem
-                        value="America/New_York"
-                        className="dark:text-white dark:hover:bg-gray-600"
-                      >
-                        America/New_York (GMT -05:00)
-                      </SelectItem>
-                      <SelectItem
-                        value="Europe/London"
-                        className="dark:text-white dark:hover:bg-gray-600"
-                      >
-                        Europe/London (GMT +00:00)
-                      </SelectItem>
-                      <SelectItem
-                        value="Asia/Dubai"
-                        className="dark:text-white dark:hover:bg-gray-600"
-                      >
-                        Asia/Dubai (GMT +04:00)
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
+                        {lang}
+                      </Label>
+                    </div>
+                  ))}
                 </div>
-
-                <div>
-                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4 block">
-                    Available Hours
-                  </Label>
-
-                  <div className="flex flex-wrap gap-3 mb-6 p-3  ">
-                    {[
-                      { label: "Select All", value: "Select All" },
-                      { label: "Mon", value: "Monday" },
-                      { label: "Tue", value: "Tuesday" },
-                      { label: "Wed", value: "Wednesday" },
-                      { label: "Thu", value: "Thursday" },
-                      { label: "Fri", value: "Friday" },
-                      { label: "Sat", value: "Saturday" },
-                    ].map((day) => (
-                      <div
-                        key={day.value}
-                        className="flex items-center space-x-2"
+                {formData.languages.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {formData.languages.map((lang) => (
+                      <span
+                        key={lang}
+                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[hsl(var(--color-chart-blue)/0.1)] text-[hsl(var(--color-chart-blue))] border border-[hsl(var(--color-chart-blue))]"
                       >
-                        <Checkbox
-                          id={day.value}
-                          checked={
-                            day.value === "Select All"
-                              ? selectedDays.length === 7
-                              : selectedDays.includes(day.value)
+                        {lang}
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setFormData((p) => ({
+                              ...p,
+                              languages: p.languages.filter((l) => l !== lang),
+                            }))
                           }
-                          onCheckedChange={() => {
-                            if (day.value === "Select All") {
-                              if (selectedDays.length === 7) {
-                                setSelectedDays([]);
-                              } else {
-                                setSelectedDays([
-                                  "Monday",
-                                  "Tuesday",
-                                  "Wednesday",
-                                  "Thursday",
-                                  "Friday",
-                                  "Saturday",
-                                ]);
-                              }
-                            } else {
-                              handleDayToggle(day.value);
-                            }
-                          }}
-                          className="data-[state=checked]:bg-teal-600 data-[state=checked]:border-teal-600"
-                        />
-                        <Label
-                          htmlFor={day.value}
-                          className="text-sm text-gray-700 dark:text-gray-300"
+                          className="ml-1.5 w-4 h-4 rounded-full hover:bg-[hsl(var(--color-chart-blue)/0.2)]"
                         >
-                          {day.label}
-                        </Label>
-                      </div>
+                          ×
+                        </button>
+                      </span>
                     ))}
                   </div>
+                )}
+              </CardContent>
+            </Card>
 
-                  <div className="space-y-4">
-                    {[
-                      "Monday",
-                      "Tuesday",
-                      "Wednesday",
-                      "Thursday",
-                      "Friday",
-                      "Saturday",
-                    ].map((day) => {
-                      const daySlots = formData.availableDays.filter(
-                        (slot) => slot.day === day
-                      );
-                      return (
-                        <div key={day} className="flex items-center space-x-4">
-                          <div className="w-24 text-sm font-medium text-gray-700 dark:text-gray-300">
-                            {day}
-                          </div>
-                          {daySlots.length > 0 ? (
-                            <div className="flex items-center space-x-3">
-                              <Input
-                                type="time"
-                                value={daySlots[0].from}
-                                onChange={(e) =>
-                                  handleTimeChange(day, "from", e.target.value)
-                                }
-                                className="w-32 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                              />
-                              <span className="text-gray-500 dark:text-gray-400 text-sm">
-                                To
-                              </span>
-                              <Input
-                                type="time"
-                                value={daySlots[0].to}
-                                onChange={(e) =>
-                                  handleTimeChange(day, "to", e.target.value)
-                                }
-                                className="w-32 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                              />
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() =>
-                                  removeTimeSlot(
-                                    formData.availableDays.findIndex(
-                                      (slot) => slot.day === day
-                                    )
-                                  )
-                                }
-                                className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          ) : (
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => addTimeSlot(day)}
-                              className="text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 flex items-center space-x-1"
-                            >
-                              <Plus className="h-4 w-4" />
-                              <span>Add Time</span>
-                            </Button>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
+            {/* Actions */}
+            <div className="flex items-center gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-1/2 border-[hsl(var(--border))] bg-transparent"
+                onClick={() => router.push("/clinic/doctors")}
+                disabled={loading}
+              >
+                Cancel
+              </Button>
 
-              <div className="flex justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => router.push("/admin/doctors")}
-                  disabled={loading}
-                  className="flex-1 px-8 border-gray-300 text-gray-700 hover:bg-gray-50 
-               dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="flex-1 bg-teal-600 hover:bg-teal-700 text-white px-8 flex items-center justify-center space-x-2 
-               dark:bg-teal-500 dark:hover:bg-teal-600"
-                >
-                  <Plus className="h-4 w-4" />
-                  <span>{loading ? "Adding..." : "Add Doctor"}</span>
-                </Button>
-              </div>
-            </form>
-          </div>
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-1/2 bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-white"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Save Doctor
+                  </>
+                )}
+              </Button>
+            </div>
+          </form>
         </div>
       </div>
     </ProtectedRoute>

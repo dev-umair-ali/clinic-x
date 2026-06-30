@@ -15,13 +15,18 @@ interface HeaderBannerProps {
 export function HeaderBanner({ userName, date, onGoToAppointments }: HeaderBannerProps) {
   return (
     <>
-      <div className="relative w-full overflow-hidden rounded-xl bg-[linear-gradient(94.25deg,_#1da68f_0%,_#27debf_100%)] p-6">
+      <div 
+        className="relative w-full overflow-hidden rounded-xl p-6"
+        style={{
+          background: `linear-gradient(94.25deg, hsl(var(--color-brand-teal)) 0%, hsl(var(--color-brand-teal-light)) 100%)`
+        }}
+      >
         <div className="flex flex-col md:flex-row justify-between items-center relative z-10">
-          <div className="text-white max-w-md">
+          <div className="text-[hsl(var(--sidebar-foreground))] max-w-md">
             <h2 className="text-xl font-semibold mb-1">Welcome back, {userName}</h2>
             <p className="text-sm opacity-90 mb-4">Ready to make today productive?</p>
             <Button
-              className="bg-white text-custom-dashboard-green-dark hover:bg-gray-100"
+              className="bg-[hsl(var(--sidebar-foreground))] text-[hsl(var(--sidebar-primary-foreground))] hover:bg-[hsl(var(--color-gray-100))]"
               onClick={onGoToAppointments} // Added click handler
             >
               Go to Appointments <ArrowRight className="ml-2 h-4 w-4" />
@@ -38,7 +43,7 @@ export function HeaderBanner({ userName, date, onGoToAppointments }: HeaderBanne
           <DropdownMenuTrigger asChild>
             <Button
               variant="outline"
-              className="w-36 h-10 md:w-[150px] md:h-[40px] bg-white text-black border border-gray-300 pr-[13px] pl-[13px] gap-[15px] rounded-[12px]"
+              className="w-36 h-10 md:w-[150px] md:h-[40px] bg-[hsl(var(--sidebar-foreground))] text-[hsl(var(--foreground))] border border-[hsl(var(--border))] pr-[13px] pl-[13px] gap-[15px] rounded-[12px]"
             >
               Last 7 Days <ChevronDown className="ml-2 h-4 w-4" />
             </Button>

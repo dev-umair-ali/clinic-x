@@ -148,38 +148,20 @@ export const billingService = {
 
   async extractCPTCodes(requestData: ExtractCPTCodesRequest): Promise<ExtractCPTCodesResponse> {
     try {
-      console.log('🔍 Extracting CPT codes from SOAP notes...');
-      console.log('📝 Request object:', requestData);
-      console.log('📝 soap_note field:', requestData.soap_note);
-      console.log('📝 use_fallback field:', requestData.use_fallback);
-      
+
       // Create the JSON string
       const requestBody = JSON.stringify(requestData);
-      console.log('📤 Request body (stringified):');
-      console.log(requestBody);
-      console.log('📤 Request body length:', requestBody.length);
-      
-      // Verify JSON is valid
-      try {
-        const parsed = JSON.parse(requestBody);
-        console.log('✅ Request body is valid JSON');
-        console.log('✅ Parsed soap_note preview:', parsed.soap_note.substring(0, 100) + '...');
-      } catch (e) {
-        console.error('❌ Request body is NOT valid JSON:', e);
-      }
-      
+
       const response = await fetch('https://billing-api.clinicx.io/extract-cpt-codes', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           // Add authorization if needed
-          Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('clinic-ai-token') : ''}`,
+          // Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('clinic-ai-token') : ''}`,
         },
         body: requestBody,
       });
 
-      console.log('📡 Response status:', response.status);
-      console.log('📡 Response statusText:', response.statusText);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -188,10 +170,9 @@ export const billingService = {
       }
 
       const data: ExtractCPTCodesResponse = await response.json();
-      console.log('✅ CPT codes extracted successfully:', data);
       return data;
     } catch (error: any) {
-      console.error('❌ Error extracting CPT codes:', error);
+      console.error('Error extracting CPT codes:', error);
       throw error;
     }
   },
@@ -231,7 +212,6 @@ export const billingService = {
         notes: `CPT Codes: ${cptCodesString}${modifier ? `\nModifier: ${modifier}` : ''}${appointmentId ? `\nAppointment: ${appointmentId}` : ''}`,
       };
 
-      console.log('💰 Creating billing record:', billData);
       return await this.createBill(billData);
     } catch (error: any) {
       console.error('❌ Error creating billing from CPT codes:', error);

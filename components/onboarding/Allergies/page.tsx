@@ -16,7 +16,7 @@ export default function Allergies({
         Allergies (medications, foods, environmental):
       </p>
       <Textarea
-        value={formData.allergies}
+        value={formData?.allergies}
         onChange={(e) => updateFormData("allergies", e.target.value)}
         placeholder="List any known allergies and reactions..."
         rows={3}

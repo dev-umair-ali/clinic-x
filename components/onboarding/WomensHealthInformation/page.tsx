@@ -20,8 +20,8 @@ export default function WomensHealthInformation({
           Are you currently pregnant?
         </Label>
         <RadioGroup
-          value={formData.currentlyPregnant}
-          onValueChange={(v) => updateFormData("currentlyPregnant", v)}
+          value={formData.pregnancyStatus}
+          onValueChange={(v) => updateFormData("pregnancyStatus", v)}
           className="flex space-x-4"
         >
           <div className="flex items-center space-x-2">

@@ -284,7 +284,7 @@ export default function AppointmentDetailsModal({
     }
 
     try {
-      await appointmentService.cancelAppointment(appointmentId)
+      await appointmentService.cancelAppointment('doctor', appointmentId)
       
       toast({
         title: "Success",

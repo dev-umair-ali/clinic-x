@@ -1,26 +1,32 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
-import { 
-  doctorPatientService, 
-  DoctorPatient, 
-  CreateDoctorPatientRequest, 
+import {
+  doctorPatientService,
+  DoctorPatient,
+  CreateDoctorPatientRequest,
   UpdateDoctorPatientRequest,
-  DoctorPatientResponse,
-  DoctorPatientsListResponse,
-  DoctorPatientsByDoctorResponse
 } from '../api/services/doctorPatientService'
 
 interface DoctorPatientState {
   patients: DoctorPatient[]
+  doctorPatient: DoctorPatient | null
   loading: boolean
   error: string | null
   currentPatient: DoctorPatient | null
+  pagination: {
+    currentPage: number
+    totalPages: number
+    totalItems: number
+    itemsPerPage: number
+  } | null
 }
 
 const initialState: DoctorPatientState = {
   patients: [],
+  doctorPatient: null,
   loading: false,
   error: null,
-  currentPatient: null
+  currentPatient: null,
+  pagination: null,
 }
 
 // Async thunks
@@ -29,7 +35,7 @@ export const fetchDoctorPatients = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await doctorPatientService.getDoctorPatients()
-      return response.data
+      return response.patients
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch patients')
     }
@@ -65,10 +71,10 @@ export const updateDoctorPatient = createAsyncThunk(
   async ({ id, patientData }: { id: string; patientData: UpdateDoctorPatientRequest }, { rejectWithValue, dispatch }) => {
     try {
 
-      
+
       const response = await doctorPatientService.updateDoctorPatient(id, patientData)
 
-      
+
       if (response.success) {
 
         // Fetch updated patient list after successful update
@@ -89,9 +95,9 @@ export const deleteDoctorPatient = createAsyncThunk(
   'doctorPatients/deleteDoctorPatient',
   async (id: string, { rejectWithValue, dispatch }) => {
     try {
-      
+
       const response = await doctorPatientService.deleteDoctorPatient(id)
-      
+
       if (response.success) {
         // Fetch updated patient list after successful deletion
         const fetchResult = await dispatch(fetchDoctorPatients()).unwrap()
@@ -109,10 +115,24 @@ export const fetchPatientsByDoctorId = createAsyncThunk(
   'doctorPatients/fetchPatientsByDoctorId',
   async (doctorId: string, { rejectWithValue }) => {
     try {
-      const response = await doctorPatientService.getPatientsByDoctorId(doctorId)
+      const response = await doctorPatientService.getPatientByDoctorId(doctorId)
       return response.data
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch patients by doctor ID')
+    }
+  }
+)
+
+
+export const fetchDoctorPatient = createAsyncThunk(
+  'doctor/patient/:id',
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const response = await doctorPatientService.getPatient(id)
+      return response;
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Failed to fetch patient';
+      return rejectWithValue(errorMessage)
     }
   }
 )
@@ -140,28 +160,32 @@ const doctorPatientSlice = createSlice({
       })
       .addCase(fetchDoctorPatients.fulfilled, (state, action) => {
 
-        
+
         state.loading = false
-        
+
         // Ensure we have an array to work with
         const patientsArray = Array.isArray(action.payload) ? action.payload : []
 
-        
+
         // Ensure fullName is populated for each patient and handle both id and _id
         state.patients = patientsArray.map((patient, index) => {
 
-          
+
           const mappedPatient = {
             ...patient,
-            id: patient?.id || patient?._id || `temp-${Date.now()}-${index}`, // Ensure id is available
-            _id: patient?._id || patient?.id || `temp-${Date.now()}-${index}`, // Ensure _id is available
-            fullName: patient?.fullName || `${patient?.firstName || ''} ${patient?.lastName || ''}`.trim() || 'Unknown Patient'
+            id: patient?._id || `temp-${Date.now()}-${index}`, // Ensure id is available
+            _id: patient?._id || `temp-${Date.now()}-${index}`, // Ensure _id is available
+            fullName: `${patient?.firstName || ''} ${patient?.lastName || ''}`.trim() || 'Unknown Patient',
+            phone: patient?.phoneNumber || '',
+            doctorRef: patient?.doctorRef || '',
+            age: patient?.age || 0, // Ensure age is always a number
+            createdAt: patient?.createdAt || '',
+            updatedAt: patient?.updatedAt || ''
           }
-
           return mappedPatient
         })
-        
-       
+
+
         state.error = null
       })
       .addCase(fetchDoctorPatients.rejected, (state, action) => {
@@ -195,7 +219,9 @@ const doctorPatientSlice = createSlice({
           ...action.payload,
           id: action.payload.id || action.payload._id || `temp-${Date.now()}`, // Ensure id is available
           _id: action.payload._id || action.payload.id || `temp-${Date.now()}`, // Ensure _id is available
-          fullName: action.payload.fullName || `${action.payload.firstName || ''} ${action.payload.lastName || ''}`.trim() || 'Unknown Patient'
+          fullName: `${action.payload.firstName || ''} ${action.payload.lastName || ''}`.trim() || 'Unknown Patient',
+          phone: action.payload.phone || '',
+          doctorRef: action.payload.doctorRef || ''
         }
         state.patients.push(newPatient)
         state.error = null
@@ -211,7 +237,7 @@ const doctorPatientSlice = createSlice({
         state.error = null
       })
       .addCase(updateDoctorPatient.fulfilled, (state, action) => {
-        
+
         state.loading = false
         // The fetchDoctorPatients thunk will refresh the list, so we don't need to manually update
         // Just set the current patient if it matches
@@ -221,14 +247,14 @@ const doctorPatientSlice = createSlice({
           _id: action.payload._id || action.payload.id || `temp-${Date.now()}`,
           fullName: action.payload.fullName || `${action.payload.firstName || ''} ${action.payload.lastName || ''}`.trim() || 'Unknown Patient'
         }
-        
-        if (state.currentPatient?.id === action.payload.id || 
-            state.currentPatient?._id === action.payload._id ||
-            state.currentPatient?.id === action.payload._id ||
-            state.currentPatient?._id === action.payload.id) {
+
+        if (state.currentPatient?.id === action.payload.id ||
+          state.currentPatient?._id === action.payload._id ||
+          state.currentPatient?.id === action.payload._id ||
+          state.currentPatient?._id === action.payload.id) {
           state.currentPatient = updatedPatient
         }
-                state.error = null
+        state.error = null
       })
       .addCase(updateDoctorPatient.rejected, (state, action) => {
         state.loading = false
@@ -262,11 +288,27 @@ const doctorPatientSlice = createSlice({
           ...patient,
           id: patient.id || patient._id || `temp-${Date.now()}-${index}`, // Ensure id is available
           _id: patient._id || patient.id || `temp-${Date.now()}-${index}`, // Ensure _id is available
-          fullName: patient.fullName || `${patient.firstName || ''} ${patient.lastName || ''}`.trim() || 'Unknown Patient'
+          fullName: `${patient.firstName || ''} ${patient.lastName || ''}`.trim() || 'Unknown Patient',
+          phone: patient.phone || '',
+          doctorRef: patient.doctorRef || ''
         }))
         state.error = null
       })
       .addCase(fetchPatientsByDoctorId.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.payload as string
+      })
+
+      // Fetch Patient
+      .addCase(fetchDoctorPatient.pending, (state) => {
+        state.loading = true
+        state.error = null
+      })
+      .addCase(fetchDoctorPatient.fulfilled, (state, action) => {
+        state.loading = false
+        state.doctorPatient = action.payload
+      })
+      .addCase(fetchDoctorPatient.rejected, (state, action) => {
         state.loading = false
         state.error = action.payload as string
       })

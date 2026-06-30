@@ -295,3 +295,6 @@
   align-items: center;
   gap: 13.5px;
 }
+.dark .doctor-input {
+  @apply bg-[hsl(var(--color-gray-700))];
+}

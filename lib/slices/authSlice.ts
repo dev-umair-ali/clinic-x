@@ -10,8 +10,16 @@ export interface User {
   role: "admin" | "doctor" | "patient" | "assistant" | "clinic";
   profilePicture?: string;
   hasCompletedOnboarding?: boolean;
-  doctorId?: string; // MongoDB doctor ID for doctor users
-  patientId?: string; // MongoDB patient ID for patient users
+  clinicId?: string; 
+  doctorId?: string;
+  patientId?: string; 
+  assistantId?: string;
+  clinicRef?: string; 
+  doctorRef?: string; 
+  patientRef?: string; 
+  assistantRef?: string; 
+  createdAt: string;
+  updatedAt: string;
   _id?: string; // MongoDB user ID
 }
 
@@ -80,12 +88,8 @@ const authSlice = createSlice({
 
       // Clear token from global axios headers
       clearAuthToken();
-
-      // Clear localStorage
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("clinic-ai-token");
-        localStorage.removeItem("clinic-ai-user");
-      }
+      localStorage.removeItem("clinic-ai-token");
+      localStorage.removeItem("clinic-ai-user");
     },
     setUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload;

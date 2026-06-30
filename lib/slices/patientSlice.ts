@@ -1,57 +1,94 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from "@reduxjs/toolkit"
-import { patientService, type CreatePatientRequest, type UpdatePatientRequest } from "../api/services/patientService"
+import { patientService, type CreatePatientRequest, type UpdatePatientRequest, type PatientQueryParams } from "../api/services/patientService"
+import { doctorService } from "../api/services/doctorService"
 
 export interface Patient {
-  profilePicture?: string
-  id: string
+  _id?: string
+  userRef: string
+  userId?: string
+  clinicRef: string
+  doctorRef?: string
   firstName: string
   lastName: string
-  fullName: string
+  fullName?: string
+  displayName?: string
   email: string
-  password?: string
-  phone: string
   phoneNumber?: string
-  age: number
-  dateOfBirth: string
-  DateOfBirth?: string
+  age?: number
+  dateOfBirth?: string
   gender: "male" | "female" | "other"
+  profilePicture?: string
   bloodType?: string
-  BloodType?: string
-  assignedDoctor?: string
   insuranceInfo?: string
-  medicalHistory?: string
-  MedicalHistory?: string
+  medicalHistory?: string[]
   allergies?: string
-  Allergies?: string
   currentMedication?: string
-  CurrentMedication?: string
-  insuranceProvide?: string
-  InsuranceProvide?: string
-  eContactName?: string
-  EContactName?: string
-  ePhoneNumber?: string
-  EPhoneNumber?: string
-  eRelationship?: string
-  ERelationship?: string
-  PrimaryDoctor?: string
-  primaryDoctor?: string
-  address: string
-  status: "active" | "inactive"
-  role: "patient"
-  lastVisit: string
-  avatar?: string
+  insuranceProvider?: string
+  address: {
+    street?: string
+    city?: string
+    state?: string
+    zipCode?: string
+    country?: string
+  }
+  status: "active" | "inactive" | "pending_verification" | "suspended"
+  role?: "patient"
+
+  // Form references
+  onboardingFormRef?: string
+  medicalProfileFormRef?: string
+  insuranceFormRef?: string
+  dentalHistoryFormRef?: string
+  historyHealthFormRef?: string
+  lifeStyleFormRef?: string
+  womenFormRef?: string
+  constantLegalFormRef?: string
+  presentConditionFormRef?: string
+
+  // Form completion status
+  formsCompleted?: {
+    onboarding?: boolean
+    medicalProfile?: boolean
+    insurance?: boolean
+    dentalHistory?: boolean
+    historyHealth?: boolean
+    lifeStyle?: boolean
+    women?: boolean
+    constantLegal?: boolean
+    presentCondition?: boolean
+  }
+
+  formCompletionPercentage?: number
+  incompleteForms?: string[]
+
+  isEmailVerified?: boolean
+  emailVerificationToken?: string
+  emailVerificationExpires?: string
+
+  // eRx Integration
+  erxPatientId?: string
+  erxDoctorId?: string
+
+  createdBy?: string
+  updatedBy?: string
+  createdAt?: string
+  updatedAt?: string
+
+  // Legacy/backward compatibility fields
+  lastVisit?: string
   prescriptions?: string[]
-  emergencyContactName?: string
-  emergencyContactPhone?: string
-  emergencyContactRelationship?: string
-  allergiesArray?: string[]
-  medicationsArray?: string[]
-  assignedClinic?: string[],
 }
 
 interface PatientState {
   patients: Patient[]
   patient: Patient | null
+  clinicDoctors: any[] // Doctors filtered by selected clinic
+  pagination: {
+    currentPage: number
+    totalPages: number
+    totalItems: number
+    itemsPerPage: number
+  } | null
   loading: boolean
   error: string | null
 }
@@ -59,48 +96,48 @@ interface PatientState {
 const initialState: PatientState = {
   patients: [],
   patient: null,
+  clinicDoctors: [],
+  pagination: null,
   loading: false,
   error: null,
 }
 
 // Async thunks for API operations
 export const fetchPatients = createAsyncThunk(
-  'patients/fetchPatients',
-  async (_, { rejectWithValue }) => {
+  'admin/patient/all/patients',
+  async (params: PatientQueryParams | undefined = undefined, { rejectWithValue }) => {
     try {
-      const response = await patientService.getPatients()
-      
+      const response = await patientService.getPatients(params)
       return response;
     } catch (error: any) {
-      console.error('Error in fetchPatients:', error)
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch patients')
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Failed to fetch patients';
+      return rejectWithValue(errorMessage)
     }
   }
 )
 
 export const fetchPatient = createAsyncThunk(
-  'patients/fetchPatient',
+  'admin/patient/:id',
   async (id: string, { rejectWithValue }) => {
     try {
       const response = await patientService.getPatient(id)
       return response;
     } catch (error: any) {
-      console.error('Error in fetchPatient:', error)
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch patient')
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Failed to fetch patient';
+      return rejectWithValue(errorMessage)
     }
   }
 )
 
 export const createPatient = createAsyncThunk(
-  'patients/createPatient',
+  'admin/patient/create-patient',
   async (patientData: CreatePatientRequest, { rejectWithValue }) => {
     try {
       const response = await patientService.createPatient(patientData)
-      if (response.success) {
-        return response.data
-      }
+      return response.patient
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to create patient')
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Failed to create patient';
+      return rejectWithValue(errorMessage)
     }
   }
 )
@@ -111,7 +148,7 @@ export const createPatientInCollection = createAsyncThunk(
     try {
       const response = await patientService.createPatientInCollection(patientData)
       if (response.success) {
-        return response.data
+        return response.patient;
       }
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to add patient to collection')
@@ -120,31 +157,78 @@ export const createPatientInCollection = createAsyncThunk(
 )
 
 export const updatePatient = createAsyncThunk(
-  'patients/updatePatient',
+  'admin/patient/update-patient/:id',
   async ({ id, patientData }: { id: string; patientData: UpdatePatientRequest }, { rejectWithValue }) => {
     try {
       const response = await patientService.updatePatient(id, patientData)
-      if (response.success) {
-        return response.data
-      } else {
-        return rejectWithValue(response.message || 'Failed to update patient')
-      }
+      return response.patient
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to update patient')
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Failed to update patient';
+      return rejectWithValue(errorMessage)
     }
   }
 )
 
 export const updatePatientStatus = createAsyncThunk(
-  'patients/updatePatientStatus',
-  async ({id, status}: {id: string, status: string}, { rejectWithValue }) => {
+  'admin/patient/update-patient/status/:id',
+  async ({ id, status }: { id: string; status: "active" | "inactive" | "pending_verification" | "suspended" }, { rejectWithValue }) => {
     try {
       const response = await patientService.updatePatientStatus(id, status)
-      if (response.success) {
-        return id
-      } 
+      fetchPatients({})
+      return { id, status }
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to update patient status')
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Failed to update patient status';
+      return rejectWithValue(errorMessage)
+    }
+  }
+)
+
+export const fetchClinicDoctors = createAsyncThunk(
+  'patients/fetchClinicDoctors',
+  async (params: string, { rejectWithValue }) => {
+    try {
+      // Fetch all doctors and filter by clinic on frontend, or update backend to support clinicRef
+      const response = await doctorService.getDoctorsByClinicId(params ? { clinicId: params } : undefined)
+      // Filter doctors by clinic ID (using clinicRef field)
+      const clinicDoctors = response.doctors || []
+      return clinicDoctors
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Failed to fetch clinic doctors';
+      return rejectWithValue(errorMessage)
+    }
+  }
+)
+
+
+export const fetchClinicDoctorsByAssistant = createAsyncThunk(
+  'patients/fetchClinicDoctorsByAssistant',
+  async (params: string, { rejectWithValue }) => {
+    try {
+      // Fetch all doctors and filter by clinic on frontend, or update backend to support clinicRef
+      const response = await doctorService.getDoctorsByClinicIdByAssistant(params ? { clinicId: params } : undefined)
+      // Filter doctors by clinic ID (using clinicRef field)
+      const clinicDoctors = response.doctors || []
+      return clinicDoctors
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Failed to fetch clinic doctors';
+      return rejectWithValue(errorMessage)
+    }
+  }
+)
+
+
+export const fetchClinicDoctorsByClinic = createAsyncThunk(
+  'patients/fetchClinicDoctorsByClinic',
+  async (params: string, { rejectWithValue }) => {
+    try {
+      // Fetch all doctors and filter by clinic on frontend, or update backend to support clinicRef
+      const response = await doctorService.getDoctorsByClinicIdByClinic(params ? { clinicId: params } : undefined)
+      // Filter doctors by clinic ID (using clinicRef field)
+      const clinicDoctors = response.doctors || []
+      return clinicDoctors
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Failed to fetch clinic doctors';
+      return rejectWithValue(errorMessage)
     }
   }
 )
@@ -160,13 +244,13 @@ const patientSlice = createSlice({
       state.patients.push(action.payload)
     },
     updatePatientLocal: (state, action: PayloadAction<Patient>) => {
-      const index = state.patients.findIndex((patient) => patient.id === action.payload.id)
+      const index = state.patients.findIndex((patient) => patient._id === action.payload._id)
       if (index !== -1) {
         state.patients[index] = action.payload
       }
     },
     deletePatientLocal: (state, action: PayloadAction<string>) => {
-      state.patients = state.patients.filter((patient) => patient.id !== action.payload)
+      state.patients = state.patients.filter((patient) => patient._id !== action.payload)
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload
@@ -177,8 +261,11 @@ const patientSlice = createSlice({
     clearPatient: (state) => {
       state.patient = null
     },
+    clearClinicDoctors: (state) => {
+      state.clinicDoctors = []
+    },
     debugState: (state) => {
-     
+
     },
   },
   extraReducers: (builder) => {
@@ -190,111 +277,27 @@ const patientSlice = createSlice({
       })
       .addCase(fetchPatients.fulfilled, (state, action) => {
         state.loading = false
-
-        // Handle different possible response structures
-        let patientsArray = action.payload
-
-        // Check if payload has a data property (wrapped response)
-        if (action.payload && typeof action.payload === 'object' && 'data' in action.payload) {
-          patientsArray = (action.payload as any).data
-        }
-
-        // Check if payload is directly an array (direct response)
-        if (Array.isArray(action.payload)) {
-         
-          patientsArray = action.payload
-        }
-
-        if (Array.isArray(patientsArray)) {
-          const mappedPatients = patientsArray.map((patient: any, index: number) => {
-
-            const mappedPatient = {
-              id: patient._id || patient.id || `temp-${Date.now()}-${index}`,
-              firstName: patient.firstName || '',
-              lastName: patient.lastName || '',
-              fullName: patient.fullName || `${patient.firstName || ''} ${patient.lastName || ''}`.trim() || 'Unknown Patient',
-              email: patient.email || '',
-              phone: patient.phone || '',
-              age: patient.age || 0,
-              dateOfBirth: patient.dateOfBirth || '',
-              gender: patient.gender || 'male',
-              bloodType: patient.bloodType || '',
-              assignedDoctor: Array.isArray(patient.assignedDoctor) ? patient.assignedDoctor[0] || '' : patient.assignedDoctor || '',
-              insuranceInfo: patient.insuranceInfo || '',
-              medicalHistory: patient.medicalHistory || '',
-              address: patient.address || '',
-              status: patient.status || 'active',
-              role: 'patient' as const,
-              lastVisit: patient.lastVisit || "",
-              avatar: patient.avatar || '',
-              prescriptions: patient.prescriptions || [],
-              profilePicture: patient.profilePicture || '',
-              allergies: patient.allergies || '',
-              currentMedication: patient.currentMedication || '',
-              insuranceProvide: patient.insuranceProvide || '',
-              eContactName: patient.eContactName || patient.emergencyContactName || '',
-              ePhoneNumber: patient.ePhoneNumber || patient.emergencyContactPhone || '',
-              eRelationship: patient.eRelationship || patient.emergencyContactRelationship || '',
-              assignedClinic: patient.assignedClinic || [],
-            } as Patient
-
-            return mappedPatient
-          })
-          state.patients = mappedPatients
-        } else {
-          state.patients = []
-        }
+        // Response is PatientsListResponse with patients array
+        state.patients = action.payload.patients || []
+        state.pagination = action.payload.pagination || null
         state.error = null
       })
       .addCase(fetchPatients.rejected, (state, action) => {
         state.loading = false
         state.error = action.payload as string | null
       })
+
+    // Fetch patient
+    builder
       .addCase(fetchPatient.pending, (state) => {
         state.loading = true
         state.error = null
+        state.patient = null // Clear previous patient data
       })
       .addCase(fetchPatient.fulfilled, (state, action) => {
         state.loading = false
-        // Handle the single patient response
-        const responseData = action.payload as any
-        const patientData = responseData.data?.user || responseData.data || responseData
-        
-        const mappedPatient: Patient = {
-          id: patientData._id || patientData.id,
-          firstName: patientData.firstName || '',
-          lastName: patientData.lastName || '',
-          fullName: patientData.fullName || `${patientData.firstName || ''} ${patientData.lastName || ''}`.trim() || 'Unknown Patient',
-          email: patientData.email || '',
-          phone: patientData.phone || '',
-          age: patientData.age || 0,
-          dateOfBirth: patientData.dateOfBirth || '',
-          gender: patientData.gender || 'male',
-          bloodType: patientData.bloodType || '',
-          assignedDoctor: patientData.assignedDoctor || patientData.primaryDoctor || patientData.PrimaryDoctor || '',
-          insuranceInfo: patientData.insuranceInfo || '',
-          medicalHistory: patientData.medicalHistory || '',
-          address: patientData.address || '',
-          status: patientData.status || 'active',
-          role: 'patient' as const,
-          lastVisit: patientData.lastVisit || '',
-          avatar: patientData.avatar || patientData.profilePicture || '',
-          prescriptions: patientData.prescriptions || [],
-          profilePicture: patientData.profilePicture || '',
-          // Add other fields that might be missing
-          allergies: patientData.allergies || '',
-          currentMedication: patientData.currentMedication || '',
-          insuranceProvide: patientData.insuranceProvide || '',
-          eContactName: patientData.eContactName || patientData.emergencyContactName || '',
-          ePhoneNumber: patientData.ePhoneNumber || patientData.emergencyContactPhone || '',
-          eRelationship: patientData.eRelationship || patientData.emergencyContactRelationship || '',
-          emergencyContactName: patientData.emergencyContactName || patientData.eContactName || '',
-          emergencyContactPhone: patientData.emergencyContactPhone || patientData.ePhoneNumber || '',
-          emergencyContactRelationship: patientData.emergencyContactRelationship || patientData.eRelationship || '',
-          allergiesArray: patientData.allergiesArray || [],
-          medicationsArray: patientData.medicationsArray || [],
-        }
-        state.patient = mappedPatient
+        // action.payload is already the patient data object
+        state.patient = action.payload || null
         state.error = null
       })
       .addCase(fetchPatient.rejected, (state, action) => {
@@ -310,28 +313,7 @@ const patientSlice = createSlice({
       })
       .addCase(createPatient.fulfilled, (state, action) => {
         state.loading = false
-        const newPatient: Patient = {
-          id: action.payload?.user.id || ''   ,
-          firstName: action.payload?.user.firstName || '',
-          lastName: action.payload?.user.lastName || '',
-          fullName: action.payload?.user.fullName || '',
-          email: action.payload?.user.email || '',
-          phone: action.payload?.user.phone || '',
-          age: action.payload?.user.age || 0,
-          dateOfBirth: action.payload?.user.dateOfBirth || '',
-          gender: action.payload?.user.gender || 'male' ,
-          bloodType: action.payload?.user.bloodType || '',
-          assignedDoctor: action.payload?.user.assignedDoctor || '',
-          insuranceInfo: action.payload?.user.insuranceInfo || '',
-          medicalHistory: action.payload?.user.medicalHistory || '',
-          address: action.payload?.user.address || '',
-          status: action.payload?.user.status || 'active',
-          role: action.payload?.user.role || 'patient',
-          lastVisit: "",
-          prescriptions: [],
-          profilePicture: action.payload?.user.profilePicture || ''
-        }
-        state.patients.push(newPatient)
+        state.patients.push(action.payload)
         state.error = null
       })
       .addCase(createPatient.rejected, (state, action) => {
@@ -347,6 +329,9 @@ const patientSlice = createSlice({
       })
       .addCase(createPatientInCollection.fulfilled, (state, action) => {
         state.loading = false
+        if (action.payload) {
+          state.patients.push(action.payload)
+        }
         state.error = null
       })
       .addCase(createPatientInCollection.rejected, (state, action) => {
@@ -362,32 +347,11 @@ const patientSlice = createSlice({
       })
       .addCase(updatePatient.fulfilled, (state, action) => {
         state.loading = false
-        const updatedPatient: Patient = {
-          id: action.payload.user.id,
-          firstName: action.payload.user.firstName,
-          lastName: action.payload.user.lastName,
-          fullName: action.payload.user.fullName,
-          email: action.payload.user.email,
-          phone: action.payload.user.phone,
-          age: action.payload.user.age,
-          dateOfBirth: action.payload.user.dateOfBirth,
-          gender: action.payload.user.gender,
-          bloodType: action.payload.user.bloodType,
-          assignedDoctor: action.payload.user.assignedDoctor,
-          insuranceInfo: action.payload.user.insuranceInfo,
-          medicalHistory: action.payload.user.medicalHistory,
-          address: action.payload.user.address,
-          status: action.payload.user.status,
-          role: action.payload.user.role,
-          lastVisit: "",
-          avatar: action.payload.user.avatar || '',
-          prescriptions: [],
-          profilePicture: action.payload.user.profilePicture || ''
-        }
-        const index = state.patients.findIndex((patient) => patient.id === updatedPatient.id)
+        const index = state.patients.findIndex((p) => p._id === action.payload._id)
         if (index !== -1) {
-          state.patients[index] = updatedPatient
+          state.patients[index] = action.payload
         }
+        state.patient = action.payload
         state.error = null
       })
       .addCase(updatePatient.rejected, (state, action) => {
@@ -395,7 +359,7 @@ const patientSlice = createSlice({
         state.error = action.payload as string
       })
 
-    // Delete patient
+    // Update patient status
     builder
       .addCase(updatePatientStatus.pending, (state) => {
         state.loading = true
@@ -403,13 +367,67 @@ const patientSlice = createSlice({
       })
       .addCase(updatePatientStatus.fulfilled, (state, action) => {
         state.loading = false
-        state.patients = state.patients.filter((patient) => patient.id !== action.payload)
+        const patient = state.patients.find((p) => p._id === action.payload.id)
+        if (patient) {
+          patient.status = action.payload.status
+        }
         state.error = null
       })
       .addCase(updatePatientStatus.rejected, (state, action) => {
         state.loading = false
         state.error = action.payload as string
       })
+
+    // Fetch clinic doctors
+    builder
+      .addCase(fetchClinicDoctors.pending, (state) => {
+        // state.loading = true
+        state.error = null
+      })
+      .addCase(fetchClinicDoctors.fulfilled, (state, action) => {
+        state.loading = false
+        state.clinicDoctors = action.payload
+        state.error = null
+      })
+      .addCase(fetchClinicDoctors.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.payload as string
+      })
+
+       // Fetch clinic doctors
+    builder
+      .addCase(fetchClinicDoctorsByAssistant.pending, (state) => {
+        // state.loading = true
+        state.error = null
+      })
+      .addCase(fetchClinicDoctorsByAssistant.fulfilled, (state, action) => {
+        state.loading = false
+        state.clinicDoctors = action.payload
+        state.error = null
+      })
+      .addCase(fetchClinicDoctorsByAssistant.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.payload as string
+      })
+
+       // Fetch clinic doctors
+    builder
+      .addCase(fetchClinicDoctorsByClinic.pending, (state) => {
+        // state.loading = true
+        state.error = null
+      })
+      .addCase(fetchClinicDoctorsByClinic.fulfilled, (state, action) => {
+        state.loading = false
+        state.clinicDoctors = action.payload
+        state.error = null
+      })
+      .addCase(fetchClinicDoctorsByClinic.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.payload as string
+      })
+
+
+      
   }
 })
 
@@ -421,6 +439,7 @@ export const {
   setLoading,
   clearError,
   clearPatient,
+  clearClinicDoctors,
   debugState
 } = patientSlice.actions
 

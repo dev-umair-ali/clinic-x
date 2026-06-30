@@ -28,7 +28,6 @@ export default function InsuranceCardUpload({
       fileToBase64(formData.insuranceCardFront, false).then(setFrontPreview);
     } else if (formData.insuranceCardFrontBase64) {
       // Load base64 data from backend
-      console.log('📥 Loading insurance card front from backend');
       setFrontFileName('Insurance Card Front');
       setFrontPreview(formData.insuranceCardFrontBase64);
     } else {
@@ -43,7 +42,6 @@ export default function InsuranceCardUpload({
       fileToBase64(formData.insuranceCardBack, false).then(setBackPreview);
     } else if (formData.insuranceCardBackBase64) {
       // Load base64 data from backend
-      console.log('📥 Loading insurance card back from backend');
       setBackFileName('Insurance Card Back');
       setBackPreview(formData.insuranceCardBackBase64);
     } else {
@@ -65,7 +63,6 @@ export default function InsuranceCardUpload({
     if (file) {
       setFrontFileName(file.name);
       updateFormData('insuranceCardFront', file);
-      console.log('Insurance card front selected:', file.name);
     }
   };
 
@@ -74,7 +71,6 @@ export default function InsuranceCardUpload({
     if (file) {
       setBackFileName(file.name);
       updateFormData('insuranceCardBack', file);
-      console.log('Insurance card back selected:', file.name);
     }
   };
 

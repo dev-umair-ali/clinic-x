@@ -138,7 +138,6 @@ export default function CreateChargePage() {
       }
 
       const doctorData = await doctorResponse.json();
-      console.log('Doctor profile data from /doctors/me:', doctorData);
       
       const doctor = doctorData.data?.user || doctorData.data?.profile || doctorData.data || doctorData;
       
@@ -146,9 +145,6 @@ export default function CreateChargePage() {
         setCurrentDoctor(doctor);
         
         const doctorId = doctor.id || doctor._id;
-        console.log('Setting provider to doctor ID:', doctorId);
-        console.log('Doctor name:', doctor.firstName, doctor.lastName);
-        
         setFormData(prev => ({
           ...prev,
           provider: doctorId,
@@ -177,7 +173,6 @@ export default function CreateChargePage() {
       }
 
       const url = `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL || 'http://localhost:3000'}/doctors/patients?limit=100`;
-      console.log('Fetching patients from:', url);
 
       const response = await fetch(url, {
         headers: {
@@ -186,8 +181,6 @@ export default function CreateChargePage() {
         },
       });
 
-      console.log('Response status:', response.status);
-
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         console.error('Error response:', errorData);
@@ -195,9 +188,6 @@ export default function CreateChargePage() {
       }
 
       const data = await response.json();
-      console.log('Patients API response:', data);
-      console.log('Data.data type:', Array.isArray(data.data) ? 'array' : typeof data.data);
-      console.log('Data.data length:', data.data?.length);
 
       const patientsData = Array.isArray(data.data) ? data.data : [];
       
@@ -212,7 +202,6 @@ export default function CreateChargePage() {
         policyNumber: p.policyNumber || undefined,
       }));
 
-      console.log('Setting patients:', transformedPatients.length, 'patients');
       setPatients(transformedPatients);
 
       if (transformedPatients.length === 0) {
@@ -381,7 +370,6 @@ export default function CreateChargePage() {
         notes: formData.notes,
       };
 
-      console.log("Submitting charge data:", chargeData);
 
       const result = await doctorBillingAPI.createCharge(chargeData);
 

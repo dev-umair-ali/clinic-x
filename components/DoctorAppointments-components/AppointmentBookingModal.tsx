@@ -37,6 +37,8 @@ export default function AppointmentBookingModal({
   const dispatch = useDispatch<AppDispatch>()
   const { patients } = useSelector((state: RootState) => state.patients)
   const { toast } = useToast()
+  const { user: authUser } = useSelector((state: RootState) => state.auth);
+  const role = authUser?.role;
 
   const [internalSelectedDate, setInternalSelectedDate] = useState(selectedDate)
   const [formData, setFormData] = useState({
@@ -143,7 +145,7 @@ export default function AppointmentBookingModal({
     }
 
     try {
-      await dispatch(createAppointment(appointmentData)).unwrap()
+      await dispatch(createAppointment({ role: role || '', appointmentData })).unwrap()
       
       toast({
         title: "Success",

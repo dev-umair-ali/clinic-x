@@ -62,47 +62,29 @@ export interface FrontendInsuranceData {
 }
 
 export async function mapInsuranceToBackend(data: any, patientId: string) {
-  console.log('🔍 mapInsuranceToBackend called with data:', {
-    hasInsurance: data.hasInsurance,
-    insuranceCardFront: data.insuranceCardFront,
-    insuranceCardFrontType: typeof data.insuranceCardFront,
-    insuranceCardFrontInstanceof: data.insuranceCardFront instanceof File,
-    insuranceCardFrontSize: data.insuranceCardFront instanceof File ? `${(data.insuranceCardFront.size / 1024).toFixed(2)}KB` : 'N/A',
-    insuranceCardBack: data.insuranceCardBack,
-    insuranceCardBackType: typeof data.insuranceCardBack,
-    insuranceCardBackInstanceof: data.insuranceCardBack instanceof File,
-    insuranceCardBackSize: data.insuranceCardBack instanceof File ? `${(data.insuranceCardBack.size / 1024).toFixed(2)}KB` : 'N/A',
-  });
-
   // Convert files to base64 if they exist
   let cardFrontBase64 = 'N/A';
   let cardBackBase64 = 'N/A';
 
   if (data.insuranceCardFront && data.insuranceCardFront instanceof File) {
     try {
-      console.log('🔄 Converting insurance card front to base64 (with compression)...');
       cardFrontBase64 = await fileToBase64(data.insuranceCardFront);
-      console.log('✅ Insurance card front converted to base64, final length:', cardFrontBase64.length, `(~${(cardFrontBase64.length / 1024).toFixed(2)}KB)`);
     } catch (error) {
       console.error('❌ Error converting card front:', error);
       cardFrontBase64 = 'Upload failed';
     }
   } else if (data.hasInsurance === 'yes') {
-    console.log('⚠️ No front card file found, setting to "Pending upload"');
     cardFrontBase64 = 'Pending upload';
   }
 
   if (data.insuranceCardBack && data.insuranceCardBack instanceof File) {
     try {
-      console.log('🔄 Converting insurance card back to base64 (with compression)...');
       cardBackBase64 = await fileToBase64(data.insuranceCardBack);
-      console.log('✅ Insurance card back converted to base64, final length:', cardBackBase64.length, `(~${(cardBackBase64.length / 1024).toFixed(2)}KB)`);
     } catch (error) {
       console.error('❌ Error converting card back:', error);
       cardBackBase64 = 'Upload failed';
     }
   } else if (data.hasInsurance === 'yes') {
-    console.log('⚠️ No back card file found, setting to "Pending upload"');
     cardBackBase64 = 'Pending upload';
   }
 
@@ -263,7 +245,6 @@ export async function mapLegalToBackend(data: any, patientId: string) {
   if (data.idFront && data.idFront instanceof File) {
     try {
       idFrontBase64 = await fileToBase64(data.idFront);
-      console.log('✅ ID front converted to base64');
     } catch (error) {
       console.error('❌ Error converting ID front:', error);
       idFrontBase64 = 'Upload failed';
@@ -276,7 +257,6 @@ export async function mapLegalToBackend(data: any, patientId: string) {
   if (data.idBack && data.idBack instanceof File) {
     try {
       idBackBase64 = await fileToBase64(data.idBack);
-      console.log('✅ ID back converted to base64');
     } catch (error) {
       console.error('❌ Error converting ID back:', error);
       idBackBase64 = 'Upload failed';
@@ -289,7 +269,6 @@ export async function mapLegalToBackend(data: any, patientId: string) {
   if (data.scans && data.scans instanceof File) {
     try {
       scansBase64 = await fileToBase64(data.scans);
-      console.log('✅ Scans converted to base64');
     } catch (error) {
       console.error('❌ Error converting scans:', error);
       scansBase64 = 'Upload failed';
@@ -302,7 +281,6 @@ export async function mapLegalToBackend(data: any, patientId: string) {
   if (data.medicalRecord && data.medicalRecord instanceof File) {
     try {
       medicalRecordBase64 = await fileToBase64(data.medicalRecord);
-      console.log('✅ Medical record converted to base64');
     } catch (error) {
       console.error('❌ Error converting medical record:', error);
       medicalRecordBase64 = 'Upload failed';
@@ -315,7 +293,6 @@ export async function mapLegalToBackend(data: any, patientId: string) {
   if (data.otherDoc && data.otherDoc instanceof File) {
     try {
       otherDocumentBase64 = await fileToBase64(data.otherDoc);
-      console.log('✅ Other document converted to base64');
     } catch (error) {
       console.error('❌ Error converting other document:', error);
       otherDocumentBase64 = 'Upload failed';
@@ -393,13 +370,6 @@ export function mapOnBoardingFromBackend(backendData: any) {
 }
 
 export function mapInsuranceFromBackend(backendData: any) {
-  console.log('🔄 Mapping insurance data from backend:', {
-    haveInsurance: backendData.haveInsurance,
-    hasCardFront: !!backendData.cardFront,
-    hasCardBack: !!backendData.cardBack,
-    cardFrontLength: backendData.cardFront?.length,
-    cardBackLength: backendData.cardBack?.length,
-  });
 
   return {
     hasInsurance: backendData.haveInsurance ? 'yes' : 'no', // ⚠️ Backend: haveInsurance (boolean) → Frontend: hasInsurance (string)
@@ -464,13 +434,6 @@ export function mapWomenFromBackend(backendData: any) {
 }
 
 export function mapLegalFromBackend(backendData: any) {
-  console.log('🔄 Mapping legal data from backend:', {
-    hasIdFront: !!backendData.idFront,
-    hasIdBack: !!backendData.idBack,
-    hasScans: !!backendData.scans,
-    hasMedicalRecord: !!backendData.medicalRecord,
-    hasOtherDocument: !!backendData.otherDocument,
-  });
 
   // Convert acknowledgement array back to individual boolean fields
   const acknowledgement = backendData.acknowledgement || [];

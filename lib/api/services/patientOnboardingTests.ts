@@ -87,170 +87,55 @@ const testData = {
 
 // Test functions
 async function testOnboardingForm() {
-  console.log('🧪 Testing OnBoarding Form...');
-  try {
-    const response = await fetch(`${TEST_CONFIG.baseUrl}/patients/forms/onBoardingForm`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('clinic-ai-token')}`,
-      },
-      body: JSON.stringify(testData.onBoarding),
-    });
     const result = await response.json();
-    console.log('✅ OnBoarding Form:', result);
-    return result;
-  } catch (error) {
-    console.error('❌ OnBoarding Form Error:', error);
     return null;
   }
 }
 
 async function testInsuranceForm() {
-  console.log('🧪 Testing Insurance Form...');
-  try {
-    const response = await fetch(`${TEST_CONFIG.baseUrl}/patients/forms/insuranceForm`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('clinic-ai-token')}`,
-      },
-      body: JSON.stringify(testData.insurance),
-    });
     const result = await response.json();
-    console.log('✅ Insurance Form:', result);
-    return result;
-  } catch (error) {
-    console.error('❌ Insurance Form Error:', error);
     return null;
   }
 }
 
 async function testPresentConditionForm() {
-  console.log('🧪 Testing Present Condition Form...');
-  try {
-    const response = await fetch(`${TEST_CONFIG.baseUrl}/patients/forms/presentConditionForm`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('clinic-ai-token')}`,
-      },
-      body: JSON.stringify(testData.presentCondition),
-    });
     const result = await response.json();
-    console.log('✅ Present Condition Form:', result);
-    return result;
-  } catch (error) {
-    console.error('❌ Present Condition Form Error:', error);
     return null;
   }
 }
 
 async function testHealthHistoryForm() {
-  console.log('🧪 Testing Health History Form...');
-  try {
-    const response = await fetch(`${TEST_CONFIG.baseUrl}/patients/forms/historyHealthForm`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('clinic-ai-token')}`,
-      },
-      body: JSON.stringify(testData.healthHistory),
-    });
     const result = await response.json();
-    console.log('✅ Health History Form:', result);
-    return result;
-  } catch (error) {
-    console.error('❌ Health History Form Error:', error);
     return null;
   }
 }
 
 async function testLifestyleForm() {
-  console.log('🧪 Testing Lifestyle Form...');
-  try {
-    const response = await fetch(`${TEST_CONFIG.baseUrl}/patients/forms/lifeStyleForm`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('clinic-ai-token')}`,
-      },
-      body: JSON.stringify(testData.lifestyle),
-    });
     const result = await response.json();
-    console.log('✅ Lifestyle Form:', result);
-    return result;
-  } catch (error) {
-    console.error('❌ Lifestyle Form Error:', error);
     return null;
   }
 }
 
 async function testWomenForm() {
-  console.log('🧪 Testing Women Form...');
-  try {
-    const response = await fetch(`${TEST_CONFIG.baseUrl}/patients/forms/womenForm`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('clinic-ai-token')}`,
-      },
-      body: JSON.stringify(testData.women),
-    });
     const result = await response.json();
-    console.log('✅ Women Form:', result);
-    return result;
-  } catch (error) {
-    console.error('❌ Women Form Error:', error);
     return null;
   }
 }
 
 async function testLegalForm() {
-  console.log('🧪 Testing Legal Form...');
-  try {
-    const response = await fetch(`${TEST_CONFIG.baseUrl}/patients/forms/constantLegalForm`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('clinic-ai-token')}`,
-      },
-      body: JSON.stringify(testData.legal),
-    });
     const result = await response.json();
-    console.log('✅ Legal Form:', result);
-    return result;
-  } catch (error) {
-    console.error('❌ Legal Form Error:', error);
     return null;
   }
 }
 
 async function testGetMyForms() {
-  console.log('🧪 Testing Get My Forms...');
-  try {
-    const response = await fetch(`${TEST_CONFIG.baseUrl}/patients/forms/me`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('clinic-ai-token')}`,
-      },
-    });
     const result = await response.json();
-    console.log('✅ My Forms:', result);
-    return result;
-  } catch (error) {
-    console.error('❌ Get My Forms Error:', error);
     return null;
   }
 }
 
 // Run all tests
 async function runAllTests() {
-  console.log('🚀 Starting Patient Onboarding API Tests...');
-  console.log('Patient ID:', getPatientId());
-  console.log('Base URL:', TEST_CONFIG.baseUrl);
-  console.log('---');
 
   const results = {
     onBoarding: await testOnboardingForm(),
@@ -263,12 +148,8 @@ async function runAllTests() {
     myForms: await testGetMyForms(),
   };
 
-  console.log('---');
-  console.log('📊 Test Summary:');
   Object.entries(results).forEach(([name, result]) => {
     const status = result?.success ? '✅' : '❌';
-    console.log(`${status} ${name}: ${result?.success ? 'PASSED' : 'FAILED'}`);
-  });
 
   return results;
 }
@@ -288,8 +169,6 @@ if (typeof window !== 'undefined') {
     testData,
   };
   
-  console.log('✅ Patient Onboarding Tests loaded!');
-  console.log('Run tests with: window.patientOnboardingTests.runAllTests()');
 }
 
 export default {

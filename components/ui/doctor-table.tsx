@@ -7,8 +7,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { updateDoctorStatus, fetchDoctors } from "@/lib/slices/doctorSlice";
 import type { RootState, AppDispatch } from "@/lib/store";
 import { useRouter } from "next/navigation";
-import { toast, ToastContainer } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css'; // Import the CSS
+import { useToast } from "@/hooks/use-toast";
+import { Toaster } from "@/components/ui/toaster";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,27 +27,49 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface DoctorTableProps {
   doctors: Doctor[];
+  currentPage: number;
+  itemsPerPage: number;
+  totalPages?: number;
+  onPageChange: (page: number) => void;
+  onItemsPerPageChange: (itemsPerPage: number) => void;
 }
 
-export function DoctorTable({ doctors }: DoctorTableProps) {
+export function DoctorTable({
+  doctors,
+  currentPage,
+  itemsPerPage,
+  totalPages = 1,
+  onPageChange,
+  onItemsPerPageChange,
+}: DoctorTableProps) {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
+  const { toast } = useToast();
   const { user } = useSelector((state: RootState) => state.auth);
-  const [deletingDoctorId, setDeletingDoctorId] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [doctorStatusRef, setDoctorStatusRef] = useState<string | null>(null);
 
-  const handleToggleStatus = async (doctorId: string) => {
+  const handleToggleStatus = async (doctorRef: string) => {
     try {
-      setDeletingDoctorId(doctorId);
+      setDoctorStatusRef(doctorRef);
 
       // Find the doctor to get current status
-      const doctor = doctors.find((d) => d.id === doctorId);
+      const doctor = doctors.find((d) => d._id === doctorRef);
       if (!doctor) {
-        toast.error("Doctor not found");
+        toast({
+          title: "Error",
+          description: "Doctor not found",
+          variant: "destructive",
+        });
         return;
       }
 
@@ -57,19 +79,33 @@ export function DoctorTable({ doctors }: DoctorTableProps) {
       // Update the doctor status using the specific status endpoint
       const response = await dispatch(
         updateDoctorStatus({
-          id: doctorId,
+          id: doctorRef,
           status: newStatus,
         })
-      )
-      
-      if (response.payload === "Doctor status updated successfully") {
-        // Show success message based on action
-        const action = newStatus === "active" ? "active" : "inactive";
-        toast.success(`Doctor ${action} successfully!`);
-        dispatch(fetchDoctors());
+      );
+      if (response.meta.requestStatus === "fulfilled") {
+        toast({
+          title: "Success",
+          description: `Doctor has been ${
+            newStatus === "active" ? "activated" : "deactivated"
+          } successfully.`,
+          variant: "default",
+        });
+      } else if (response.meta.requestStatus === "rejected") {
+        toast({
+          title: "Error",
+          description:
+            (response.payload as string) || "Failed to update doctor status",
+          variant: "destructive",
+        });
       }
     } catch (error: any) {
-      toast.error("Failed to update doctor status. Please try again.");
+      toast({
+        title: "Error",
+        description:
+          error.message || "Failed to update doctor status. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -77,13 +113,16 @@ export function DoctorTable({ doctors }: DoctorTableProps) {
   return (
     <>
       <div className="bg-white dark:bg-gray-900 rounded-lg shadow-md">
-      <ToastContainer />
+        <Toaster />
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="bg-blue-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
                 <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                   DOCTOR NAME/Email
+                </th>
+                <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                  Assigned Clinic
                 </th>
                 <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                   SPECIALTY
@@ -105,7 +144,7 @@ export function DoctorTable({ doctors }: DoctorTableProps) {
             <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-100 dark:divide-gray-700">
               {doctors.map((doctor) => (
                 <tr
-                  key={doctor.id}
+                  key={doctor._id}
                   className="hover:bg-gray-50 dark:hover:bg-gray-800"
                 >
                   <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
@@ -137,13 +176,21 @@ export function DoctorTable({ doctors }: DoctorTableProps) {
                     </div>
                   </td>
                   <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
-                    {doctor.specialization}
+                    {typeof doctor.clinicRef === "string"
+                      ? doctor.clinicRef
+                      : doctor?.clinicRef?.clinicName || "Unassigned"}
                   </td>
                   <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
-                    {doctor.experience}
+                    {doctor.specialization
+                      ? doctor.specialization.charAt(0).toUpperCase() +
+                      doctor.specialization.slice(1)
+                      : "N/A"}
                   </td>
                   <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
-                    {doctor.phone}
+                    {doctor.yearsOfExperience}
+                  </td>
+                  <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
+                    {doctor.phoneNumber}
                   </td>
                   <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                     <span
@@ -152,7 +199,10 @@ export function DoctorTable({ doctors }: DoctorTableProps) {
                           : "bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200"
                         }`}
                     >
-                      {doctor.status === "active" ? "Active" : "Inactive"}
+                      {doctor?.status
+                        ? doctor.status.charAt(0).toUpperCase() +
+                          doctor.status.slice(1).replace(/_/g, " ")
+                        : "N/A"}
                     </span>
                   </td>
                   <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
@@ -172,7 +222,7 @@ export function DoctorTable({ doctors }: DoctorTableProps) {
                       >
                         <DropdownMenuItem
                           onClick={() =>
-                            router.push(`/admin/doctors/view/${doctor.id}`)
+                            router.push(`/admin/doctors/view/${doctor._id}`)
                           }
                           className="flex items-center dark:text-gray-200 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
                         >
@@ -181,7 +231,7 @@ export function DoctorTable({ doctors }: DoctorTableProps) {
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() =>
-                            router.push(`/admin/doctors/edit/${doctor.id}`)
+                            router.push(`/admin/doctors/edit/${doctor._id}`)
                           }
                           className="flex items-center dark:text-gray-200 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
                         >
@@ -224,20 +274,22 @@ export function DoctorTable({ doctors }: DoctorTableProps) {
                               </AlertDialogDescription>
                               <AlertDialogFooter className="mt-6 gap-3">
                                 <AlertDialogCancel
-                                  disabled={deletingDoctorId === doctor.id}
+                                  disabled={doctorStatusRef === doctor._id}
                                   className="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 border-0"
                                 >
                                   Cancel
                                 </AlertDialogCancel>
                                 <AlertDialogAction
-                                  onClick={() => handleToggleStatus(doctor.id)}
-                                  disabled={deletingDoctorId === doctor.id}
+                                  onClick={() =>
+                                    doctor._id && handleToggleStatus(doctor._id)
+                                  }
+                                  disabled={doctorStatusRef === doctor._id}
                                   className={`flex-1 text-white ${doctor.status === "active"
                                       ? "bg-red-600 hover:bg-red-700"
                                       : "bg-green-600 hover:bg-green-700"
                                     }`}
                                 >
-                                  {deletingDoctorId === doctor.id
+                                  {doctorStatusRef === doctor._id
                                     ? "Updating..."
                                     : `Yes, ${doctor.status === "active"
                                       ? "Deactivate"
@@ -258,27 +310,32 @@ export function DoctorTable({ doctors }: DoctorTableProps) {
         </div>
 
         <div className="px-4 sm:px-6 py-4 border-t border-gray-100 dark:border-gray-700">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            {/* Pagination Controls */}
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-5">
+            {/* ---------- page controls ---------- */}
+            <div className="flex items-center gap-3">
               <button
-                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                onClick={() => onPageChange(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
-                className="px-3 py-1 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-1.5 text-sm text-gray-600 dark:text-gray-300
+           hover:text-teal-600 dark:hover:text-teal-400
+           disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Previous
               </button>
 
               <div className="flex items-center gap-2">
-                {Array.from({ length: Math.min(doctors.length, 3) }, (_, i) => {
+                {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
                   const pageNum = i + 1;
+                  const isActive = currentPage === pageNum;
                   return (
                     <button
                       key={pageNum}
-                      onClick={() => setCurrentPage(pageNum)}
-                      className={`w-8 h-8 text-sm rounded ${currentPage === pageNum
-                          ? "bg-teal-600 text-white"
-                          : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      onClick={() => onPageChange(pageNum)}
+                      className={`w-9 h-9 text-sm rounded-md border transition
+        ${isActive
+                          ? "bg-teal-600 text-white border-teal-600 shadow"
+                          : "text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-600" +
+                          " hover:border-teal-500 dark:hover:border-teal-500 hover:text-teal-600 dark:hover:text-teal-400"
                         }`}
                     >
                       {pageNum}
@@ -289,31 +346,43 @@ export function DoctorTable({ doctors }: DoctorTableProps) {
 
               <button
                 onClick={() =>
-                  setCurrentPage(Math.min(doctors.length, currentPage + 1))
+                  onPageChange(Math.min(totalPages, currentPage + 1))
                 }
-                disabled={currentPage === doctors.length}
-                className="px-3 py-1 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={currentPage >= totalPages}
+                className="px-4 py-1.5 text-sm text-gray-600 dark:text-gray-300
+           hover:text-teal-600 dark:hover:text-teal-400
+           disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Next
               </button>
             </div>
 
-            {/* Items per page dropdown */}
-            <div className="flex items-center gap-2">
+            {/* ---------- rows per page ---------- */}
+            <div className="flex items-center gap-3">
               <span className="text-sm text-gray-600 dark:text-gray-400">
                 Rows per page:
               </span>
-              <select
-                value={itemsPerPage}
-                onChange={(e) => setItemsPerPage(Number(e.target.value))}
-                className="text-sm border rounded-md px-2 py-1 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-teal-500"
+
+              <Select
+                value={String(itemsPerPage)}
+                onValueChange={(v) => onItemsPerPageChange(Number(v))}
               >
-                {[10, 20, 30, 40, 50].map((size) => (
-                  <option key={size} value={size}>
-                    {size}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="h-9 w-20 text-sm rounded-lg border-teal-500 dark:border-teal-600 focus:ring-teal-500">
+                  <SelectValue />
+                </SelectTrigger>
+
+                <SelectContent className="rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700">
+                  {[10, 20, 30, 40, 50].map((s) => (
+                    <SelectItem
+                      key={s}
+                      value={String(s)}
+                      className="text-sm rounded-md hover:bg-teal-50 dark:hover:bg-teal-900/30 focus:bg-teal-100 dark:focus:bg-teal-900/40"
+                    >
+                      {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>

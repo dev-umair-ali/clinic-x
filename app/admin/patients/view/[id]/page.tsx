@@ -1,10 +1,10 @@
-"use client";
+"use client"
 
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "@/lib/store";
-import { fetchPatient } from "@/lib/slices/patientSlice";
+import { fetchPatient, clearPatient } from "@/lib/slices/patientSlice";
 import { ProtectedRoute } from "@/components/ui/protected-route";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,7 +26,8 @@ import {
   XCircle,
   AlertCircle,
 } from "lucide-react";
-
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import moment from "moment";
 export default function ViewPatientPage() {
   const router = useRouter();
   const params = useParams();
@@ -37,27 +38,27 @@ export default function ViewPatientPage() {
   const patientId = params.id as string;
   const [activeTab, setActiveTab] = useState<"overview" | "appointments">("overview");
   const [activeAppointmentTab, setActiveAppointmentTab] = useState("upcoming");
-  const [doctorName, setDoctorName] = useState("");
+  const [doctorName, setDoctorName] = useState("")
+  
   useEffect(() => {
     if (patientId) {
       dispatch(fetchPatient(patientId));
     }
+    return () => {
+      dispatch(clearPatient());
+    };
   }, [dispatch, patientId]);
   useEffect(() => {
-    setDoctorName((patient?.assignedDoctor as any)?.[0]?.firstName + " " + (patient?.assignedDoctor as any)?.[0]?.lastName || "");
-  }, [patient?.assignedDoctor]);
+    setDoctorName((patient?.doctorRef as any)?.[0]?.firstName + " " + (patient?.doctorRef as any)?.[0]?.lastName || "");
+  }, [patient?.doctorRef]);
 
   if (loading) {
     return (
       <ProtectedRoute allowedRoles={["admin"]}>
-        <div className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex items-center justify-center h-64">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1DA68F] mx-auto mb-4"></div>
-                <p className="text-gray-600 dark:text-gray-400">Loading patient details...</p>
-              </div>
-            </div>
+        <div className="min-h-screen bg-[hsl(var(--background))] flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[hsl(var(--color-brand-teal))] mx-auto mb-4"></div>
+            <p className="text-[hsl(var(--muted-foreground))]">Loading patient details...</p>
           </div>
         </div>
       </ProtectedRoute>
@@ -67,20 +68,13 @@ export default function ViewPatientPage() {
   if (!patient) {
     return (
       <ProtectedRoute allowedRoles={["admin"]}>
-        <div className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex items-center justify-center h-64">
-              <div className="text-center">
-                <XCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-                <p className="text-gray-600 dark:text-gray-400">Patient not found</p>
-                <Button
-                  onClick={() => router.push("/admin/patients")}
-                  className="mt-4"
-                >
-                  Back to Patients
-                </Button>
-              </div>
-            </div>
+        <div className="min-h-screen bg-[hsl(var(--background))] flex items-center justify-center">
+          <div className="text-center">
+            <XCircle className="h-12 w-12 text-[hsl(var(--color-status-error))] mx-auto mb-4" />
+            <p className="text-[hsl(var(--muted-foreground))]">Patient not found</p>
+            <Button onClick={() => router.push("/admin/patients")} className="mt-4">
+              Back to Patients
+            </Button>
           </div>
         </div>
       </ProtectedRoute>
@@ -131,8 +125,8 @@ export default function ViewPatientPage() {
       <div className="flex items-center gap-3">
         {icon}
         <div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{label}</p>
-          <p className="font-medium text-gray-900 dark:text-gray-100">
+          <p className="text-sm text-[hsl(var(--muted-foreground))]">{label}</p>
+          <p className="font-medium text-[hsl(var(--foreground))]">
             {formatTextField(value, fallback)}
           </p>
         </div>
@@ -142,10 +136,9 @@ export default function ViewPatientPage() {
 
   // Helper function to check if overview tab has data
   const hasOverviewData = () => {
-    return hasData(patient.medicalHistory) || hasData(patient.MedicalHistory) ||
-           hasData(patient.allergies) || hasData(patient.Allergies) ||
-           hasData(patient.currentMedication) || hasData(patient.CurrentMedication) ||
-           hasData(patient.allergiesArray) || hasData(patient.medicationsArray);
+    return hasData(patient.medicalHistory)
+           || hasData(patient.allergies) 
+           || hasData(patient.currentMedication);
   };
 
   // Helper function to check if appointments tab has data
@@ -176,479 +169,411 @@ export default function ViewPatientPage() {
       status: "scheduled",
     },
   ];
-console.log(doctorName, "doctorName")
+
   return (
     <ProtectedRoute allowedRoles={["admin"]}>
-      <div className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
-        <div className="max-w-7xl mx-auto">
+      <div className="min-h-screen bg-[hsl(var(--background))]">
+        <div className="max-w-7xl mx-auto px-6 py-8">
           {/* Header Section */}
-          <div className="flex items-center gap-4 mb-6">
-            <Button
-              variant="ghost"
-              onClick={() => router.push("/admin/patients")}
-              className="p-2 text-[#1DA68F] hover:bg-gray-100 dark:hover:bg-gray-800 bg-[#1DA68F]/10"
-            >
-              <ArrowLeft className="h-5 w-5" />
-              <span className="ml-2 text-sm font-medium">Back to Patients</span>
-            </Button>
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Patient Details
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400">
-                View and manage patient information
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={() => router.push(`/admin/patients/edit/${patientId}`)}
-                className="text-[#1DA68F] border-[#1DA68F] hover:bg-[#1DA68F] hover:text-white dark:border-[#1DA68F] dark:text-[#1DA68F] dark:hover:bg-[#1DA68F] dark:hover:text-white"
-              >
-                <Edit className="h-4 w-4 mr-2" />
-                Edit Patient
-              </Button>
+          <div className="bg-[hsl(var(--card))] border-b border-[hsl(var(--border))] px-6 py-4 mb-6 rounded-t-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <Button
+                  variant="ghost"
+                  onClick={() => router.push("/admin/patients")}
+                  className="text-[hsl(var(--muted-foreground))]"
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                  <span className="ml-2 text-sm font-medium">Back to Patients</span>
+                </Button>
+                <div>
+                  <h1 className="text-2xl font-bold text-[hsl(var(--foreground))]">Patient Details</h1>
+                  <p className="text-sm text-[hsl(var(--muted-foreground))]">View and manage patient information</p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => router.push(`/admin/patients/edit/${patientId}`)}
+                  className="border-[hsl(var(--color-brand-teal))] text-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal))] hover:text-white"
+                >
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit Patient
+                </Button>
+              </div>
             </div>
           </div>
 
           {/* Patient Profile Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
-            <div className="flex items-center gap-6">
-              <Avatar className="h-24 w-24">
-                <AvatarImage src={patient.profilePicture || "/placeholder.svg?height=80&width=80"} alt={patient.fullName || "Patient"} />
-                <AvatarFallback className="text-2xl bg-[#1DA68F] text-white">
-                  {patient.fullName ? patient.fullName.charAt(0).toUpperCase() : "P"}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-                  {patient.fullName || "Unknown Patient"}
-                </h2>
-                <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-                  <span>Patient ID: {patient.id || (patient as any)._id || "N/A"}</span>
-                  <Badge 
-                    variant={patient.status === "active" ? "default" : "secondary"}
-                    className={patient.status === "active" ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" : ""}
-                  >
-                    {patient.status || "Unknown"}
-                  </Badge>
+          <Card className="border-[hsl(var(--border))] shadow-sm mb-6">
+            <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
+              <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
+                <User className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
+                Patient Profile
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 bg-[hsl(var(--card))]">
+              <div className="flex items-center gap-6">
+                <Avatar className="h-24 w-24">
+                  <AvatarImage src={patient.profilePicture || "/placeholder.svg?height=80&width=80"} alt={patient.fullName || "Patient"} />
+                  <AvatarFallback className="text-2xl bg-[hsl(var(--color-brand-teal))] text-white">
+                    {patient.firstName ? patient.firstName.charAt(0).toUpperCase() + patient.lastName.charAt(0).toUpperCase() : "P"}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <h2 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-2">
+                    {patient.firstName && patient.lastName ? `${patient.firstName} ${patient.lastName}` : "Unknown Patient"}
+                  </h2>
+                  <div className="flex items-center gap-4 text-sm text-[hsl(var(--muted-foreground))]">
+                    <span>Patient ID: { (patient as any)._id || "N/A"}</span>
+                    <Badge 
+                      variant={patient.status === "active" ? "default" : "secondary"}
+                      className={patient.status === "active" ? "bg-[hsl(var(--color-status-success)/0.1)] text-[hsl(var(--color-status-success))]" : ""}
+                    >
+                      {patient.status || "Unknown"}
+                    </Badge>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Patient Information Section */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-              Patient Information
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {renderField(
-                <Mail className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
-                "Email",
-                patient.email
-              )}
-              {renderField(
-                <Phone className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
-                "Phone",
-                patient.phone
-              )}
-              {renderField(
-                <Phone className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
-                "Alternative Phone",
-                patient.phoneNumber
-              )}
-              {renderField(
-                <MapPin className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
-                "Address",
-                patient.address,
-                "Address not specified"
-              )}
-              {renderField(
-                <Calendar className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
-                "Date of Birth",
-                patient.dateOfBirth
-              )}
-              {renderField(
-                <Calendar className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
-                "Age",
-                patient.age
-              )}
-              {renderField(
-                <User className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
-                "Gender",
-                patient.gender
-              )}
-              {renderField(
-                <Heart className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
-                "Blood Type",
-                patient.bloodType || patient.BloodType
-              )}
-              {renderField(
-                <User className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
-                "Primary Doctor",
-                doctorName || "No doctor assigned"
-              )}
-              {renderField(
-                <Shield className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
-                "Insurance Provider",
-                patient.insuranceProvide || patient.InsuranceProvide || patient.insuranceInfo
-              )}
-            </div>
-          </div>
+          <Card className="border-[hsl(var(--border))] shadow-sm mb-6">
+            <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
+              <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
+                <User className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
+                Patient Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 bg-[hsl(var(--card))]">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {renderField(
+                  <Mail className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />,
+                  "Email",
+                  patient.email
+                )}
+                {renderField(
+                  <Phone className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />,
+                  "Phone Number",
+                  patient.phoneNumber
+                )}
+                {renderField(
+                  <MapPin className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />,
+                  "Address",
+                  formatAddress(patient.address),
+                  "Address not specified"
+                )}
+                {renderField(
+                  <Calendar className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />,
+                  "Date of Birth",
+                  moment(patient.dateOfBirth).format('YYYY-MM-DD')
+                )}
+               
+                {renderField(
+                  <User className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />,
+                  "Gender",
+                  patient.gender
+                )}
 
-          {/* Emergency Contact Section - Only show if there's emergency contact data */}
-          {(hasData(patient.eContactName) || hasData(patient.EContactName) || 
-            hasData(patient.ePhoneNumber) || hasData(patient.EPhoneNumber) ||
-            hasData(patient.eRelationship) || hasData(patient.ERelationship) ||
-            hasData(patient.emergencyContactName) || hasData(patient.emergencyContactPhone) ||
-            hasData(patient.emergencyContactRelationship)) && (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-                Emergency Contact
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                 {renderField(
+                  <User className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />,
+                  "Clinic",
+                  (patient?.clinicRef as any)?.clinicName || "No clinic assigned"
+                )}
+              
                 {renderField(
-                  <User className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
-                  "Name",
-                  patient.eContactName || patient.EContactName || patient.emergencyContactName
+                  <User className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />,
+                  "Primary Doctor",
+                  (patient?.doctorRef as any)?.firstName + " " + (patient?.doctorRef as any)?.lastName || "No doctor assigned"
                 )}
                 {renderField(
-                  <Phone className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
-                  "Phone",
-                  patient.ePhoneNumber || patient.EPhoneNumber || patient.emergencyContactPhone
-                )}
-                {renderField(
-                  <User className="h-5 w-5 text-gray-400 dark:text-gray-500" />,
-                  "Relationship",
-                  patient.eRelationship || patient.ERelationship || patient.emergencyContactRelationship
+                  <Shield className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />,
+                  "Insurance Provider",
+                  patient.insuranceProvider || patient.insuranceInfo
                 )}
               </div>
-            </div>
-          )}
+            </CardContent>
+          </Card>
 
           {/* Tabs Section - Only show if there's data for any tab */}
           {(hasOverviewData() || hasAppointmentsData()) && (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-              <div className="border-b border-gray-200 dark:border-gray-700">
-                <nav className="flex space-x-8 px-6">
-                  {hasOverviewData() && (
-                    <button
-                      className={`py-4 px-1 border-b-2 ${
-                        activeTab === "overview"
-                          ? "border-[#1DA68F] text-[#1DA68F]"
-                          : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                      } font-medium text-sm`}
-                      onClick={() => setActiveTab("overview")}
-                    >
-                      Overview
-                    </button>
-                  )}
-                  {hasAppointmentsData() && (
-                    <button
-                      className={`py-4 px-1 border-b-2 ${
-                        activeTab === "appointments"
-                          ? "border-[#1DA68F] text-[#1DA68F]"
-                          : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                      } font-medium text-sm`}
-                      onClick={() => setActiveTab("appointments")}
-                    >
-                      Appointments
-                    </button>
-                  )}
-                </nav>
-              </div>
-
-              {activeTab === "overview" && hasOverviewData() && (
-                <div className="p-6">
-                  {/* Key Patient Metrics */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                      <div className="flex items-center gap-3">
-                        <User className="h-8 w-8 text-[#1DA68F]" />
-                        <div>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">Age</p>
-                          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                            {patient.age || "N/A"} Years old
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                      <div className="flex items-center gap-3">
-                        <Heart className="h-8 w-8 text-[#1DA68F]" />
-                        <div>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">Blood Type</p>
-                          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                            {patient.bloodType || patient.BloodType || "Unknown"}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                      <div className="flex items-center gap-3">
-                        <Calendar className="h-8 w-8 text-[#1DA68F]" />
-                        <div>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">Last Visit</p>
-                          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                            {patient.lastVisit || "N/A"}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                      <div className="flex items-center gap-3">
-                        <Shield className="h-8 w-8 text-[#1DA68F]" />
-                        <div>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">Insurance</p>
-                          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                            {patient.insuranceProvide || patient.InsuranceProvide || "N/A"}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Medical History Section - Only show if there's medical data */}
-                  {hasOverviewData() && (
-                    <div className="space-y-6">
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
-                          Medical History
-                        </h3>
-                        <p className="text-gray-600 dark:text-gray-400 text-sm">
-                          Comprehensive medical background and conditions
-                        </p>
-                      </div>
-
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        {/* Critical Allergies - Only show if there are allergies */}
-                        {(hasData(patient.allergies) || hasData(patient.Allergies) || hasData(patient.allergiesArray)) && (
-                          <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg p-4">
-                            <h4 className="font-semibold text-red-800 dark:text-red-200 mb-3 uppercase text-sm tracking-wide">
-                              Critical Allergies
-                            </h4>
-                            <div className="space-y-2">
-                              {patient.allergies && (
-                                <div className="flex items-center justify-between rounded-md bg-white dark:bg-red-900/40 px-3 py-2">
-                                  <span className="text-red-800 dark:text-red-200 text-sm">
-                                    {patient.allergies}
-                                  </span>
-                                  <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 text-xs">
-                                    Critical
-                                  </Badge>
-                                </div>
-                              )}
-                              {patient.Allergies && (
-                                <div className="flex items-center justify-between rounded-md bg-white dark:bg-red-900/40 px-3 py-2">
-                                  <span className="text-red-800 dark:text-red-200 text-sm">
-                                    {patient.Allergies}
-                                  </span>
-                                  <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 text-xs">
-                                    Critical
-                                  </Badge>
-                                </div>
-                              )}
-                              {patient.allergiesArray && patient.allergiesArray.map((allergy, index) => (
-                                <div key={index} className="flex items-center justify-between rounded-md bg-white dark:bg-red-900/40 px-3 py-2">
-                                  <span className="text-red-800 dark:text-red-200 text-sm">
-                                    {allergy}
-                                  </span>
-                                  <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 text-xs">
-                                    Critical
-                                  </Badge>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Medical Conditions - Only show if there's medical history */}
-                        {(hasData(patient.medicalHistory) || hasData(patient.MedicalHistory)) && (
-                          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                            <div className="flex items-center gap-2 mb-3">
-                              <Heart className="h-5 w-5 text-[#1DA68F]" />
-                              <h4 className="font-semibold text-gray-900 dark:text-gray-100">
-                                Medical Conditions
-                              </h4>
-                            </div>
-                            <div className="space-y-2">
-                              {patient.medicalHistory && (
-                                <div className="text-sm text-gray-700 dark:text-gray-300">
-                                  {patient.medicalHistory}
-                                </div>
-                              )}
-                              {patient.MedicalHistory && (
-                                <div className="text-sm text-gray-700 dark:text-gray-300">
-                                  {patient.MedicalHistory}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Current Medications - Only show if there are medications */}
-                        {(hasData(patient.currentMedication) || hasData(patient.CurrentMedication) || hasData(patient.medicationsArray)) && (
-                          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                            <div className="flex items-center gap-2 mb-3">
-                              <Paperclip className="h-5 w-5 text-[#1DA68F]" />
-                              <h4 className="font-semibold text-gray-900 dark:text-gray-100">
-                                Current Medications
-                              </h4>
-                            </div>
-                            <div className="space-y-2">
-                              {patient.currentMedication && (
-                                <div className="text-sm text-gray-700 dark:text-gray-300">
-                                  {patient.currentMedication}
-                                </div>
-                              )}
-                              {patient.CurrentMedication && (
-                                <div className="text-sm text-gray-700 dark:text-gray-300">
-                                  {patient.CurrentMedication}
-                                </div>
-                              )}
-                              {patient.medicationsArray && patient.medicationsArray.map((medication, index) => (
-                                <div key={index} className="text-sm text-gray-700 dark:text-gray-300">
-                                  {medication}
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Surgical History - Only show if there's surgical history */}
-                        {hasData((patient as any).surgicalHistory) && (
-                          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                            <div className="flex items-center gap-2 mb-3">
-                              <Scissors className="h-5 w-5 text-[#1DA68F]" />
-                              <h4 className="font-semibold text-gray-900 dark:text-gray-100">
-                                Surgical History
-                              </h4>
-                            </div>
-                            <div className="text-sm text-gray-700 dark:text-gray-300">
-                              {(patient as any).surgicalHistory}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
+            <Card className="border-[hsl(var(--border))] shadow-sm">
+              <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
+                <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
+                  <Heart className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
+                  Medical Overview
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 bg-[hsl(var(--card))]">
+                <div className="border-b border-[hsl(var(--border))] mb-6">
+                  <nav className="flex space-x-8">
+                    {hasOverviewData() && (
+                      <button
+                        className={`py-4 px-1 border-b-2 ${
+                          activeTab === "overview"
+                            ? "border-[hsl(var(--color-brand-teal))] text-[hsl(var(--color-brand-teal))]"
+                            : "border-transparent text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
+                        } font-medium text-sm`}
+                        onClick={() => setActiveTab("overview")}
+                      >
+                        Overview
+                      </button>
+                    )}
+                    {hasAppointmentsData() && (
+                      <button
+                        className={`py-4 px-1 border-b-2 ${
+                          activeTab === "appointments"
+                            ? "border-[hsl(var(--color-brand-teal))] text-[hsl(var(--color-brand-teal))]"
+                            : "border-transparent text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
+                        } font-medium text-sm`}
+                        onClick={() => setActiveTab("appointments")}
+                      >
+                        Appointments
+                      </button>
+                    )}
+                  </nav>
                 </div>
-              )}
 
-              {activeTab === "appointments" && (
-                <div className="p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-                    Appointment History
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
-                    Complete history of patient appointments
-                  </p>
-                  
-                  {/* Appointment Tabs */}
-                  <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
-                    <nav className="flex space-x-8">
-                      <button
-                        className={`py-2 px-1 border-b-2 ${
-                          activeAppointmentTab === "upcoming"
-                            ? "border-[#1DA68F] text-[#1DA68F]"
-                            : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                        } font-medium text-sm`}
-                        onClick={() => setActiveAppointmentTab("upcoming")}
-                      >
-                        Upcoming
-                      </button>
-                      <button
-                        className={`py-2 px-1 border-b-2 ${
-                          activeAppointmentTab === "completed"
-                            ? "border-[#1DA68F] text-[#1DA68F]"
-                            : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                        } font-medium text-sm`}
-                        onClick={() => setActiveAppointmentTab("completed")}
-                      >
-                        Completed
-                      </button>
-                    </nav>
+                {activeTab === "overview" && hasOverviewData() && (
+                  <div>
+                    {/* Key Patient Metrics */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                      <div className="bg-[hsl(var(--accent))] rounded-lg p-4 border border-[hsl(var(--border))]">
+                        <div className="flex items-center gap-3">
+                          <User className="h-8 w-8 text-[hsl(var(--color-brand-teal))]" />
+                          <div>
+                            <p className="text-sm text-[hsl(var(--muted-foreground))]">Age</p>
+                            <p className="text-lg font-semibold text-[hsl(var(--foreground))]">
+                              {patient.age || "N/A"} Years old
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="bg-[hsl(var(--accent))] rounded-lg p-4 border border-[hsl(var(--border))]">
+                        <div className="flex items-center gap-3">
+                          <Heart className="h-8 w-8 text-[hsl(var(--color-brand-teal))]" />
+                          <div>
+                            <p className="text-sm text-[hsl(var(--muted-foreground))]">Blood Type</p>
+                            <p className="text-lg font-semibold text-[hsl(var(--foreground))]">
+                              {patient.bloodType|| "Unknown"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="bg-[hsl(var(--accent))] rounded-lg p-4 border border-[hsl(var(--border))]">
+                        <div className="flex items-center gap-3">
+                          <Calendar className="h-8 w-8 text-[hsl(var(--color-brand-teal))]" />
+                          <div>
+                            <p className="text-sm text-[hsl(var(--muted-foreground))]">Last Visit</p>
+                            <p className="text-lg font-semibold text-[hsl(var(--foreground))]">
+                              {patient.lastVisit || "N/A"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="bg-[hsl(var(--accent))] rounded-lg p-4 border border-[hsl(var(--border))]">
+                        <div className="flex items-center gap-3">
+                          <Shield className="h-8 w-8 text-[hsl(var(--color-brand-teal))]" />
+                          <div>
+                            <p className="text-sm text-[hsl(var(--muted-foreground))]">Insurance</p>
+                            <p className="text-lg font-semibold text-[hsl(var(--foreground))]">
+                              {patient.insuranceProvider || "N/A"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Medical History Section - Only show if there's medical data */}
+                    {hasOverviewData() && (
+                      <div className="space-y-6">
+                        <div>
+                          <h3 className="text-lg font-semibold text-[hsl(var(--foreground))] mb-1">
+                            Medical History
+                          </h3>
+                          <p className="text-sm text-[hsl(var(--muted-foreground))]">
+                            Comprehensive medical background and conditions
+                          </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                          {/* Critical Allergies - Only show if there are allergies */}
+                          {(hasData(patient.allergies)) && (
+                            <div className="bg-[hsl(var(--color-status-error-light))] border border-[hsl(var(--color-status-error))] rounded-lg p-4">
+                              <h4 className="font-semibold text-[hsl(var(--color-status-error))] mb-3 uppercase text-sm tracking-wide">
+                                Critical Allergies
+                              </h4>
+                              <div className="space-y-2">
+                                {patient.allergies && (
+                                  <div className="flex items-center justify-between rounded-md bg-white/70 dark:bg-[hsl(var(--color-status-error-dark))/0.2] px-3 py-2">
+                                    <span className="text-[hsl(var(--color-status-error))] text-sm">
+                                      {patient.allergies}
+                                    </span>
+                                    <Badge className="bg-[hsl(var(--color-status-error))/0.1] text-[hsl(var(--color-status-error))] text-xs">
+                                      Critical
+                                    </Badge>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Medical Conditions - Only show if there's medical history */}
+                          {(hasData(patient.medicalHistory)) && (
+                            <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-lg p-4">
+                              <div className="flex items-center gap-2 mb-3">
+                                <Heart className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
+                                <h4 className="font-semibold text-[hsl(var(--foreground))]">
+                                  Medical Conditions
+                                </h4>
+                              </div>
+                              <div className="space-y-2">
+                                {patient.medicalHistory && (
+                                  <div className="text-sm text-[hsl(var(--foreground))]">
+                                    {patient.medicalHistory}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Current Medications - Only show if there are medications */}
+                          {(hasData(patient.currentMedication)) && (
+                            <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-lg p-4">
+                              <div className="flex items-center gap-2 mb-3">
+                                <Paperclip className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
+                                <h4 className="font-semibold text-[hsl(var(--foreground))]">
+                                  Current Medications
+                                </h4>
+                              </div>
+                              <div className="space-y-2">
+                                {patient.currentMedication && (
+                                  <div className="text-sm text-[hsl(var(--foreground))]">
+                                    {patient.currentMedication}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Surgical History - Only show if there's surgical history */}
+                          {hasData((patient as any).surgicalHistory) && (
+                            <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-lg p-4">
+                              <div className="flex items-center gap-2 mb-3">
+                                <Scissors className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
+                                <h4 className="font-semibold text-[hsl(var(--foreground))]">
+                                  Surgical History
+                                </h4>
+                              </div>
+                              <div className="text-sm text-[hsl(var(--foreground))]">
+                                {(patient as any).surgicalHistory}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
+                )}
 
-                  {/* Appointment List */}
-                  <div className="space-y-4">
-                    {appointments
-                      .filter((appointment) => appointment.status === activeAppointmentTab)
-                      .map((appointment, index) => (
-                        <div
-                          key={index}
-                          className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600"
+                {activeTab === "appointments" && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-[hsl(var(--foreground))] mb-4">Appointment History</h3>
+                    <p className="text-sm text-[hsl(var(--muted-foreground))] mb-4">Complete history of patient appointments</p>
+
+                    <div className="border-b border-[hsl(var(--border))] mb-6">
+                      <nav className="flex space-x-8">
+                        <button
+                          className={`py-2 px-1 border-b-2 ${
+                            activeAppointmentTab === "upcoming"
+                              ? "border-[hsl(var(--color-brand-teal))] text-[hsl(var(--color-brand-teal))]"
+                              : "border-transparent text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
+                          } font-medium text-sm`}
+                          onClick={() => setActiveAppointmentTab("upcoming")}
                         >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                              <div className="flex items-center gap-2">
-                                <Calendar className="h-5 w-5 text-[#1DA68F]" />
-                                <span className="font-medium text-gray-900 dark:text-gray-100">
-                                  {appointment.date}
-                                </span>
+                          Upcoming
+                        </button>
+                        <button
+                          className={`py-2 px-1 border-b-2 ${
+                            activeAppointmentTab === "completed"
+                              ? "border-[hsl(var(--color-brand-teal))] text-[hsl(var(--color-brand-teal))]"
+                              : "border-transparent text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
+                          } font-medium text-sm`}
+                          onClick={() => setActiveAppointmentTab("completed")}
+                        >
+                          Completed
+                        </button>
+                      </nav>
+                    </div>
+
+                    <div className="space-y-4">
+                      {/* {appointments
+                        .filter((appointment) => appointment.status === activeAppointmentTab)
+                        .map((appointment, index) => (
+                          <div
+                            key={index}
+                            className="bg-[hsl(var(--accent))] rounded-lg p-4 border border-[hsl(var(--border))]"
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-2">
+                                  <Calendar className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
+                                  <span className="font-medium text-[hsl(var(--foreground))]">{appointment.date}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Clock className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />
+                                  <span className="text-[hsl(var(--muted-foreground))]">{appointment.time}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <User className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />
+                                  <span className="text-[hsl(var(--muted-foreground))]">{appointment.doctor}</span>
+                                </div>
                               </div>
                               <div className="flex items-center gap-2">
-                                <Clock className="h-5 w-5 text-gray-400" />
-                                <span className="text-gray-600 dark:text-gray-400">
-                                  {appointment.time}
-                                </span>
+                                <Badge
+                                  variant={
+                                    appointment.status === "completed"
+                                      ? "default"
+                                      : appointment.status === "upcoming"
+                                      ? "secondary"
+                                      : "outline"
+                                  }
+                                  className={
+                                    appointment.status === "completed"
+                                      ? "bg-[hsl(var(--color-status-success)/0.1)] text-[hsl(var(--color-status-success))]"
+                                      : appointment.status === "upcoming"
+                                      ? "bg-[hsl(var(--color-status-info)/0.1)] text-[hsl(var(--color-status-info))]"
+                                      : ""
+                                  }
+                                >
+                                  {appointment.status}
+                                </Badge>
+                                <span className="text-sm text-[hsl(var(--muted-foreground))]">{appointment.type}</span>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <User className="h-5 w-5 text-gray-400" />
-                                <span className="text-gray-600 dark:text-gray-400">
-                                  {appointment.doctor}
-                                </span>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Badge
-                                variant={
-                                  appointment.status === "completed"
-                                    ? "default"
-                                    : appointment.status === "upcoming"
-                                    ? "secondary"
-                                    : "outline"
-                                }
-                                className={
-                                  appointment.status === "completed"
-                                    ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                                    : appointment.status === "upcoming"
-                                    ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                                    : ""
-                                }
-                              >
-                                {appointment.status}
-                              </Badge>
-                              <span className="text-sm text-gray-500 dark:text-gray-400">
-                                {appointment.type}
-                              </span>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                  </div>
+                        ))} */}
+                    </div>
 
-                  {/* Pagination */}
-                  <div className="flex items-center justify-between mt-6">
-                    <p className="text-sm text-gray-700 dark:text-gray-300">
-                      Showing 1-3 of 3 appointments
-                    </p>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" disabled>
-                        Previous
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        Next
-                      </Button>
+                    <div className="flex items-center justify-between mt-6">
+                      <p className="text-sm text-[hsl(var(--muted-foreground))]">Showing 1-3 of 3 appointments</p>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" disabled>
+                          Previous
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          Next
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </CardContent>
+            </Card>
           )}
         </div>
       </div>
     </ProtectedRoute>
-  );
+  )
 }

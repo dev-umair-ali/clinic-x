@@ -64,7 +64,6 @@ export default function RecordPaymentPage({ params }: { params: { id: string } }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Payment recorded:", formData);
     router.back();
   };
 

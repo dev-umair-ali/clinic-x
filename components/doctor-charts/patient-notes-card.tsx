@@ -1,45 +1,14 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Card, CardContent } from "@/components/ui/card"
 import { BarChartGrouped } from "./bar-chart-grouped"
-import { ChevronDown } from 'lucide-react'
-import { Button } from "@/components/ui/button"
 
-export function PatientNotesCard() {
-  const patientNotesData = [
-    { name: "Mon", voiceNotes: 8, manualNotes: 6 },
-    { name: "Tue", voiceNotes: 12, manualNotes: 8 },
-    { name: "Wed", voiceNotes: 6, manualNotes: 8 },
-    { name: "Thu", voiceNotes: 15, manualNotes: 10 },
-    { name: "Fri", voiceNotes: 9, manualNotes: 7 },
-    { name: "Sat", voiceNotes: 14, manualNotes: 10 },
-    { name: "Sun", voiceNotes: 7, manualNotes: 5 },
-  ]
+import { DoctorDashboardData } from "@/lib/api/services/dashboardService"
 
+export function PatientNotesCard( { dashboardData }: { dashboardData: DoctorDashboardData["patientNotesGraph"] | null }) {
   return (
     <Card className="shadow-sm">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-lg font-semibold text-[hsl(var(--foreground))]">
-          Patient Notes
-        </CardTitle>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button 
-              variant="outline" 
-              className="text-[hsl(var(--foreground))] border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))]"
-            >
-              Weekly <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-40">
-            <DropdownMenuItem>Weekly</DropdownMenuItem>
-            <DropdownMenuItem>Monthly</DropdownMenuItem>
-            <DropdownMenuItem>Quarterly</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </CardHeader>
       <CardContent>
         <BarChartGrouped
-          data={patientNotesData}
+          data={dashboardData || []}
           voiceNotesColor="hsl(var(--color-brand-teal))"
           manualNotesColor="hsl(var(--custom-dashboard-blue-DEFAULT))"
         />

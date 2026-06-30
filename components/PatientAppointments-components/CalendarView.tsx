@@ -102,11 +102,11 @@ export default function CalendarView({
 
   const getEventColor = (type: string) => {
     const colors = {
-      "follow-up": "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-500",
-      "consultation": "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-500",
-      "check-up": "bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 border-teal-500",
-      "emergency": "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-500",
-      "appointment": "bg-lime-100 dark:bg-lime-900/30 text-lime-700 dark:text-lime-300 border-lime-500",
+      "follow-up": "bg-[hsl(var(--color-status-success)/0.1)] text-[hsl(var(--color-status-success))] border-[hsl(var(--color-status-success))]",
+      "consultation": "bg-[hsl(var(--color-chart-green)/0.1)] text-[hsl(var(--color-status-success))] border-[hsl(var(--color-status-success))]",
+      "check-up": "bg-[hsl(var(--color-brand-teal)/0.1)] text-[hsl(var(--color-brand-teal))] border-[hsl(var(--color-brand-teal))]",
+      "emergency": "bg-[hsl(var(--color-status-error)/0.1)] text-[hsl(var(--color-status-error))] border-[hsl(var(--color-status-error))]",
+      "appointment": "bg-[hsl(var(--color-chart-blue)/0.1)] text-[hsl(var(--color-chart-blue))] border-[hsl(var(--color-chart-blue))]",
     };
     return colors[type as keyof typeof colors] || colors["appointment"];
   };
@@ -114,17 +114,17 @@ export default function CalendarView({
   return (
     <>
       <div className="bg-[hsl(var(--card))] rounded-xl border border-[hsl(var(--border))] shadow-lg overflow-hidden">
-        <div className="bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary))]/80 p-4 sm:p-6">
+        <div className="bg-[hsl(var(--color-brand-teal))] p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="bg-white/20 backdrop-blur-sm p-2 rounded-lg">
-                <CalendarIcon className="h-6 w-6 text-white" />
+              <div className="bg-[hsl(var(--color-white-alpha-20))] backdrop-blur-sm p-2 rounded-lg">
+                <CalendarIcon className="h-6 w-6 text-[hsl(var(--primary-foreground))]" />
               </div>
               <div>
-                <h3 className="text-xl sm:text-2xl font-bold text-white">
+                <h3 className="text-xl sm:text-2xl font-bold text-[hsl(var(--primary-foreground))]">
                   {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
                 </h3>
-                <p className="text-sm text-white/80 mt-0.5">
+                <p className="text-sm text-[hsl(var(--primary-foreground))] mt-0.5">
                   {calendarEvents.length} appointment{calendarEvents.length !== 1 ? 's' : ''} this month
                 </p>
               </div>
@@ -135,7 +135,7 @@ export default function CalendarView({
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate("prev")}
-                className="bg-white/10 hover:bg-white/20 text-white border-0 h-9 px-3"
+                className="bg-[hsl(var(--color-white-alpha-10))] hover:bg-[hsl(var(--color-white-alpha-20))] text-[hsl(var(--primary-foreground))] border-0 h-9 px-3"
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
@@ -143,7 +143,7 @@ export default function CalendarView({
                 variant="ghost"
                 size="sm"
                 onClick={goToToday}
-                className="bg-white/10 hover:bg-white/20 text-white border-0 h-9 px-4 font-semibold"
+                className="bg-[hsl(var(--color-white-alpha-10))] hover:bg-[hsl(var(--color-white-alpha-20))] text-[hsl(var(--primary-foreground))] border-0 h-9 px-4 font-semibold"
               >
                 Today
               </Button>
@@ -151,7 +151,7 @@ export default function CalendarView({
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate("next")}
-                className="bg-white/10 hover:bg-white/20 text-white border-0 h-9 px-3"
+                className="bg-[hsl(var(--color-white-alpha-10))] hover:bg-[hsl(var(--color-white-alpha-20))] text-[hsl(var(--primary-foreground))] border-0 h-9 px-3"
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
@@ -187,14 +187,16 @@ export default function CalendarView({
                   onClick={() => handleDayClick(day)}
                   onMouseEnter={() => setHoveredDay(dayStr)}
                   onMouseLeave={() => setHoveredDay(null)}
-                  className={'relative p-1 sm:p-2 h-20 sm:h-24 rounded-lg border-2 transition-all duration-200 ' + (day.isCurrentMonth ? "bg-[hsl(var(--card))] border-[hsl(var(--border))] cursor-pointer hover:border-[hsl(var(--primary))] hover:shadow-md" : "bg-[hsl(var(--muted)/0.3)] border-transparent") + ' ' + (evts.length > 0 && day.isCurrentMonth ? "hover:scale-[1.02]" : "") + ' ' + (isTodayDay ? "ring-2 ring-[hsl(var(--primary))] ring-offset-2 bg-[hsl(var(--primary)/0.05)]" : "") + ' ' + (isHovered && day.isCurrentMonth ? "shadow-lg z-10" : "")}
+                  className={'relative p-1 sm:p-2 h-20 sm:h-24 rounded-lg border-2 transition-all duration-200 ' + (day.isCurrentMonth ? "bg-[hsl(var(--card))] border-[hsl(var(--border))] cursor-pointer hover:border-[hsl(var(--color-brand-teal))] hover:shadow-md" : "bg-[hsl(var(--muted)/0.3)] border-transparent") + ' ' + (evts.length > 0 && day.isCurrentMonth ? "hover:scale-[1.02]" : "") + ' ' + (isTodayDay
+  ? "ring-2 ring-[hsl(var(--color-brand-teal))] ring-offset-2 ring-offset-[hsl(var(--background))] bg-[hsl(var(--color-brand-teal)/0.08)]"
+  : "") + ' ' + (isHovered && day.isCurrentMonth ? "shadow-lg z-10" : "")}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className={'inline-flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 text-xs sm:text-sm font-semibold rounded-full ' + (isTodayDay ? "bg-[hsl(var(--primary))] text-white shadow-sm" : day.isCurrentMonth ? "text-[hsl(var(--foreground))]" : "text-[hsl(var(--muted-foreground))]")}>
+                    <span className={'inline-flex items-center justify-center w-6 h-6 sm:w-7  sm:h-7 text-xs sm:text-sm font-semibold rounded-full ' + (isTodayDay ? "bg-[hsl(var(--color-brand-teal))] text-[hsl(var(--primary-foreground))] shadow-sm" : day.isCurrentMonth ? "text-[hsl(var(--foreground))]" : "text-[hsl(var(--muted-foreground))]")}>
                       {day.date}
                     </span>
                     {evts.length > 0 && day.isCurrentMonth && (
-                      <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold rounded-full bg-[hsl(var(--primary))] text-white">
+                      <span className="inline-flex items-center  justify-center w-5 h-5 text-xs font-bold rounded-full bg-[hsl(var(--color-brand-teal))] text-[hsl(var(--primary-foreground))]">
                         {evts.length}
                       </span>
                     )}
@@ -209,7 +211,7 @@ export default function CalendarView({
                             ev.stopPropagation(); // Prevent day click
                             handleDayClick(day, e); // Pass the specific event
                           }}
-                          className={'text-xs px-1.5 py-0.5 rounded border-l-2 truncate font-medium transition-all duration-200 cursor-pointer hover:opacity-80 ' + getEventColor(e.type) + ' ' + (isHovered ? "shadow-sm" : "")} 
+                          className={'text-xs px-1.5 py-0.5 rounded  border-l-2 truncate font-medium transition-all duration-200 cursor-pointer hover:opacity-80 ' + getEventColor(e.type) + ' ' + (isHovered ? "shadow-sm" : "")} 
                           title={e.title}
                         >
                           {e.title.length > 15 ? e.title.substring(0, 15) + '...' : e.title}

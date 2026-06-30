@@ -81,8 +81,6 @@ if (oauthDomain) {
   }
 }
 
-console.log('Amplify config:', amplifyConfig)
-
 Amplify.configure(amplifyConfig)
 
 export default amplifyConfig

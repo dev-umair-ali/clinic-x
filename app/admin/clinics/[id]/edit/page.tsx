@@ -5,25 +5,28 @@ import { useParams, useRouter } from "next/navigation"
 import { useDispatch, useSelector } from "react-redux"
 import type { AppDispatch, RootState } from "@/lib/store"
 import { fetchClinicById, updateClinic } from "@/lib/slices/clinicSlice"
-import { clinicService } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select"
 import {
   Building2,
   MapPin,
   User,
   Loader2,
   Save,
-  ArrowLeft,
-  Globe,
-  Upload,
-  Trash2,
-  Image as ImageIcon
+  ArrowLeft
 } from "lucide-react"
 import type { UpdateClinicRequest } from "@/lib/api"
+import { useToast } from "@/hooks/use-toast"
+import { Toaster } from "@/components/ui/toaster"
 
 /* ---------  STATIC DATA  --------- */
 const timezones = [
@@ -45,15 +48,23 @@ const timezones = [
 /* ---------  TYPES  --------- */
 interface ClinicFormData {
   clinicName: string
+  clinicSpecaility: string[]
   timezone: string
-  ownerUser: string
+  ownerName: string
+  ownerPhone: string
+  ownerAge: number
+  ownerGender: 'male' | 'female' | 'other'
+  ownerEmail: string
+  email: string
+  clinicPhone: string
+  clinicFax: string
   street: string
   city: string
   state: string
   zipCode: string
   country: string
-  email: string
-  phone: string
+  bio: string
+  description: string
   logo: File | null
 }
 
@@ -61,498 +72,369 @@ export default function EditClinicPage() {
   const params = useParams()
   const router = useRouter()
   const dispatch = useDispatch<AppDispatch>()
-  const { currentClinic: clinic, loading } = useSelector((state: RootState) => state.clinics)
+  const { toast } = useToast()
+  const { currentClinic: clinic, loading } = useSelector(
+    (state: RootState) => state.clinics
+  )
 
   /* ---------  STATE  --------- */
   const [formData, setFormData] = useState<ClinicFormData>({
     clinicName: "",
+    clinicSpecaility: [],
     timezone: "UTC",
-    ownerUser: "",
+    ownerName: "",
+    ownerPhone: "",
+    ownerAge: 0,
+    ownerGender: "other",
+    ownerEmail: "",
+    email: "",
+    clinicPhone: "",
+    clinicFax: "",
     street: "",
     city: "",
     state: "",
     zipCode: "",
     country: "",
-    email: "",
-    phone: "",
-    logo: null,
+    bio: "",
+    description: "",
+    logo: null
   })
 
-  const [currentLogoUrl, setCurrentLogoUrl] = useState<string | null>(null)
-  const [logoPreview, setLogoPreview] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isUploadingLogo, setIsUploadingLogo] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
-  // Fetch clinic data on mount
+  /* ---------  HOOKS  --------- */
   useEffect(() => {
-    if (params.id) {
-      dispatch(fetchClinicById(params.id as string))
-    }
+    if (params.id) dispatch(fetchClinicById(params.id as string))
   }, [params.id, dispatch])
 
-  // Populate form when clinic data is loaded
   useEffect(() => {
-    if (clinic) {
-      setFormData({
-        clinicName: clinic.clinicName || clinic.name || "",
-        timezone: clinic.settings?.timezone || "UTC",
-        ownerUser: clinic.ownerUser || "",
-        street: clinic.address?.street || "",
-        city: clinic.address?.city || "",
-        state: clinic.address?.state || "",
-        zipCode: clinic.address?.zipCode || "",
-        country: clinic.address?.country || "",
-        email: clinic.email || "",
-        phone: clinic.phone || "",
-        logo: null,
-      })
-      // Set current logo URL if exists
-      setCurrentLogoUrl(clinic.logo || null)
-    }
+    if (!clinic) return
+    setFormData({
+      clinicName: clinic.clinicName || "",
+      clinicSpecaility: clinic.clinicSpecaility || [],
+      timezone: clinic.timezone || "UTC",
+      ownerName: clinic.ownerName || "",
+      ownerPhone: clinic.ownerPhone || "",
+      ownerAge: clinic.ownerAge || 0,
+      ownerGender: clinic.ownerGender || "other",
+      ownerEmail: clinic.ownerEmail || "",
+      email: clinic.email || "",
+      clinicPhone: clinic.clinicPhone || "",
+      clinicFax: clinic.clinicFax || "",
+      street: clinic.address?.street || "",
+      city: clinic.address?.city || "",
+      state: clinic.address?.state || "",
+      zipCode: clinic.address?.zipCode || "",
+      country: clinic.address?.country || "",
+      bio: clinic.bio || "",
+      description: clinic.description || "",
+      logo: null
+    })
   }, [clinic])
 
   /* ----------  HANDLERS  ---------- */
-  const handleInputChange = (field: keyof ClinicFormData, value: string) => {
+  const handleInputChange = (field: keyof ClinicFormData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
-  }
-
-  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0]
-      
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        setError("Please select an image file")
-        return
-      }
-      
-      // Validate file size (5MB max)
-      if (file.size > 5 * 1024 * 1024) {
-        setError("Image must be smaller than 5MB")
-        return
-      }
-      
-      setFormData((prev) => ({ ...prev, logo: file }))
-      
-      // Create preview
-      const reader = new FileReader()
-      reader.onloadend = () => setLogoPreview(reader.result as string)
-      reader.readAsDataURL(file)
-    }
-  }
-
-  const handleRemoveLogo = () => {
-    setFormData((prev) => ({ ...prev, logo: null }))
-    setLogoPreview(null)
-  }
-
-  const handleDeleteCurrentLogo = async () => {
-    if (!params.id) return
-    
-    try {
-      setIsUploadingLogo(true)
-      await dispatch(updateClinic({ 
-        id: params.id as string, 
-        data: { logo: "" } 
-      })).unwrap()
-      setCurrentLogoUrl(null)
-      setSuccessMessage("Logo removed successfully")
-      setTimeout(() => setSuccessMessage(null), 3000)
-    } catch (err: any) {
-      setError("Failed to remove logo: " + (err.message || err))
-    } finally {
-      setIsUploadingLogo(false)
-    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError(null)
-    setSuccessMessage(null)
-
-    // Validation
-    if (!formData.clinicName.trim()) {
-      setError("Clinic name is required")
+    if (!formData.clinicName.trim() || !formData.email.trim()) {
+      toast({ title: "Error", description: "Clinic name and email are required", variant: "destructive" })
       return
     }
-    if (!formData.email.trim()) {
-      setError("Email is required")
-      return
-    }
-
     try {
       setIsSubmitting(true)
-
-      // If there's a new logo file, upload it first
-      let logoUrl = currentLogoUrl || ""
-      if (formData.logo) {
-        try {
-          setIsUploadingLogo(true)
-          console.log("Uploading new logo...")
-          
-          // Upload logo to backend
-          const uploadResult = await clinicService.uploadClinicLogo(params.id as string, formData.logo)
-          
-          // Extract logo URL from response
-          if (uploadResult.success && uploadResult.data?.logoUrl) {
-            logoUrl = uploadResult.data.logoUrl
-            console.log("Logo uploaded successfully:", logoUrl)
-          } else {
-            throw new Error("Logo upload failed: No URL returned")
-          }
-          
-        } catch (logoError: any) {
-          console.error("Logo upload failed:", logoError)
-          setError(`Logo upload failed: ${logoError.message}. Other changes will still be saved.`)
-          // Continue with update even if logo upload fails
-        } finally {
-          setIsUploadingLogo(false)
-        }
-      }
-
-      const updateData: UpdateClinicRequest = {
+      const payload: UpdateClinicRequest = {
         clinicName: formData.clinicName,
-        name: formData.clinicName,
-        ownerUser: formData.ownerUser,
+        clinicSpecaility: formData.clinicSpecaility,
+        ownerName: formData.ownerName,
+        ownerPhone: formData.ownerPhone,
+        ownerAge: Number(formData.ownerAge),
+        ownerGender: formData.ownerGender,
+        ownerEmail: formData.ownerEmail,
+        email: formData.email,
+        clinicPhone: formData.clinicPhone,
+        clinicFax: formData.clinicFax,
         address: {
           street: formData.street,
           city: formData.city,
           state: formData.state,
           zipCode: formData.zipCode,
-          country: formData.country,
+          country: formData.country
         },
-        email: formData.email,
-        phone: formData.phone,
-        settings: {
-          timezone: formData.timezone,
-        },
+        bio: formData.bio,
+        description: formData.description,
+        timezone: formData.timezone
       }
-      
-      // Include logo URL if we have one
-      if (logoUrl) {
-        updateData.logo = logoUrl
-      }
-
-      await dispatch(updateClinic({ id: params.id as string, data: updateData })).unwrap()
-      setSuccessMessage("Clinic updated successfully!")
-      setTimeout(() => {
-        router.push(`/admin/clinics/${params.id}`)
-      }, 1500)
+      await dispatch(updateClinic({ id: params.id as string, data: payload })).unwrap()
+      toast({ title: "Success", description: "Clinic updated!" })
+      router.push(`/admin/clinics/${params.id}`)
     } catch (err: any) {
-      console.error("Update error:", err)
-      setError(err?.message || "Failed to update clinic")
+      toast({ title: "Error", description: err.message || "Failed to update clinic", variant: "destructive" })
     } finally {
       setIsSubmitting(false)
     }
   }
 
+  /* ----------  RENDER  ---------- */
   if (loading && !clinic) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#1DA68F]" />
+        <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--color-brand-teal))]" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6 md:p-8">
-      <div className="max-w-5xl mx-auto space-y-6">
-
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" className="gap-2" onClick={() => router.back()}>
-              <ArrowLeft className="h-4 w-4" />
+    <div className="min-h-screen bg-[hsl(var(--background))]">
+      <Toaster />
+      {/* Header */}
+      <div className="bg-[hsl(var(--card))] border-b border-[hsl(var(--border))] px-6 py-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={() => router.back()}>
+              <ArrowLeft className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />
             </Button>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Edit Clinic</h1>
-              <p className="text-gray-500 mt-1">Update clinic information and settings</p>
+              <h1 className="text-2xl font-bold text-[hsl(var(--foreground))]">Edit Clinic</h1>
+              <p className="text-sm text-[hsl(var(--muted-foreground))]">Update clinic information</p>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Error Alert */}
-        {error && (
-          <Card className="border-red-200 bg-red-50 dark:bg-red-900/10">
-            <CardContent className="p-4 flex items-center gap-2 text-red-600 dark:text-red-400">
-              <span>{error}</span>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Success Alert */}
-        {successMessage && (
-          <Card className="border-green-200 bg-green-50 dark:bg-green-900/10">
-            <CardContent className="p-4 flex items-center gap-2 text-green-600 dark:text-green-400">
-              <span>{successMessage}</span>
-            </CardContent>
-          </Card>
-        )}
-
+      {/* Content */}
+      <div className="max-w-7xl mx-auto px-6 py-8">
         <form onSubmit={handleSubmit} className="space-y-6">
-
-          {/* Logo Upload Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ImageIcon className="h-5 w-5 text-[#1DA68F]" />
-                Clinic Logo
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex flex-col md:flex-row gap-6 items-start">
-                {/* Current/Preview Logo */}
-                <div className="flex-shrink-0">
-                  <div className="h-32 w-32 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-700 overflow-hidden bg-gray-50 dark:bg-gray-800 flex items-center justify-center">
-                    {logoPreview ? (
-                      <img src={logoPreview} alt="Logo preview" className="h-full w-full object-cover" />
-                    ) : currentLogoUrl ? (
-                      <img src={currentLogoUrl} alt="Current logo" className="h-full w-full object-cover" />
-                    ) : (
-                      <div className="text-center p-4">
-                        <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                        <p className="text-xs text-gray-500">No logo</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Upload Controls */}
-                <div className="flex-1 space-y-4">
-                  <div>
-                    <Label htmlFor="logo-upload" className="cursor-pointer">
-                      <div className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
-                        <Upload className="h-4 w-4 mr-2" />
-                        {formData.logo || currentLogoUrl ? "Change Logo" : "Upload Logo"}
-                      </div>
-                    </Label>
-                    <Input
-                      id="logo-upload"
-                      type="file"
-                      className="hidden"
-                      accept="image/*"
-                      onChange={handleLogoChange}
-                      disabled={isUploadingLogo}
-                    />
-                    <p className="text-xs text-gray-500 mt-2">
-                      Recommended: Square image, PNG or JPG, max 5MB
-                    </p>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex gap-2">
-                    {formData.logo && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={handleRemoveLogo}
-                        disabled={isUploadingLogo}
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Remove New
-                      </Button>
-                    )}
-                    
-                    {currentLogoUrl && !formData.logo && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={handleDeleteCurrentLogo}
-                        disabled={isUploadingLogo}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        {isUploadingLogo ? (
-                          <>
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            Deleting...
-                          </>
-                        ) : (
-                          <>
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete Current Logo
-                          </>
-                        )}
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Clinic Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Building2 className="h-5 w-5 text-[#1DA68F]" />
+          <Card className="border-[hsl(var(--border))] shadow-sm">
+            <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
+              <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
+                <Building2 className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
                 Clinic Details
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <CardContent className="p-6 bg-[hsl(var(--card))] space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="clinicName">
-                    Clinic Name <span className="text-red-500">*</span>
-                  </Label>
+                  <Label htmlFor="clinicName">Clinic Name *</Label>
                   <Input
                     id="clinicName"
-                    placeholder="Enter clinic name"
+                    placeholder="e.g. City Health Center"
                     value={formData.clinicName}
                     onChange={(e) => handleInputChange("clinicName", e.target.value)}
                     required
                   />
                 </div>
-
                 <div className="space-y-2">
-                  <Label htmlFor="timezone">Timezone</Label>
-                  <Select value={formData.timezone} onValueChange={(val) => handleInputChange("timezone", val)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select timezone" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {timezones.map((tz) => (
-                        <SelectItem key={tz} value={tz}>
-                          {tz}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">
-                    Email <span className="text-red-500">*</span>
-                  </Label>
+                  <Label htmlFor="email">Clinic Email *</Label>
                   <Input
                     id="email"
-                    type="email"
-                    placeholder="clinic@example.com"
+                    placeholder="e.g. contact@cityhealthcenter.com"
                     value={formData.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
                     required
                   />
                 </div>
-
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
+                  <Label htmlFor="clinicPhone">Clinic Phone *</Label>
                   <Input
-                    id="phone"
-                    placeholder="+1 (555) 123-4567"
-                    value={formData.phone}
-                    onChange={(e) => handleInputChange("phone", e.target.value)}
+                    id="clinicPhone"
+                    placeholder="e.g. (123) 456-7890"
+                    value={formData.clinicPhone}
+                    onChange={(e) => handleInputChange("clinicPhone", e.target.value)}
+                    required
                   />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="clinicFax">Clinic Fax</Label>
+                  <Input
+                    id="clinicFax"
+                    placeholder="e.g. (123) 456-7890"
+                    value={formData.clinicFax}
+                    onChange={(e) => handleInputChange("clinicFax", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="timezone">Timezone</Label>
+                  <Select value={formData.timezone} onValueChange={(v) => handleInputChange("timezone", v)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Timezone" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {timezones.map((tz) => (
+                        <SelectItem key={tz} value={tz}>{tz}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Clinic Speciality</Label>
+                  <div className="flex flex-wrap gap-2 p-3 border rounded-md min-h-[40px]">
+                    {formData.clinicSpecaility.length ? (
+                      formData.clinicSpecaility.map((s) => (
+                        <span key={s} className="inline-flex items-center gap-1 px-2 py-1 bg-[hsl(var(--color-brand-teal))] text-white text-sm rounded-md">
+                          {s}
+                          <button
+                            type="button"
+                            onClick={() => handleInputChange("clinicSpecaility", formData.clinicSpecaility.filter((x) => x !== s))}
+                            className="hover:bg-[hsl(var(--color-brand-teal-dark))] rounded-full px-1"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-gray-400 text-sm">No specialties selected</span>
+                    )}
+                  </div>
+                  <Select
+                    value=""
+                    onValueChange={(val) => {
+                      if (val && !formData.clinicSpecaility.includes(val)) handleInputChange("clinicSpecaility", [...formData.clinicSpecaility, val])
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Add Speciality" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Cardiology">Cardiology</SelectItem>
+                      <SelectItem value="Dermatology">Dermatology</SelectItem>
+                      <SelectItem value="Neurology">Neurology</SelectItem>
+                      <SelectItem value="Orthopedics">Orthopedics</SelectItem>
+                      <SelectItem value="Pediatrics">Pediatrics</SelectItem>
+                      <SelectItem value="Psychiatry">Psychiatry</SelectItem>
+                      <SelectItem value="Radiology">Radiology</SelectItem>
+                      <SelectItem value="General Practice">General Practice</SelectItem>
+                      <SelectItem value="Internal Medicine">Internal Medicine</SelectItem>
+                      <SelectItem value="Surgery">Surgery</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Location */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-[#1DA68F]" />
-                Location
+          {/* Address */}
+          <Card className="border-[hsl(var(--border))] shadow-sm">
+            <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
+              <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
+                <MapPin className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
+                Address Information
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="p-6 bg-[hsl(var(--card))] space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="street">Street Address</Label>
-                <Input
-                  id="street"
-                  placeholder="123 Main Street"
-                  value={formData.street}
-                  onChange={(e) => handleInputChange("street", e.target.value)}
-                />
+                <Label htmlFor="street">Street Address *</Label>
+                <Input id="street" value={formData.street} onChange={(e) => handleInputChange("street", e.target.value)} required />
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="city">City</Label>
-                  <Input
-                    id="city"
-                    placeholder="San Francisco"
-                    value={formData.city}
-                    onChange={(e) => handleInputChange("city", e.target.value)}
-                  />
+                  <Label htmlFor="city">City *</Label>
+                  <Input id="city" value={formData.city} onChange={(e) => handleInputChange("city", e.target.value)} required />
                 </div>
-
                 <div className="space-y-2">
-                  <Label htmlFor="state">State/Province</Label>
-                  <Input
-                    id="state"
-                    placeholder="CA"
-                    value={formData.state}
-                    onChange={(e) => handleInputChange("state", e.target.value)}
-                  />
+                  <Label htmlFor="state">State/Province *</Label>
+                  <Input id="state" value={formData.state} onChange={(e) => handleInputChange("state", e.target.value)} required />
                 </div>
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="zipCode">Zip/Postal Code</Label>
-                  <Input
-                    id="zipCode"
-                    placeholder="94102"
-                    value={formData.zipCode}
-                    onChange={(e) => handleInputChange("zipCode", e.target.value)}
-                  />
+                  <Label htmlFor="zipCode">Zip/Postal Code *</Label>
+                  <Input id="zipCode" value={formData.zipCode} onChange={(e) => handleInputChange("zipCode", e.target.value)} required />
                 </div>
-
                 <div className="space-y-2">
-                  <Label htmlFor="country">Country</Label>
-                  <Input
-                    id="country"
-                    placeholder="United States"
-                    value={formData.country}
-                    onChange={(e) => handleInputChange("country", e.target.value)}
-                  />
+                  <Label htmlFor="country">Country *</Label>
+                  <Input id="country" value={formData.country} onChange={(e) => handleInputChange("country", e.target.value)} required />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Owner Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5 text-[#1DA68F]" />
-                Owner Details
+          {/* Owner */}
+          <Card className="border-[hsl(var(--border))] shadow-sm">
+            <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
+              <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
+                <User className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
+                Owner Information
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="p-6 bg-[hsl(var(--card))] space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="ownerUser">Owner Name</Label>
-                <Input
-                  id="ownerUser"
-                  placeholder="John Doe"
-                  value={formData.ownerUser}
-                  onChange={(e) => handleInputChange("ownerUser", e.target.value)}
+                <Label htmlFor="ownerName">Owner Name *</Label>
+                <Input id="ownerName" placeholder="e.g. Dr. John Smith" value={formData.ownerName} onChange={(e) => handleInputChange("ownerName", e.target.value)} required />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="ownerEmail">Owner Email *</Label>
+                  <Input id="ownerEmail" type="email" placeholder="owner@clinic.com" value={formData.ownerEmail} onChange={(e) => handleInputChange("ownerEmail", e.target.value)} required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="ownerPhone">Owner Phone *</Label>
+                  <Input id="ownerPhone" type="tel" placeholder="+1 (555) 123-4567" value={formData.ownerPhone} onChange={(e) => handleInputChange("ownerPhone", e.target.value)} required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="ownerAge">Owner Age *</Label>
+                  <Input id="ownerAge" type="number" placeholder="e.g. 45" value={formData.ownerAge} onChange={(e) => handleInputChange("ownerAge", e.target.value)} required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="ownerGender">Owner Gender *</Label>
+                  <Select value={formData.ownerGender} onValueChange={(v) => handleInputChange("ownerGender", v)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Gender" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="male">Male</SelectItem>
+                      <SelectItem value="female">Female</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Additional */}
+          <Card className="border-[hsl(var(--border))] shadow-sm">
+            <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
+              <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
+                <Building2 className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
+                Additional Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 bg-[hsl(var(--card))] space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="bio">Bio</Label>
+                <textarea
+                  id="bio"
+                  className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  placeholder="Brief bio about the clinic..."
+                  value={formData.bio}
+                  onChange={(e) => handleInputChange("bio", e.target.value)}
+                  rows={3}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <textarea
+                  id="description"
+                  className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  placeholder="Detailed description..."
+                  value={formData.description}
+                  onChange={(e) => handleInputChange("description", e.target.value)}
+                  rows={5}
                 />
               </div>
             </CardContent>
           </Card>
 
-          {/* Action Buttons */}
-          <div className="flex gap-4 justify-end sticky bottom-0 bg-gray-50 dark:bg-gray-900 py-4 border-t border-gray-200 dark:border-gray-800">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => router.back()}
-              disabled={isSubmitting}
-            >
+          {/* Actions */}
+          <div className="flex items-center gap-3">
+            <Button type="button" variant="outline" className="w-1/2" onClick={() => router.back()}>
               Cancel
             </Button>
-            <Button
-              type="submit"
-              className="bg-[#1DA68F] hover:bg-[#168f73] min-w-[120px]"
-              disabled={isSubmitting}
-            >
+            <Button type="submit" className="w-1/2 bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-white" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -566,7 +448,6 @@ export default function EditClinicPage() {
               )}
             </Button>
           </div>
-
         </form>
       </div>
     </div>

@@ -1,22 +1,20 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+// import { useRouter } from "next/navigation";
 import { ProtectedRoute } from "@/components/ui/protected-route";
-import {
-  createDoctorInCollection,
-  fetchDoctors,
-} from "@/lib/slices/doctorSlice";
+import { createDoctor, fetchDoctors } from "@/lib/slices/doctorSlice";
+import { fetchClinics } from "@/lib/slices/clinicSlice";
+import type { RootState, AppDispatch } from "@/lib/store";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ArrowLeft, Camera, Eye, EyeOff, Plus, Trash2 } from "lucide-react";
-import type { AppDispatch } from "@/lib/store";
-import { toast, ToastContainer } from "react-toastify";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -24,763 +22,713 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
+import {
+  ArrowLeft,
+  Camera,
+  Plus,
+  Loader2,
+  User,
+  Phone,
+  MapPin,
+  Briefcase,
+  Globe,
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { Toaster } from "@/components/ui/toaster";
+import { DatePicker } from "@/components/ui/date-picker";
 
-interface AvailableDay {
-  day: string;
-  from: string;
-  to: string;
+/* ----------  TYPES  ---------- */
+interface DoctorFormData {
+  firstName: string;
+  lastName: string;
+  name: string;
+  email: string;
+  password: string;
+  phoneNumber: string;
+  phone: string;
+  age: string;
+  dateOfBirth: string;
+  gender: string;
+  specialization: string;
+  clinicRef: string;
+  languages: string[];
+  yearsOfExperience: string;
+  experience: string;
+  licenseNumber: string;
+  bio: string;
+  educationSummary: string;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
+  role: "doctor";
+  hipaaConsent: boolean;
+  timeZone: string;
+  profilePicture: string;
 }
 
+/* ----------  MAIN PAGE  ---------- */
 export default function AddDoctorPage() {
   const dispatch = useDispatch<AppDispatch>();
-  const router = useRouter();
+  // const router = useRouter();
+  const { toast } = useToast();
+  const { clinics } = useSelector((state: RootState) => state.clinics);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [formData, setFormData] = useState({
+  /* ----------  FORM STATE  ---------- */
+  const [formData, setFormData] = useState<DoctorFormData>({
     firstName: "",
     lastName: "",
     name: "",
     email: "",
     password: "",
+    phoneNumber: "",
     phone: "",
     age: "",
     dateOfBirth: "",
     gender: "",
     specialization: "",
-    assignedClinic: "",
-    languages: [] as string[],
+    clinicRef: "",
+    languages: [],
+    yearsOfExperience: "",
     experience: "",
     licenseNumber: "",
     bio: "",
     educationSummary: "",
-    address: "",
-    status: "active",
-    role: "doctor" as const,
+    address: {
+      street: "",
+      city: "",
+      state: "",
+      zipCode: "",
+      country: "USA",
+    },
+    role: "doctor",
     hipaaConsent: true,
     timeZone: "Asia/Karachi",
     profilePicture: "",
-    availableDays: [
-      { day: "Monday", from: "09:00", to: "17:00" },
-      { day: "Tuesday", from: "09:00", to: "17:00" },
-      { day: "Wednesday", from: "09:00", to: "17:00" },
-      { day: "Thursday", from: "09:00", to: "17:00" },
-      { day: "Friday", from: "09:00", to: "17:00" },
-      { day: "Saturday", from: "09:00", to: "17:00" },
-    ] as AvailableDay[],
   });
-
-  const [loading, setLoading] = useState(false);
-  const [imageUploading, setImageUploading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [selectedDays, setSelectedDays] = useState<string[]>([
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-  ]);
 
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false);
 
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
-    const { name, value } = e.target;
-    const updatedFormData = { ...formData, [name]: value };
+  /* ----------  HOOKS  ---------- */
+  useEffect(() => {
+    dispatch(fetchClinics());
+  }, [dispatch]);
 
-    // Auto-concatenate first name and last name for full name
-    if (name === "firstName" || name === "lastName") {
-      const firstName = name === "firstName" ? value : formData.firstName;
-      const lastName = name === "lastName" ? value : formData.lastName;
-      updatedFormData.name = `${firstName} ${lastName}`.trim();
-    }
-
-    setFormData(updatedFormData);
+  /* ----------  HANDLERS  ---------- */
+  const handleInputChange = (field: keyof DoctorFormData, value: string) => {
+    setFormData((prev) => {
+      const updated = { ...prev, [field]: value };
+      
+      if (field === "firstName" || field === "lastName") {
+        const fn = field === "firstName" ? value : prev.firstName;
+        const ln = field === "lastName" ? value : prev.lastName;
+        updated.name = `${fn} ${ln}`.trim();
+      }
+      
+      if (field === "phoneNumber") {
+        updated.phone = value;
+      }
+      
+      if (field === "yearsOfExperience") {
+        updated.experience = value;
+      }
+      
+      return updated;
+    });
   };
 
-  const handleDayToggle = (day: string) => {
-    if (selectedDays.includes(day)) {
-      setSelectedDays(selectedDays.filter((d) => d !== day));
-    } else {
-      setSelectedDays([...selectedDays, day]);
-    }
-  };
-
-  const handleTimeChange = (
-    day: string,
-    field: "from" | "to",
-    value: string
-  ) => {
-    const updatedDays = formData.availableDays.map((availableDay) =>
-      availableDay.day === day
-        ? { ...availableDay, [field]: value }
-        : availableDay
-    );
-    setFormData({ ...formData, availableDays: updatedDays });
-  };
-
-  const addTimeSlot = (day: string) => {
-    const updatedDays = [
-      ...formData.availableDays,
-      { day, from: "09:00", to: "17:00" },
-    ];
-    setFormData({ ...formData, availableDays: updatedDays });
-  };
-
-  const removeTimeSlot = (index: number) => {
-    const updatedDays = formData.availableDays.filter((_, i) => i !== index);
-    setFormData({ ...formData, availableDays: updatedDays });
-  };
+  const handleAddressChange = (k: keyof DoctorFormData["address"], v: string) =>
+    setFormData((p) => ({ ...p, address: { ...p.address, [k]: v } }));
 
   const uploadImage = async (file: File): Promise<string> => {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    // Get the authentication token from localStorage
-    const token = localStorage.getItem('clinic-ai-token');
-
+    const fd = new FormData();
+    fd.append("file", file);
+    const token = localStorage.getItem("clinic-ai-token");
     if (!token) {
-      toast.error('No authentication token found. Please login again.');
+      toast({
+        title: "Error",
+        description: "No auth token",
+        variant: "destructive",
+      });
       return "";
     }
-
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}api/upload/image`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-      body: formData,
-    });
-
-
-    const result = await response.json();
-    if (result.success === true) {
-      toast.success(result.message || 'Image uploaded successfully!');
-      return result.fileUrl || result.profilePicture || result.data?.fileUrl;
-    } 
-    return "";
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/upload/image`,
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: fd,
+      }
+    );
+    if (!res.ok) {
+      toast({
+        title: "Error",
+        description: "Upload failed",
+        variant: "destructive",
+      });
+      return "";
+    }
+    const result = await res.json();
+    return result.fileUrl || result.profilePicture || result.data?.fileUrl;
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      // Validate file type
-      if (!file.type.startsWith("image/")) {
-        toast.error("Please select a valid image file");
-        return;
-      }
-
-      // Validate file size (2.5MB)
-      if (file.size > 2.5 * 1024 * 1024) {
-        toast.error("Image size should not exceed 2.5MB");
-        return;
-      }
-
-      setImageUploading(true);
-      setImageFile(file);
-
-      try {
-        // Upload image to server
-        const profilePicture = await uploadImage(file);
-        // Update form data with the uploaded image URL
-        setFormData(prev => ({
-          ...prev,
-          profilePicture: profilePicture
-        }));
-
-        // Set preview image
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          setProfileImage(e.target?.result as string);
-        };
-        reader.readAsDataURL(file);
-
-        toast.success("Image uploaded successfully!");
-      } catch (error) {
-        toast.error("Failed to upload image. Please try again.");
-        setImageFile(null);
-        setProfileImage(null);
-      } finally {
-        setImageUploading(false);
-      }
-    }
-  };
-
-  const triggerImageUpload = () => {
-    document.getElementById("profile-image-input")?.click();
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    if (
-      !formData.firstName ||
-      !formData.lastName ||
-      !formData.name ||
-      !formData.email ||
-      !formData.password ||
-      !formData.phone ||
-      !formData.age ||
-      !formData.dateOfBirth ||
-      !formData.gender ||
-      !formData.specialization ||
-      !formData.experience ||
-      !formData.licenseNumber ||
-      !formData.address
-    ) {
-      toast.error("Please fill in all required fields.");
-      setLoading(false);
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast({
+        title: "Error",
+        description: "Invalid image",
+        variant: "destructive",
+      });
       return;
     }
-
-    if (formData.password.length < 8) {
-      toast.error("Password must be at least 8 characters long.");
-      setLoading(false);
+    if (file.size > 2.5 * 1024 * 1024) {
+      toast({
+        title: "Error",
+        description: "Max 2.5 MB",
+        variant: "destructive",
+      });
       return;
     }
-
-    // Check for password complexity requirements
-    const hasUpperCase = /[A-Z]/.test(formData.password);
-    const hasLowerCase = /[a-z]/.test(formData.password);
-    const hasNumbers = /\d/.test(formData.password);
-    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(formData.password);
-
-    if (!hasUpperCase || !hasLowerCase || !hasNumbers || !hasSpecialChar) {
-      toast.error(
-        "Password must contain uppercase, lowercase, number, and special character."
-      );
-      setLoading(false);
-      return;
-    }
-
+    setImageUploading(true);
     try {
+      const url = await uploadImage(file);
+      if (url) {
+        setFormData((p) => ({ ...p, profilePicture: url }));
+        setProfileImage(url);
+        toast({ title: "Success", description: "Picture uploaded!" });
+      }
+    } catch {
+      toast({
+        title: "Error",
+        description: "Upload error",
+        variant: "destructive",
+      });
+    } finally {
+      setImageUploading(false);
+    }
+  };
 
-      // Filter availableDays to only include selected days
-      const filteredAvailableDays = formData.availableDays.filter(daySlot =>
-        selectedDays.includes(daySlot.day)
-      );
-
-      // Fix: Convert age and experience to numbers, and ensure gender and status are correct types
+  const handleSubmitForm = async () => {
+    setIsLoading(true);
+    try {
       const doctorData = {
         ...formData,
-        age: Number.parseInt(formData.age),
-        experience: Number.parseInt(formData.experience),
+        age: Number(formData.age),
         gender: formData.gender as "male" | "female" | "other",
-        status: formData.status as "active" | "inactive",
-        timeZone: formData.timeZone,
-        availableDays: filteredAvailableDays,
+        phone: formData.phoneNumber,
+        phoneNumber: formData.phoneNumber,
+        experience: Number(formData.yearsOfExperience || "0"),
+        yearsOfExperience: formData.yearsOfExperience,
       };
-      const response = await dispatch(createDoctorInCollection(doctorData));
 
-      if(response.meta.requestStatus === 'fulfilled') {
-      // Refresh the doctor list to show the new doctor
-      await dispatch(fetchDoctors());
-
-      // Reset form
-      setFormData({
-        firstName: "",
-        lastName: "",
-        name: "",
-        email: "",
-        password: "",
-        phone: "",
-        age: "",
-        dateOfBirth: "",
-        gender: "",
-        specialization: "",
-        experience: "",
-        licenseNumber: "",
-        bio: "",
-        educationSummary: "",
-        address: "",
-        status: "active",
-        role: "doctor",
-        hipaaConsent: true,
-        timeZone: "Asia/Karachi",
-        profilePicture: "",
-        availableDays: [],
-        assignedClinic: "",
-        languages: [],
-      });
-  
-      // Reset image states
-      setProfileImage(null);
-      setImageFile(null);
-      setLoading(false);
-
-      toast.success("Doctor added successfully!");
-  
-      // Redirect immediately after success
-      router.push("/admin/doctors");
-    } else {
-      toast.error(response.payload as string);
-      setLoading(false);
-      return;
-    }
-
+      const response = await dispatch(createDoctor(doctorData));
+      
+      if (response.meta.requestStatus === "fulfilled") {
+        toast({ 
+          title: "Success", 
+          description: "Doctor added successfully!" 
+        });
+        
+        // Add a small delay and check if router exists before navigation
+        window.location.href = `/admin/doctors/view/${(response.payload as any)._id}`;
+      } else if (response.meta.requestStatus === "rejected") {
+        toast({
+          title: "Error",
+          description: response.payload as string || "Failed to add doctor",
+          variant: "destructive",
+        });
+      }
     } catch (err: any) {
-      toast.error(err);
-      setLoading(false);
-      return;
+      toast({
+        title: "Error",
+        description: err.message || "Failed to add doctor",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  /* ----------  RENDER  ---------- */
   return (
     <ProtectedRoute allowedRoles={["admin"]}>
-      <ToastContainer />
-      <div className="flex-1 overflow-y-auto bg-[hsl(var(--color-gray-50))] dark:bg-[hsl(var(--background))] min-h-screen">
-        <div className="max-w-7xl mx-auto p-6">
-          {/* Header */}
-          <div className="flex items-center space-x-4 mb-6">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push("/admin/doctors")}
-              className="bg-[hsl(var(--color-brand-teal))/0.1] flex items-center space-x-2 text-[hsl(var(--color-brand-teal))] hover:text-[hsl(var(--color-brand-teal-dark))] dark:text-[hsl(var(--color-brand-teal))] dark:hover:text-[hsl(var(--color-brand-teal-dark))]"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              <span>Back to Doctor</span>
-            </Button>
-          </div>
-
-          <div className="bg-[hsl(var(--card))] dark:bg-[hsl(var(--card))] rounded-lg shadow-sm border border-[hsl(var(--border))] dark:border-[hsl(var(--border))]">
-            <div className="p-6 border-b border-[hsl(var(--border))] dark:border-[hsl(var(--border))]">
-              <h1 className="text-xl font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
-                Add New Doctor
-              </h1>
-              <p className="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] text-sm mt-1">
-                Fill in the details to add a new doctor
-              </p>
-            </div>
-
-            <form onSubmit={handleSubmit} className="p-6 space-y-8">
-              {/* Profile Picture Section */}
+      <div className="min-h-screen bg-[hsl(var(--background))]">
+        <Toaster />
+        {/* ------- HEADER ------- */}
+        <div className="bg-[hsl(var(--card))] border-b border-[hsl(var(--border))] px-6 py-4">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-[hsl(var(--muted-foreground))]"
+                // onClick={() => router.push("/admin/doctors")}
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
               <div>
-                <h3 className="text-lg font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] mb-4">
+                <h1 className="text-2xl font-bold text-[hsl(var(--foreground))]">
+                  Add New Doctor
+                </h1>
+                <p className="text-sm text-[hsl(var(--muted-foreground))]">
+                  Register a new doctor for your clinic
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ------- BODY ------- */}
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSubmitForm();
+            }}
+            className="space-y-6"
+          >
+            {/* Profile Picture */}
+            <Card className="border-[hsl(var(--border))] shadow-sm">
+              <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
+                <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
+                  <User className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
                   Profile Picture
-                </h3>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 bg-[hsl(var(--card))]">
                 <div className="flex items-center space-x-4">
-                  <div
-                    className={`relative cursor-pointer ${imageUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    onClick={imageUploading ? undefined : triggerImageUpload}
-                  >
+                  <div className="relative">
                     <Avatar className="h-20 w-20">
                       <AvatarImage
                         src={
-                          profileImage || formData.profilePicture || "/placeholder.svg?height=80&width=80"
+                          profileImage ||
+                          formData.profilePicture ||
+                          "/placeholder.svg?height=80&width=80"
                         }
+                        alt="Doctor"
                       />
-                      <AvatarFallback className="bg-[hsl(var(--color-gray-200))] dark:bg-[hsl(var(--color-gray-700))] text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] text-lg">
+                      <AvatarFallback className="bg-[hsl(var(--color-gray-200))] text-[hsl(var(--muted-foreground))] text-lg">
                         {formData.name
-                          ? formData.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")
+                          ? `${formData.name.split(" ")[0][0]}${
+                              formData.name.split(" ")[1]?.[0] || ""
+                            }`
                           : "DR"}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-[hsl(var(--color-brand-teal))] rounded-full flex items-center justify-center">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={imageUploading}
+                      className="absolute -bottom-1 -right-1 w-6 h-6 bg-[hsl(var(--color-brand-teal))] rounded-full flex items-center justify-center hover:bg-[hsl(var(--color-brand-teal-dark))] disabled:opacity-50"
+                    >
                       {imageUploading ? (
-                        <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <Loader2 className="h-3 w-3 text-white animate-spin" />
                       ) : (
                         <Camera className="h-3 w-3 text-white" />
                       )}
-                    </div>
+                    </button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
                   </div>
-                  <input
-                    id="profile-image-input"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    disabled={imageUploading}
-                    className="hidden"
-                  />
                   <div>
-                    <p className="text-sm font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
-                      Profile Image
+                    <p className="text-sm font-medium text-[hsl(var(--foreground))]">
+                      {imageUploading ? "Uploading..." : "Profile Image"}
                     </p>
-                    <p className="text-xs text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">
-                      The Proposed size is 512 x 512 px and no longer bigger
-                      than 2.5 MBs
+                    <p className="text-xs text-[hsl(var(--muted-foreground))]">
+                      Proposed size 512 × 512 px, max 2.5 MB
                     </p>
                   </div>
                 </div>
-              </div>
+              </CardContent>
+            </Card>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Basic Information */}
-                <div className="space-y-6">
-                  <h3 className="text-lg font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
-                    Basic Information
-                  </h3>
-
-                  <div>
+            {/* Personal Information */}
+            <Card className="border-[hsl(var(--border))] shadow-sm">
+              <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
+                <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
+                  <User className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
+                  Personal Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 bg-[hsl(var(--card))]">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
                     <Label
                       htmlFor="firstName"
-                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
+                      className="text-[hsl(var(--foreground))]"
                     >
                       First Name *
                     </Label>
                     <Input
                       id="firstName"
-                      name="firstName"
-                      type="text"
                       value={formData.firstName}
-                      onChange={handleChange}
-                      placeholder="Dr. Sarah Johnson"
-                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
+                      onChange={(e) =>
+                        handleInputChange("firstName", e.target.value)
+                      }
+                      placeholder="Enter first name"
+                      className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))]  dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                       required
                     />
                   </div>
 
-                  <div>
+                  <div className="space-y-2">
                     <Label
-                      htmlFor="firstName"
-                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
+                      htmlFor="lastName"
+                      className="text-[hsl(var(--foreground))]"
                     >
                       Last Name *
                     </Label>
                     <Input
                       id="lastName"
-                      name="lastName"
-                      type="text"
                       value={formData.lastName}
-                      onChange={handleChange}
-                      placeholder="Dr. Sarah Johnson"
-                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
+                      onChange={(e) =>
+                        handleInputChange("lastName", e.target.value)
+                      }
+                      placeholder="Enter last name"
+                      className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))]  dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                       required
                     />
                   </div>
-
-                  <div>
-                    <Label
-                      htmlFor="firstName"
-                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
-                    >
-                      Full Name *
-                    </Label>
-                    <Input
-                      id="name"
-                      name="name"
-                      type="text"
-                      value={formData.name}
-                      // onChange={handleChange}
-                      placeholder="Dr. Sarah Johnson"
-                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
-                      disabled
-                    />
-                  </div>
-
-                  <div>
-                    <Label
-                      htmlFor="email"
-                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
-                    >
-                      Email Address *
-                    </Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      placeholder="sarah.johnson@clinical.com"
-                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <Label
-                      htmlFor="email"
-                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
-                    >
-                      Password *
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        id="password"
-                        name="password"
-                        type={showPassword ? "text" : "password"}
-                        value={formData.password}
-                        onChange={handleChange}
-                        placeholder="Enter password"
-                        className="mt-1 pr-10 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
-                        required
-                        minLength={8}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--muted-foreground))] focus:outline-none"
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label
-                      htmlFor="phone"
-                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
-                    >
-                      Phone Number *
-                    </Label>
-                    <Input
-                      id="phone"
-                      name="phone"
-                      type="text"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      placeholder="(555) 123-4567"
-                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <Label
-                      htmlFor="age"
-                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
-                    >
-                      Age *
-                    </Label>
-                    <Input
-                      id="age"
-                      name="age"
-                      type="number"
-                      value={formData.age}
-                      onChange={handleChange}
-                      placeholder="35"
-                      min="18"
-                      max="100"
-                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
-                      required
-                    />
-                  </div>
-
-                  <div>
+                  <div className="space-y-2">
                     <Label
                       htmlFor="dateOfBirth"
-                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
+                      className="text-[hsl(var(--foreground))]"
                     >
                       Date of Birth *
                     </Label>
-                    <Input
-                      id="dateOfBirth"
-                      name="dateOfBirth"
-                      type="date"
+                    <DatePicker
                       value={formData.dateOfBirth}
-                      onChange={handleChange}
-                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
+                      onChange={(iso) => handleInputChange("dateOfBirth", iso)}
                       required
                     />
                   </div>
 
-                  <div>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="age"
+                      className="text-[hsl(var(--foreground))]"
+                    >
+                      Age
+                    </Label>
+                    <Input
+                      id="age"
+                      type="number"
+                      value={formData.age}
+                      onChange={(e) => handleInputChange("age", e.target.value)}
+                      placeholder="Enter age"
+                      className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))]  dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
                     <Label
                       htmlFor="gender"
-                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
+                      className="text-[hsl(var(--foreground))]"
                     >
                       Gender *
                     </Label>
                     <Select
                       value={formData.gender}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, gender: value })
-                      }
+                      onValueChange={(v) => handleInputChange("gender", v)}
                     >
-                      <SelectTrigger className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))]">
+                      <SelectTrigger
+                        id="gender"
+                        className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))]  dark:text-[hsl(var(--foreground))]"
+                      >
                         <SelectValue placeholder="Select gender" />
                       </SelectTrigger>
-                      <SelectContent className="dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))]">
-                        <SelectItem
-                          value="male"
-                          className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
-                        >
-                          Male
-                        </SelectItem>
-                        <SelectItem
-                          value="female"
-                          className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
-                        >
-                          Female
-                        </SelectItem>
-                        <SelectItem
-                          value="other"
-                          className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
-                        >
-                          Other
-                        </SelectItem>
+                      <SelectContent>
+                        <SelectItem value="male">Male</SelectItem>
+                        <SelectItem value="female">Female</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
-
-
-                  <div>
+                  <div className="space-y-2">
                     <Label
                       htmlFor="bio"
-                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
+                      className="text-[hsl(var(--foreground))]"
                     >
                       Bio
                     </Label>
                     <Textarea
                       id="bio"
-                      name="bio"
                       value={formData.bio}
-                      onChange={handleChange}
-                      placeholder="Dr. Sarah Johnson is a board-certified cardiologist with over 15 years of experience in treating cardiovascular diseases. She specializes in preventive cardiology and cardiac rehabilitation."
-                      rows={4}
-                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
+                      onChange={(e) => handleInputChange("bio", e.target.value)}
+                      placeholder="Short bio..."
+                      rows={3}
+                      className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))]  dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Contact Information */}
+            <Card className="border-[hsl(var(--border))] shadow-sm">
+              <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
+                <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
+                  <Phone className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
+                  Contact Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 bg-[hsl(var(--card))]">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="email"
+                      className="text-[hsl(var(--foreground))]"
+                    >
+                      Email Address *
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) =>
+                        handleInputChange("email", e.target.value)
+                      }
+                      placeholder="Enter email"
+                      className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))]  dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
+                      required
                     />
                   </div>
 
-
-
-                  <div>
+                  <div className="space-y-2">
                     <Label
-                      htmlFor="status"
-                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
+                      htmlFor="phoneNumber"
+                      className="text-[hsl(var(--foreground))]"
                     >
-                      Status
+                      Phone Number *
+                    </Label>
+                    <Input
+                      id="phoneNumber"
+                      type="tel"
+                      value={formData.phoneNumber}
+                      onChange={(e) =>
+                        handleInputChange("phoneNumber", e.target.value)
+                      }
+                      placeholder="Enter phone"
+                      className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))]  dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
+                      required
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Address Information */}
+            <Card className="border-[hsl(var(--border))] shadow-sm">
+              <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
+                <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
+                  <MapPin className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
+                  Address Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 bg-[hsl(var(--card))]">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="street"
+                      className="text-[hsl(var(--foreground))]"
+                    >
+                      Street Address
+                    </Label>
+                    <Input
+                      id="street"
+                      value={formData.address.street}
+                      onChange={(e) =>
+                        handleAddressChange("street", e.target.value)
+                      }
+                      placeholder="Enter street"
+                      className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))]  dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="city"
+                        className="text-[hsl(var(--foreground))]"
+                      >
+                        City
+                      </Label>
+                      <Input
+                        id="city"
+                        value={formData.address.city}
+                        onChange={(e) =>
+                          handleAddressChange("city", e.target.value)
+                        }
+                        placeholder="Enter city"
+                        className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))]  dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="state"
+                        className="text-[hsl(var(--foreground))]"
+                      >
+                        State
+                      </Label>
+                      <Input
+                        id="state"
+                        value={formData.address.state}
+                        onChange={(e) =>
+                          handleAddressChange("state", e.target.value)
+                        }
+                        placeholder="Enter state"
+                        className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))]  dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="zipCode"
+                        className="text-[hsl(var(--foreground))]"
+                      >
+                        Zip Code
+                      </Label>
+                      <Input
+                        id="zipCode"
+                        value={formData.address.zipCode}
+                        onChange={(e) =>
+                          handleAddressChange("zipCode", e.target.value)
+                        }
+                        placeholder="Enter zip"
+                        className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))]  dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="country"
+                        className="text-[hsl(var(--foreground))]"
+                      >
+                        Country
+                      </Label>
+                      <Input
+                        id="country"
+                        value={formData.address.country}
+                        onChange={(e) =>
+                          handleAddressChange("country", e.target.value)
+                        }
+                        placeholder="Enter country"
+                        className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))]  dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Professional Information */}
+            <Card className="border-[hsl(var(--border))] shadow-sm">
+              <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
+                <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
+                  <Briefcase className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
+                  Professional Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 bg-[hsl(var(--card))]">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="clinicRef"
+                      className="text-[hsl(var(--foreground))]"
+                    >
+                      Assigned Clinic
                     </Label>
                     <Select
-                      value={formData.status}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, status: value })
-                      }
+                      value={formData.clinicRef}
+                      onValueChange={(v) => handleInputChange("clinicRef", v)}
                     >
-                      <SelectTrigger className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))]">
-                        <SelectValue placeholder="Active" />
+                      <SelectTrigger
+                        id="clinicRef"
+                        className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))]  dark:text-[hsl(var(--foreground))]"
+                      >
+                        <SelectValue placeholder="Select clinic" />
                       </SelectTrigger>
-                      <SelectContent className="dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))]">
-                        <SelectItem
-                          value="active"
-                          className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
-                        >
-                          Active
-                        </SelectItem>
-                        <SelectItem
-                          value="inactive"
-                          className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
-                        >
-                          Inactive
-                        </SelectItem>
+                      <SelectContent>
+                        {clinics.map((c) => (
+                          <SelectItem key={c._id} value={c._id}>
+                            {c.clinicName}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
-                </div>
 
-                {/* Professional Information */}
-                <div className="space-y-6">
-                  <h3 className="text-lg font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
-                    Professional Information
-                  </h3>
-
-                  <div>
+                  <div className="space-y-2">
                     <Label
-                      htmlFor="education"
-                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
-                    >
-                      Education
-                    </Label>
-                    <Input
-                      id="education"
-                      name="educationSummary"
-                      value={formData.educationSummary}
-                      onChange={handleChange}
-                      placeholder="MD from Johns Hopkins University, Residency at Mayo Clinic"
-                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
-                    />
-                  </div>
-
-
-
-                  <div>
-                    <Label
-                      htmlFor="specialty"
-                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
+                      htmlFor="specialization"
+                      className="text-[hsl(var(--foreground))]"
                     >
                       Specialty *
                     </Label>
                     <Select
                       value={formData.specialization}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, specialization: value })
+                      onValueChange={(v) =>
+                        handleInputChange("specialization", v)
                       }
                     >
-                      <SelectTrigger className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))]">
-                        <SelectValue placeholder="Cardiology" />
+                      <SelectTrigger
+                        id="specialization"
+                        className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))]  dark:text-[hsl(var(--foreground))]"
+                      >
+                        <SelectValue placeholder="Select specialty" />
                       </SelectTrigger>
-                      <SelectContent className="dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))]">
-                        <SelectItem
-                          value="cardiology"
-                          className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
-                        >
-                          Cardiology
-                        </SelectItem>
-                        <SelectItem
-                          value="neurology"
-                          className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
-                        >
-                          Neurology
-                        </SelectItem>
-                        <SelectItem
-                          value="orthopedics"
-                          className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
-                        >
-                          Orthopedics
-                        </SelectItem>
-                        <SelectItem
-                          value="pediatrics"
-                          className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
-                        >
-                          Pediatrics
-                        </SelectItem>
-                        <SelectItem
-                          value="dermatology"
-                          className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
-                        >
-                          Dermatology
-                        </SelectItem>
+                      <SelectContent>
+                        <SelectItem value="cardiology">Cardiology</SelectItem>
+                        <SelectItem value="neurology">Neurology</SelectItem>
+                        <SelectItem value="orthopedics">Orthopedics</SelectItem>
+                        <SelectItem value="pediatrics">Pediatrics</SelectItem>
+                        <SelectItem value="dermatology">Dermatology</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
-                  <div>
+                  <div className="space-y-2">
                     <Label
-                      htmlFor="experience"
-                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
+                      htmlFor="yearsOfExperience"
+                      className="text-[hsl(var(--foreground))]"
                     >
-                      Years of Experience
+                      Years of Experience *
                     </Label>
                     <Select
-                      value={formData.experience}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, experience: value })
+                      value={formData.yearsOfExperience}
+                      onValueChange={(v) =>
+                        handleInputChange("yearsOfExperience", v)
                       }
                     >
-                      <SelectTrigger className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))]">
-                        <SelectValue placeholder="15" />
+                      <SelectTrigger
+                        id="yearsOfExperience"
+                        className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))]  dark:text-[hsl(var(--foreground))]"
+                      >
+                        <SelectValue placeholder="Select years" />
                       </SelectTrigger>
-                      <SelectContent className="dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))]">
+                      <SelectContent>
                         {Array.from({ length: 50 }, (_, i) => i + 1).map(
-                          (year) => (
-                            <SelectItem
-                              key={year}
-                              value={year.toString()}
-                              className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
-                            >
-                              {year}
+                          (y) => (
+                            <SelectItem key={y} value={String(y)}>
+                              {y} {y === 1 ? "year" : "years"}
                             </SelectItem>
                           )
                         )}
@@ -788,319 +736,146 @@ export default function AddDoctorPage() {
                     </Select>
                   </div>
 
-
-                  <div>
+                  <div className="space-y-2">
                     <Label
-                      htmlFor="phone"
-                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
+                      htmlFor="licenseNumber"
+                      className="text-[hsl(var(--foreground))]"
                     >
                       License Number *
                     </Label>
                     <Input
                       id="licenseNumber"
-                      name="licenseNumber"
-                      type="text"
                       value={formData.licenseNumber}
-                      onChange={handleChange}
-                      placeholder="MD-123456"
-                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
+                      onChange={(e) =>
+                        handleInputChange("licenseNumber", e.target.value)
+                      }
+                      placeholder="Enter license"
+                      className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))]  dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                       required
                     />
                   </div>
 
-                  <div>
+                  <div className="space-y-2">
                     <Label
-                      htmlFor="languages"
-                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
+                      htmlFor="educationSummary"
+                      className="text-[hsl(var(--foreground))]"
                     >
-                      Languages
+                      Education Summary
                     </Label>
-                    <div className="mt-1 space-y-3">
-                      <div className="grid grid-cols-2 gap-3">
-                        {["English", "Spanish", "French", "German", "Italian", "Portuguese", "Arabic", "Chinese"].map((language) => (
-                          <div key={language} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={`language-${language.toLowerCase()}`}
-                              checked={formData.languages.includes(language)}
-                              onCheckedChange={(checked) => {
-                                if (checked) {
-                                  setFormData({
-                                    ...formData,
-                                    languages: [...formData.languages, language]
-                                  });
-                                } else {
-                                  setFormData({
-                                    ...formData,
-                                    languages: formData.languages.filter(lang => lang !== language)
-                                  });
-                                }
-                              }}
-                              className="border-[hsl(var(--border))] dark:border-[hsl(var(--border))]"
-                            />
-                            <Label
-                              htmlFor={`language-${language.toLowerCase()}`}
-                              className="text-sm text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] cursor-pointer"
-                            >
-                              {language}
-                            </Label>
-                          </div>
-                        ))}
-                      </div>
-                      {formData.languages.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {formData.languages.map((language) => (
-                            <span
-                              key={language}
-                              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[hsl(var(--color-chart-blue)/0.1)] dark:bg-[hsl(var(--color-chart-blue)/0.1)] text-[hsl(var(--color-chart-blue))] dark:text-[hsl(var(--color-chart-blue))] border border-[hsl(var(--color-chart-blue))] dark:border-[hsl(var(--color-chart-blue))]"
-                            >
-                              {language}
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setFormData({
-                                    ...formData,
-                                    languages: formData.languages.filter(lang => lang !== language)
-                                  });
-                                }}
-                                className="ml-1.5 inline-flex items-center justify-center w-4 h-4 rounded-full text-[hsl(var(--color-chart-blue))] hover:text-[hsl(var(--color-chart-blue))] hover:bg-[hsl(var(--color-chart-blue)/0.2)] dark:hover:bg-[hsl(var(--color-chart-blue)/0.2)]"
-                              >
-                                <span className="sr-only">Remove {language}</span>
-                                ×
-                              </button>
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label
-                      htmlFor="address"
-                      className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
-                    >
-                      Address
-                    </Label>
-                    <Textarea
-                      id="address"
-                      name="address"
-                      value={formData.address}
-                      onChange={handleChange}
-                      placeholder="123 Main St, Anytown, USA"
-                      rows={4}
-                      className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
+                    <Input
+                      id="educationSummary"
+                      value={formData.educationSummary}
+                      onChange={(e) =>
+                        handleInputChange("educationSummary", e.target.value)
+                      }
+                      placeholder="MD from Johns Hopkins, Residency at Mayo"
+                      className="border-[hsl(var(--border))] focus:border-[hsl(var(--color-brand-teal))]  dark:text-[hsl(var(--foreground))] dark:placeholder-[hsl(var(--muted-foreground))]"
                     />
                   </div>
 
                 </div>
-              </div>
+              </CardContent>
+            </Card>
 
-              {/* Manage Availability */}
-              <div className="space-y-6">
-                <h3 className="text-lg font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
-                  Manage Availability
-                </h3>
-
-                <div>
-                  <Label className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">
-                    Time Zone
-                  </Label>
-                  <Select
-                    value={formData.timeZone}
-                    onValueChange={(value) =>
-                      setFormData({ ...formData, timeZone: value })
-                    }
-                  >
-                    <SelectTrigger className="mt-1 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))]">
-                      <SelectValue placeholder="Asia/Karachi" />
-                    </SelectTrigger>
-                    <SelectContent className="dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))]">
-                      <SelectItem
-                        value="Asia/Karachi"
-                        className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
+            {/* Languages */}
+            <Card className="border-[hsl(var(--border))] shadow-sm">
+              <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
+                <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
+                  <Globe className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
+                  Languages
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 bg-[hsl(var(--card))]">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {[
+                    "English",
+                    "Spanish",
+                    "French",
+                    "German",
+                    "Italian",
+                    "Portuguese",
+                    "Arabic",
+                    "Chinese",
+                  ].map((lang) => (
+                    <div key={lang} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`lang-${lang}`}
+                        checked={formData.languages.includes(lang)}
+                        onCheckedChange={(c) =>
+                          setFormData((p) => ({
+                            ...p,
+                            languages: c
+                              ? [...p.languages, lang]
+                              : p.languages.filter((l) => l !== lang),
+                          }))
+                        }
+                        className="border-[hsl(var(--border))] dark:border-[hsl(var(--border))]"
+                      />
+                      <Label
+                        htmlFor={`lang-${lang}`}
+                        className="text-sm text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
                       >
-                        Asia/Karachi (GMT +05:00)
-                      </SelectItem>
-                      <SelectItem
-                        value="UTC"
-                        className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
-                      >
-                        UTC (GMT +00:00)
-                      </SelectItem>
-                      <SelectItem
-                        value="America/New_York"
-                        className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
-                      >
-                        America/New_York (GMT -05:00)
-                      </SelectItem>
-                      <SelectItem
-                        value="Europe/London"
-                        className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
-                      >
-                        Europe/London (GMT +00:00)
-                      </SelectItem>
-                      <SelectItem
-                        value="Asia/Dubai"
-                        className="dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-600))]"
-                      >
-                        Asia/Dubai (GMT +04:00)
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
+                        {lang}
+                      </Label>
+                    </div>
+                  ))}
                 </div>
-
-                <div>
-                  <Label className="text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] mb-4 block">
-                    Available Hours
-                  </Label>
-
-                  <div className="flex flex-wrap gap-3 mb-6 p-3  ">
-                    {[
-                      { label: "Select All", value: "Select All" },
-                      { label: "Mon", value: "Monday" },
-                      { label: "Tue", value: "Tuesday" },
-                      { label: "Wed", value: "Wednesday" },
-                      { label: "Thu", value: "Thursday" },
-                      { label: "Fri", value: "Friday" },
-                      { label: "Sat", value: "Saturday" },
-                    ].map((day) => (
-                      <div
-                        key={day.value}
-                        className="flex items-center space-x-2"
+                {formData.languages.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {formData.languages.map((lang) => (
+                      <span
+                        key={lang}
+                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[hsl(var(--color-chart-blue)/0.1)] text-[hsl(var(--color-chart-blue))] border border-[hsl(var(--color-chart-blue))]"
                       >
-                        <Checkbox
-                          id={day.value}
-                          checked={
-                            day.value === "Select All"
-                              ? selectedDays.length === 7
-                              : selectedDays.includes(day.value)
+                        {lang}
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setFormData((p) => ({
+                              ...p,
+                              languages: p.languages.filter((l) => l !== lang),
+                            }))
                           }
-                          onCheckedChange={() => {
-                            if (day.value === "Select All") {
-                              if (selectedDays.length === 7) {
-                                setSelectedDays([]);
-                              } else {
-                                setSelectedDays([
-                                  "Monday",
-                                  "Tuesday",
-                                  "Wednesday",
-                                  "Thursday",
-                                  "Friday",
-                                  "Saturday",
-                                ]);
-                              }
-                            } else {
-                              handleDayToggle(day.value);
-                            }
-                          }}
-                          className="data-[state=checked]:bg-[hsl(var(--color-brand-teal))] data-[state=checked]:border-[hsl(var(--color-brand-teal))]"
-                        />
-                        <Label
-                          htmlFor={day.value}
-                          className="text-sm text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]"
+                          className="ml-1.5 w-4 h-4 rounded-full hover:bg-[hsl(var(--color-chart-blue)/0.2)]"
                         >
-                          {day.label}
-                        </Label>
-                      </div>
+                          ×
+                        </button>
+                      </span>
                     ))}
                   </div>
+                )}
+              </CardContent>
+            </Card>
 
-                  <div className="space-y-4">
-                    {[
-                      "Monday",
-                      "Tuesday",
-                      "Wednesday",
-                      "Thursday",
-                      "Friday",
-                      "Saturday",
-                    ].map((day) => {
-                      const daySlots = formData.availableDays.filter(
-                        (slot) => slot.day === day
-                      );
-                      return (
-                        <div key={day} className="flex items-center space-x-4">
-                          <div className="w-24 text-sm font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">
-                            {day}
-                          </div>
-                          {daySlots.length > 0 ? (
-                            <div className="flex items-center space-x-3">
-                              <Input
-                                type="time"
-                                value={daySlots[0].from}
-                                onChange={(e) =>
-                                  handleTimeChange(day, "from", e.target.value)
-                                }
-                                className="w-32 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))]"
-                              />
-                              <span className="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] text-sm">
-                                To
-                              </span>
-                              <Input
-                                type="time"
-                                value={daySlots[0].to}
-                                onChange={(e) =>
-                                  handleTimeChange(day, "to", e.target.value)
-                                }
-                                className="w-32 dark:bg-[hsl(var(--color-gray-700))] dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))]"
-                              />
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() =>
-                                  removeTimeSlot(
-                                    formData.availableDays.findIndex(
-                                      (slot) => slot.day === day
-                                    )
-                                  )
-                                }
-                                className="text-[hsl(var(--color-status-error))] hover:text-[hsl(var(--color-status-error))] dark:text-[hsl(var(--color-status-error))] dark:hover:text-[hsl(var(--color-status-error))]"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          ) : (
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => addTimeSlot(day)}
-                              className="text-[hsl(var(--color-brand-teal))] hover:text-[hsl(var(--color-brand-teal-dark))] dark:text-[hsl(var(--color-brand-teal))] dark:hover:text-[hsl(var(--color-brand-teal-dark))] flex items-center space-x-1"
-                            >
-                              <Plus className="h-4 w-4" />
-                              <span>Add Time</span>
-                            </Button>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
+            {/* Actions */}
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                className="w-1/2 border-[hsl(var(--border))] bg-transparent"
+                // onClick={() => router.push("/admin/doctors")}
+              >
+                Cancel
+              </Button>
 
-              <div className="flex justify-end gap-4 pt-6 border-t border-[hsl(var(--border))] dark:border-[hsl(var(--border))]">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => router.push("/admin/doctors")}
-                  disabled={loading}
-                  className="flex-1 px-8 border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--color-gray-50))]
-               dark:border-[hsl(var(--border))] dark:text-[hsl(var(--foreground))] dark:hover:bg-[hsl(var(--color-gray-700))]"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="flex-1 bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-white px-8 flex items-center justify-center space-x-2 
-               dark:bg-[hsl(var(--color-brand-teal))] dark:hover:bg-[hsl(var(--color-brand-teal-dark))]"
-                >
-                  <Plus className="h-4 w-4" />
-                  <span>{loading ? "Adding..." : "Add Doctor"}</span>
-                </Button>
-              </div>
-            </form>
-          </div>
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="w-1/2 bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-white"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Save Doctor
+                  </>
+                )}
+              </Button>
+            </div>
+          </form>
         </div>
       </div>
     </ProtectedRoute>

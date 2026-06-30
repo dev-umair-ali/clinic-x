@@ -23,6 +23,7 @@ export default function HomePage() {
         assistant: "/assistant/dashboard",
         clinic: "/clinic/dashboard",
       };
+ 
       router.push(dashboardRoutes[user.role]);
     }
   }, [isAuthenticated, user, router]);

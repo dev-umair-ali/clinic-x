@@ -12,24 +12,9 @@ const data = [
   { month: "Jun", patients: 2200 },
 ]
 
-export default function PatientGrowth() {
+export default function PatientGrowth({ dashboardData }: { dashboardData?: any }) {
   return (
     <Card className="rounded-2xl shadow-sm dark:bg-gray-800 dark:border-gray-700">
-      <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-base sm:text-lg dark:text-[hsl(var(--color-foreground))]">
-            Patient Growth Trend
-          </CardTitle>
-          <select
-            className="text-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--color-brand-teal))]
-                       text-sm bg-transparent border-none cursor-pointer hover:underline"
-          >
-            <option>All Clinics</option>
-            <option>Active</option>
-            <option>Inactive</option>
-          </select>
-        </div>
-      </CardHeader>
       <CardContent>
         <ChartContainer
           config={{
@@ -41,7 +26,7 @@ export default function PatientGrowth() {
           className="h-48 sm:h-64"
         >
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data}>
+            <AreaChart data={dashboardData}>
               <XAxis
                 dataKey="month"
                 axisLine={false}

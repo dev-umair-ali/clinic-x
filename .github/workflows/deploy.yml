@@ -3,7 +3,10 @@ name: Deploy Next.js App to EC2
 on:
   push:
     branches:
-      - main  # deploy only when pushing to main branch
+      - stagging
+      - main
+      - updated-code
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -14,20 +17,39 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Read DEPLOY_BRANCH from .env file
+      - name: Read deploy branch from .env
+        id: get_branch
+        run: |
+          BRANCH=$(grep -E "^DEPLOY_BRANCH=" .env | cut -d '=' -f2 | tr -d ' "')
+          echo "branch=${BRANCH:-stagging}" >> $GITHUB_OUTPUT
+          echo "Deploy branch: ${BRANCH:-stagging}"
+
       - name: Deploy & Restart on EC2
         uses: appleboy/ssh-action@v1.1.0
+        env:
+          DEPLOY_BRANCH: ${{ steps.get_branch.outputs.branch }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
+          envs: DEPLOY_BRANCH
           script: |
-            echo "Starting deployment on EC2..."
+            BRANCH="${DEPLOY_BRANCH:-stagging}"
+            echo "Starting deployment on EC2 for branch: $BRANCH"
 
-            cd /home/ubuntu/Clinicx-main || exit 1
+            # Stop any running PM2 processes first
+            pm2 delete clinicx || true
 
-            echo "Pulling latest code..."
-            git fetch origin main
-            git reset --hard origin/main
+            # Remove any previous directory and do a fresh clone
+            echo "Removing old directory if exists..."
+            rm -rf /home/ubuntu/Clinicx-stagging
+
+            echo "Cloning fresh repository..."
+            cd /home/ubuntu
+            git clone https://${{ secrets.GH_PAT }}@github.com/Clinicxus/Clinicx-main.git Clinicx-stagging
+            cd Clinicx-stagging
+            git checkout $BRANCH
 
             echo "Installing dependencies..."
             npm install --legacy-peer-deps
@@ -60,4 +82,4 @@ jobs:
             sudo systemctl reload nginx
 
             echo "Deployment complete!"
-            echo "App is live at https://app.clinicx.io"
+            echo "App is live at https://app.clinicx.io (branch: $BRANCH)"

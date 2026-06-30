@@ -145,7 +145,6 @@ export default function SubmitClaimPage() {
       }
 
       const doctorData = await doctorResponse.json();
-      console.log('Doctor profile data from /doctors/me:', doctorData);
       
       // Response structure: { success: true, data: { user: {...}, profile: {...} } }
       const doctor = doctorData.data?.user || doctorData.data?.profile || doctorData.data || doctorData;
@@ -155,8 +154,6 @@ export default function SubmitClaimPage() {
         
         // Set current doctor as default billing provider
         const doctorId = doctor.id || doctor._id;
-        console.log('Setting billing provider to doctor ID:', doctorId);
-        console.log('Doctor name:', doctor.firstName, doctor.lastName);
         
         setFormData(prev => ({
           ...prev,

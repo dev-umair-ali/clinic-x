@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
+import { Toaster } from "@/components/ui/toaster";
 
 export default function BillingStatsDashboard() {
   const router = useRouter();
@@ -93,6 +94,7 @@ export default function BillingStatsDashboard() {
 
   return (
     <ProtectedRoute allowedRoles={["doctor", "admin"]}>
+      <Toaster />
       <div className="flex-1 overflow-y-auto p-6 bg-[hsl(var(--background))]">
         <div className="max-w-7xl mx-auto">
           {/* Header */}

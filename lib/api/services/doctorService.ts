@@ -1,162 +1,278 @@
 import api from '../axios';
 
 export interface CreateDoctorRequest {
-  name: string;
   firstName: string;
   lastName: string;
   email: string;
-  password: string;
-  phone: string;
+  phoneNumber?: string;
   age: number;
   dateOfBirth: string;
   gender: "male" | "female" | "other";
-  address: string;
+  address: string | {
+    street?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    country?: string;
+  };
   specialization: string;
-  experience: number;
+  yearsOfExperience?: string;
   licenseNumber: string;
-  bio: string;
-  educationSummary: string;
-  status: "active" | "inactive";
+  bio?: string;
+  educationSummary?: string;
+  education?: Array<{
+    degree?: string;
+    institution?: string;
+    graduationYear?: number | null;
+    fieldOfStudy?: string;
+  }>;
+  languages?: string[];
   role: "doctor";
   hipaaConsent: boolean;
+  clinicRef?: string;
+  profilePicture?: string;
 }
 
 export interface UpdateDoctorRequest {
-  name?: string;
   firstName?: string;
   lastName?: string;
   email?: string;
-  password?: string;
-  phone?: string;
+  phoneNumber?: string;
   age?: number;
   dateOfBirth?: string;
   gender?: "male" | "female" | "other";
-  address?: string;
+  address?: string | {
+    street?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    country?: string;
+  };
   specialization?: string;
-  experience?: number;
+  yearsOfExperience?: string;
   licenseNumber?: string;
   bio?: string;
   educationSummary?: string;
-  status?: "active" | "inactive";
+  education?: Array<{
+    degree?: string;
+    institution?: string;
+    graduationYear?: number | null;
+    fieldOfStudy?: string;
+  }>;
+  languages?: string[];
+  role?: "doctor";
+  hipaaConsent?: boolean;
+  clinicRef?: string;
+  profilePicture?: string;
 }
 
 export interface DoctorResponse {
   success: boolean;
-  data: {
-    user: {
-      profilePicture: any;
-      firstName: string;
-      lastName: string;
-      id: string;
-      name: string;
-      email: string;
-      phone: string;
-      age: number;
-      dateOfBirth?: string;
-      gender: "male" | "female" | "other";
-      address: string | {
-        street?: string;
-        city?: string;
-        state?: string;
-        country?: string;
-        zipCode?: string;
-      };
-      specialization: string;
-      experience: number;
-      licenseNumber: string;
-      bio?: string | object;
-      educationSummary?: string | object;
-      status?: "active" | "inactive";
-      role: "doctor";
-      avatar?: string;
-      // Additional fields for comprehensive doctor data
-      languages?: string[];
-      timeZone?: string;
-      availableDays?: Array<{
-        day: string;
-        from: string;
-        to: string;
-      }>;
-      assignedClinic?: string;
-      hipaaConsent?: boolean;
+  doctor: {
+    _id?: string;
+    userRef?: string;
+    firstName: string;
+    lastName: string;
+    name: string;
+    email: string;
+    phoneNumber?: string;
+    age: number;
+    dateOfBirth?: string;
+    gender: "male" | "female" | "other";
+    address: string | {
+      street?: string;
+      city?: string;
+      state?: string;
+      country?: string;
+      zipCode?: string;
     };
-    token?: string;
+    specialization: string;
+    yearsOfExperience?: number;
+    licenseNumber: string;
+    bio?: string | object;
+    educationSummary?: string | object;
+    status: "active" | "inactive" | "pending_verification" | "suspended";
+    role: "doctor";
+    profilePicture?: string;
+    languages?: string[];
+    clinicRef?: string;
+    hipaaConsent?: boolean;
+    createdBy?: string;
+    updatedBy?: string;
+    createdAt?: string;
+    updatedAt?: string;
+  };
+  message?: string;
+}
+
+
+export interface UpdateDoctorResponse {
+  doctor: any;
+  success: boolean;
+  data: {
+    _id?: string;
+    userRef?: string;
+    firstName: string;
+    lastName: string;
+    name: string;
+    email: string;
+    phoneNumber?: string;
+    age: number;
+    dateOfBirth?: string;
+    gender: "male" | "female" | "other";
+    address: string | {
+      street?: string;
+      city?: string;
+      state?: string;
+      country?: string;
+      zipCode?: string;
+    };
+    specialization: string;
+    yearsOfExperience?: number;
+    licenseNumber: string;
+    bio?: string | object;
+    educationSummary?: string | object;
+    role: "doctor";
+    profilePicture?: string;
+    languages?: string[];
+    clinicRef?: string;
+    hipaaConsent?: boolean;
+    createdBy?: string;
+    updatedBy?: string;
+    createdAt?: string;
+    updatedAt?: string;
   };
   message?: string;
 }
 
 export interface DoctorsListResponse {
   success: boolean;
-  data: Array<{
-    id: string;
-    name: string;
+  doctors: Array<{
+    _id?: string;
+    userRef?: string;
     firstName: string;
     lastName: string;
     email: string;
-    phone: string;
+    phoneNumber?: string;
     age: number;
+    dateOfBirth?: string;
     gender: "male" | "female" | "other";
-    address: string;
+    address: string | {
+      street?: string;
+      city?: string;
+      state?: string;
+      country?: string;
+      zipCode?: string;
+    };
     specialization: string;
-    experience: number;
+    yearsOfExperience: number;
     licenseNumber: string;
+    status: "active" | "inactive" | "pending_verification" | "suspended";
     role: "doctor";
+    profilePicture?: string;
     avatar?: string;
+    languages?: string[];
+    clinicRef?: string;
   }>;
+  pagination?: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    itemsPerPage: number;
+  };
   message?: string;
 }
 
+export interface DoctorQueryParams {
+  search?: string;
+  status?: string;
+  clinicId?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface DoctorByClinicParams {
+  clinicId?: string;
+}
+
 export const doctorService = {
-  async getCurrentDoctor(): Promise<DoctorResponse> {
-    try {
-      const response = await api.get('/doctors/me');
-      return response.data;
-    } catch (error: any) {
-      throw error;
-    }
+
+  async getDoctors(params?: DoctorQueryParams) {
+    const queryParams = new URLSearchParams();
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.status) queryParams.append('status', params.status);
+    if (params?.clinicId) queryParams.append('clinicId', params.clinicId);
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+
+    const queryString = queryParams.toString();
+    const url = queryString
+      ? `/admin/doctor/all/doctors?${queryString}`
+      : '/admin/doctor/all/doctors';
+
+    const response = await api.get<DoctorsListResponse>(url);
+    return {
+      doctors: response.data?.doctors,
+      pagination: response.data.pagination
+    };
   },
 
-  async getDoctors(): Promise<DoctorsListResponse> {
-    try {
-      
-      const response = await api.get('/admin/doctors');
-      return response.data;
-    } catch (error: any) {
-      throw error;
-    }
+  async getDoctorsByClinicId(params?: DoctorByClinicParams) {
+    const queryParams = new URLSearchParams();
+    if (params?.clinicId) queryParams.append('clinicId', params.clinicId);
+
+    const queryString = queryParams.toString();
+    const url = `/admin/doctor/all/doctors?${queryString}`
+
+    const response = await api.get<DoctorsListResponse>(url);
+    return {
+      doctors: response.data?.doctors,
+    };
   },
 
-  async getDoctor(id: string): Promise<DoctorResponse> {
-    try {
-      const response = await api.get(`/admin/doctors/${id}`);    
-      return response.data;
-    } catch (error: any) {
-      throw error;
-    }
+  async getDoctorsByClinicIdByAssistant(params?: DoctorByClinicParams) {
+    const queryParams = new URLSearchParams();
+    if (params?.clinicId) queryParams.append('clinicId', params.clinicId);
+
+    const queryString = queryParams.toString();
+    const url = `/assistant/doctor/all/doctors?${queryString}`
+
+    const response = await api.get<DoctorsListResponse>(url);
+    return {
+      doctors: response.data?.doctors,
+    };
+  },
+
+  async getDoctorsByClinicIdByClinic(params?: DoctorByClinicParams) {
+    const queryParams = new URLSearchParams();
+    if (params?.clinicId) queryParams.append('clinicId', params.clinicId);
+
+    const queryString = queryParams.toString();
+    const url = `/clinic/doctor/all/doctors?${queryString}`
+
+    const response = await api.get<DoctorsListResponse>(url);
+    return {
+      doctors: response.data?.doctors,
+    };
+  },
+
+  async getDoctor(id: string) {
+    const response = await api.get<DoctorResponse>(`/admin/doctor/${id}`);
+    return response.data?.doctor;
   },
 
   async createDoctor(doctorData: CreateDoctorRequest): Promise<DoctorResponse> {
-    const response = await api.post<DoctorResponse>('/auth/signup', doctorData);
+    const response = await api.post<DoctorResponse>('/admin/doctor/create-doctor', doctorData);
     return response.data;
   },
 
-  async createDoctorInCollection(doctorData: Omit<CreateDoctorRequest, 'password'>): Promise<DoctorResponse> {
-    const response = await api.post<DoctorResponse>('/admin/create-doctor', doctorData);
-    return response.data;
-  },
-
-  async updateDoctor(id: string, doctorData: UpdateDoctorRequest): Promise<DoctorResponse> {
-    const response = await api.put(`/admin/update-doctor/${id}`, doctorData);
+  async updateDoctor(id: string, doctorData: UpdateDoctorRequest): Promise<UpdateDoctorResponse> {
+    const response = await api.put(`/admin/doctor/update-doctor/${id}`, doctorData);
     return response.data;
   },
 
   async updateDoctorStatus(id: string, status: "active" | "inactive"): Promise<{ success: boolean; message?: string; data?: any }> {
-    const response = await api.put(`/admin/doctors/status/${id}`, { status });
+    const response = await api.put(`/admin/doctor/update-doctor/status/${id}`, { status });
     return response.data;
   },
-
-  async deleteDoctor(id: string): Promise<{ success: boolean; message?: string }> {
-    const response = await api.delete(`/doctors/${id}`);
-    return response.data;
-  }
 };

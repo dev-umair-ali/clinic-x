@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Eye, EyeOff, CheckCircle, ShieldCheck } from "lucide-react";
+import { Eye, EyeOff, CheckCircle, ShieldCheck  ,ArrowLeft} from "lucide-react";
+import Link from "next/link";
 
 export default function SetNewPasswordPage() {
   const [password, setPassword] = useState("");
@@ -29,10 +30,13 @@ export default function SetNewPasswordPage() {
             <p className="text-sm text-[hsl(var(--muted-foreground))]">
               Your password has been successfully changed.
             </p>
-
-            <Button className="w-full" onClick={() => setDone(false)}>
-              Back
-            </Button>
+            <Link
+              href="/login"
+              className="flex items-center justify-center gap-1 text-sm text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to login
+            </Link>
           </div>
         ) : (
           <>

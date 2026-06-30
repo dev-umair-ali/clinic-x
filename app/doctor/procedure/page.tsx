@@ -1,34 +1,33 @@
 "use client";
 
 import { Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useParams } from "next/navigation";
 import Procedure from "@/components/patients/Procedure";
+import {  useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchPatientFullDetails } from "@/lib/slices/appointmentSlice";
+import { AppDispatch, RootState } from "@/lib/store";
+import { getAllOnboardingFormsForAppointment } from "@/lib/slices/onboardingSlice";
 
-// Separate component for the content that uses useSearchParams
 function ProcedureContent() {
-  const searchParams = useSearchParams();
-  const patientId = searchParams.get("patientId") ?? "";
-  const doctorId = searchParams.get("doctorId") ?? "";
+  const dispatch = useDispatch<AppDispatch>();
 
-  // dummy patient object for now – replace with real fetch when ready
-  const mockPatient = {
-    id: patientId,
-    name: "Current Patient",
-    patientId: `#PAT-${patientId.slice(-6)}`,
-    email: "patient@mail.com",
-    phone: "(555) 555-5555",
-    age: 42,
-    gender: "Female",
-    bloodType: "O+",
-    lastVisit: "Dec 29, 2025",
-    dob: "Jan 1, 1983",
-    address: "123 Main St, City, State 12345",
-    status: "1/2",
-  };
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const patientId = (params.patientId as string) || searchParams.get("patientId") || "";
+  const appointmentId = (params.appointmentId as string) || searchParams.get("appointmentId") || "";
+  const { patientDetails } = useSelector((state: RootState) => state.appointments);
+
+  useEffect(() => {
+    if (patientId) {
+      dispatch(fetchPatientFullDetails(patientId));
+      dispatch(getAllOnboardingFormsForAppointment(patientId))
+
+    }
+  }, [dispatch, patientId]);
 
   const goBack = () => window.history.back();
-
-  return <Procedure patient={mockPatient} doctorId={doctorId} goBack={goBack} />;
+  return <Procedure patient={patientDetails} goBack={goBack} appointmentId={appointmentId} patientId={patientId} />;
 }
 
 // Main page component with Suspense boundary

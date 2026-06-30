@@ -64,8 +64,8 @@ export function AppointmentOverviewCard({
       <div className="flex justify-between items-center">
         <div className="text-2xl font-bold text-foreground">{value}</div>
         <div className={`flex items-center gap-1 text-sm font-medium ${trendColor}`}>
-          <TrendIcon className="w-4 h-4" />
-          <span>{trendPercentage} vs. last week</span>
+          {/* <TrendIcon className="w-4 h-4" /> */}
+          {/* <span>{trendPercentage} vs. last week</span> */}
         </div>
       </div>
     </div>

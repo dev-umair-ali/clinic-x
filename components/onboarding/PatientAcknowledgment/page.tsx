@@ -57,12 +57,12 @@ export default function PatientAcknowledgment({
 
           <div className="flex items-start space-x-3">
             <Checkbox
-              id="privacyPolicies"
-              checked={formData.privacyPolicies}
-              onCheckedChange={(c) => updateFormData("privacyPolicies", c)}
+              id="privacyPoliciesAcknowledged"
+              checked={formData.privacyPoliciesAcknowledged}
+              onCheckedChange={(c) => updateFormData("privacyPoliciesAcknowledged", c)}
               className="mt-1 data-[state=checked]:bg-[hsl(var(--color-brand-teal))] data-[state=checked]:border-[hsl(var(--color-brand-teal))]"
             />
-            <Label htmlFor="privacyPolicies" className="text-sm leading-relaxed text-[hsl(var(--foreground))]">
+            <Label htmlFor="privacyPoliciesAcknowledged" className="text-sm leading-relaxed text-[hsl(var(--foreground))]">
               I have read and agree to the clinic's Privacy, Financial, and HIPAA
               Policies.
             </Label>

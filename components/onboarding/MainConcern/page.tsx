@@ -22,7 +22,7 @@ export default function MainConcern({
           </Label>
           <Textarea
             placeholder="Please describe what brought you in today."
-            value={formData.mainConcern}
+            value={formData?.mainConcern}
             onChange={(e) => updateFormData("mainConcern", e.target.value)}
             className="min-h-[100px] bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
           />
@@ -33,7 +33,7 @@ export default function MainConcern({
           </Label>
           <Input
             type="date"
-            value={formData.symptomStartDate}
+            value={formData?.symptomStartDate}
             onChange={(e) => updateFormData("symptomStartDate", e.target.value)}
             className="bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]"
           />
@@ -48,7 +48,7 @@ export default function MainConcern({
                 type="radio"
                 name="hadBefore"
                 value="yes"
-                checked={formData.hadThisBefore === "yes"}
+                checked={formData?.hadThisBefore === "yes"}
                 onChange={(e) => updateFormData("hadThisBefore", e.target.value)}
                 className="text-[hsl(var(--color-brand-teal))]"
               />
@@ -59,7 +59,7 @@ export default function MainConcern({
                 type="radio"
                 name="hadBefore"
                 value="no"
-                checked={formData.hadThisBefore === "no"}
+                checked={formData?.hadThisBefore === "no"}
                 onChange={(e) => updateFormData("hadThisBefore", e.target.value)}
                 className="text-[hsl(var(--color-brand-teal))]"
               />

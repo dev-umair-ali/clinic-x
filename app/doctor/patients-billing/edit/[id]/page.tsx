@@ -64,6 +64,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Toaster } from "@/components/ui/toaster";
 
 interface ChargeItem {
   id: string;
@@ -208,7 +209,6 @@ export default function EditChargePage({ params }: { params: { id: string } }) {
       }
 
       const url = `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL || 'http://localhost:3000'}/doctors/patients?limit=100`;
-      console.log('Fetching patients from:', url);
 
       const response = await fetch(url, {
         headers: {
@@ -217,7 +217,6 @@ export default function EditChargePage({ params }: { params: { id: string } }) {
         },
       });
 
-      console.log('Response status:', response.status);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -226,9 +225,6 @@ export default function EditChargePage({ params }: { params: { id: string } }) {
       }
 
       const data = await response.json();
-      console.log('Patients API response:', data);
-      console.log('Data.data type:', Array.isArray(data.data) ? 'array' : typeof data.data);
-      console.log('Data.data length:', data.data?.length);
 
       const patientsData = Array.isArray(data.data) ? data.data : [];
       
@@ -244,7 +240,6 @@ export default function EditChargePage({ params }: { params: { id: string } }) {
         policyNumber: p.policyNumber || undefined,
       }));
 
-      console.log('Setting patients:', transformedPatients.length, 'patients');
       setPatients(transformedPatients);
 
       if (transformedPatients.length === 0) {
@@ -422,7 +417,6 @@ export default function EditChargePage({ params }: { params: { id: string } }) {
         notes: formData.notes,
       };
 
-      console.log("Submitting charge data:", chargeData);
 
       // Call the billing API to update charge
       const result = await doctorBillingAPI.updateCharge(params.id, chargeData);
@@ -431,6 +425,7 @@ export default function EditChargePage({ params }: { params: { id: string } }) {
         toast({
           title: "Success",
           description: "Charge updated successfully",
+          variant: "default",
         });
         // Navigate back to billing page or charge details
         router.push(`/doctor/patients-billing/${params.id}`);

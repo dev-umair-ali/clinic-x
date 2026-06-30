@@ -1,28 +1,18 @@
-"use client";
+"use client"
 
 import type React from "react"
 import { useState, useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useParams, useRouter } from "next/navigation"
 import { ProtectedRoute } from "@/components/ui/protected-route"
-import { updatePatient, fetchPatient } from "@/lib/slices/patientSlice"
-import { fetchDoctors } from "@/lib/slices/doctorSlice"
+import { updatePatient, fetchPatient, fetchClinicDoctors, clearClinicDoctors, clearPatient } from "@/lib/slices/patientSlice"
+import { fetchClinics } from "@/lib/slices/clinicSlice"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { toast, ToastContainer } from "react-toastify"
-import 'react-toastify/dist/ReactToastify.css'; // Import the CSS
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  ArrowLeft,
-  Loader2,
-  Camera,
-  User,
-  Heart,
-  Phone,
-  Save,
-  } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { ArrowLeft, Loader2, Camera, User, Heart, Phone, Save } from "lucide-react"
 import type { AppDispatch, RootState } from "@/lib/store"
 import {
   Select,
@@ -30,17 +20,18 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import moment from "moment";
-import { UpdatePatientRequest } from "@/lib/api/services/patientService"
+} from "@/components/ui/select"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Toaster } from "@/components/ui/toaster"
+import { useToast } from "@/hooks/use-toast"
+import moment from "moment"
+import type { UpdatePatientRequest } from "@/lib/api/services/patientService"
 
 interface FormData {
   firstName: string
   lastName: string
-  fullName: string
   email: string
-  password: string
-  phone: string
+  phoneNumber: string
   age: string
   gender: string
   profilePicture: string
@@ -49,35 +40,33 @@ interface FormData {
   medicalHistory: string
   allergies: string
   currentMedication: string
-  insuranceProvide: string
-  eContactName: string
-  ePhoneNumber: string
-  eRelationship: string
-  primaryDoctor: string
-  address: string
-  status: string
-  emergencyContactName: string
-  emergencyContactPhone: string
-  emergencyContactRelationship: string
-  allergiesArray: string[]
-  medicationsArray: string[]
+  insuranceProvider: string
+  insuranceInfo: string
+  doctorRef: string
+  clinicRef: string
+  address: {
+    street: string
+    city: string
+    state: string
+    zipCode: string
+    country: string
+  }
 }
 
 export default function EditPatientPage() {
   const router = useRouter()
   const params = useParams()
   const dispatch = useDispatch<AppDispatch>()
-  const { patient, loading } = useSelector((state: RootState) => state.patients)
-  const { doctors } = useSelector((state: RootState) => state.doctors)
+  const { toast } = useToast()
+  const { patient, loading, clinicDoctors } = useSelector((state: RootState) => state.patients)
+  const { clinics } = useSelector((state: RootState) => state.clinics)
   const patientId = params.id as string
 
   const [formData, setFormData] = useState<FormData>({
     firstName: "",
     lastName: "",
-    fullName: "",
     email: "",
-    password: "",
-    phone: "",
+    phoneNumber: "",
     age: "",
     gender: "",
     profilePicture: "/placeholder.svg?height=80&width=80",
@@ -86,316 +75,241 @@ export default function EditPatientPage() {
     medicalHistory: "",
     allergies: "",
     currentMedication: "",
-    insuranceProvide: "",
-    eContactName: "",
-    ePhoneNumber: "",
-    eRelationship: "",
-    primaryDoctor: "",
-    address: "",
-    status: "active",
-    emergencyContactName: "",
-    emergencyContactPhone: "",
-    emergencyContactRelationship: "",
-    allergiesArray: [],
-    medicationsArray: [],
+    insuranceProvider: "",
+    insuranceInfo: "",
+    doctorRef: "",
+    clinicRef: "",
+    address: {
+      street: "",
+      city: "",
+      state: "",
+      zipCode: "",
+      country: "USA"
+    },
   })
 
   const [isLoading, setIsLoading] = useState(false)
-  const [profileImage, setProfileImage] = useState<string | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imageUploading, setImageUploading] = useState(false);
+  const [profileImage, setProfileImage] = useState<string | null>(null)
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imageUploading, setImageUploading] = useState(false)
 
-  // Fetch specific patient data when component mounts
   useEffect(() => {
-    if (patientId) {
-      dispatch(fetchPatient(patientId));
-    }
-    dispatch(fetchDoctors());
-  }, [dispatch, patientId]);
+    if (patientId) dispatch(fetchPatient(patientId))
+    dispatch(fetchClinics())
+  }, [dispatch, patientId])
 
-  // Populate form data when patient data is loaded
+  // // Fetch doctors when clinic is selected
   useEffect(() => {
-    if (patient) {
-      setFormData({
-        firstName: patient.firstName || "",
-        lastName: patient.lastName || "",
-        fullName: patient.fullName || `${patient.firstName || ""} ${patient.lastName || ""}`.trim(),
-        email: patient.email || "",
-        password: "", // Don't populate password for security
-        phone: patient.phone || "",
-        age: patient.age?.toString() || "",
-        gender: patient.gender || "",
-        profilePicture: patient.profilePicture || "/placeholder.svg?height=80&width=80",
-        dateOfBirth: patient.dateOfBirth || "",
-        bloodType: patient.bloodType || "",
-        medicalHistory: patient.medicalHistory || "",
-        allergies: patient.allergies || "",
-        currentMedication: patient.currentMedication || "",
-        insuranceProvide: patient.insuranceProvide || "",
-        eContactName: patient.eContactName || patient.emergencyContactName || "",
-        ePhoneNumber: patient.ePhoneNumber || patient.emergencyContactPhone || "",
-        eRelationship: patient.eRelationship || patient.emergencyContactRelationship || "",
-        primaryDoctor: patient.assignedDoctor || "",
-        address: patient.address || "",
-        status: patient.status || "active",
-        emergencyContactName: patient.emergencyContactName || patient.eContactName || "",
-        emergencyContactPhone: patient.emergencyContactPhone || patient.ePhoneNumber || "",
-        emergencyContactRelationship: patient.emergencyContactRelationship || patient.eRelationship || "",
-        allergiesArray: patient.allergiesArray || [],
-        medicationsArray: patient.medicationsArray || [],
-      });
-
-      // Set profile image if available
-      if (patient.profilePicture) {
-        setProfileImage(patient.profilePicture);
-      }
+    if (formData?.clinicRef) {
+      dispatch(fetchClinicDoctors(formData?.clinicRef))
     }
-  }, [patient]);
+  }, [formData?.clinicRef])
+
+  useEffect(() => {
+    if (!patient) return
+    setFormData({
+      firstName: patient.firstName || "",
+      lastName: patient.lastName || "",
+      email: patient.email || "",
+      phoneNumber: patient.phoneNumber || "",
+      age: patient.age?.toString() || "",
+      gender: patient.gender || "",
+      profilePicture: patient.profilePicture || "/placeholder.svg?height=80&width=80",
+      dateOfBirth: patient.dateOfBirth ? moment(patient.dateOfBirth).format('YYYY-MM-DD') : "",
+      bloodType: patient.bloodType || "",
+      medicalHistory: Array.isArray(patient.medicalHistory) ? patient.medicalHistory.join(', ') : (patient.medicalHistory || ""),
+      allergies: patient.allergies || "",
+      currentMedication: patient.currentMedication || "",
+      insuranceProvider: patient.insuranceProvider || "",
+      insuranceInfo: patient.insuranceInfo || "",
+      doctorRef: (patient?.doctorRef as any)?._id || "",
+      clinicRef: (patient?.clinicRef as any)?._id || "",
+      address: {
+        street: patient.address?.street || "",
+        city: patient.address?.city || "",
+        state: patient.address?.state || "",
+        zipCode: patient.address?.zipCode || "",
+        country: patient.address?.country || "USA"
+      },
+    })
+    if (patient.profilePicture) setProfileImage(patient.profilePicture)
+  }, [patient])
 
   const uploadImage = async (file: File): Promise<string> => {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    // Get the authentication token from localStorage
-    const token = localStorage.getItem('clinic-ai-token');
-
+    const fd = new FormData()
+    fd.append("file", file)
+    const token = localStorage.getItem("clinic-ai-token")
     if (!token) {
-      toast.error('No authentication token found. Please login again.');
-      return "";
+      toast({ title: "Error", description: "No auth token", variant: "destructive" })
+      return ""
     }
-
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}api/upload/image`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-      body: formData,
-    });
-
-    const result = await response.json();
-    return result.fileUrl || result.profilePicture || result.data?.fileUrl;
-  };
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/api/upload/image`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: fd,
+    })
+    if (!res.ok) {
+      toast({ title: "Error", description: "Upload failed", variant: "destructive" })
+      return ""
+    }
+    const result = await res.json()
+    return result.fileUrl || result.profilePicture || result.data?.fileUrl
+  }
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Validate file size (2.5MB limit)
+    const file = e.target.files?.[0]
+    if (!file) return
     if (file.size > 2.5 * 1024 * 1024) {
-      toast.error("Image size should not exceed 2.5MB");
-      return;
+      toast({ title: "Error", description: "Max 2.5 MB", variant: "destructive" })
+      return
     }
-
-    setImageUploading(true);
-    setImageFile(file);
-
+    setImageUploading(true)
+    setImageFile(file)
     try {
-      // Upload image to server
-      const profilePicture = await uploadImage(file);
-      // Update form data with the uploaded image URL
-      setFormData(prev => ({
-        ...prev,
-        profilePicture: profilePicture
-      }));
-
-      // Set preview image
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setProfileImage(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-      setImageUploading(false);
-
-      toast.success("Image uploaded successfully!");
-    } catch (error) {
-      toast.error("Failed to upload image. Please try again.");
-      setImageFile(null);
-      setProfileImage(null);
-      setImageUploading(false);
-    } 
-  };
+      const url = await uploadImage(file)
+      if (url) {
+        setFormData((p) => ({ ...p, profilePicture: url }))
+        setProfileImage(url)
+        toast({ title: "Success", description: "Picture uploaded!" })
+      }
+    } catch {
+      toast({ title: "Error", description: "Upload error", variant: "destructive" })
+      setImageFile(null)
+      setProfileImage(null)
+    } finally {
+      setImageUploading(false)
+    }
+  }
 
   const triggerImageUpload = () => {
-    const input = document.getElementById('profile-image-upload') as HTMLInputElement;
-    input?.click();
-  };
+    const input = document.getElementById("profile-image-upload") as HTMLInputElement
+    input?.click()
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
-    const updatedFormData = { ...formData, [name]: value }
-
-    // Auto-concatenate first name and last name for full name
-    if (name === "firstName" || name === "lastName") {
-      const firstName = name === "firstName" ? value : formData.firstName
-      const lastName = name === "lastName" ? value : formData.lastName
-      updatedFormData.fullName = `${firstName} ${lastName}`.trim()
+    
+    // Handle nested address fields
+    if (name.startsWith('address.')) {
+      const addressField = name.split('.')[1]
+      setFormData({
+        ...formData,
+        address: {
+          ...formData.address,
+          [addressField]: value
+        }
+      })
+      return
     }
-
-    setFormData(updatedFormData)
+    
+    setFormData({ ...formData, [name]: value })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
-    // Validation
-    if (
-      !formData.firstName ||
-      !formData.lastName ||
-      !formData.email ||
-      !formData.phone ||
-      !formData.age ||
-      !formData.dateOfBirth ||
-      !formData.gender ||
-      !formData.address ||
-      !formData.primaryDoctor
-    ) {
-      toast.error("Please fill in all required fields.")
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.phoneNumber || !formData.age || !formData.dateOfBirth || !formData.gender || !formData.address.street || !formData.address.city || !formData.address.state || !formData.address.zipCode || !formData.clinicRef || !formData.doctorRef) {
+      toast({ title: "Error", description: "Please fill in all required fields including clinic and doctor assignment.", variant: "destructive" })
       return
     }
-
     if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
-      toast.error("Please enter a valid email address")
+      toast({ title: "Error", description: "Please enter a valid email address", variant: "destructive" })
       return
     }
-
-    if (formData.password && formData.password.length < 8) {
-      toast.error("Password must be at least 8 characters long.")
-      return
+    
+    const payload = {
+      ...formData,
+      age: Number(formData.age),
     }
-
-    // Check for password complexity requirements if password is provided
-    if (formData.password) {
-      const hasUpperCase = /[A-Z]/.test(formData.password)
-      const hasLowerCase = /[a-z]/.test(formData.password)
-      const hasNumbers = /\d/.test(formData.password)
-      const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(formData.password)
-
-      if (!hasUpperCase || !hasLowerCase || !hasNumbers || !hasSpecialChar) {
-        toast.error("Password must contain uppercase, lowercase, number, and special character.")
-        return
-      }
-    }
-
+    
     try {
       setIsLoading(true)
-
-      const response = await dispatch(updatePatient({ id: patientId, patientData: formData as unknown as UpdatePatientRequest }))
-      
-      if (response.meta.requestStatus === "fulfilled") {
-        setIsLoading(false)
-        toast.success("Patient updated successfully!")
-      }
+      await dispatch(updatePatient({ id: patientId, patientData: payload as unknown as UpdatePatientRequest })).unwrap()
+      toast({ title: "Success", description: "Patient updated!" })
+      router.push("/admin/patients/view/" + patientId)
     } catch (err: any) {
-      toast.error(err || "Failed to update patient. Please try again.");
+      toast({ title: "Error", description: err.message || "Update failed", variant: "destructive" })
+    } finally {
       setIsLoading(false)
     }
   }
 
-  if (loading) {
+  if (loading)
     return (
       <ProtectedRoute allowedRoles={["admin"]}>
-        <div className="flex-1 overflow-y-auto p-6 bg-[hsl(var(--background))]">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex items-center justify-center h-64">
-              <div className="text-center">
-                <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--color-brand-teal))] mx-auto mb-4" />
-                <p className="text-[hsl(var(--muted-foreground))]">Loading patient data...</p>
-              </div>
-            </div>
+        <div className="min-h-screen bg-[hsl(var(--background))] flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[hsl(var(--color-brand-teal))] mx-auto"></div>
+            <p className="mt-4 text-[hsl(var(--muted-foreground))]">Loading patient data...</p>
           </div>
         </div>
       </ProtectedRoute>
-    );
-  }
+    )
 
-  if (!patient) {
+  if (!patient)
     return (
       <ProtectedRoute allowedRoles={["admin"]}>
-        <div className="flex-1 overflow-y-auto p-6 bg-[hsl(var(--background))]">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex items-center justify-center h-64">
-              <div className="text-center">
-                <p className="text-[hsl(var(--muted-foreground))] mb-4">Patient not found</p>
-                <Button onClick={() => router.push("/admin/patients")}>
-                  Back to Patients
-                </Button>
-              </div>
-            </div>
+        <div className="min-h-screen bg-[hsl(var(--background))] flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-[hsl(var(--muted-foreground))]">Patient not found</p>
+            <Button onClick={() => router.push("/admin/patients")} className="mt-4">
+              Back to Patients
+            </Button>
           </div>
         </div>
       </ProtectedRoute>
-    );
-  }
+    )
 
   return (
     <ProtectedRoute allowedRoles={["admin"]}>
-      <div className="min-h-screen bg-gradient-to-br from-[hsl(var(--background))] via-[hsl(var(--secondary)/0.2)] to-[hsl(var(--primary)/0.05)]">
-        <ToastContainer />
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-          <div className="max-w-7xl mx-auto space-y-8">
-            <div className="mb-8">
-              {/* Back Button */}
-              <div className="mb-4">
-                <Button
-                  variant="ghost"
-                  onClick={() => router.back()}
-                  className="flex items-center gap-2 rounded-md bg-[hsl(var(--color-brand-teal-light))] text-[hsl(var(--color-brand-teal))] px-3 py-2 hover:bg-[hsl(var(--color-brand-teal-light))] transition-colors"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  <span className="text-sm font-medium">Back to Patients</span>
-                </Button>
-              </div>
-
-              {/* Title */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-2xl sm:text-3xl font-bold text-[hsl(var(--foreground))]">Edit Patient</h1>
-                  <p className="text-[hsl(var(--muted-foreground))] mt-1">Update patient information and medical details</p>
-                </div>
+      <div className="min-h-screen bg-[hsl(var(--background))]">
+        <Toaster />
+        {/* ------- HEADER ------- */}
+        <div className="bg-[hsl(var(--card))] border-b border-[hsl(var(--border))] px-6 py-4 sticky top-0 z-40">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => router.back()}
+                className="text-[hsl(var(--muted-foreground))]"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <div>
+                <h1 className="text-2xl font-bold text-[hsl(var(--foreground))]">Edit Patient</h1>
+                <p className="text-sm text-[hsl(var(--muted-foreground))]">Update patient information and medical details</p>
               </div>
             </div>
+          </div>
+        </div>
 
-            <div className="bg-[hsl(var(--card))] rounded-lg shadow-sm border border-[hsl(var(--border))]">
-              <div className="px-6 py-4 border-b border-[hsl(var(--border))]">
-                <h2 className="text-xl font-semibold text-[hsl(var(--card-foreground))]">
-                  Edit Patient Information
-                </h2>
-                <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">
-                  Update the patient's personal and medical information
-                </p>
-              </div>
-
-            <form onSubmit={handleSubmit} className="p-6 space-y-8">
-              {/* Profile Picture Section */}
-              <div>
-                <h3 className="text-lg font-medium text-[hsl(var(--card-foreground))] mb-4">
+        {/* ------- BODY ------- */}
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Profile Picture */}
+            <Card className="border-[hsl(var(--border))] shadow-sm">
+              <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
+                <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
+                  <User className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
                   Profile Picture
-                </h3>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 bg-[hsl(var(--card))]">
                 <div className="flex items-center space-x-4">
-                  <div
-                    className={`relative cursor-pointer ${imageUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    onClick={imageUploading ? undefined : triggerImageUpload}
-                  >
+                  <div className="relative cursor-pointer" onClick={triggerImageUpload}>
                     <Avatar className="h-20 w-20">
-                      <AvatarImage
-                        src={
-                          profileImage || formData.profilePicture || "/placeholder.svg?height=80&width=80"
-                        }
-                      />
+                      <AvatarImage src={profileImage || formData.profilePicture} alt="Patient" />
                       <AvatarFallback className="bg-[hsl(var(--color-gray-200))] text-[hsl(var(--muted-foreground))] text-lg">
-                        {formData.fullName
-                          ? formData.fullName
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")
+                        {formData.firstName && formData.lastName
+                          ? `${formData.firstName[0]}${formData.lastName[0]}`
                           : "PT"}
                       </AvatarFallback>
                     </Avatar>
                     <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-[hsl(var(--color-brand-teal))] rounded-full flex items-center justify-center">
                       {imageUploading ? (
-                        <div className="w-3 h-3 border-2 border-[hsl(var(--primary-foreground))] border-t-transparent rounded-full animate-spin" />
+                        <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
                       ) : (
-                        <Camera className="h-3 w-3 text-[hsl(var(--primary-foreground))]" />
+                        <Camera className="h-3 w-3 text-white" />
                       )}
                     </div>
                   </div>
@@ -408,387 +322,223 @@ export default function EditPatientPage() {
                     className="hidden"
                   />
                   <div>
-                    <p className="text-sm font-medium text-[hsl(var(--card-foreground))]">
-                      Profile Image
-                    </p>
-                    <p className="text-xs text-[hsl(var(--muted-foreground))]">
-                      The Proposed size is 512 x 512 px and no longer bigger
-                      than 2.5 MBs
-                    </p>
+                    <p className="text-sm font-medium text-[hsl(var(--foreground))]">Profile Image</p>
+                    <p className="text-xs text-[hsl(var(--muted-foreground))]">Proposed size 512 × 512 px, max 2.5 MB</p>
                   </div>
                 </div>
-              </div>
+              </CardContent>
+            </Card>
 
-              {/* Personal Information */}
-              <div className="form-section">
-                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[hsl(var(--border))]">
-                  <div className="p-2 bg-[hsl(var(--primary)/0.1)] rounded-lg">
-                    <User className="h-5 w-5 text-[hsl(var(--primary))]" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-[hsl(var(--foreground))]">Basic Information</h3>
-                </div>
-
+            {/* Basic Information */}
+            <Card className="border-[hsl(var(--border))] shadow-sm">
+              <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
+                <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
+                  <User className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
+                  Basic Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 bg-[hsl(var(--card))] space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="firstName" className="text-sm font-medium text-[hsl(var(--muted-foreground))]">
-                      First Name *
-                    </Label>
-                    <Input
-                      id="firstName"
-                      name="firstName"
-                      value={formData.firstName}
-                      onChange={handleChange}
-                      placeholder="Enter first name"
-                      className="bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]"
-                      required
-                    />
+                    <Label htmlFor="firstName" className="text-[hsl(var(--foreground))]">First Name *</Label>
+                    <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleChange} required />
                   </div>
-
                   <div className="space-y-2">
-                    <Label htmlFor="lastName" className="text-sm font-medium text-[hsl(var(--muted-foreground))]">
-                      Last Name *
-                    </Label>
-                    <Input
-                      id="lastName"
-                      name="lastName"
-                      value={formData.lastName}
-                      onChange={handleChange}
-                      placeholder="Enter last name"
-                      className="bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]"
-                      required
-                    />
+                    <Label htmlFor="lastName" className="text-[hsl(var(--foreground))]">Last Name *</Label>
+                    <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleChange} required />
                   </div>
-
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-sm font-medium text-[hsl(var(--muted-foreground))]">
-                      Email Address *
-                    </Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      placeholder="Enter email address"
-                      className="bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]"
-                      disabled={true}
-                    />
+                    <Label htmlFor="email" className="text-[hsl(var(--foreground))]">Email Address *</Label>
+                    <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} disabled />
                   </div>
-
                   <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-sm font-medium text-[hsl(var(--muted-foreground))]">
-                      Phone Number *
-                    </Label>
-                    <Input
-                      id="phone"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      placeholder="Enter phone number"
-                      className="bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]"
-                      required
-                    />
+                    <Label htmlFor="phoneNumber" className="text-[hsl(var(--foreground))]">Phone Number *</Label>
+                    <Input id="phoneNumber" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} required />
                   </div>
-
                   <div className="space-y-2">
-                    <Label htmlFor="age" className="text-sm font-medium text-[hsl(var(--muted-foreground))]">
-                      Age
-                    </Label>
-                    <Input
-                      id="age"
-                      name="age"
-                      type="number"
-                      value={formData.age}
-                      onChange={handleChange}
-                      placeholder="Enter age"
-                      className="bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]"
-                    />
+                    <Label htmlFor="age" className="text-[hsl(var(--foreground))]">Age *</Label>
+                    <Input id="age" name="age" type="number" value={formData.age} onChange={handleChange} required />
                   </div>
-
                   <div className="space-y-2">
-                    <Label htmlFor="gender" className="text-sm font-medium text-[hsl(var(--muted-foreground))]">
-                      Gender
-                    </Label>
-                    <Select
-                      value={formData.gender}
-                      onValueChange={(value) => setFormData({ ...formData, gender: value })}
-                    >
-                      <SelectTrigger className="bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]">
+                    <Label htmlFor="gender" className="text-[hsl(var(--foreground))]">Gender *</Label>
+                    <Select value={formData.gender} onValueChange={(v) => setFormData({ ...formData, gender: v })}>
+                      <SelectTrigger>
                         <SelectValue placeholder="Select gender" />
                       </SelectTrigger>
-                      <SelectContent className="bg-[hsl(var(--card))] border-[hsl(var(--border))]">
-                        <SelectItem value="male" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">Male</SelectItem>
-                        <SelectItem value="female" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">Female</SelectItem>
-                        <SelectItem value="other" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">Other</SelectItem>
+                      <SelectContent>
+                        <SelectItem value="male">Male</SelectItem>
+                        <SelectItem value="female">Female</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-
                   <div className="space-y-2">
-                    <Label htmlFor="dateOfBirth" className="text-sm font-medium text-[hsl(var(--muted-foreground))]">
-                      Date of Birth
-                    </Label>
+                    <Label htmlFor="dateOfBirth" className="text-[hsl(var(--foreground))]">Date of Birth *</Label>
                     <Input
                       id="dateOfBirth"
                       name="dateOfBirth"
                       type="date"
                       value={formData.dateOfBirth ? moment(formData.dateOfBirth).format("YYYY-MM-DD") : ""}
                       onChange={(e) => setFormData({ ...formData, dateOfBirth: moment(e.target.value).format("YYYY-MM-DD") })}
-                      className="bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]"
+                      required
                     />
                   </div>
-
                   <div className="space-y-2">
-                    <Label htmlFor="address" className="text-sm font-medium text-[hsl(var(--muted-foreground))]">
-                      Address
-                    </Label>
-                    <Textarea
-                      id="address"
-                      name="address"
-                      value={formData.address}
-                      onChange={handleChange}
-                      placeholder="Enter full address"
-                      className="bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]"
-                      rows={3}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="status" className="text-sm font-medium text-[hsl(var(--muted-foreground))]">
-                      Status
-                    </Label>
-                    <Select
-                      value={formData.status}
-                      onValueChange={(value) => setFormData({ ...formData, status: value })}
-                    >
-                      <SelectTrigger className="bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]">
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-[hsl(var(--card))] border-[hsl(var(--border))]">
-                        <SelectItem value="active" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">Active</SelectItem>
-                        <SelectItem value="inactive" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">Inactive</SelectItem>
-                        <SelectItem value="pending" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">Pending</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
-
-              {/* Medical Information */}
-              <div className="form-section">
-                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[hsl(var(--border))]">
-                  <div className="p-2 bg-[hsl(var(--color-status-info)/0.1)] rounded-lg">
-                    <Heart className="h-5 w-5 text-[hsl(var(--color-status-info))]" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-[hsl(var(--foreground))]">Medical Information</h3>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="bloodType" className="text-sm font-medium text-[hsl(var(--muted-foreground))]">
-                      Blood Type
-                    </Label>
-                    <Select
-                      value={formData.bloodType}
-                      onValueChange={(value) => setFormData({ ...formData, bloodType: value })}
-                    >
-                      <SelectTrigger className="bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]">
+                    <Label htmlFor="bloodType" className="text-[hsl(var(--foreground))]">Blood Type</Label>
+                    <Select value={formData.bloodType} onValueChange={(v) => setFormData({ ...formData, bloodType: v })}>
+                      <SelectTrigger>
                         <SelectValue placeholder="Select blood type" />
                       </SelectTrigger>
-                      <SelectContent className="bg-[hsl(var(--card))] border-[hsl(var(--border))]">
-                        <SelectItem value="A+" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">A+</SelectItem>
-                        <SelectItem value="A-" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">A-</SelectItem>
-                        <SelectItem value="B+" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">B+</SelectItem>
-                        <SelectItem value="B-" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">B-</SelectItem>
-                        <SelectItem value="AB+" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">AB+</SelectItem>
-                        <SelectItem value="AB-" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">AB-</SelectItem>
-                        <SelectItem value="O+" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">O+</SelectItem>
-                        <SelectItem value="O-" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">O-</SelectItem>
+                      <SelectContent>
+                        {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map((bt) => (
+                          <SelectItem key={bt} value={bt}>
+                            {bt}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
-
                   <div className="space-y-2">
-                    <Label htmlFor="primaryDoctor" className="text-sm font-medium text-[hsl(var(--muted-foreground))]">
-                      Primary Doctor
-                    </Label>
-                    <Select
-                      value={formData.primaryDoctor}
-                      onValueChange={(value) => setFormData({ ...formData, primaryDoctor: value })}
-                    >
-                      <SelectTrigger className="bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]">
-                        <SelectValue placeholder="Select primary doctor" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-[hsl(var(--card))] border-[hsl(var(--border))]">
-                          {doctors && doctors.map((doctor) => (
-                            <SelectItem 
-                              key={doctor.id} 
-                              value={doctor.id || ""} 
-                              className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]"
-                            >
-                              Dr. {doctor.firstName} {doctor.lastName}
-                            </SelectItem>
-                          ))}
-                      </SelectContent>
-                    </Select>
+                    <Label htmlFor="address.street" className="text-[hsl(var(--foreground))]">Street Address *</Label>
+                    <Input id="address.street" name="address.street" value={formData.address.street} onChange={handleChange} placeholder="123 Main Street" required />
                   </div>
-
-                  <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="medicalHistory" className="text-sm font-medium text-[hsl(var(--muted-foreground))]">
-                      Medical History
-                    </Label>
-                    <Textarea
-                      id="medicalHistory"
-                      name="medicalHistory"
-                      value={formData.medicalHistory}
-                      onChange={handleChange}
-                      placeholder="Enter medical history"
-                      className="bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]"
-                      rows={4}
-                    />
+                  <div className="space-y-2">
+                    <Label htmlFor="address.city" className="text-[hsl(var(--foreground))]">City *</Label>
+                    <Input id="address.city" name="address.city" value={formData.address.city} onChange={handleChange} placeholder="City" required />
                   </div>
-
-                  <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="allergies" className="text-sm font-medium text-[hsl(var(--muted-foreground))]">
-                      Allergies
-                    </Label>
-                    <Textarea
-                      id="allergies"
-                      name="allergies"
-                      value={formData.allergies}
-                      onChange={handleChange}
-                      placeholder="Enter known allergies"
-                      className="bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]"
-                      rows={3}
-                    />
+                  <div className="space-y-2">
+                    <Label htmlFor="address.state" className="text-[hsl(var(--foreground))]">State *</Label>
+                    <Input id="address.state" name="address.state" value={formData.address.state} onChange={handleChange} placeholder="State" required />
                   </div>
-
-                  <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="currentMedication" className="text-sm font-medium text-[hsl(var(--muted-foreground))]">
-                      Current Medications
-                    </Label>
-                    <Textarea
-                      id="currentMedication"
-                      name="currentMedication"
-                      value={formData.currentMedication}
-                      onChange={handleChange}
-                      placeholder="Enter current medications"
-                      className="bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]"
-                      rows={3}
-                    />
-                  </div>
-
-                  <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="insuranceProvide" className="text-sm font-medium text-[hsl(var(--muted-foreground))]">
-                      Insurance Provider
-                    </Label>
-                    <Input
-                      id="insuranceProvide"
-                      name="insuranceProvide"
-                      value={formData.insuranceProvide}
-                      onChange={handleChange}
-                      placeholder="Enter insurance provider"
-                      className="bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]"
-                    />
+                  <div className="space-y-2">
+                    <Label htmlFor="address.zipCode" className="text-[hsl(var(--foreground))]">Zip Code *</Label>
+                    <Input id="address.zipCode" name="address.zipCode" value={formData.address.zipCode} onChange={handleChange} placeholder="12345" required />
                   </div>
                 </div>
-              </div>
+              </CardContent>
+            </Card>
 
-              {/* Emergency Contact */}
-              <div className="form-section">
-                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[hsl(var(--border))]">
-                  <div className="p-2 bg-[hsl(var(--destructive)/0.1)] rounded-lg">
-                    <Phone className="h-5 w-5 text-[hsl(var(--destructive))]" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-[hsl(var(--foreground))]">Emergency Contact</h3>
-                </div>
-
+            {/* Medical Assignment */}
+            <Card className="border-[hsl(var(--border))] shadow-sm">
+              <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
+                <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
+                  <Heart className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
+                  Medical Assignment
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 bg-[hsl(var(--card))] space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="eContactName" className="text-sm font-medium text-[hsl(var(--muted-foreground))]">
-                      Contact Name
-                    </Label>
-                    <Input
-                      id="eContactName"
-                      name="eContactName"
-                      value={formData.eContactName}
-                      onChange={handleChange}
-                      placeholder="Enter emergency contact name"
-                      className="bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="ePhoneNumber" className="text-sm font-medium text-[hsl(var(--muted-foreground))]">
-                      Contact Phone
-                    </Label>
-                    <Input
-                      id="ePhoneNumber"
-                      name="ePhoneNumber"
-                      value={formData.ePhoneNumber}
-                      onChange={handleChange}
-                      placeholder="Enter emergency contact phone"
-                      className="bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="eRelationship" className="text-sm font-medium text-[hsl(var(--muted-foreground))]">
-                      Relationship
-                    </Label>
-                    <Select
-                      value={formData.eRelationship}
-                      onValueChange={(value) => setFormData({ ...formData, eRelationship: value })}
-                    >
-                      <SelectTrigger className="bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]">
-                        <SelectValue placeholder="Select relationship" />
+                    <Label htmlFor="clinicRef" className="text-[hsl(var(--foreground))]">Assigned Clinic *</Label>
+                    <Select value={formData.clinicRef} onValueChange={(v) => setFormData({ ...formData, clinicRef: v, doctorRef: "" })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Clinic First" />
                       </SelectTrigger>
-                      <SelectContent className="bg-[hsl(var(--card))] border-[hsl(var(--border))]">
-                        <SelectItem value="spouse" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">Spouse</SelectItem>
-                        <SelectItem value="parent" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">Parent</SelectItem>
-                        <SelectItem value="child" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">Child</SelectItem>
-                        <SelectItem value="sibling" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">Sibling</SelectItem>
-                        <SelectItem value="friend" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">Friend</SelectItem>
-                        <SelectItem value="other" className="text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))]">Other</SelectItem>
+                      <SelectContent>
+                        {clinics && clinics.length > 0 ? (
+                          clinics.map((clinic) => (
+                            <SelectItem key={clinic._id} value={clinic._id!}>
+                              {clinic.clinicName}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="no-clinics" disabled>
+                            No clinics available
+                          </SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="doctorRef" className="text-[hsl(var(--foreground))]">Primary Doctor *</Label>
+                    <Select value={formData.doctorRef} onValueChange={(v) => setFormData({ ...formData, doctorRef: v })} disabled={!formData.clinicRef}>
+                      <SelectTrigger>
+                        <SelectValue placeholder={formData.clinicRef ? "Select Doctor" : "Select Clinic First"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {clinicDoctors && clinicDoctors.length > 0 ? (
+                          clinicDoctors.filter(d => d._id).map((d) => (
+                            <SelectItem key={d._id} value={d._id!}>
+                              Dr. {d.firstName} {d.lastName} - {d.specialization}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="no-doctors" disabled>
+                            {formData.clinicRef ? "No doctors available in this clinic" : "Select a clinic first"}
+                          </SelectItem>
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
-              </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="insuranceProvider" className="text-[hsl(var(--foreground))]">Insurance Provider</Label>
+                    <Input id="insuranceProvider" name="insuranceProvider" value={formData.insuranceProvider} onChange={handleChange} placeholder="Blue Cross Blue Shield" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="insuranceInfo" className="text-[hsl(var(--foreground))]">Insurance Information</Label>
+                    <Input id="insuranceInfo" name="insuranceInfo" value={formData.insuranceInfo} onChange={handleChange} placeholder="Policy number or additional info" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-              {/* Form Actions */}
-              <div className="flex flex-col sm:flex-row gap-4 pt-6">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => router.back()}
-                  disabled={isLoading}
-                  className="flex-1 h-12 border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))] bg-[hsl(var(--background))] transition-all duration-200"
-                >
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={isLoading}
-                  className="flex-1 h-12 bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-[hsl(var(--primary-foreground))] shadow-lg hover:shadow-xl transition-all duration-200"
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Updating Patient...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="mr-2 h-4 w-4" />
-                      Update Patient
-                    </>
-                  )}
-                </Button>
-              </div>
-            </form>
+            {/* Medical Information */}
+            <Card className="border-[hsl(var(--border))] shadow-sm">
+              <CardHeader className="bg-[hsl(var(--accent))] border-b border-[hsl(var(--border))] rounded-t-lg">
+                <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--foreground))]">
+                  <Heart className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
+                  Medical Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 bg-[hsl(var(--card))] space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="medicalHistory" className="text-[hsl(var(--foreground))]">Medical History</Label>
+                  <Textarea id="medicalHistory" name="medicalHistory" value={formData.medicalHistory} onChange={handleChange} rows={4} />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="allergies" className="text-[hsl(var(--foreground))]">Allergies</Label>
+                    <Input id="allergies" name="allergies" value={formData.allergies} onChange={handleChange} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="currentMedication" className="text-[hsl(var(--foreground))]">Current Medication</Label>
+                    <Input id="currentMedication" name="currentMedication" value={formData.currentMedication} onChange={handleChange} />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Actions */}
+            <div className="flex items-center gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.back()}
+                className="w-1/2 border-[hsl(var(--border))] bg-transparent"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="w-1/2 bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-white"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Updating...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    Update Patient
+                  </>
+                )}
+              </Button>
             </div>
-          </div>
+          </form>
         </div>
       </div>
     </ProtectedRoute>

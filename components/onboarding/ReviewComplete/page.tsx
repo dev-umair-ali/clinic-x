@@ -1,14 +1,33 @@
 "use client";
 import { LuCircleCheckBig } from "react-icons/lu";
 import { Button } from "@/components/ui/button";
+import { useDispatch, useSelector } from 'react-redux';
+import { setOnboardingComplete } from '@/lib/slices/onboardingSlice';
+import { useRouter } from 'next/navigation';
 
-export default function ReviewComplete({
-  formData,
-  onSubmit,
-}: {
-  formData: any;
-  onSubmit: () => void;
-}) {
+export default function ReviewComplete() {
+  const dispatch = useDispatch();
+  const router = useRouter();
+  const onboarding = useSelector((state: any) => state.onboarding);
+
+  const handleSubmit = () => {
+    dispatch(setOnboardingComplete());
+    router.push('/patient/dashboard');
+  };
+
+  const formData = {
+    ...onboarding.onBoardingInfo,
+    ...onboarding.insurance,
+    ...onboarding.presentCondition,
+    ...onboarding.history,
+    ...onboarding.lifeStyle,
+    ...onboarding.dentalHistory,
+    ...onboarding.medicalProfile,
+    ...onboarding.womenForm,
+    ...onboarding.constantLegal,
+    ...onboarding.onBoardingUploads,
+  };
+
   return (
     <div>
       <h3 className="text-xl font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] mb-6">
@@ -276,7 +295,7 @@ export default function ReviewComplete({
           submit your information and book your patient onboard.
         </p>
         <Button
-          onClick={onSubmit}
+          onClick={handleSubmit}
           className="bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-white"
         >
           Go to Dashboard

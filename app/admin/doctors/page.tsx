@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ProtectedRoute } from "@/components/ui/protected-route";
 import { DoctorTable } from "@/components/ui/doctor-table";
 import { useSelector, useDispatch } from "react-redux";
@@ -8,29 +8,102 @@ import type { RootState, AppDispatch } from "@/lib/store";
 import { useRouter } from "next/navigation";
 import { fetchDoctors } from "@/lib/slices/doctorSlice";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import { Users, UserCheck, User } from "lucide-react"; // icons for the boxes
+import { Plus, Search } from "lucide-react";
+import { Users, UserCheck, User } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function AdminDoctorsPage() {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
-  const { doctors, loading, error } = useSelector(
+  const { doctors, pagination, loading, error } = useSelector(
     (state: RootState) => state.doctors
   );
-  const doctorsData = useMemo(() => doctors, [doctors])
+  const { clinics } = useSelector((state: RootState) => state.clinics);
+  
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [clinicFilter, setClinicFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  
+  const doctorsData = useMemo(() => doctors || [], [doctors]);
+  const totalPages = pagination?.totalPages || 1;
 
   useEffect(() => {
-    // Fetch doctors when component mounts
+    // Fetch clinics for the filter dropdown
     dispatch(fetchDoctors());
-  }, [dispatch])
+  }, [dispatch]);
+
+  useEffect(() => {
+    // Fetch doctors with filters and pagination
+    const params: any = {};
+    if (searchQuery) params.search = searchQuery;
+    if (statusFilter && statusFilter !== "all") params.status = statusFilter;
+    if (clinicFilter && clinicFilter !== "all") params.clinicId = clinicFilter;
+    params.page = currentPage;
+    params.limit = itemsPerPage;
+    
+    dispatch(fetchDoctors(params));
+  }, [dispatch, searchQuery, statusFilter, clinicFilter, currentPage, itemsPerPage])
 
   const handleNavigation = (path: string) => {
     router.push(path);
   };
 
-  // Calculate active doctors count
-  const activeDoctorsCount = doctorsData.filter(doctor => doctor.status === "active").length;
-  const inactiveDoctorsCount = doctorsData.filter(doctor => doctor.status === "inactive").length;
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+  };
+
+  const handleStatusChange = (value: string) => {
+    setStatusFilter(value);
+  };
+
+  const handleClinicChange = (value: string) => {
+    setClinicFilter(value);
+  };
+
+  const handleClearFilters = () => {
+    setSearchQuery("");
+    setStatusFilter("all");
+    setClinicFilter("all");
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleItemsPerPageChange = (limit: number) => {
+    setItemsPerPage(limit);
+    setCurrentPage(1); // Reset to first page when changing items per page
+  };
+ // Calculate active doctors count with safety check
+  const activeDoctorsCount = useMemo(() => 
+    doctorsData.filter(doctor => doctor.status === "active").length,
+    [doctorsData]
+  );
+
+  const pendingDoctorsCount = useMemo(() => 
+    doctorsData.filter(doctor => doctor.status === "pending_verification").length,
+    [doctorsData]
+  );
+  
+  const inactiveDoctorsCount = useMemo(() => 
+    doctorsData.filter(doctor => doctor.status === "inactive").length,
+    [doctorsData]
+  );
+
+  const suspendedDoctorsCount = useMemo(() => 
+    doctorsData.filter(doctor => doctor.status === "suspended").length,
+    [doctorsData]
+  );
 
   return (
     <ProtectedRoute allowedRoles={["admin"]}>
@@ -55,9 +128,93 @@ export default function AdminDoctorsPage() {
             </Button>
           </div>
 
+          {/* Search and Filter Section */}
+          <div className="bg-[hsl(var(--card))] rounded-lg shadow-sm border border-[hsl(var(--border))] p-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {/* Search Input */}
+              <div className="md:col-span-2">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[hsl(var(--muted-foreground))]" />
+                  <Input
+                    type="text"
+                    placeholder="Search by name or email..."
+                    value={searchQuery}
+                    onChange={(e) => handleSearch(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+
+              {/* Status Filter */}
+              <div>
+                <Select value={statusFilter} onValueChange={handleStatusChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Filter by status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="pending_verification">Pending Verification</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                    <SelectItem value="suspended">Suspended</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Clinic Filter */}
+              <div>
+                <Select value={clinicFilter} onValueChange={handleClinicChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Filter by clinic" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Clinics</SelectItem>
+                    {clinics.map((clinic) => (
+                      <SelectItem key={clinic._id} value={clinic._id}>
+                        {clinic.clinicName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Active Filters Display */}
+            {(searchQuery || statusFilter !== "all" || clinicFilter !== "all") && (
+              <div className="mt-4 flex items-center gap-2">
+                <span className="text-sm text-[hsl(var(--muted-foreground))]">
+                  Active filters:
+                </span>
+                {searchQuery && (
+                  <span className="inline-flex items-center px-2 py-1 rounded-md text-xs bg-[hsl(var(--color-brand-teal)/0.1)] text-[hsl(var(--color-brand-teal))]">
+                    Search: {searchQuery}
+                  </span>
+                )}
+                {statusFilter !== "all" && (
+                  <span className="inline-flex items-center px-2 py-1 rounded-md text-xs bg-[hsl(var(--color-brand-teal)/0.1)] text-[hsl(var(--color-brand-teal))]">
+                    Status: {statusFilter}
+                  </span>
+                )}
+                {clinicFilter !== "all" && (
+                  <span className="inline-flex items-center px-2 py-1 rounded-md text-xs bg-[hsl(var(--color-brand-teal)/0.1)] text-[hsl(var(--color-brand-teal))]">
+                    Clinic: {clinics.find(c => c._id === clinicFilter)?.clinicName}
+                  </span>
+                )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleClearFilters}
+                  className="text-xs"
+                >
+                  Clear all
+                </Button>
+              </div>
+            )}
+          </div>
+
           {/* Stats Boxes */}
           {/* Stats Boxes */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
             <div className="flex items-center p-6 min-h-[110px] bg-[hsl(var(--card))] rounded-xl shadow-sm border border-[hsl(var(--border))]">
               <div className="h-12 w-12 flex items-center justify-center rounded-full bg-[hsl(var(--color-chart-blue)/0.1)]">
                 <Users className="h-7 w-7 text-[hsl(var(--color-chart-blue))]" />
@@ -87,6 +244,20 @@ export default function AdminDoctorsPage() {
             </div>
 
             <div className="flex items-center p-6 min-h-[110px] bg-[hsl(var(--card))] rounded-xl shadow-sm border border-[hsl(var(--border))]">
+              <div className="h-12 w-12 flex items-center justify-center rounded-full bg-[hsl(var(--color-status-success)/0.1)]">
+                <UserCheck className="h-7 w-7 text-[hsl(var(--color-status-success))]" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm text-[hsl(var(--muted-foreground))]">
+                  Pending Verification Doctors
+                </p>
+                <p className="text-lg font-semibold text-[hsl(var(--color-status-success))]">
+                  {pendingDoctorsCount}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center p-6 min-h-[110px] bg-[hsl(var(--card))] rounded-xl shadow-sm border border-[hsl(var(--border))]">
               <div className="h-12 w-12 flex items-center justify-center rounded-full bg-[hsl(var(--color-status-error)/0.1)]">
                 <User className="h-7 w-7 text-[hsl(var(--color-status-error))]" />
               </div>
@@ -96,6 +267,19 @@ export default function AdminDoctorsPage() {
                 </p>
                 <p className="text-lg font-semibold text-[hsl(var(--color-status-error))]">
                   {inactiveDoctorsCount}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center p-6 min-h-[110px] bg-[hsl(var(--card))] rounded-xl shadow-sm border border-[hsl(var(--border))]">
+              <div className="h-12 w-12 flex items-center justify-center rounded-full bg-[hsl(var(--color-status-error)/0.1)]">
+                <User className="h-7 w-7 text-[hsl(var(--color-status-error))]" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm text-[hsl(var(--muted-foreground))]">
+                  Suspended Doctors
+                </p>
+                <p className="text-lg font-semibold text-[hsl(var(--color-status-error))]">
+                  {suspendedDoctorsCount}
                 </p>
               </div>
             </div>
@@ -117,7 +301,14 @@ export default function AdminDoctorsPage() {
               </span>
             </div>
           ) : (
-            <DoctorTable doctors={doctorsData} />
+            <DoctorTable 
+              doctors={doctorsData}
+              currentPage={currentPage}
+              itemsPerPage={itemsPerPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              onItemsPerPageChange={handleItemsPerPageChange}
+            />
           )}
         </div>
       </div>

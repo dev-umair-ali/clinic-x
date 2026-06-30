@@ -1,221 +1,234 @@
 import api from '../axios';
 
 export interface CreatePatientRequest {
+  userRef?: string;
+  userId?: string;
+  clinicRef: string;
+  doctorRef?: string;
   firstName: string;
   lastName: string;
-  fullName: string;
   email: string;
-  password: string;
-  phone: string;
-  phoneNumber?: string;
-  age: number;
-  dateOfBirth: string;
-  DateOfBirth?: string;
-  gender: "male" | "female" | "other";
-  bloodType?: string;
-  BloodType?: string;
-  profilePicture?: string;
-  medicalHistory?: string;
-  MedicalHistory?: string;
-  allergies?: string;
-  Allergies?: string;
-  currentMedication?: string;
-  CurrentMedication?: string;
-  insuranceProvide?: string;
-  InsuranceProvide?: string;
-  eContactName?: string;
-  EContactName?: string;
-  ePhoneNumber?: string;
-  EPhoneNumber?: string;
-  eRelationship?: string;
-  ERelationship?: string;
-  PrimaryDoctor?: string;
-  primaryDoctor?: string;
-  address: string;
-  status: "active" | "inactive";
-  role: "patient";
-  hipaaConsent: boolean;
-  emergencyContactName?: string;
-  emergencyContactPhone?: string;
-  emergencyContactRelationship?: string;
-  allergiesArray?: string[];
-  medicationsArray?: string[];
-}
-
-export interface UpdatePatientRequest {
-  firstName?: string;
-  lastName?: string;
-  fullName?: string;
-  email?: string;
   password?: string;
-  phone?: string;
   phoneNumber?: string;
   age?: number;
   dateOfBirth?: string;
-  DateOfBirth?: string;
-  gender?: "male" | "female" | "other";
-  bloodType?: string;
-  BloodType?: string;
+  gender: "male" | "female" | "other";
   profilePicture?: string;
-  medicalHistory?: string;
-  MedicalHistory?: string;
+  bloodType?: string;
+  insuranceInfo?: string;
+  medicalHistory?: string[];
   allergies?: string;
-  Allergies?: string;
   currentMedication?: string;
-  CurrentMedication?: string;
-  insuranceProvide?: string;
-  InsuranceProvide?: string;
-  eContactName?: string;
-  EContactName?: string;
-  ePhoneNumber?: string;
-  EPhoneNumber?: string;
-  eRelationship?: string;
-  ERelationship?: string;
-  PrimaryDoctor?: string;
-  primaryDoctor?: string;
-  address?: string;
-  status?: "active" | "inactive";
-  emergencyContactName?: string;
-  emergencyContactPhone?: string;
-  emergencyContactRelationship?: string;
-  allergiesArray?: string[];
-  medicationsArray?: string[];
+  insuranceProvider?: string;
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    country?: string;
+  };
+  role?: "patient";
+  isEmailVerified?: boolean;
+  erxPatientId?: string;
+  erxDoctorId?: string;
+  createdBy?: string;
+}
+
+export interface UpdatePatientRequest {
+  clinicRef?: string;
+  doctorRef?: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phoneNumber?: string;
+  age?: number;
+  dateOfBirth?: string;
+  gender?: "male" | "female" | "other";
+  profilePicture?: string;
+  bloodType?: string;
+  insuranceInfo?: string;
+  medicalHistory?: string[];
+  allergies?: string;
+  currentMedication?: string;
+  insuranceProvider?: string;
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    country?: string;
+  };
+  isEmailVerified?: boolean;
+  erxPatientId?: string;
+  erxDoctorId?: string;
+  updatedBy?: string;
 }
 
 export interface PatientResponse {
   success: boolean;
-  data: {
-    user: {
-      profilePicture?: string;
-      id: string;
-      firstName: string;
-      lastName: string;
-      fullName: string;
-      email: string;
-      phone: string;
-      phoneNumber?: string;
-      age: number;
-      dateOfBirth: string;
-      DateOfBirth?: string;
-      gender: "male" | "female" | "other";
-      bloodType?: string;
-      BloodType?: string;
-      assignedDoctor?: string;
-      insuranceInfo?: string;
-      medicalHistory?: string;
-      MedicalHistory?: string;
-      allergies?: string;
-      Allergies?: string;
-      currentMedication?: string;
-      CurrentMedication?: string;
-      insuranceProvide?: string;
-      InsuranceProvide?: string;
-      eContactName?: string;
-      EContactName?: string;
-      ePhoneNumber?: string;
-      EPhoneNumber?: string;
-      eRelationship?: string;
-      ERelationship?: string;
-      PrimaryDoctor?: string;
-      primaryDoctor?: string;
-      address: string;
-      status: "active" | "inactive";
-      role: "patient";
-      avatar?: string;
-      emergencyContactName?: string;
-      emergencyContactPhone?: string;
-      emergencyContactRelationship?: string;
-      allergiesArray?: string[];
-      medicationsArray?: string[];
+  patient: {
+    _id?: string;
+    userRef: string;
+    userId?: string;
+    clinicRef: string;
+    doctorRef?: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phoneNumber?: string;
+    age?: number;
+    dateOfBirth?: string;
+    gender: "male" | "female" | "other";
+    profilePicture?: string;
+    bloodType?: string;
+    insuranceInfo?: string;
+    medicalHistory?: string[];
+    allergies?: string;
+    currentMedication?: string;
+    insuranceProvider?: string;
+    address: {
+      street?: string;
+      city?: string;
+      state?: string;
+      zipCode?: string;
+      country?: string;
     };
-    token?: string;
+    status: "active" | "inactive" | "pending_verification" | "suspended";
+    role?: "patient";
+    onboardingFormRef?: string;
+    medicalProfileFormRef?: string;
+    insuranceFormRef?: string;
+    dentalHistoryFormRef?: string;
+    historyHealthFormRef?: string;
+    lifeStyleFormRef?: string;
+    womenFormRef?: string;
+    constantLegalFormRef?: string;
+    presentConditionFormRef?: string;
+    formsCompleted?: {
+      onboarding?: boolean;
+      medicalProfile?: boolean;
+      insurance?: boolean;
+      dentalHistory?: boolean;
+      historyHealth?: boolean;
+      lifeStyle?: boolean;
+      women?: boolean;
+      constantLegal?: boolean;
+      presentCondition?: boolean;
+    };
+    formCompletionPercentage?: number;
+    incompleteForms?: string[];
+    isEmailVerified?: boolean;
+    emailVerificationToken?: string;
+    emailVerificationExpires?: string;
+    erxPatientId?: string;
+    erxDoctorId?: string;
+    createdBy?: string;
+    updatedBy?: string;
+    createdAt?: string;
+    updatedAt?: string;
   };
   message?: string;
 }
 
+export interface PatientQueryParams {
+  search?: string;
+  status?: string;
+  clinicId?: string;
+  doctorId?: string;
+  page?: number;
+  limit?: number;
+}
+
 export interface PatientsListResponse {
   success: boolean;
-  data: Array<{
-    id: string;
+  patients: Array<{
+    _id?: string;
+    userRef: string;
+    userId?: string;
+    clinicRef: string;
+    doctorRef?: string;
     firstName: string;
     lastName: string;
-    fullName: string;
     email: string;
-    phone: string;
     phoneNumber?: string;
-    age: number;
-    dateOfBirth: string;
-    DateOfBirth?: string;
+    age?: number;
+    dateOfBirth?: string;
     gender: "male" | "female" | "other";
-    bloodType?: string;
-    BloodType?: string;
     profilePicture?: string;
-    assignedDoctor?: string;
+    bloodType?: string;
     insuranceInfo?: string;
-    medicalHistory?: string;
-    MedicalHistory?: string;
+    medicalHistory?: string[];
     allergies?: string;
-    Allergies?: string;
     currentMedication?: string;
-    CurrentMedication?: string;
-    insuranceProvide?: string;
-    InsuranceProvide?: string;
-    eContactName?: string;
-    EContactName?: string;
-    ePhoneNumber?: string;
-    EPhoneNumber?: string;
-    eRelationship?: string;
-    ERelationship?: string;
-    PrimaryDoctor?: string;
-    primaryDoctor?: string;
-    address: string;
-    status: "active" | "inactive";
-    role: "patient";
-    avatar?: string;
-    lastVisit: string;
-    emergencyContactName?: string;
-    emergencyContactPhone?: string;
-    emergencyContactRelationship?: string;
-    allergiesArray?: string[];
-    medicationsArray?: string[];
+    insuranceProvider?: string;
+    address: {
+      street?: string;
+      city?: string;
+      state?: string;
+      zipCode?: string;
+      country?: string;
+    };
+    status: "active" | "inactive" | "pending_verification" | "suspended";
+    role?: "patient";
+    formCompletionPercentage?: number;
+    isEmailVerified?: boolean;
+    erxPatientId?: string;
+    erxDoctorId?: string;
+    lastVisit?: string;
+    createdAt?: string;
+    updatedAt?: string;
   }>;
+  pagination?: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    itemsPerPage: number;
+  };
   message?: string;
 }
 
 export const patientService = {
-  async getPatients(): Promise<PatientsListResponse> {
-    try {
-      // Use /doctors/patients for doctors, which filters by assigned doctor
-      const endpoint = '/doctors/patients';
-      const response = await api.get(endpoint);
-      return response.data;
-    } catch (error: any) {
-      throw error;
-    }
-  },
+  async getPatients(params?: PatientQueryParams): Promise<PatientsListResponse> {
+    const queryParams = new URLSearchParams();
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.status) queryParams.append('status', params.status);
+    if (params?.clinicId) queryParams.append('clinicId', params.clinicId);
+    if (params?.doctorId) queryParams.append('doctorId', params.doctorId);
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    
+    const queryString = queryParams.toString();
+    const url = queryString 
+      ? `/admin/patient/all/patients?${queryString}`
+      : '/admin/patient/all/patients';
+    
+    const response = await api.get<PatientsListResponse>(url);
 
-  async getPatient(id: string): Promise<PatientResponse> {
-    const response = await api.get(`/admin/patients/${id}`);
     return response.data;
   },
 
+  async getPatient(id: string): Promise<PatientResponse['patient']> {
+    const response = await api.get<PatientResponse>(`/admin/patient/${id}`);
+    return response.data.patient;
+  },
+
   async createPatient(patientData: CreatePatientRequest): Promise<PatientResponse> {
-    const response = await api.post<PatientResponse>('/admin/create-patient', patientData);
+    const response = await api.post<PatientResponse>('/admin/patient/create-patient', patientData);
     return response.data;
   },
   
   async updatePatient(id: string, patientData: UpdatePatientRequest): Promise<PatientResponse> {
-    const response = await api.put(`/admin/update-patient/${id}`, patientData);
+    const response = await api.put(`/admin/patient/update-patient/${id}`, patientData);
     return response.data;
   },
 
   async createPatientInCollection(patientData: Omit<CreatePatientRequest, 'password'>): Promise<PatientResponse> {
-    const response = await api.post<PatientResponse>('/admin/create-patient', patientData);
+    const response = await api.post<PatientResponse>('/admin/patient/create-patient', patientData);
     return response.data;
   },
 
-  async updatePatientStatus(id: string, status: string): Promise<{ success: boolean; message?: string }> {
-    const response = await api.patch(`/admin/patients/status/${id}`, { status });
+  async updatePatientStatus(id: string, status: "active" | "inactive" | "pending_verification" | "suspended"): Promise<PatientResponse> {
+    const response = await api.put<PatientResponse>(`/admin/patient/update-patient/status/${id}`, { status });
     return response.data;
   }
 };

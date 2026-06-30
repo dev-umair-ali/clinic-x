@@ -58,7 +58,6 @@ export const compressImage = (
             
             // Check if compressed size is acceptable
             const compressedSizeMB = blob.size / (1024 * 1024);
-            console.log(`📦 Original: ${(file.size / (1024 * 1024)).toFixed(2)}MB → Compressed: ${compressedSizeMB.toFixed(2)}MB`);
             
             // Create new File from blob
             const compressedFile = new File([blob], file.name, {
@@ -98,7 +97,6 @@ export const fileToBase64 = async (
     
     // Only compress if larger than 500KB
     if (originalSizeMB > 0.5) {
-      console.log(`🔄 Compressing image: ${file.name} (${originalSizeMB.toFixed(2)}MB)`);
       try {
         fileToConvert = await compressImage(file);
       } catch (error) {

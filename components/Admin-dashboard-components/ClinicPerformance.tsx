@@ -3,31 +3,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChartContainer } from "@/components/ui/chart"
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts"
 
-const data = [
-  { clinic: "Jan", appointments: 180 },
-  { clinic: "Feb", appointments: 150 },
-  { clinic: "Mar", appointments: 120 },
-  { clinic: "Apr", appointments: 200 },
-  { clinic: "May", appointments: 90 },
-  { clinic: "Jun", appointments: 160 },
-]
-
-export default function ClinicPerformance() {
+export default function ClinicPerformance( { dashboardData }: { dashboardData?: any }) {
+  
+  // Use real data if available, otherwise fall back to mock data
+  const chartData = dashboardData && dashboardData.length > 0 ? dashboardData : [];
+  
   return (
     <Card className="rounded-2xl shadow-sm dark:bg-gray-800 dark:border-gray-700">
-      <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-base sm:text-lg dark:text-[hsl(var(--color-foreground))]">
-            Clinic Performance
-          </CardTitle>
-          <select className="text-[hsl(var(--color-brand-teal))] dark:text-[hsl(var(--color-brand-teal))]
-                             text-sm bg-transparent border-none cursor-pointer hover:underline">
-            <option>All Clinics</option>
-            <option>Active</option>
-            <option>Inactive</option>
-          </select>
-        </div>
-      </CardHeader>
       <CardContent>
         <ChartContainer
           config={{
@@ -39,7 +21,7 @@ export default function ClinicPerformance() {
           className="h-48 sm:h-64"
         >
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data}>
+            <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
               <XAxis
                 dataKey="clinic"
                 axisLine={false}

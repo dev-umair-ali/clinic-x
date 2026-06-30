@@ -21,7 +21,7 @@ export default function SymptomDetails({
           </Label>
           <Textarea
             placeholder="Activities, positions, treatments that help..."
-            value={formData.whatImprovesIt}
+            value={formData?.whatImprovesIt}
             onChange={(e) => updateFormData("whatImprovesIt", e.target.value)}
             className="min-h-[80px] bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]"
           />
@@ -32,7 +32,7 @@ export default function SymptomDetails({
           </Label>
           <Textarea
             placeholder="Activities, positions, treatments that make it worse..."
-            value={formData.whatWorsensIt}
+            value={formData?.whatWorsensIt}
             onChange={(e) => updateFormData("whatWorsensIt", e.target.value)}
             className="min-h-[80px] bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]"
           />
@@ -43,7 +43,7 @@ export default function SymptomDetails({
           </Label>
           <Textarea
             placeholder="Daily activities that are difficult due to your condition..."
-            value={formData.activitiesAffected}
+            value={formData?.activitiesAffected}
             onChange={(e) => updateFormData("activitiesAffected", e.target.value)}
             className="min-h-[80px] bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]"
           />
@@ -59,7 +59,7 @@ export default function SymptomDetails({
                 type="radio"
                 name="seenAnyoneElse"
                 value="yes"
-                checked={formData.seenAnyoneElse === "yes"}
+                checked={formData?.seenAnyoneElse === "yes"}
                 onChange={(e) => updateFormData("seenAnyoneElse", e.target.value)}
                 className="text-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]"
               />
@@ -70,21 +70,21 @@ export default function SymptomDetails({
                 type="radio"
                 name="seenAnyoneElse"
                 value="no"
-                checked={formData.seenAnyoneElse === "no"}
+                checked={formData?.seenAnyoneElse === "no"}
                 onChange={(e) => updateFormData("seenAnyoneElse", e.target.value)}
                 className="text-[hsl(var(--color-brand-teal))] focus:ring-[hsl(var(--color-brand-teal))]"
               />
               <span className="text-sm text-[hsl(var(--foreground))]">No</span>
             </label>
           </div>
-          {formData.seenAnyoneElse === "yes" && (
+          {formData?.seenAnyoneElse === "yes" && (
             <div className="mt-4">
               <Label className="text-sm font-medium text-[hsl(var(--muted-foreground))] mb-2 block">
                 Please describe who you&apos;ve seen and what treatments you&apos;ve tried:
               </Label>
               <Textarea
                 placeholder="Doctors, therapists, treatments, medications..."
-                value={formData.treatmentsTried}
+                value={formData?.treatmentsTried}
                 onChange={(e) => updateFormData("treatmentsTried", e.target.value)}
                 className="min-h-[80px] bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]"
               />

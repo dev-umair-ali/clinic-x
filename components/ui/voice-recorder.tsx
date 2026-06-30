@@ -22,7 +22,6 @@ export function VoiceRecorder({ onTranscription, placeholder = "Start speaking..
   const isRecognitionActiveRef = useRef(false)
 
   useEffect(() => {
-    // Check if speech recognition is supported
     if (typeof window !== "undefined") {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
       setIsSupported(!!SpeechRecognition)
@@ -73,9 +72,7 @@ export function VoiceRecorder({ onTranscription, placeholder = "Start speaking..
 
         recognitionRef.current.onend = () => {
           isRecognitionActiveRef.current = false
-          // Only restart if we're still supposed to be recording and not paused
           if (isRecording && !isPaused) {
-            // Add a small delay before restarting to prevent conflicts
             setTimeout(() => {
               if (isRecording && !isPaused && !isRecognitionActiveRef.current) {
                 try {
@@ -103,7 +100,7 @@ export function VoiceRecorder({ onTranscription, placeholder = "Start speaking..
       }
       isRecognitionActiveRef.current = false
     }
-  }, []) // Removed dependencies to prevent unnecessary recreation
+  }, [])
 
   const startRecording = () => {
     if (!isSupported || !recognitionRef.current) {
@@ -117,7 +114,6 @@ export function VoiceRecorder({ onTranscription, placeholder = "Start speaking..
       } catch (error) {
         console.error("Error stopping existing recognition:", error)
       }
-      // Wait a bit before starting new recognition
       setTimeout(() => startRecording(), 200)
       return
     }
@@ -210,12 +206,12 @@ export function VoiceRecorder({ onTranscription, placeholder = "Start speaking..
 
   if (!isSupported) {
     return (
-      <div className="s mx-auto bg-background border border-border rounded-lg p-6 text-center ">
+      <div className="mx-auto bg-[hsl(var(--background))] border border-[hsl(var(--border))] rounded-lg p-6 text-center">
         <div className="flex items-center justify-center gap-2 mb-4">
-          <MicOff className="h-5 w-5 text-red-500" />
-          <span className="font-medium text-red-600">Voice Recognition Not Available</span>
+          <MicOff className="h-5 w-5 text-[hsl(var(--color-status-error))]" />
+          <span className="font-medium text-[hsl(var(--color-status-error))]">Voice Recognition Not Available</span>
         </div>
-        <p className="text-red-600 text-sm">
+        <p className="text-[hsl(var(--color-status-error))] text-sm">
           Speech recognition is not supported in your browser. Please use Chrome, Edge, or Safari for voice features.
         </p>
       </div>
@@ -223,29 +219,49 @@ export function VoiceRecorder({ onTranscription, placeholder = "Start speaking..
   }
 
   return (
-    <div className=" mx-auto bg-background  border-border rounded-lg p-6 w-full">
-      <div className="flex items-center  gap-2 mb-8">
-        <FaMicrophone className="h-4 w-4 text-[#1FA888]" />
-        <h2 className="text-base font-medium text-foreground">Voice To Prescription</h2>
+    <div className="mx-auto bg-[hsl(var(--background))] border border-[hsl(var(--border))] rounded-lg p-6 w-full">
+      <div className="flex items-center gap-2 mb-8">
+        <FaMicrophone className="h-4 w-4 text-[hsl(var(--color-brand-teal))]" />
+        <h2 className="text-base font-medium text-[hsl(var(--foreground))]">Voice To Prescription</h2>
       </div>
 
-      <div className="flex flex-col items-center mb-8 ">
+      <div className="flex flex-col items-center mb-8">
         <div
-          className={`w-20 h-20 rounded-full ${isRecording ? "bg-red-200" : "bg-[#1fa88874]"} flex items-center justify-center transition-all duration-200 shadow-lg`}
+          className="w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg"
+          style={{
+            backgroundColor: isRecording ? 'hsl(var(--color-status-error)/0.2)' : 'hsl(var(--color-brand-teal)/0.4)'
+          }}
         >
           <button
             onClick={!isRecording ? startRecording : isPaused ? resumeRecording : pauseRecording}
-            className={`w-10 h-10 rounded-full ${isRecording ? "bg-red-500 hover:bg-red-600" : "bg-[#1FA888] hover:bg-teal-600"} flex items-center justify-center transition-all duration-200 shadow-lg`}
+            className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg"
+            style={{
+              backgroundColor: isRecording ? 'hsl(var(--color-status-error))' : 'hsl(var(--color-brand-teal))'
+            }}
+            onMouseEnter={(e) => {
+              if (isRecording) {
+                e.currentTarget.style.backgroundColor = 'hsl(var(--color-status-error-dark))';
+              } else {
+                e.currentTarget.style.backgroundColor = 'hsl(var(--color-brand-teal-dark))';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (isRecording) {
+                e.currentTarget.style.backgroundColor = 'hsl(var(--color-status-error))';
+              } else {
+                e.currentTarget.style.backgroundColor = 'hsl(var(--color-brand-teal))';
+              }
+            }}
           >
             <FaMicrophone className="h-6 w-6 text-white" />
           </button>
         </div>
-        <div className="mt-6 text-xl font-medium text-foreground">{formatTime(recordingTime)}</div>
+        <div className="mt-6 text-xl font-medium text-[hsl(var(--foreground))]">{formatTime(recordingTime)}</div>
       </div>
 
       {isRecording && (
         <div className="mb-6">
-          <label className="block text-sm font-medium text-foreground mb-2">Live Transcription</label>
+          <label className="block text-sm font-medium text-[hsl(var(--foreground))] mb-2">Live Transcription</label>
           <textarea
             value={convertText}
             onChange={(e) => {
@@ -253,12 +269,12 @@ export function VoiceRecorder({ onTranscription, placeholder = "Start speaking..
               onTranscription(e.target.value)
             }}
             placeholder="Start speaking... Your voice will be converted to text here"
-            className="w-full min-h-[80px] p-3 bg-muted border border-border rounded-lg text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-[#1FA888]"
+            className="w-full min-h-[80px] p-3 bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-lg text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))] resize-none focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-brand-teal))]"
             rows={3}
           />
           <div className="flex items-center gap-2 mt-2">
-            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-            <span className="text-xs text-red-600">Recording... Speak now</span>
+            <div className="w-2 h-2 bg-[hsl(var(--color-status-error))] rounded-full animate-pulse"></div>
+            <span className="text-xs text-[hsl(var(--color-status-error))]">Recording... Speak now</span>
           </div>
         </div>
       )}
@@ -267,21 +283,30 @@ export function VoiceRecorder({ onTranscription, placeholder = "Start speaking..
         <button
           onClick={pauseRecording}
           disabled={!isRecording}
-          className="flex-1 py-3 px-4 bg-muted hover:bg-muted/80 disabled:opacity-50 disabled:cursor-not-allowed text-muted-foreground rounded-lg font-medium transition-colors"
+          className="flex-1 py-3 px-4 bg-[hsl(var(--muted))] hover:bg-[hsl(var(--muted)/0.8)] disabled:opacity-50 disabled:cursor-not-allowed text-[hsl(var(--muted-foreground))] rounded-lg font-medium transition-colors"
         >
           Pause
         </button>
         <button
           onClick={isRecording ? stopRecording : startRecording}
-          className="flex-1 py-3 px-4 bg-[#1FA888] hover:bg-teal-600 text-white rounded-lg font-medium transition-colors"
+          className="flex-1 py-3 px-4 text-white rounded-lg font-medium transition-colors"
+          style={{
+            backgroundColor: 'hsl(var(--color-brand-teal))'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'hsl(var(--color-brand-teal-dark))';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'hsl(var(--color-brand-teal))';
+          }}
         >
           {isRecording ? "Stop" : "Record"}
         </button>
       </div>
 
-      <div className="text-sm text-muted-foreground">
-        <p className="font-medium mb-3 text-foreground">Recording Tips</p>
-        <ul className="space-y-2 text-muted-foreground">
+      <div className="text-sm text-[hsl(var(--muted-foreground))]">
+        <p className="font-medium mb-3 text-[hsl(var(--foreground))]">Recording Tips</p>
+        <ul className="space-y-2 text-[hsl(var(--muted-foreground))]">
           <li>• Speak clearly at a moderate pace</li>
           <li>• Mention medication names and dosages explicitly</li>
           <li>• Include key patient symptoms and observations</li>
@@ -290,21 +315,20 @@ export function VoiceRecorder({ onTranscription, placeholder = "Start speaking..
       </div>
 
       {transcript && (
-        <div className="mt-6 p-4 bg-muted rounded-lg border border-border">
+        <div className="mt-6 p-4 bg-[hsl(var(--muted))] rounded-lg border border-[hsl(var(--border))]">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-medium text-foreground">Transcription:</p>
-            <button onClick={clearTranscript} className="text-xs text-muted-foreground hover:text-foreground">
+            <p className="text-sm font-medium text-[hsl(var(--foreground))]">Transcription:</p>
+            <button onClick={clearTranscript} className="text-xs text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]">
               Clear
             </button>
           </div>
-          <div className="text-sm text-foreground leading-relaxed">{transcript}</div>
+          <div className="text-sm text-[hsl(var(--foreground))] leading-relaxed">{transcript}</div>
         </div>
       )}
     </div>
   )
 }
 
-// Extend Window interface for TypeScript
 declare global {
   interface Window {
     SpeechRecognition: any

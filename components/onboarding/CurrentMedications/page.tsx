@@ -19,8 +19,8 @@ export default function CurrentMedications({
         List all medications you are currently taking:
       </p>
       <Textarea
-        value={formData.currentMedications}
-        onChange={(e) => updateFormData("currentMedications", e.target.value)}
+        value={formData?.currentMedication}
+        onChange={(e) => updateFormData("currentMedication", e.target.value)}
         placeholder="Include prescription medications, over-the-counter drugs, vitamins, and supplements..."
         rows={3}
         className="mb-6 bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]"
@@ -29,8 +29,8 @@ export default function CurrentMedications({
         Do you take blood thinners?
       </Label>
       <RadioGroup
-        value={formData.bloodThinners}
-        onValueChange={(v) => updateFormData("bloodThinners", v)}
+        value={formData?.bloodThinner}
+        onValueChange={(v) => updateFormData("bloodThinner", v)}
         className="flex space-x-4"
       >
         <div className="flex items-center space-x-2">

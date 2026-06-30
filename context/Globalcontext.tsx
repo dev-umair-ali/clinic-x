@@ -68,19 +68,6 @@ export const MainProvider = ({ children }: { children: ReactNode }) => {
                         raw: { ...user, attributes },
                     },
                 });
-
-                // // Only fetch timings if Calendly is connected
-                // if (statusData.connected) {
-                //     try {
-                //         const timings = await fetchDoctorScheduleTimes(username);
-                //         console.log("timings", timings)
-                //         setDoctorScheduleTimes(timings);
-                //     } catch {
-                //         setDoctorScheduleTimes(null);
-                //     }
-                // } else {
-                //     setDoctorScheduleTimes(null);
-                // }
             } catch {
                 setSession(null);
                 setDoctorScheduleTimes(null);

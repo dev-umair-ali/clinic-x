@@ -309,13 +309,6 @@ export default function AdjustmentsPage() {
   };
 
   const handleSubmitAdjustment = () => {
-    console.log("Submitting adjustment:", {
-      selectedInvoices,
-      adjustmentType,
-      adjustmentReason,
-      adjustmentAmount,
-      adjustmentNotes,
-    });
     // Reset form
     setSelectedInvoices([]);
     setAdjustmentType("");

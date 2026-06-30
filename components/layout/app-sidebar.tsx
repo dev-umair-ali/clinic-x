@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { LogOut, ArrowRight } from "lucide-react";
 import {
@@ -32,61 +33,115 @@ import { FaRegClipboard } from "react-icons/fa";
 
 const menuItems = {
   admin: [
-  { icon: IoHome, label: "Dashboard", href: "/admin/dashboard" },
+    { icon: IoHome, label: "Dashboard", href: "/admin/dashboard" },
 
-  { icon: FaClinicMedical, label: "Clinics", href: "/admin/clinics" },
-  { icon: IoIosPersonAdd, label: "Assistants", href: "/admin/add-assistant" },
-  { icon: HiMiniUserGroup, label: "Doctors", href: "/admin/doctors" },
-  { icon: HiMiniUserGroup, label: "Patients", href: "/admin/patients" },
+    { icon: FaClinicMedical, label: "Clinics", href: "/admin/clinics" },
+    { icon: IoIosPersonAdd, label: "Assistants", href: "/admin/assistants" },
 
-  { icon: FaRegClipboard, label: "Dashboard Log", href: "/admin/dashlogs" },
-],
+    { icon: HiMiniUserGroup, label: "Doctors", href: "/admin/doctors" },
+    { icon: HiMiniUserGroup, label: "Patients", href: "/admin/patients" },
 
-clinic: [
-  { icon: IoHome, label: "Dashboard", href: "/clinic/dashboard" },
+    // here we add settings Main sepration tab
+    // this should be have a sub menu of the settings
+    { icon: FaRegClipboard, label: "Dashboard Log", href: "/admin/dashlogs" },
+  ],
+
+  clinic: [
+    { icon: IoHome, label: "Dashboard", href: "/clinic/dashboard" },
+
+    { icon: IoIosPersonAdd, label: "Assistants", href: "/clinic/assistants" },
     { icon: HiMiniUserGroup, label: "Doctors", href: "/clinic/doctors" },
+    { icon: HiMiniUserGroup, label: "Patients", href: "/clinic/patients" },
 
-  { icon: IoIosPersonAdd, label: "Assistants", href: "/clinic/add-assistant" },
-  { icon: HiMiniUserGroup, label: "Patients", href: "/clinic/patients" },
-  
-  { icon: CiCalendar, label: "Appointments", href: "/clinic/appointments" },
-  { icon: RiVolumeUpFill, label: "Patient Notes", href: "/clinic/notes" },
-  { icon: TiMicrophone, label: "Prescription", href: "/clinic/prescription" },
-  { icon: CiCalendar, label: "Patients Billing", href: "/clinic/patients-billing" },
+    { icon: CiCalendar, label: "Appointments", href: "/clinic/appointments" },
 
-  { icon: FaRegClipboard, label: "Dashboard Log", href: "/clinic/dashlogs" },
-  { icon: FaCreditCard, label: "Theme Settings", href: "/clinic/theme-settings" },
-],
+    { icon: RiVolumeUpFill, label: "Patient Notes", href: "/clinic/notes" },
+    // { icon: TiMicrophone, label: "Prescriptions", href: "/clinic/prescription" },
+    // {
+    //   icon: CiCalendar,
+    //   label: "Patients Billing",
+    //   href: "/clinic/patients-billing",
+    // },
 
-assistant: [
-  { icon: IoHome, label: "Dashboard", href: "/assistant/dashboard" },
+    // here we add settings Main sepration tab
+    // this should be have a sub menu of the settings
+    { icon: FaRegClipboard, label: "Dashboard Log", href: "/clinic/dashlogs" },
+    {
+      icon: FaCreditCard,
+      label: "Theme Setup",
+      href: "/clinic/settings/theme",
+    },
+    // {
+    //   icon: IoSettingsSharp,
+    //   label: "Permissions",
+    //   href: "/clinic/settings/permission",
+    // },
+  ],
 
-  { icon: HiMiniUserGroup, label: "Patients", href: "/assistant/patients" },
+  assistant: [
+    { icon: IoHome, label: "Dashboard", href: "/assistant/dashboard" },
 
-  { icon: CiCalendar, label: "Appointments", href: "/assistant/appointments" },
-  { icon: TiMicrophone, label: "Prescription", href: "/assistant/prescription" },
-  { icon: FaCreditCard, label: "Patients Billing", href: "/assistant/patients-billing" },
-],
+    { icon: HiMiniUserGroup, label: "Doctors", href: "/assistant/doctors" },
+    { icon: HiMiniUserGroup, label: "Patients", href: "/assistant/patients" },
 
-doctor: [
-  { icon: IoHome, label: "Dashboard", href: "/doctor/dashboard" },
-  
-  { icon: HiMiniUserGroup, label: "Patients", href: "/doctor/patients" },
+    {
+      icon: CiCalendar,
+      label: "Appointments",
+      href: "/assistant/appointments",
+    },
+    // {
+    //   icon: TiMicrophone,
+    //   label: "Prescriptions",
+    //   href: "/assistant/prescription",
+    // },
+    // {
+    //   icon: FaCreditCard,
+    //   label: "Patients Billing",
+    //   href: "/assistant/patients-billing",
+    // },
 
-  { icon: CiCalendar, label: "Appointments", href: "/doctor/appointments" },
-  { icon: RiVolumeUpFill, label: "Patient Notes", href: "/doctor/notes" },
-  { icon: TiMicrophone, label: "Prescription", href: "/doctor/prescription" },
-  { icon: FaCreditCard, label: "Patients Billing", href: "/doctor/patients-billing" },
-  { icon: IoSettingsSharp, label: "Settings", href: "/doctor/settings" },
-],
+    // here we add settings Main sepration tab
+    // this should be have a sub menu of the settings
+    {
+      icon: FaRegClipboard,
+      label: "Dashboard Log",
+      href: "/assistant/dashlogs",
+    },
+  ],
 
-patient: [
-  { icon: IoHome, label: "Dashboard", href: "/patient/dashboard" },
+  doctor: [
+    { icon: IoHome, label: "Dashboard", href: "/doctor/dashboard" },
 
-  { icon: CiCalendar, label: "Appointments", href: "/patient/appointments" },
-  { icon: TiMicrophone, label: "Prescriptions", href: "/patient/prescriptions" },
-  { icon: AiFillDollarCircle, label: "Billing", href: "/patient/billing" },
-],
+    { icon: CiCalendar, label: "Appointments", href: "/doctor/appointments" },
+    { icon: HiMiniUserGroup, label: "Patients", href: "/doctor/patients" },
+
+    { icon: RiVolumeUpFill, label: "Patients Notes", href: "/doctor/notes" },
+    // { icon: TiMicrophone, label: "Prescriptions", href: "/doctor/prescription" },
+    // {
+    //   icon: FaCreditCard,
+    //   label: "Patients Billing",
+    //   href: "/doctor/patients-billing",
+    // },
+
+    // here we add settings Main sepration tab
+    // this should be have a sub menu of the settings
+    { icon: FaRegClipboard, label: "Dashboard Log", href: "/doctor/dashlogs" },
+    { icon: IoSettingsSharp, label: "Availability", href: "/doctor/settings/availability" },
+  ],
+
+  patient: [
+    { icon: IoHome, label: "Dashboard", href: "/patient/dashboard" },
+
+    { icon: CiCalendar, label: "Appointments", href: "/patient/appointments" },
+    { icon: RiVolumeUpFill, label: "Notes", href: "/patient/notes" },
+
+    // {
+    //   icon: TiMicrophone,
+    //   label: "Prescriptions",
+    //   href: "/patient/prescriptions",
+    // },
+    // { icon: AiFillDollarCircle, label: "Billing", href: "/patient/billing" },
+  ],
 };
 
 export function AppSidebar() {
@@ -95,11 +150,22 @@ export function AppSidebar() {
 
   const user = useSelector((state: RootState) => state.auth.user);
   const dispatch = useDispatch();
+  const [mounted, setMounted] = useState(false);
+  const themeState = useSelector((state: RootState) => state.theme);
+  const { current: currentTheme, loading, isDefault } = themeState;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleLogout = () => {
     dispatch(logout());
     router.push("/login");
   };
+
+  if (!mounted) {
+    return null;
+  }
 
   if (!user) return null;
 
@@ -115,8 +181,20 @@ export function AppSidebar() {
         {/* Sidebar Header */}
         <SidebarHeader className="px-6 py-6 shrink-0">
           <div className="flex flex-col items-center text-center">
-            <div className="text-2xl font-bold">Logo</div>
-            <div className="text-xs text-[hsl(var(--sidebar-foreground))]">Powered By Clinic X</div>
+            {currentTheme?.logo && !loading ? (
+              <img
+                src={currentTheme.logo}
+                alt="Logo"
+                style={{ width: "80px", height: "80px", borderRadius: "50%" }}
+              />
+            ) : (
+              <>
+                <div className="text-2xl font-bold">Logo</div>
+                <div className="text-xs text-[hsl(var(--sidebar-foreground))]">
+                  Powered By Clinic X
+                </div>
+              </>
+            )}
           </div>
         </SidebarHeader>
 
@@ -125,9 +203,9 @@ export function AppSidebar() {
           <div className="flex flex-col h-full">
             {/* Main Menu */}
             <SidebarGroup className="mb-6">
-              <SidebarGroupLabel className="text-xs font-medium text-[hsl(var(--sidebar-foreground))] mb-4 uppercase tracking-wider">
+              {/* <SidebarGroupLabel className="text-xs font-medium text-[hsl(var(--sidebar-foreground))] mb-4 uppercase tracking-wider">
                 MAIN MENU
-              </SidebarGroupLabel>
+              </SidebarGroupLabel> */}
               <SidebarGroupContent>
                 <SidebarMenu className="space-y-1">
                   {items.map((item) => {
@@ -215,7 +293,7 @@ export function AppSidebar() {
             )}
 
             {/* Logout */}
-           <div className="mb-4">
+            <div className="mb-4">
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton
@@ -243,7 +321,9 @@ export function AppSidebar() {
 
                   {/* Question mark icon */}
                   <div className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-[hsl(var(--color-white-alpha-20))] mb-4">
-                    <span className="text-[hsl(var(--sidebar-foreground))] text-sm font-bold">?</span>
+                    <span className="text-[hsl(var(--sidebar-foreground))] text-sm font-bold">
+                      ?
+                    </span>
                   </div>
 
                   {/* Content */}

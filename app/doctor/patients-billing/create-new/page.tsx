@@ -157,7 +157,6 @@ export default function CreateChargePageIntegrated() {
       }
 
       const url = `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL || 'http://localhost:3000'}/doctors/patients?${params.toString()}`;
-      console.log('Fetching patients from:', url);
 
       const response = await fetch(url, {
         headers: {
@@ -166,18 +165,13 @@ export default function CreateChargePageIntegrated() {
         },
       });
       
-      console.log('Response status:', response.status);
       
       if (response.ok) {
         const result = await response.json();
-        console.log('Patients API response:', result);
-        console.log('Result.data type:', Array.isArray(result.data) ? 'array' : typeof result.data);
-        console.log('Result.data length:', result.data?.length);
         
         if (result.success && result.data) {
           // Backend returns array directly in data field
           const patientsData = Array.isArray(result.data) ? result.data : [];
-          console.log('Setting patients:', patientsData.length, 'patients');
           setPatients(patientsData);
           
           if (patientsData.length === 0) {

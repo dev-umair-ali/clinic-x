@@ -91,8 +91,8 @@ export default function ExercisePhysicalActivity({
           Do you use pillows or sleep supports?
         </Label>
         <Textarea
-          value={formData.sleepSupports}
-          onChange={(e) => updateFormData("sleepSupports", e.target.value)}
+          value={formData.sleepSupport}
+          onChange={(e) => updateFormData("sleepSupport", e.target.value)}
           placeholder="Describe any pillows, wedges, or supports you use while sleeping..."
           rows={2}
           className="mt-1 bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"

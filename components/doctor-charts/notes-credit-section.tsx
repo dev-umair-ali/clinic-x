@@ -1,11 +1,10 @@
 import { PatientNotesCard } from "./patient-notes-card"
-import { CreditUsageCard } from "./credit-usage-card"
+import { DoctorDashboardData } from "@/lib/api/services/dashboardService"
 
-export function NotesCreditSection() {
+export function NotesCreditSection( { dashboardData }: { dashboardData: DoctorDashboardData["patientNotesGraph"] | null }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <PatientNotesCard />
-      <CreditUsageCard />
+      <PatientNotesCard dashboardData={dashboardData} />
     </div>
   )
 }

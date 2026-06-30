@@ -32,7 +32,6 @@ export default function useStats(appointments: any[]) {
   const fetchWeeklyCount = async () => {
     try {
       const res = await appointmentService.getDoctorWeeklyCount();
-      console.log('📊 Weekly count response:', res);
       
       if (res?.success) {
         // Handle the actual response structure: { success, totalAppointmentsThisWeek: { totalAppointments, startDate, endDate } }

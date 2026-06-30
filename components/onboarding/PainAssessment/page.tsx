@@ -21,7 +21,7 @@ export default function PainAssessment({
           </Label>
           <div className="space-y-2">
             <Slider
-              value={[formData.painLevel || 0]}
+              value={[formData?.painLevel || 0]}
               onValueChange={(val) => updateFormData("painLevel", val[0])}
               max={10}
               step={1}
@@ -29,7 +29,7 @@ export default function PainAssessment({
             />
             <div className="flex justify-between text-xs text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">
               <span>0</span>
-              <span className="font-medium">Current: {formData.painLevel || 0}</span>
+              <span className="font-medium">Current: {formData?.painLevel || 0}</span>
               <span>10</span>
             </div>
           </div>
@@ -54,9 +54,9 @@ export default function PainAssessment({
                 <input
                   type="checkbox"
                   value={c}
-                  checked={formData.painCharacteristics.includes(c)}
+                  checked={formData?.painCharacteristics?.includes(c)}
                   onChange={(e) => {
-                    const arr = formData.painCharacteristics;
+                    const arr = formData?.painCharacteristics || [];
                     updateFormData(
                       "painCharacteristics",
                       e.target.checked ? [...arr, c] : arr.filter((x: string) => x !== c)

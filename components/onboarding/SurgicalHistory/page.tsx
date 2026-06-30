@@ -16,7 +16,7 @@ export default function SurgicalHistory({
       </h3>
       <p className="text-sm text-[hsl(var(--muted-foreground))] mb-3">Past surgeries and dates:</p>
       <Textarea
-        value={formData.surgicalHistory}
+        value={formData?.surgicalHistory}
         onChange={(e) => updateFormData("surgicalHistory", e.target.value)}
         placeholder="List any surgeries you've had and approximate dates..."
         rows={3}

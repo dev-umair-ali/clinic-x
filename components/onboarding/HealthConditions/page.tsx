@@ -37,9 +37,9 @@ export default function HealthConditions({
           <div key={c} className="flex items-center space-x-2">
             <Checkbox
               id={c.toLowerCase().replace(/[^a-z0-9]/g, "-")}
-              checked={formData.healthConditions.includes(c)}
+              checked={formData?.healthConditions?.includes(c)}
               onCheckedChange={(checked) => {
-                const arr = formData.healthConditions;
+                const arr = formData?.healthConditions || [];
                 updateFormData(
                   "healthConditions",
                   checked ? [...arr, c] : arr.filter((x: string) => x !== c)
@@ -60,7 +60,7 @@ export default function HealthConditions({
           Other conditions not listed:
         </Label>
         <Textarea
-          value={formData.otherConditions}
+          value={formData?.otherConditions}
           onChange={(e) => updateFormData("otherConditions", e.target.value)}
           placeholder="Please specify any other health conditions..."
           rows={2}

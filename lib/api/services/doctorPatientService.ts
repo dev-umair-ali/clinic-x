@@ -13,7 +13,6 @@ export interface DoctorPatient {
   dateOfBirth: string
   gender: "male" | "female"
   bloodType: string
-  assignedDoctor: string
   insuranceInfo: string
   medicalHistory: string
   address: string
@@ -21,7 +20,12 @@ export interface DoctorPatient {
   role: "patient"
   lastVisit: string
   avatar?: string
-  prescriptions?: string[]
+  prescriptions?: string[],
+  profilePicture?: string,
+  clinicRef?: string,
+  doctorRef?: string,
+  createdAt?: string
+  updatedAt?: string
 }
 
 export interface CreateDoctorPatientRequest {
@@ -72,14 +76,56 @@ export interface DoctorPatientResponse {
 }
 
 export interface DoctorPatientsListResponse {
-  success: boolean
-  data: DoctorPatient[]
-  message?: string
+  success: boolean;
+  patients: Array<{
+    _id?: string;
+    userRef: string;
+    userId?: string;
+    clinicRef: string;
+    doctorRef?: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phoneNumber?: string;
+    age?: number;
+    dateOfBirth?: string;
+    gender: "male" | "female" | "other";
+    profilePicture?: string;
+    bloodType?: string;
+    insuranceInfo?: string;
+    medicalHistory?: string[];
+    allergies?: string;
+    currentMedication?: string;
+    insuranceProvider?: string;
+    address: {
+      street?: string;
+      city?: string;
+      state?: string;
+      zipCode?: string;
+      country?: string;
+    };
+    status: "active" | "inactive" | "pending_verification" | "suspended";
+    role?: "patient";
+    formCompletionPercentage?: number;
+    isEmailVerified?: boolean;
+    erxPatientId?: string;
+    erxDoctorId?: string;
+    lastVisit?: string;
+    createdAt?: string;
+    updatedAt?: string;
+  }>;
+  pagination?: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    itemsPerPage: number;
+  };
+  message?: string;
 }
 
 export interface DoctorPatientsByDoctorResponse {
   success: boolean
-  data: DoctorPatient[]
+  patient: DoctorPatient[]
   message?: string
 }
 
@@ -93,8 +139,14 @@ export const doctorPatientService = {
 
   // Get all patients
   async getDoctorPatients(): Promise<DoctorPatientsListResponse> {
-    const response = await api.get('/doctors/patients')
+    const response = await api.get('/doctor/patient/all/patients')
     return response.data
+  },
+
+    // Get patient by ID
+  async getPatient(doctorId: string): Promise<DoctorPatientsByDoctorResponse> {
+    const response = await api.get(`/doctor/patient/${doctorId}`)
+    return response.data.patient
   },
 
   // Get specific patient by ID
@@ -116,8 +168,10 @@ export const doctorPatientService = {
   },
 
   // Get patients by doctor ID
-  async getPatientsByDoctorId(doctorId: string): Promise<DoctorPatientsByDoctorResponse> {
+  async getPatientByDoctorId(doctorId: string): Promise<DoctorPatientsByDoctorResponse> {
     const response = await api.get(`/doctors/patients/doctor/${doctorId}`)
     return response.data
-  }
+  },
+
+
 }

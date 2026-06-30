@@ -5,6 +5,8 @@ import {
   DoctorAppointment,
   CreateAppointmentRequest,
 } from "@/lib/api/services/appointmentService";
+import { RootState } from "@/lib/store";
+import { useSelector } from "react-redux";
 
 export default function useAppointments(
   viewMode: "calendar" | "list",
@@ -17,6 +19,8 @@ export default function useAppointments(
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [totalPages, setTotalPages] = useState(1);
+  const { user: authUser } = useSelector((state: RootState) => state.auth);
+  const role = authUser?.role;
 
   useEffect(() => {
     // Only auto-fetch for list view - calendar view is fetched manually with date range
@@ -57,10 +61,10 @@ export default function useAppointments(
         // Fetch all appointments and filter for upcoming (scheduled OR rescheduled)
         const allRes = await appointmentService.getDoctorAppointments({ page: 1, limit: 1000 });
         if (allRes?.success && allRes.data) {
-          const upcomingAppts = Array.isArray(allRes.data) 
-            ? allRes.data.filter((apt: any) => 
-                apt.status === "scheduled" || apt.status === "rescheduled"
-              )
+          const upcomingAppts = Array.isArray(allRes.data)
+            ? allRes.data.filter((apt: any) =>
+              apt.status === "scheduled" || apt.status === "rescheduled"
+            )
             : [];
           setAppointments(upcomingAppts);
           setTotalPages(1);
@@ -150,7 +154,7 @@ export default function useAppointments(
     if (!data.doctorRef || !data.patientRef || !data.date || !data.time) {
       throw new Error("Missing required fields: doctorRef, patientRef, date, and time are required");
     }
-    const res = await appointmentService.createAppointment(data);
+    const res = await appointmentService.createAppointment(role || "", data);
     if (res?.success) return;
     throw new Error(res?.message || "Failed to create appointment");
   };

@@ -14,6 +14,7 @@ import type { RootState } from "@/lib/store"
 import { cn } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
 import { getAvailableTimeSlots, type TimeSlot, type DoctorAvailability } from "@/lib/utils/timeSlots";
+import { Toaster } from "@/components/ui/toaster";
 
 interface EditAppointmentModalProps {
   open: boolean
@@ -42,7 +43,7 @@ export default function EditAppointmentModal({
   const [appointmentType, setAppointmentType] = useState("Consultation")
   const [notes, setNotes] = useState("")
   const [status, setStatus] = useState("scheduled")
-  
+
   const [loadingSlots, setLoadingSlots] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -53,53 +54,44 @@ export default function EditAppointmentModal({
   // Initialize form with appointment data
   useEffect(() => {
     if (open && appointment) {
-      console.log("📝 Editing appointment:", appointment)
-      console.log("📝 appointment.doctor:", appointment.doctor)
-      console.log("📝 appointment.doctorRef:", (appointment as any).doctorRef)
-      console.log("📝 appointment.doctorName:", (appointment as any).doctorName)
-      
+
       // Set date - handle both dateTime and date fields
       const dateValue = appointment.dateTime || appointment.date || new Date().toISOString()
       const aptDate = new Date(dateValue)
       setSelectedDate(aptDate)
-      
+
       // Set time
       setSelectedTime(appointment.time || format(aptDate, "HH:mm"))
-      
+
       // Set appointment type
       setAppointmentType(appointment.service || appointment.type || "Consultation")
-      
+
       // Set notes
       setNotes(appointment.notes || "")
-      
+
       // Set status
       setStatus(appointment.status || "scheduled")
-      
+
       // Set doctor info - try multiple fields
       const doctorData = (appointment as any).doctorRef || (appointment as any).doctor || appointment.doctor
       const doctorNameFallback = (appointment as any).doctorName
-      
-      console.log("📝 doctorData:", doctorData)
-      console.log("📝 doctorNameFallback:", doctorNameFallback)
-      
+
       if (doctorData) {
         const doctorObj = {
           _id: typeof doctorData === 'object' ? doctorData._id : doctorData,
-          name: typeof doctorData === 'object' 
+          name: typeof doctorData === 'object'
             ? `${doctorData.firstName || ''} ${doctorData.lastName || ''}`.trim() || doctorNameFallback || 'Unknown Doctor'
             : doctorNameFallback || 'Unknown Doctor',
           ...(typeof doctorData === 'object' ? doctorData : {})
         }
-        console.log("📝 Setting doctorInfo:", doctorObj)
         setDoctorInfo(doctorObj)
       } else if (doctorNameFallback) {
-        console.log("📝 Setting doctorInfo from name only:", doctorNameFallback)
         setDoctorInfo({
           _id: appointment.doctor, // Use doctor ID
           name: doctorNameFallback,
         })
       }
-      
+
       setError("")
     }
   }, [open, appointment])
@@ -117,34 +109,34 @@ export default function EditAppointmentModal({
     setLoadingSlots(true)
     try {
       const dateStr = format(selectedDate, "yyyy-MM-dd")
-      
+
       // Fetch doctor availability
       const availabilityRes = await appointmentService.getDoctorAvailability(doctorInfo._id)
-      
+
       if (availabilityRes?.success && availabilityRes.data) {
         setAvailability(availabilityRes.data)
-        
+
         // Fetch existing appointments for this doctor on this specific date
         const appointmentsRes = await appointmentService.getDoctorAppointmentsForDate(doctorInfo._id, dateStr)
-        
+
         let existingApts = appointmentsRes?.success ? (appointmentsRes.data || []) : []
-        
+
         // Exclude the current appointment being edited to allow rescheduling to same time
         if (appointment?._id) {
-          existingApts = existingApts.filter((apt: any) => 
+          existingApts = existingApts.filter((apt: any) =>
             apt._id !== appointment._id && apt.id !== appointment._id
           )
         }
-        
+
         setExistingAppointments(existingApts)
-        
+
         // Generate time slots - correct parameter order: availability, selectedDate, existingAppointments
         const slots = getAvailableTimeSlots(
           availabilityRes.data,
           selectedDate,
           existingApts
         )
-        
+
         setTimeSlots(slots)
       }
     } catch (err: any) {
@@ -172,7 +164,7 @@ export default function EditAppointmentModal({
     try {
       // Parse the selected time
       const [hours, minutes] = selectedTime.split(':').map(Number)
-      
+
       // Create new date with selected date and time
       const appointmentDateTime = new Date(selectedDate)
       appointmentDateTime.setHours(hours, minutes, 0, 0)
@@ -192,16 +184,16 @@ export default function EditAppointmentModal({
         timeZone: appointment.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
       }
 
-      console.log("📤 Updating appointment:", updateData)
 
       const res = await appointmentService.updateAppointment(appointment._id, updateData)
 
       if (res?.success) {
         toast({
           title: "Success",
-          description: isRescheduled 
-            ? "Appointment rescheduled successfully" 
+          description: isRescheduled
+            ? "Appointment rescheduled successfully"
             : "Appointment updated successfully",
+          variant: "default",
         })
         setOpen(false)
         onSaved()
@@ -242,6 +234,7 @@ export default function EditAppointmentModal({
         toast({
           title: "Success",
           description: "Appointment cancelled successfully",
+          variant: "default",
         })
         setOpen(false)
         onSaved()
@@ -265,69 +258,72 @@ export default function EditAppointmentModal({
   if (!appointment) return null
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="relative pb-4 border-b">
-          <DialogTitle className="text-xl font-semibold pr-8">
-            Edit Appointment
-          </DialogTitle>
-          <button
-            onClick={() => setOpen(false)}
-            className="absolute right-0 top-0 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </DialogHeader>
+    <>
+      <Toaster />
 
-        <div className="space-y-6 py-4">
-          {error && (
-            <div className="flex items-start gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
-              <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="relative pb-4 border-b">
+            <DialogTitle className="text-xl font-semibold pr-8">
+              Edit Appointment
+            </DialogTitle>
+            <button
+              onClick={() => setOpen(false)}
+              className="absolute right-0 top-0 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </DialogHeader>
+
+          <div className="space-y-6 py-4">
+            {error && (
+              <div className="flex items-start gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
+                <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+              </div>
+            )}
+
+            {/* Doctor Information */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2 text-sm font-medium">
+                <User className="h-4 w-4" />
+                Doctor
+              </Label>
+              <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-md border">
+                <p className="font-medium">{doctorInfo?.name || appointment.doctorName || "Unknown Doctor"}</p>
+                {doctorInfo?.specialization && (
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{doctorInfo.specialization}</p>
+                )}
+              </div>
             </div>
-          )}
 
-          {/* Doctor Information */}
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2 text-sm font-medium">
-              <User className="h-4 w-4" />
-              Doctor
-            </Label>
-            <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-md border">
-              <p className="font-medium">{doctorInfo?.name || appointment.doctorName || "Unknown Doctor"}</p>
-              {doctorInfo?.specialization && (
-                <p className="text-sm text-gray-600 dark:text-gray-400">{doctorInfo.specialization}</p>
-              )}
+            {/* Appointment Type */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2 text-sm font-medium">
+                <FileText className="h-4 w-4" />
+                Appointment Type
+              </Label>
+              <Select value={appointmentType} onValueChange={setAppointmentType}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {appointmentTypes.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-          </div>
 
-          {/* Appointment Type */}
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2 text-sm font-medium">
-              <FileText className="h-4 w-4" />
-              Appointment Type
-            </Label>
-            <Select value={appointmentType} onValueChange={setAppointmentType}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select type" />
-              </SelectTrigger>
-              <SelectContent>
-                {appointmentTypes.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Date Selection */}
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2 text-sm font-medium">
-              <CalendarIcon className="h-4 w-4" />
-              Date
-            </Label>
-            <input
+            {/* Date Selection */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2 text-sm font-medium">
+                <CalendarIcon className="h-4 w-4" />
+                Date
+              </Label>
+              {/* <input
               type="date"
               value={format(selectedDate, "yyyy-MM-dd")}
               onChange={(e) => {
@@ -337,105 +333,106 @@ export default function EditAppointmentModal({
               }}
               min={format(new Date(), "yyyy-MM-dd")}
               className="w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700"
-            />
-          </div>
+            /> */}
+            </div>
 
-          {/* Time Selection */}
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2 justify-between text-sm font-medium">
-              <span className="flex items-center gap-2">
-                <Clock className="h-4 w-4" />
-                Available Time Slots (30 minutes)
-              </span>
-              {availability?.timeZone && (
-                <span className="text-xs text-muted-foreground font-normal">
-                  {availability.timeZone}
+            {/* Time Selection */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2 justify-between text-sm font-medium">
+                <span className="flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  Available Time Slots (30 minutes)
                 </span>
+                {availability?.timeZone && (
+                  <span className="text-xs text-muted-foreground font-normal">
+                    {availability.timeZone}
+                  </span>
+                )}
+              </Label>
+              {loadingSlots ? (
+                <div className="p-8 text-center text-sm text-gray-500">
+                  Loading available time slots...
+                </div>
+              ) : timeSlots.length === 0 ? (
+                <div className="p-4 text-center text-sm text-gray-500 border rounded-md">
+                  No available time slots for this date
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[200px] overflow-y-auto p-2 border rounded-lg">
+                  {timeSlots.map((slot) => (
+                    <button
+                      key={slot.time}
+                      type="button"
+                      disabled={!slot.available}
+                      onClick={() => setSelectedTime(slot.time)}
+                      className={cn(
+                        "px-3 py-2 rounded-md text-sm font-medium transition-colors border-2",
+                        selectedTime === slot.time
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : slot.available
+                            ? "bg-background hover:bg-muted border-border"
+                            : "bg-muted text-muted-foreground border-border cursor-not-allowed opacity-50"
+                      )}
+                    >
+                      {slot.displayTime}
+                      {!slot.available && slot.reason && (
+                        <span className="block text-xs mt-1">({slot.reason})</span>
+                      )}
+                    </button>
+                  ))}
+                </div>
               )}
-            </Label>
-            {loadingSlots ? (
-              <div className="p-8 text-center text-sm text-gray-500">
-                Loading available time slots...
-              </div>
-            ) : timeSlots.length === 0 ? (
-              <div className="p-4 text-center text-sm text-gray-500 border rounded-md">
-                No available time slots for this date
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[200px] overflow-y-auto p-2 border rounded-lg">
-                {timeSlots.map((slot) => (
-                  <button
-                    key={slot.time}
-                    type="button"
-                    disabled={!slot.available}
-                    onClick={() => setSelectedTime(slot.time)}
-                    className={cn(
-                      "px-3 py-2 rounded-md text-sm font-medium transition-colors border-2",
-                      selectedTime === slot.time
-                        ? "bg-primary text-primary-foreground border-primary"
-                        : slot.available
-                        ? "bg-background hover:bg-muted border-border"
-                        : "bg-muted text-muted-foreground border-border cursor-not-allowed opacity-50"
-                    )}
-                  >
-                    {slot.displayTime}
-                    {!slot.available && slot.reason && (
-                      <span className="block text-xs mt-1">({slot.reason})</span>
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
+            </div>
+
+            {/* Status Selection */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Status</Label>
+              <Select value={status} onValueChange={setStatus}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {statusOptions.map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {s.charAt(0).toUpperCase() + s.slice(1)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Notes */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Notes (Optional)</Label>
+              <Textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Add any additional notes..."
+                rows={3}
+                className="resize-none"
+              />
+            </div>
           </div>
 
-          {/* Status Selection */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Status</Label>
-            <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent>
-                {statusOptions.map((s) => (
-                  <SelectItem key={s} value={s}>
-                    {s.charAt(0).toUpperCase() + s.slice(1)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="flex gap-3 pt-4 border-t">
+            <Button
+              onClick={handleCancel}
+              variant="outline"
+              className="flex-1"
+              disabled={loading || appointment.status === "cancelled"}
+            >
+              Cancel Appointment
+            </Button>
+            <Button
+              onClick={handleSave}
+              className="flex-1 bg-teal-600 hover:bg-teal-700"
+              disabled={loading || !selectedTime}
+            >
+              {loading ? "Saving..." : "Save Changes"}
+            </Button>
           </div>
-
-          {/* Notes */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Notes (Optional)</Label>
-            <Textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Add any additional notes..."
-              rows={3}
-              className="resize-none"
-            />
-          </div>
-        </div>
-
-        <div className="flex gap-3 pt-4 border-t">
-          <Button
-            onClick={handleCancel}
-            variant="outline"
-            className="flex-1"
-            disabled={loading || appointment.status === "cancelled"}
-          >
-            Cancel Appointment
-          </Button>
-          <Button
-            onClick={handleSave}
-            className="flex-1 bg-teal-600 hover:bg-teal-700"
-            disabled={loading || !selectedTime}
-          >
-            {loading ? "Saving..." : "Save Changes"}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }

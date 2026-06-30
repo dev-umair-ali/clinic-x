@@ -39,6 +39,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { Toaster } from "@/components/ui/toaster";
 
 const statusConfig = {
   draft: { label: "Draft", icon: FileText, color: "bg-gray-500" },
@@ -152,6 +153,7 @@ export default function PatientsBillingIntegrated() {
 
   return (
     <ProtectedRoute allowedRoles={["doctor", "admin"]}>
+      <Toaster />
       <div className="flex-1 overflow-y-auto p-6 bg-[hsl(var(--background))]">
         <div className="max-w-7xl mx-auto">
           {/* Header */}

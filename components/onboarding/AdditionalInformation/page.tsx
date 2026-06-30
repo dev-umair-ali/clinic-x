@@ -28,7 +28,7 @@ export default function AdditionalInformation({
           </Label>
           <Input
             placeholder="Your Job Title or Profession"
-            value={formData.occupation}
+            value={formData?.occupation}
             onChange={(e) => updateFormData("occupation", e.target.value)}
             className="bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]"
           />
@@ -38,7 +38,7 @@ export default function AdditionalInformation({
             Primary Language
           </Label>
           <Select
-            value={formData.primaryLanguage}
+            value={formData?.primaryLanguage}
             onValueChange={(v) => updateFormData("primaryLanguage", v)}
           >
             <SelectTrigger className="bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]">
@@ -59,7 +59,7 @@ export default function AdditionalInformation({
         </Label>
         <Input
           placeholder="Who referred you to our practice?"
-          value={formData.referredBy}
+          value={formData?.referredBy}
           onChange={(e) => updateFormData("referredBy", e.target.value)}
           className="bg-[hsl(var(--color-input-bg))] border-[hsl(var(--border))] text-[hsl(var(--foreground))]"
         />

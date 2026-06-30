@@ -122,6 +122,7 @@ export default function ClaimDetailsIntegrated({ claimId }: ClaimDetailsProps) {
         toast({
           title: "Success",
           description: "Claim submitted to insurance successfully",
+          variant: "default",
         });
         setSubmitOpen(false);
         setSubmissionNotes("");
@@ -166,6 +167,7 @@ export default function ClaimDetailsIntegrated({ claimId }: ClaimDetailsProps) {
         toast({
           title: "Success",
           description: "Appeal submitted successfully",
+          variant: "default",
         });
         setAppealOpen(false);
         setAppealReason("");
@@ -200,6 +202,7 @@ export default function ClaimDetailsIntegrated({ claimId }: ClaimDetailsProps) {
         toast({
           title: "Success",
           description: "Claim deleted successfully",
+          variant: "default",
         });
         router.push("/doctor/patients-billing/claims");
       } else {

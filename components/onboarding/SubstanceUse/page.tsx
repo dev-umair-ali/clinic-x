@@ -60,8 +60,8 @@ export default function SubstanceUse({
             Recreational Drug Use:
           </Label>
           <RadioGroup
-            value={formData.recreationalDrugUse}
-            onValueChange={(v) => updateFormData("recreationalDrugUse", v)}
+            value={formData.drugUse}
+            onValueChange={(v) => updateFormData("drugUse", v)}
             className="flex space-x-4"
           >
             <div className="flex items-center space-x-2">
