@@ -47,6 +47,16 @@ export default function ViewAssistantProfile() {
     [clinics, clinicAssistant?.clinicRef]
   );
 
+  if (loading) {
+    return (
+      <ProtectedRoute allowedRoles={["clinic"]}>
+        <div className="min-h-screen bg-[hsl(var(--background))] flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[hsl(var(--color-brand-teal))] mx-auto" />
+        </div>
+      </ProtectedRoute>
+    );
+  }
+
   if (!clinicAssistant) {
     return (
       <ProtectedRoute allowedRoles={["clinic"]}>
@@ -59,7 +69,7 @@ export default function ViewAssistantProfile() {
               Looking for clinicAssistant ID: {assistantId}
             </p>
             <Button
-              onClick={() => router.push("/clinic/assistants")}
+              onClick={() => router.push("/Clinic/assistants")}
               className="mt-4"
             >
               Back to Assistants
@@ -81,7 +91,7 @@ export default function ViewAssistantProfile() {
                 variant="ghost"
                 size="icon"
                 className="text-[hsl(var(--muted-foreground))]"
-                onClick={() => router.push("/clinic/assistants")}
+                onClick={() => router.push("/Clinic/assistants")}
               >
                 <ArrowLeft className="h-5 w-5" />
               </Button>
@@ -98,13 +108,13 @@ export default function ViewAssistantProfile() {
               <Button
                 variant="outline"
                 className="border-[hsl(var(--border))] bg-transparent"
-                onClick={() => router.push("/clinic/assistants")}
+                onClick={() => router.push("/Clinic/assistants")}
               >
                 Back to Assistants
               </Button>
               <Button
                 onClick={() =>
-                  router.push(`/clinic/assistants/edit/${clinicAssistant._id}`)
+                  router.push(`/Clinic/assistants/edit/${clinicAssistant._id}`)
                 }
                 className="bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-white"
               >

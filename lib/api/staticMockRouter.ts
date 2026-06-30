@@ -58,6 +58,22 @@ function notesList(notes: ReturnType<typeof getStaticStore>["notes"], page = 1, 
   };
 }
 
+function findById<T extends { _id?: string }>(items: T[], id: string): T | undefined {
+  return items.find((x) => x._id === id);
+}
+
+function assistantDetail(a: ReturnType<typeof getStaticStore>["assistants"][0]) {
+  return {
+    ...a,
+    userId: a.userRef,
+    isEmailVerified: true,
+    createdBy: "demo",
+    createdAt: a.createdAt || new Date().toISOString(),
+    updatedAt: a.updatedAt || new Date().toISOString(),
+    address: (a as { address?: object }).address || {},
+  };
+}
+
 function auditList(logs: ReturnType<typeof getStaticStore>["auditLogs"], page = 1, limit = 10) {
   return {
     success: true,
@@ -117,24 +133,40 @@ export function resolveStaticMock(
   // ── Patients (all role prefixes) ──
   if (m === "GET" && /\/(admin|clinic|assistant)\/patient\/all\/patients/.test(path))
     return patientsList(s.patients, page, limit);
-  if (m === "GET" && path.match(/\/(admin|clinic|assistant)\/patient\/[^/]+$/)) {
+  if (m === "GET" && path.match(/\/(admin|clinic|assistant)\/patient\/[^/]+$/) && !path.includes("all")) {
     const id = path.split("/").pop()!;
-    const p = s.patients.find((x) => x._id === id) || s.patients[0];
+    const p = findById(s.patients, id) || s.patients[0];
     return { success: true, patient: p };
+  }
+  if (m === "GET" && path.match(/\/doctor\/patient\/[^/]+$/) && !path.includes("all")) {
+    const id = path.split("/").pop()!;
+    const p = findById(s.patients, id) || s.doctorPatients[0] || s.patients[0];
+    return { success: true, patient: p };
+  }
+  if (m === "GET" && path.match(/\/doctors\/patients\/[^/]+$/) && !path.includes("/doctor/")) {
+    const id = path.split("/").pop()!;
+    const p = findById(s.patients, id) || s.patients[0];
+    return { success: true, data: p, patient: p };
   }
   if (m === "GET" && path === "/doctor/patient/all/patients")
     return { success: true, patients: s.doctorPatients };
   if (m === "GET" && path.startsWith("/doctors/patients"))
-    return { success: true, data: { user: s.doctorPatients.find((p) => path.includes(p._id)) || s.doctorPatients[0] } };
+    return { success: true, data: { user: findById(s.doctorPatients, path.split("/").pop()!) || s.doctorPatients[0] } };
   if (m === "POST" && path.includes("/create-patient")) return { success: true, patient: { ...s.patients[0], ...b } };
   if (m === "PUT" && path.includes("/update-patient")) return { success: true, patient: s.patients[0] };
 
   // ── Assistants ──
   if (m === "GET" && /\/(admin|clinic)\/assistant\/all\/assistants/.test(path))
     return { success: true, data: s.assistants, pagination: pagination(s.assistants, page, limit) };
-  if (m === "GET" && path.match(/\/(admin|clinic)\/assistant\/[^/]+$/)) {
+  if (m === "GET" && path.match(/\/clinic\/assistant\/[^/]+$/) && !path.includes("all") && !path.includes("create") && !path.includes("update")) {
     const id = path.split("/").pop()!;
-    return { success: true, data: s.assistants.find((a) => a._id === id) || s.assistants[0] };
+    const a = findById(s.assistants, id) || s.assistants[0];
+    return { success: true, data: { assistant: assistantDetail(a) } };
+  }
+  if (m === "GET" && path.match(/\/admin\/assistant\/[^/]+$/) && !path.includes("all")) {
+    const id = path.split("/").pop()!;
+    const a = findById(s.assistants, id) || s.assistants[0];
+    return { success: true, data: assistantDetail(a) };
   }
   if (m === "POST" && path.includes("/create-assistant")) return { success: true, assistant: s.assistants[0] };
   if (m === "PUT" && path.includes("/update-assistant")) return { success: true };
@@ -142,8 +174,14 @@ export function resolveStaticMock(
   // ── Appointments ──
   if (m === "GET" && (path.startsWith("/doctors/appointments") || path === "/appointments"))
     return appointmentsList(s.appointments);
-  if (m === "GET" && path.match(/\/doctors\/appointments\/[^/]+$/))
-    return success(s.appointments[0]);
+  if (m === "GET" && path.match(/\/doctors\/appointments\/[^/]+\/details$/)) {
+    const id = path.split("/")[3];
+    const appt = findById(s.appointments, id) || s.appointments[0];
+    const patient = findById(s.patients, appt.patientId as string) || s.patients[0];
+    return success({ ...appt, patient });
+  }
+  if (m === "GET" && path.match(/\/doctors\/appointments\/[^/]+$/) && !path.includes("/calendar"))
+    return success(findById(s.appointments, path.split("/").pop()!) || s.appointments[0]);
   if (m === "GET" && path.includes("/doctors/appointments/status/")) {
     const status = path.split("/").pop()!.replace("cancelled", "cancelled");
     const filtered = s.appointments.filter((a) => a.status === status || (status === "cancelled" && a.status === "cancelled"));
@@ -168,8 +206,18 @@ export function resolveStaticMock(
 
   // ── Notes ──
   if (m === "GET" && path.includes("/notes/all")) return notesList(s.notes, page, limit);
+  if (
+    m === "GET" &&
+    path.match(/\/(doctor|clinic|patient|assistant)\/notes\/[^/]+$/) &&
+    !path.includes("appointment") &&
+    !path.includes("all")
+  ) {
+    const id = path.split("/").pop()!;
+    const note = findById(s.notes, id) || s.notes[0];
+    return success(note);
+  }
   if (m === "GET" && path.match(/\/doctor\/notes\/[^/]+$/) && !path.includes("appointment"))
-    return success(s.notes.find((n) => path.includes(n._id)) || s.notes[0]);
+    return success(findById(s.notes, path.split("/").pop()!) || s.notes[0]);
   if (m === "GET" && path.includes("/notes/appointment/")) return notesList(s.notes);
   if (m === "POST" && path.includes("/notes/create")) return success({ ...s.notes[0], ...b, _id: `note-${Date.now()}` });
   if (m === "PUT" && path.includes("/notes/update")) return success(s.notes[0]);
@@ -205,12 +253,16 @@ export function resolveStaticMock(
 
   // ── Billing (axios paths) ──
   if (path.startsWith("/billing/doctor/charges") && m === "GET") {
-    if (path.match(/\/charges\/[^/]+$/)) return success(s.billingCharges[0]);
+    const chargeId = path.match(/\/charges\/([^/]+)$/)?.[1];
+    if (chargeId) return success(findById(s.billingCharges, chargeId) || s.billingCharges[0]);
     return success({ charges: s.billingCharges, pagination: pagination(s.billingCharges) });
   }
   if (path.startsWith("/billing/doctor/stats")) return success(s.doctorStats);
-  if (path.startsWith("/billing/claims") && m === "GET")
-    return success(path.match(/\/claims\/[^/]+$/) ? s.billingClaims[0] : { claims: s.billingClaims, pagination: pagination(s.billingClaims) });
+  if (path.startsWith("/billing/claims") && m === "GET") {
+    const claimId = path.match(/\/claims\/([^/]+)$/)?.[1];
+    if (claimId) return success(findById(s.billingClaims, claimId) || s.billingClaims[0]);
+    return success({ claims: s.billingClaims, pagination: pagination(s.billingClaims) });
+  }
   if (path.includes("/billing/codes/cpt")) return success(s.cptCodes);
   if (path.includes("/billing/codes/icd10")) return success(s.icd10Codes);
   if (path.startsWith("/billing/") && m === "POST") return success(s.billingCharges[0]);
@@ -234,7 +286,7 @@ export function resolveStaticMock(
   if (m === "GET" && path === "/refills") return success([]);
 
   // ── Patient full details ──
-  if (m === "GET" && path.includes("/patient-full-details") || path.includes("/details"))
+  if (m === "GET" && (path.includes("/patient-full-details") || path.endsWith("/patient/details")))
     return success({ patient: s.patients[0], lastAppointment: s.appointments[2] });
 
   // ── Mutations default ──

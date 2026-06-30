@@ -35,7 +35,7 @@ const BANNER_CONFIG: Record<
   },
   clinic: {
     buttons: [
-      { label: "Assistant", path: "/clinic/assistants" },
+      { label: "Assistant", path: "/Clinic/assistants" },
       { label: "Doctor", path: "/clinic/doctors" },
       { label: "Patient", path: "/clinic/patients" },
     ],

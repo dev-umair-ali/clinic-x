@@ -236,7 +236,7 @@ export default function EditAssistantPage() {
           description: "Assistant updated successfully!",
         });
         setTimeout(() => {
-          router.push("/clinic/assistants/view/" + assistantId);
+          router.push("/Clinic/assistants/view/" + assistantId);
         }, 1500);
       } else if (response.meta.requestStatus === "rejected") {
         toast({
@@ -334,7 +334,7 @@ export default function EditAssistantPage() {
               Assistant not found
             </p>
             <Button
-              onClick={() => router.push("/clinic/assistants")}
+              onClick={() => router.push("/Clinic/assistants")}
               className="mt-4"
             >
               Back to Assistants
@@ -357,7 +357,7 @@ export default function EditAssistantPage() {
                 variant="ghost"
                 size="icon"
                 className="text-[hsl(var(--muted-foreground))]"
-                onClick={() => router.push("/clinic/assistants")}
+                onClick={() => router.push("/Clinic/assistants")}
               >
                 <ArrowLeft className="h-5 w-5" />
               </Button>
@@ -796,7 +796,7 @@ export default function EditAssistantPage() {
               <Button
                 variant="outline"
                 className="flex-1 border-[hsl(var(--border))] bg-transparent"
-                onClick={() => router.push("/clinic/assistants")}
+                onClick={() => router.push("/Clinic/assistants")}
               >
                 Cancel
               </Button>

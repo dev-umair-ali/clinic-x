@@ -71,7 +71,7 @@ export const fetchClinicAssistant = createAsyncThunk(
     async (id: string, { rejectWithValue }) => {
         try {
             const response = await clinicAssistantService.getAssistant(id)
-            return response.data;
+            return response.data?.assistant ?? response;
         } catch (error: any) {
             const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Failed to fetch assistant';
             return rejectWithValue(errorMessage)

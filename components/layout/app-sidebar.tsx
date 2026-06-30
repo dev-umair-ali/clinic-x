@@ -49,7 +49,7 @@ const menuItems = {
   clinic: [
     { icon: IoHome, label: "Dashboard", href: "/Clinic/dashboard" },
 
-    { icon: IoIosPersonAdd, label: "Assistants", href: "/clinic/assistants" },
+    { icon: IoIosPersonAdd, label: "Assistants", href: "/Clinic/assistants" },
     { icon: HiMiniUserGroup, label: "Doctors", href: "/clinic/doctors" },
     { icon: HiMiniUserGroup, label: "Patients", href: "/clinic/patients" },
 
@@ -69,7 +69,7 @@ const menuItems = {
     {
       icon: FaCreditCard,
       label: "Theme Setup",
-      href: "/clinic/settings/theme",
+      href: "/Clinic/settings/theme",
     },
     // {
     //   icon: IoSettingsSharp,

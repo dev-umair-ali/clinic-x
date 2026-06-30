@@ -248,7 +248,7 @@ export default function AddAssistantPage() {
 
       const response = await dispatch(createClinicAssistant(assistantData));
       if (response.meta.requestStatus === "fulfilled") {
-        router.push("/clinic/assistants/view/" + (response.payload as any)._id);
+        router.push("/Clinic/assistants/view/" + (response.payload as any)._id);
       } 
       else if (response.meta.requestStatus === "rejected") {
         toast({
@@ -285,7 +285,7 @@ export default function AddAssistantPage() {
                 variant="ghost"
                 size="icon"
                 className="text-[hsl(var(--muted-foreground))]"
-                onClick={() => router.push("/clinic/assistants")}
+                onClick={() => router.push("/Clinic/assistants")}
               >
                 <ArrowLeft className="h-5 w-5" />
               </Button>
@@ -697,7 +697,7 @@ export default function AddAssistantPage() {
               <Button
                 variant="outline"
                 className="w-1/2 border-[hsl(var(--border))] bg-transparent"
-                onClick={() => router.push("/clinic/assistants")}
+                onClick={() => router.push("/Clinic/assistants")}
               >
                 Cancel
               </Button>

@@ -117,7 +117,7 @@ export default function ClinicAssistantsPage() {
               </p>
             </div>
             <Button
-              onClick={() => handleNavigation("/clinic/assistants/add")}
+              onClick={() => handleNavigation("/Clinic/assistants/add")}
               className="mt-4 md:mt-0 bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-white flex items-center space-x-2"
             >
               <Plus className="h-4 w-4" />

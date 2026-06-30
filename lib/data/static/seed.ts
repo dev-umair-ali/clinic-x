@@ -441,9 +441,9 @@ export const clinicTheme = {
   _id: IDS.THEME_1,
   clinicId: IDS.CLINIC_1,
   theme: {
-    primary: "#61C2B4",
-    secondary: "#2D3748",
-    accent: "#4299E1",
+    primary: "167 69% 39%",
+    secondary: "167 69% 49%",
+    accent: "167 69% 29%",
     logo: null as string | null,
   },
   createdAt: daysAgo(30),

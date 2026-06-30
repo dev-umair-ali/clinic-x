@@ -34,7 +34,8 @@ import { fetchClinicDoctors } from "@/lib/slices/patientSlice"
 export default function ViewPatientPage() {
   const router = useRouter();
   const params = useParams();
-  const { loading, clinicDoctors } = useSelector((state: RootState) => state.patients);
+  const { loading } = useSelector((state: RootState) => state.assistantPatients);
+  const { clinicDoctors } = useSelector((state: RootState) => state.patients);
    const { assistantPatient } = useSelector((state: RootState) => state.assistantPatients)
    const { user } = useSelector((state: RootState) => state.auth)
   

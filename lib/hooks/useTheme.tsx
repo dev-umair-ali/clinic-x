@@ -53,6 +53,38 @@ const TOKEN_MAP = {
   "--color-teal-gradient-mid": "secondary",
 } as const;
 
+/** Convert hex (#61C2B4) to HSL components ("167 69% 39%") for hsl(var(--token)). */
+function toHslComponents(color: string): string {
+  if (!color) return color;
+  const trimmed = color.trim();
+  if (!trimmed.startsWith("#")) return trimmed;
+
+  const hex = trimmed.slice(1);
+  const full =
+    hex.length === 3
+      ? hex
+          .split("")
+          .map((c) => c + c)
+          .join("")
+      : hex;
+  const r = parseInt(full.slice(0, 2), 16) / 255;
+  const g = parseInt(full.slice(2, 4), 16) / 255;
+  const b = parseInt(full.slice(4, 6), 16) / 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  if (max === min) return `0 0% ${Math.round(l * 100)}%`;
+
+  const d = max - min;
+  const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+  let h = 0;
+  if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+  else if (max === g) h = ((b - r) / d + 2) / 6;
+  else h = ((r - g) / d + 4) / 6;
+
+  return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
+}
+
 /**
  * Apply theme colors to CSS custom properties
  */
@@ -62,13 +94,17 @@ export function applyThemeColors(
   accent: string,
   logo: string | null = null
 ) {
+  const p = toHslComponents(primary);
+  const s = toHslComponents(secondary);
+  const a = toHslComponents(accent);
+
   Object.entries(TOKEN_MAP).forEach(([token, src]) => {
-    const value = src === "primary" ? primary : src === "secondary" ? secondary : accent;
+    const value = src === "primary" ? p : src === "secondary" ? s : a;
     document.documentElement.style.setProperty(token, value);
   });
 
   // Apply scrollbar thumb color
-  document.documentElement.style.setProperty("--scroll-thumb", primary);
+  document.documentElement.style.setProperty("--scroll-thumb", p);
 
   // Apply logo if provided
   if (logo) {
