@@ -85,7 +85,7 @@ const googleCalendarSlice = createSlice({
       .addCase(checkCalendarConnection.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isConnected = action.payload;
-        state.showConnectionDialog = !action.payload;
+        state.showConnectionDialog = false;
       })
       .addCase(checkCalendarConnection.rejected, (state, action) => {
         state.isLoading = false;
@@ -119,7 +119,7 @@ const googleCalendarSlice = createSlice({
         state.isLoading = false;
         state.isConnected = false;
         state.email = null;
-        state.showConnectionDialog = true;
+        state.showConnectionDialog = false;
       })
       .addCase(disconnectCalendar.rejected, (state, action) => {
         state.isLoading = false;

@@ -5,28 +5,11 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ArrowLeft, Plus, Trash2, Copy } from "lucide-react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { ProtectedRoute } from "@/components/ui/protected-route"
 import { useToast } from "@/hooks/use-toast"
 import { useSelector, useDispatch } from "react-redux"
 import type { RootState, AppDispatch } from "@/lib/store"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog"
-import { CalendlyConnection } from "@/components/calendar-connection"
-import { connectGoogleCalendar } from "@/lib/api/googleCalendarService"
-import {
-  checkCalendarConnection,
-  refreshCalendarConnection,
-  setShowConnectionDialog,
-  setConnectionStatus,
-  disconnectCalendar
-} from "@/lib/slices/googleCalendarSlice"
 import { fetchAvailability, saveAvailability } from "@/lib/slices/availabilitySlice"
 import { Suspense } from "react"
 import { Toaster } from "@/components/ui/toaster";
@@ -43,13 +26,11 @@ interface DaySchedule {
 
 function DoctorSettingsContent() {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const { toast } = useToast()
   const dispatch = useDispatch<AppDispatch>()
   const { user: authUser } = useSelector((state: RootState) => state.auth)
   const doctorId = (authUser as any)?.doctorId
 
-  const { isConnected: isCalendlyConnected } = useSelector((state: RootState) => state.googleCalendar)
   const {
     timeZone: availabilityTimeZone,
     availableDays,
@@ -57,13 +38,6 @@ function DoctorSettingsContent() {
     isLoading: isLoadingAvailability,
     isSaving: isSavingAvailability
   } = useSelector((state: RootState) => state.availability)
-
-  // Google Calendar connection states
-  const [showCalendlyDialog, setShowCalendlyDialog] = useState(false)
-  const [showDisconnectDialog, setShowDisconnectDialog] = useState(false)
-  const [showSuccessConnectionDialog, setShowSuccessConnectionDialog] = useState(false)
-  const [showErrorConnectionDialog, setShowErrorConnectionDialog] = useState(false)
-  const [connectionEmail, setConnectionEmail] = useState<string>("")
 
   const [selectedDays, setSelectedDays] = useState({
     sun: false,
@@ -153,109 +127,7 @@ function DoctorSettingsContent() {
     }))
   }
 
-  // Handle query parameters for Google Calendar connection
-  useEffect(() => {
-    const googleCalendarConnected = searchParams?.get("googleCalendarConnected")
-    const success = searchParams?.get("success")
-    const email = searchParams?.get("email")
-    const error = searchParams?.get("error")
-
-    if (googleCalendarConnected === "true" && success === "true") {
-      setConnectionEmail(email || "")
-      setShowSuccessConnectionDialog(true)
-
-      dispatch(setConnectionStatus({ isConnected: true, email: email || null }))
-      dispatch(setShowConnectionDialog(false))
-
-      const doctorId = (authUser as any)?.doctorId
-      if (doctorId) {
-        dispatch(fetchAvailability(doctorId))
-      }
-
-      const url = new URL(window.location.href)
-      url.searchParams.delete("googleCalendarConnected")
-      url.searchParams.delete("success")
-      url.searchParams.delete("email")
-      window.history.replaceState({}, "", url.toString())
-    } else if (googleCalendarConnected === "false" || (success === "false" && error)) {
-      setShowErrorConnectionDialog(true)
-      dispatch(setConnectionStatus({ isConnected: false }))
-
-      const url = new URL(window.location.href)
-      url.searchParams.delete("googleCalendarConnected")
-      url.searchParams.delete("success")
-      url.searchParams.delete("error")
-      window.history.replaceState({}, "", url.toString())
-    }
-  }, [searchParams, dispatch, authUser])
-
-  // Check Google Calendar connection status on mount
-  useEffect(() => {
-    const doctorId = (authUser as any)?.doctorId || ""
-    if (doctorId) {
-      dispatch(checkCalendarConnection(doctorId))
-    }
-  }, [authUser, dispatch])
-
-  // Handle connection change
-  const handleConnectionChange = (connected: boolean) => {
-    if (connected) {
-      if (doctorId) {
-        dispatch(refreshCalendarConnection(doctorId))
-        dispatch(fetchAvailability(doctorId))
-      }
-      toast({
-        title: "Success",
-        description: "Google Calendar connected successfully",
-        variant: "default",
-      })
-    }
-  }
-
-  // Handle disconnect
-  const handleDisconnect = async () => {
-    try {
-      const doctorId = (authUser as any)?.doctorId
-      if (doctorId) {
-        await dispatch(disconnectCalendar(doctorId)).unwrap()
-      }
-      setShowDisconnectDialog(false)
-      setShowCalendlyDialog(true)
-      toast({
-        title: "Disconnected",
-        description: "Google Calendar disconnected successfully",
-        variant: "default",
-      })
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to disconnect Google Calendar",
-        variant: "destructive"
-      })
-    }
-  }
-
-  const handleShowDisconnectDialog = () => {
-    setShowDisconnectDialog(true)
-  }
-
-  // Handle reconnect from error dialog
-  const handleReconnect = () => {
-    const doctorId = (authUser as any)?.doctorId
-    if (doctorId) {
-      try {
-        connectGoogleCalendar(doctorId)
-      } catch (error: any) {
-        toast({
-          title: "Error",
-          description: error.message || "Failed to initiate connection",
-          variant: "destructive"
-        })
-      }
-    }
-  }
-
-  // Copy time slots from one day to all other days
+  // Convert Redux availability to local schedule format
   const copyToAllDays = (sourceDay: string) => {
     setSchedule((prev) => {
       const sourceSlots = prev[sourceDay] || []
@@ -599,108 +471,6 @@ function DoctorSettingsContent() {
               </>
             )}
           </div>
-
-          {/* Google Calendar Connection Dialog */}
-          <Dialog open={showCalendlyDialog} onOpenChange={(open) => !open && setShowCalendlyDialog(false)}>
-            <DialogContent className="[&>button.absolute]:hidden">
-              <DialogHeader>
-                <DialogTitle>Google Calendar Not Connected</DialogTitle>
-                <DialogDescription>
-                  You are not connected to Google Calendar. Please connect to it to continue.
-                </DialogDescription>
-              </DialogHeader>
-              <DialogFooter>
-                {authUser && ((authUser as any)?.doctorId) && (
-                  (() => {
-                    const doctorId = (authUser as any)?.doctorId || ""
-                    return (
-                      <CalendlyConnection
-                        userId={doctorId}
-                        doctorId={doctorId}
-                        onConnectionChange={handleConnectionChange}
-                      />
-                    )
-                  })()
-                )}
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-
-          {/* Disconnect Confirmation Dialog */}
-          <Dialog open={showDisconnectDialog} onOpenChange={setShowDisconnectDialog}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Disconnect Google Calendar</DialogTitle>
-                <DialogDescription>
-                  Are you sure you want to disconnect from Google Calendar? This will remove your calendar integration and availability synchronization.
-                </DialogDescription>
-              </DialogHeader>
-              <DialogFooter className="flex gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowDisconnectDialog(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={handleDisconnect}
-                >
-                  Disconnect
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-
-          {/* Success Connection Dialog */}
-          <Dialog open={showSuccessConnectionDialog} onOpenChange={setShowSuccessConnectionDialog}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Google Calendar Connected Successfully!</DialogTitle>
-                <DialogDescription>
-                  Your Google Calendar has been successfully connected{connectionEmail && ` using ${connectionEmail}`}.
-                  You can now manage your availability and sync appointments.
-                </DialogDescription>
-              </DialogHeader>
-              <DialogFooter>
-                <Button
-                  onClick={() => setShowSuccessConnectionDialog(false)}
-                  className="bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-white"
-                >
-                  Got it
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-
-          {/* Error Connection Dialog */}
-          <Dialog open={showErrorConnectionDialog} onOpenChange={setShowErrorConnectionDialog}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Connection Failed</DialogTitle>
-                <DialogDescription>
-                  There was an issue connecting your Google Calendar. Please try again.
-                </DialogDescription>
-              </DialogHeader>
-              <DialogFooter className="flex gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowErrorConnectionDialog(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={() => {
-                    setShowErrorConnectionDialog(false)
-                    handleReconnect()
-                  }}
-                  className="bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] text-white"
-                >
-                  Try Again
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
         </div>
       </div>
     </ProtectedRoute>

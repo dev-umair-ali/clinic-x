@@ -38,7 +38,7 @@ const menuItems = {
   ],
   
   clinic: [
-    { icon: LayoutDashboard, label: "Dashboard", href: "/clinic/dashboard" },
+    { icon: LayoutDashboard, label: "Dashboard", href: "/Clinic/dashboard" },
     { icon: UserPlus, label: "Assistants", href: "/clinic/assistants" },
     { icon: Users, label: "Doctors", href: "/clinic/doctors" },
     { icon: Users, label: "Patients", href: "/clinic/patients" },

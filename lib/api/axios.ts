@@ -1,68 +1,73 @@
-import axios from 'axios';
+import axios, { type AxiosAdapter, type InternalAxiosRequestConfig } from "axios";
+import { IS_PORTFOLIO_MODE } from "@/lib/config/portfolio";
+import { resolveStaticMock } from "@/lib/api/staticMockRouter";
 
-// Create axios instance with default config
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_BACKEND_BASE_URL || 'https://api.clinicx.io',
+  baseURL: process.env.NEXT_PUBLIC_BACKEND_BASE_URL || "https://api.clinicx.io",
   timeout: 10000,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
-// Request interceptor to add JWT token
+const staticAdapter: AxiosAdapter = async (config) => {
+  await new Promise((r) => setTimeout(r, 120));
+  const url = config.url || "";
+  const base = config.baseURL || "";
+  const fullPath = url.startsWith("http") ? url : `${base}${url}`;
+  const data = resolveStaticMock(config.method || "GET", fullPath, config.data);
+
+  return {
+    data,
+    status: 200,
+    statusText: "OK",
+    headers: {},
+    config: config as InternalAxiosRequestConfig,
+  };
+};
+
+if (IS_PORTFOLIO_MODE) {
+  api.defaults.adapter = staticAdapter;
+}
+
 api.interceptors.request.use(
   (config) => {
-    // Get token from localStorage
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('clinic-ai-token');
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("clinic-ai-token");
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Response interceptor for error handling
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Handle 401 unauthorized responses
-    if (error.response?.status === 401) {
-      // Clear invalid token and redirect to login
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('clinic-ai-token');
-        localStorage.removeItem('clinic-ai-user');
-        // window.location.href = '/login';
-      }
+    if (error.response?.status === 401 && typeof window !== "undefined") {
+      localStorage.removeItem("clinic-ai-token");
+      localStorage.removeItem("clinic-ai-user");
     }
     return Promise.reject(error);
   }
 );
 
-// Function to set token manually (useful after login)
 export const setAuthToken = (token: string | null) => {
   if (token) {
-    // Set token in localStorage
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('clinic-ai-token', token);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("clinic-ai-token", token);
     }
-    // Set default authorization header
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   } else {
-    // Remove token from localStorage
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('clinic-ai-token');
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("clinic-ai-token");
     }
-    // Remove default authorization header
-    delete api.defaults.headers.common['Authorization'];
+    delete api.defaults.headers.common["Authorization"];
   }
 };
 
-// Function to clear auth token (useful for logout)
 export const clearAuthToken = () => {
   setAuthToken(null);
 };

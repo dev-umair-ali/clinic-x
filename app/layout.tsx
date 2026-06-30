@@ -6,6 +6,7 @@ import { ReduxProvider } from "@/components/providers/redux-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeProvider as ClinicThemeProvider } from "@/lib/hooks/useTheme";
 import { MainLayoutWrapper } from "@/components/layout/main-layout-wrapper";
+import { PortfolioInit } from "@/components/providers/portfolio-init";
 
 // Use the `variable` option to define the font as a CSS variable
 const inter = Inter({
@@ -28,6 +29,7 @@ export default function RootLayout({
     <html lang="en" className={inter.variable} suppressHydrationWarning>
       <body className="font-sans min-h-screen overflow-x-hidden antialiased" suppressHydrationWarning>
         <ReduxProvider>
+          <PortfolioInit />
           <ThemeProvider>
             <ClinicThemeProvider>
               <MainLayoutWrapper>{children}</MainLayoutWrapper>

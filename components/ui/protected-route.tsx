@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation"
 import { useSelector } from "react-redux"
 import type { RootState } from "@/lib/store"
 import { AnimatedLoader } from "@/components/ui/animatedLoader"
+import { DASHBOARD_ROUTES } from "@/lib/constants/demoCredentials"
 
 interface ProtectedRouteProps {
   children: React.ReactNode
@@ -15,7 +16,7 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const router = useRouter()
-  const { isAuthenticated, user } = useSelector((state: RootState) => state.auth)
+  const { isAuthenticated, user, initialized } = useSelector((state: RootState) => state.auth)
   const theme = useSelector((state: RootState) => state.theme.current) // Get theme from Redux
   const [isMounted, setIsMounted] = useState(false)
 
@@ -24,29 +25,22 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
   }, [])
 
   useEffect(() => {
-    if (!isMounted) return
+    if (!isMounted || !initialized) return
 
     if (!isAuthenticated) {
-      router.push("/login")
+      router.replace("/login")
       return
     }
 
     if (allowedRoles && user && !allowedRoles.includes(user.role)) {
-      // Redirect to appropriate dashboard based on role
-      const dashboardRoutes = {
-        admin: "/admin/dashboard",
-        doctor: "/doctor/dashboard",
-        patient: "/patient/dashboard",
-        assistant: "/ assistant/dashboard",
-        clinic: "/clinic/dashboard",
-      }
-      router.push(dashboardRoutes[user.role])
+      const destination = DASHBOARD_ROUTES[user.role]
+      router.replace(destination || "/login")
       return
     }
-  }, [isMounted, isAuthenticated, user, allowedRoles, router])
+  }, [isMounted, initialized, isAuthenticated, user, allowedRoles, router])
 
   // Show loader with theme colors from Redux (if available)
-  if (!isMounted) {
+  if (!isMounted || !initialized) {
     return (
       <AnimatedLoader 
         primary={theme?.primary}

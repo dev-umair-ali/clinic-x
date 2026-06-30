@@ -4,29 +4,27 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/lib/store";
+import { DASHBOARD_ROUTES } from "@/lib/constants/demoCredentials";
+import type { User } from "@/lib/slices/authSlice";
 
 export default function HomePage() {
   const router = useRouter();
-  const { isAuthenticated, user } = useSelector(
+  const { isAuthenticated, user, initialized } = useSelector(
     (state: RootState) => state.auth
   );
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/login");
-    } else if (user) {
-      // Redirect to appropriate dashboard based on role
-      const dashboardRoutes = {
-        admin: "/admin/dashboard",
-        doctor: "/doctor/dashboard",
-        patient: "/patient/dashboard",
-        assistant: "/assistant/dashboard",
-        clinic: "/clinic/dashboard",
-      };
- 
-      router.push(dashboardRoutes[user.role]);
+    if (!initialized) return;
+
+    if (!isAuthenticated || !user?.role) {
+      router.replace("/login");
+      return;
     }
-  }, [isAuthenticated, user, router]);
+
+    const role = user.role as User["role"];
+    const destination = DASHBOARD_ROUTES[role];
+    router.replace(destination || "/login");
+  }, [initialized, isAuthenticated, user, router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center">

@@ -1,8 +1,9 @@
 import axios from "axios";
+import { IS_PORTFOLIO_MODE } from "@/lib/config/portfolio";
+import { resolveStaticMock } from "@/lib/api/staticMockRouter";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_BASE_URL || "http://localhost:5000";
 
-// Get token from localStorage
 const getAuthToken = () => {
   if (typeof window !== "undefined") {
     return localStorage.getItem("clinic-ai-token");
@@ -10,72 +11,62 @@ const getAuthToken = () => {
   return null;
 };
 
-// Create axios instance with auth headers
-const createAxiosInstance = () => {
-  const token = getAuthToken();
-  return axios.create({
-    baseURL: API_BASE_URL,
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
+const portfolioGet = async (path: string) => {
+  await new Promise((r) => setTimeout(r, 100));
+  return resolveStaticMock("GET", path);
 };
 
-/**
- * Check Google Calendar connection status for a doctor
- */
-export const checkGoogleCalendarStatus = async (doctorId: string): Promise<boolean> => {
+export const checkGoogleCalendarStatus = async (_doctorId: string): Promise<boolean> => {
+  if (IS_PORTFOLIO_MODE) {
+    const data = await portfolioGet("/doctor/connection/google/status/demo") as { googleCalendarConnected?: boolean };
+    return data?.googleCalendarConnected ?? false;
+  }
   try {
-    const api = createAxiosInstance();
-    const response = await api.get(`/doctor/connection/google/status/${doctorId}`);
+    const token = getAuthToken();
+    const api = axios.create({
+      baseURL: API_BASE_URL,
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    });
+    const response = await api.get(`/doctor/connection/google/status/${_doctorId}`);
     return response.data?.googleCalendarConnected ?? false;
-  } catch (error) {
-    console.error("Error checking Google Calendar status:", error);
+  } catch {
     return false;
   }
 };
 
-/**
- * Connect Google Calendar - redirects to Google OAuth
- */
 export const connectGoogleCalendar = (doctorId: string): void => {
+  if (IS_PORTFOLIO_MODE) return;
   const token = getAuthToken();
-  
-  if (!token) {
-    throw new Error("Authentication token not found");
-  }
-
-  const redirectUrl = `${API_BASE_URL}/doctor/connection/connect-google-calendar?token=${token}&doctorId=${doctorId}`;
-  window.location.href = redirectUrl;
+  if (!token) throw new Error("Authentication token not found");
+  window.location.href = `${API_BASE_URL}/doctor/connection/connect-google-calendar?token=${token}&doctorId=${doctorId}`;
 };
 
-/**
- * Disconnect Google Calendar
- */
 export const disconnectGoogleCalendar = async (doctorId: string): Promise<void> => {
-  try {
-    const api = createAxiosInstance();
-    await api.post(`/doctor/connection/google/disconnect/${doctorId}`);
-  } catch (error) {
-    console.error("Error disconnecting Google Calendar:", error);
-    throw error;
-  }
+  if (IS_PORTFOLIO_MODE) return;
+  const token = getAuthToken();
+  const api = axios.create({
+    baseURL: API_BASE_URL,
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+  });
+  await api.post(`/doctor/connection/google/disconnect/${doctorId}`);
 };
 
-/**
- * Refresh Google Calendar connection status
- */
 export const refreshGoogleCalendarStatus = async (doctorId: string) => {
+  if (IS_PORTFOLIO_MODE) {
+    return { connected: false, email: null };
+  }
   try {
-    const api = createAxiosInstance();
+    const token = getAuthToken();
+    const api = axios.create({
+      baseURL: API_BASE_URL,
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    });
     const response = await api.get(`/doctor/connection/google/status/${doctorId}`);
     return {
       connected: response.data?.googleCalendarConnected ?? false,
       email: response.data?.googleEmail ?? null,
     };
-  } catch (error) {
-    console.error("Error refreshing Google Calendar status:", error);
-    throw error;
+  } catch {
+    return { connected: false, email: null };
   }
 };

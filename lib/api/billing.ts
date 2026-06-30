@@ -3,6 +3,9 @@
  * Connects to the new billing backend
  */
 
+import { IS_PORTFOLIO_MODE } from "@/lib/config/portfolio";
+import { resolveStaticFetch } from "@/lib/api/staticMockRouter";
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 // Helper to get auth token
@@ -17,6 +20,16 @@ async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<{ success: boolean; data?: T; error?: string }> {
+  if (IS_PORTFOLIO_MODE) {
+    await new Promise((r) => setTimeout(r, 120));
+    const { json } = resolveStaticFetch(options.method || "GET", endpoint, options.body);
+    const body = json as { data?: T; success?: boolean; error?: string };
+    return {
+      success: body.success !== false,
+      data: (body.data ?? json) as T,
+    };
+  }
+
   const token = getAuthToken();
   
   const headers: HeadersInit = {

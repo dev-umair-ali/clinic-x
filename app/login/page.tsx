@@ -5,12 +5,18 @@ import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import Link from "next/link";
 import Image from "next/image";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, UserCircle2 } from "lucide-react";
 import { loginStart, loginSuccess, loginFailure } from "@/lib/slices/authSlice";
+import type { User } from "@/lib/slices/authSlice";
+import { authService } from "@/lib/api/services/authService";
+import { CognitoAuth } from "@/lib/auth/cognito";
+import { IS_PORTFOLIO_MODE } from "@/lib/config/portfolio";
 import {
-  authService,
-  type LoginResponse,
-} from "@/lib/api/services/authService";
+  DEMO_CREDENTIALS,
+  DASHBOARD_ROUTES,
+  findDemoCredential,
+  type DemoCredential,
+} from "@/lib/constants/demoCredentials";
 import img from "../../public/images/login-illustration.png.png";
 
 export default function LoginPage() {
@@ -22,6 +28,11 @@ export default function LoginPage() {
   const router = useRouter();
   const dispatch = useDispatch();
 
+  const completeLogin = (user: User, token: string) => {
+    dispatch(loginSuccess({ user, token }));
+    router.push(DASHBOARD_ROUTES[user.role]);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -29,27 +40,25 @@ export default function LoginPage() {
     dispatch(loginStart());
 
     try {
-      // Use the auth service to login
+      const demoAccount = findDemoCredential(email, password);
+
+      if (demoAccount || IS_PORTFOLIO_MODE) {
+        if (!demoAccount) {
+          setError("Use a demo account below to sign in.");
+          dispatch(loginFailure());
+          return;
+        }
+        const result = await CognitoAuth.signIn(email, password);
+        completeLogin(result.user as User, result.token);
+        return;
+      }
+
       const result = await authService.login({ email, password });
-
-      // Check if the API response is successful
       const user = result.data.data.user;
-      dispatch(loginSuccess({ user, token: result.data.data.token }));
-
-      const dashboardRoutes: Record<string, string> = {
-        admin: "/admin/dashboard",
-        doctor: "/doctor/dashboard",
-        patient: "/patient/dashboard",
-        assistant: "/assistant/dashboard",
-        clinic: "/clinic/dashboard",
-      };
-
-      const userRole = user.role;
-      router.push(dashboardRoutes[userRole]);
+      completeLogin(user, result.data.data.token);
     } catch (err: any) {
       console.error("Login error:", err);
 
-      // Handle different types of errors
       if (err.response?.data?.message) {
         setError(err.response.data.message);
       } else if (err.response?.status === 401) {
@@ -62,6 +71,27 @@ export default function LoginPage() {
         setError("Login failed. Please try again.");
       }
 
+      dispatch(loginFailure());
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDemoLogin = async (credential: DemoCredential) => {
+    setEmail(credential.email);
+    setPassword(credential.password);
+    setLoading(true);
+    setError("");
+    dispatch(loginStart());
+
+    try {
+      const result = await CognitoAuth.signIn(
+        credential.email,
+        credential.password
+      );
+      completeLogin(result.user as User, result.token);
+    } catch {
+      setError("Demo login failed. Please try again.");
       dispatch(loginFailure());
     } finally {
       setLoading(false);
@@ -83,8 +113,8 @@ export default function LoginPage() {
       </div>
 
       {/* Right Side Form */}
-      <div className="flex w-full lg:w-1/2 items-center justify-center bg-background px-4 sm:px-6">
-        <div className="w-full max-w-md space-y-6 p-6 sm:p-10 border border-border rounded-xl shadow-lg bg-card">
+      <div className="flex w-full lg:w-1/2 items-center justify-center bg-background px-4 sm:px-6 py-8">
+        <div className="w-full max-w-md space-y-6 p-6 sm:p-10 border border-border rounded-xl shadow-lg bg-card max-h-[95vh] overflow-y-auto">
           {/* Header */}
           <div className="text-center">
             <h1 className="text-2xl font-bold italic text-foreground">Logo</h1>
@@ -159,7 +189,6 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Add Forgot Password Link Here */}
             <div className="flex justify-end -mt-2 mb-2">
               <Link
                 href="/forget-password"
@@ -169,7 +198,6 @@ export default function LoginPage() {
               </Link>
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
@@ -178,7 +206,6 @@ export default function LoginPage() {
               {loading ? "Signing in..." : "Sign in"}
             </button>
 
-            {/* Footer */}
             <div className="text-center text-sm">
               <span className="text-muted-foreground">Need an account? </span>
               <Link href="#" className="text-primary hover:underline">
@@ -186,6 +213,43 @@ export default function LoginPage() {
               </Link>
             </div>
           </form>
+
+          {/* Demo accounts */}
+          <div className="border-t border-border pt-4 space-y-3">
+            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+              <UserCircle2 className="h-4 w-4 text-primary" />
+              Demo accounts
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Click a role to sign in instantly — no backend required.
+            </p>
+            <div className="space-y-2">
+              {DEMO_CREDENTIALS.map((credential) => (
+                <button
+                  key={credential.role}
+                  type="button"
+                  disabled={loading}
+                  onClick={() => handleDemoLogin(credential)}
+                  className="w-full text-left rounded-md border border-border bg-muted/40 px-3 py-2 hover:bg-muted transition-colors disabled:opacity-50"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-medium text-foreground">
+                      {credential.label}
+                    </span>
+                    <span className="text-xs text-primary font-medium">
+                      Sign in
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1 font-mono">
+                    {credential.email}
+                  </p>
+                  <p className="text-xs text-muted-foreground font-mono">
+                    {credential.password}
+                  </p>
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>

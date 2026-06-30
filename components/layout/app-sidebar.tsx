@@ -47,7 +47,7 @@ const menuItems = {
   ],
 
   clinic: [
-    { icon: IoHome, label: "Dashboard", href: "/clinic/dashboard" },
+    { icon: IoHome, label: "Dashboard", href: "/Clinic/dashboard" },
 
     { icon: IoIosPersonAdd, label: "Assistants", href: "/clinic/assistants" },
     { icon: HiMiniUserGroup, label: "Doctors", href: "/clinic/doctors" },

@@ -18,8 +18,8 @@ export interface User {
   doctorRef?: string; 
   patientRef?: string; 
   assistantRef?: string; 
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
   _id?: string; // MongoDB user ID
 }
 
@@ -28,6 +28,7 @@ interface AuthState {
   isAuthenticated: boolean;
   token: string | null;
   loading: boolean;
+  initialized: boolean;
 }
 
 const initialState: AuthState = {
@@ -35,6 +36,7 @@ const initialState: AuthState = {
   isAuthenticated: false,
   token: null,
   loading: false,
+  initialized: false,
 };
 
 const authSlice = createSlice({
@@ -95,7 +97,6 @@ const authSlice = createSlice({
       state.user = action.payload;
     },
     initializeAuth: (state) => {
-      // Initialize auth state from localStorage
       if (typeof window !== "undefined") {
         const token = localStorage.getItem("clinic-ai-token");
         const userStr = localStorage.getItem("clinic-ai-user");
@@ -106,14 +107,15 @@ const authSlice = createSlice({
             state.user = user;
             state.token = token;
             state.isAuthenticated = true;
-
-            // Set token in global axios headers
             setAuthToken(token);
           } catch (error) {
             console.error("Error parsing user from localStorage:", error);
+            localStorage.removeItem("clinic-ai-token");
+            localStorage.removeItem("clinic-ai-user");
           }
         }
       }
+      state.initialized = true;
     },
   },
 });
