@@ -8,7 +8,10 @@ import { ProtectedRoute } from '@/components/ui/protected-route';
 import { ChevronRight, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import patientOnboardingService from '@/lib/api/services/patientOnboardingService';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import type { AppDispatch } from '@/lib/store';
+import { setOnboardingComplete } from '@/lib/slices/onboardingSlice';
+import { setUser } from '@/lib/slices/authSlice';
 /* ----------  STEP COMPONENTS  ---------- */
 import PersonalInformation from '@/components/onboarding/PersonalInformation';
 import InsuranceInformation from '@/components/onboarding/InsuranceInformation';
@@ -48,6 +51,7 @@ const getSteps = (isFemale: boolean) => {
 
 export default function Onboarding() {
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
   const { toast } = useToast();
   const user = useSelector((state: any) => state.auth.user);
   const isFemale = user?.gender && user.gender.toLowerCase() === 'female';
@@ -155,6 +159,10 @@ export default function Onboarding() {
   const handleComplete = async () => {
     setIsSubmitting(true);
     try {
+      dispatch(setOnboardingComplete());
+      if (user) {
+        dispatch(setUser({ ...user, hasCompletedOnboarding: true }));
+      }
       toast({
         title: "Onboarding Complete!",
         description: "Your information has been submitted successfully.",

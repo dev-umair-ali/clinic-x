@@ -5,7 +5,12 @@ import { useSelector, useDispatch } from "react-redux"
 import { useRouter, usePathname } from "next/navigation"
 import type { RootState, AppDispatch } from "@/lib/store"
 import { OnboardingModal } from "./onboarding-modal"
-import { fetchAllOnboardingForms } from "@/lib/slices/onboardingSlice"
+import {
+  fetchAllOnboardingForms,
+  isOnboardingCompleteInStorage,
+  consumeOnboardingLoginPrompt,
+  dismissOnboardingLoginPrompt,
+} from "@/lib/slices/onboardingSlice"
 
 interface PatientOnboardingGuardProps {
     children: React.ReactNode
@@ -14,42 +19,68 @@ interface PatientOnboardingGuardProps {
 export function PatientOnboardingGuard({ children }: PatientOnboardingGuardProps) {
     const dispatch = useDispatch<AppDispatch>()
     const { user } = useSelector((state: RootState) => state.auth)
-    const { hasCompletedOnboarding, presentCondition, insurance, history, lifeStyle, womenForm, constantLegal, dentalHistory, medicalProfile, isLoading } = useSelector((state: RootState) => state.onboarding)
+    const { hasCompletedOnboarding, isLoading } = useSelector((state: RootState) => state.onboarding)
     const router = useRouter()
     const pathname = usePathname()
     const [showOnboardingModal, setShowOnboardingModal] = useState(false)
+    // null = not evaluated yet (avoid flash); true only right after login consume
+    const [forceOnboarding, setForceOnboarding] = useState<boolean | null>(null)
 
-useEffect(() => {
-    if (user && user.role === "patient") {
-        const patientId = user.patientId || (localStorage.getItem("clinic-ai-user")
-            ? JSON.parse(localStorage.getItem("clinic-ai-user")!).patientId
-            : null);
-        if (patientId) dispatch(fetchAllOnboardingForms(patientId));
-    }
-}, [user, dispatch])
+    const patientId = user?.patientId || (typeof window !== "undefined" && localStorage.getItem("clinic-ai-user")
+        ? JSON.parse(localStorage.getItem("clinic-ai-user")!).patientId
+        : null)
 
-    // Paths that are allowed even without onboarding
-    const allowedPaths = [
-        "/patient/onboarding"
-    ]
+    const completedInStorage = isOnboardingCompleteInStorage(patientId)
+    const isComplete = hasCompletedOnboarding || completedInStorage
 
     useEffect(() => {
-        if (user && user.role === "patient" && !isLoading) {
-            const isOnAllowedPath = allowedPaths.some(path => pathname?.startsWith(path))
-            // Show modal if onboarding not completed and not on allowed path
-            if (!hasCompletedOnboarding && !isOnAllowedPath) {
-                setShowOnboardingModal(true)
-            }
+        if (user && user.role === "patient" && patientId) {
+            dispatch(fetchAllOnboardingForms(patientId));
         }
-    }, [user, pathname, hasCompletedOnboarding, isLoading])
+    }, [user, dispatch, patientId])
+
+    // Re-evaluate when completion changes; always re-check prompt (handles remounts)
+    useEffect(() => {
+        if (user?.role !== "patient") {
+            setForceOnboarding(false)
+            return
+        }
+
+        if (isComplete) {
+            setForceOnboarding(false)
+            dismissOnboardingLoginPrompt()
+            return
+        }
+
+        setForceOnboarding(consumeOnboardingLoginPrompt())
+    }, [user, isComplete])
+
+    const allowedPaths = ["/patient/onboarding"]
+
+    useEffect(() => {
+        if (user && user.role === "patient" && !isLoading && forceOnboarding === true && !isComplete) {
+            const isOnAllowedPath = allowedPaths.some(path => pathname?.startsWith(path))
+            setShowOnboardingModal(!isOnAllowedPath)
+        } else {
+            setShowOnboardingModal(false)
+        }
+    }, [user, pathname, forceOnboarding, isComplete, isLoading])
 
     const handleStartOnboarding = () => {
         setShowOnboardingModal(false)
         router.push("/patient/onboarding")
     }
 
-    // If onboarding not completed and trying to access restricted pages, show modal
-    if (user?.role === "patient" && !hasCompletedOnboarding && !isLoading) {
+    // Still deciding (avoids dashboard flash before login prompt is read)
+    if (user?.role === "patient" && forceOnboarding === null && !isComplete) {
+        return (
+            <div className="min-h-screen bg-background flex items-center justify-center">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[hsl(var(--color-brand-teal))]" />
+            </div>
+        )
+    }
+
+    if (user?.role === "patient" && forceOnboarding && !isComplete && !isLoading) {
         const isOnAllowedPath = allowedPaths.some(path => pathname?.startsWith(path))
 
         if (!isOnAllowedPath) {
@@ -57,7 +88,10 @@ useEffect(() => {
                 <>
                     <OnboardingModal
                         isOpen={showOnboardingModal}
-                        onOpenChange={setShowOnboardingModal}
+                        onOpenChange={(open) => {
+                            // Don't allow dismissing without starting — keep modal until they continue
+                            if (open) setShowOnboardingModal(true)
+                        }}
                         onStartOnboarding={handleStartOnboarding}
                     />
                     <div className="min-h-screen bg-background flex items-center justify-center p-4">

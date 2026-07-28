@@ -17,14 +17,13 @@ const MedicalProfile: React.FC<MedicalProfileProps> = ({ formData, updateFormDat
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <Label className="text-sm font-medium text-[hsl(var(--foreground))] mb-2 block">
-            Critical Allergies *
+            Critical Allergies
           </Label>
           <Input
             placeholder="Comma separated"
             value={formData?.criticalAllergies}
             onChange={e => updateFormData('criticalAllergies', e.target.value)}
             className="bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
-            required
           />
         </div>
         <div>
@@ -40,26 +39,24 @@ const MedicalProfile: React.FC<MedicalProfileProps> = ({ formData, updateFormDat
         </div>
         <div>
           <Label className="text-sm font-medium text-[hsl(var(--foreground))] mb-2 block">
-            Medical Conditions *
+            Medical Conditions
           </Label>
           <Input
             placeholder="Comma separated"
             value={formData?.medicalConditions}
             onChange={e => updateFormData('medicalConditions', e.target.value)}
             className="bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
-            required
           />
         </div>
         <div>
           <Label className="text-sm font-medium text-[hsl(var(--foreground))] mb-2 block">
-            Current Medications *
+            Current Medications
           </Label>
           <Input
             placeholder="Comma separated"
             value={formData?.medicalProfileCurrentMedications}
             onChange={e => updateFormData('medicalProfileCurrentMedications', e.target.value)}
             className="bg-[hsl(var(--background))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
-            required
           />
         </div>
         <div>

@@ -1,4 +1,21 @@
-import { getStaticStore } from "@/lib/data/static/store";
+import {
+  getStaticStore,
+  addAppointment,
+  updateAppointment,
+  addPatient,
+  updatePatient,
+  addDoctor,
+  updateDoctor,
+  addAssistant,
+  updateAssistant,
+  addClinic,
+  updateClinic,
+  addNote,
+  updateNote,
+  addBillingCharge,
+  addBillingClaim,
+  newId,
+} from "@/lib/data/static/store";
 import { pagination } from "@/lib/data/static/seed";
 
 type HttpMethod = string;
@@ -22,10 +39,6 @@ function parseBody(data: unknown): Record<string, unknown> {
   return data as Record<string, unknown>;
 }
 
-function ok(data: unknown) {
-  return data;
-}
-
 function success(data: unknown, message = "Success") {
   return { success: true, data, message };
 }
@@ -47,7 +60,7 @@ function patientsList(patients: ReturnType<typeof getStaticStore>["patients"], p
 }
 
 function appointmentsList(appts: ReturnType<typeof getStaticStore>["appointments"]) {
-  return { success: true, data: appts };
+  return { success: true, data: appts, appointments: appts };
 }
 
 function notesList(notes: ReturnType<typeof getStaticStore>["notes"], page = 1, limit = 10) {
@@ -82,9 +95,53 @@ function auditList(logs: ReturnType<typeof getStaticStore>["auditLogs"], page = 
   };
 }
 
+function buildAppointmentFromBody(b: Record<string, unknown>) {
+  const s = getStaticStore();
+  const doctorId = String(b.doctorRef || "");
+  const patientId = String(b.patientRef || "");
+  const doctor = findById(s.doctors, doctorId) || s.doctors[0];
+  const patient = findById(s.patients, patientId) || s.patients[0];
+  const date = String(b.date || "");
+  const time = String(b.time || "09:00");
+  const dateTime = b.dateTime
+    ? String(b.dateTime)
+    : date
+      ? new Date(`${date}T${time.length === 5 ? time : time.slice(0, 5)}:00`).toISOString()
+      : new Date().toISOString();
+  const patientName = `${patient.firstName} ${patient.lastName}`.trim();
+  const doctorName =
+    (doctor as { name?: string }).name || `Dr. ${doctor.firstName} ${doctor.lastName}`;
+
+  return {
+    _id: newId("appt"),
+    doctor: doctor._id,
+    doctorRef: doctor,
+    doctorName,
+    patientRef: {
+      _id: patient._id,
+      name: patientName,
+      email: patient.email,
+      phone: patient.phoneNumber,
+      avatar: patient.profilePicture,
+    },
+    patientName,
+    patientId: patient._id,
+    dateTime,
+    date,
+    time,
+    timeZone: s.availability.timeZone,
+    status: (b.status as string) || "scheduled",
+    service: (b.service as string) || "Consultation",
+    title: (b.service as string) || "Consultation",
+    notes: b.notes,
+    type: "In-person",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+}
+
 /**
  * Resolves a static mock response for portfolio mode.
- * Returns `undefined` if no mock applies (caller may fall through to real API).
  */
 export function resolveStaticMock(
   method: HttpMethod,
@@ -114,23 +171,38 @@ export function resolveStaticMock(
   if (m === "GET" && path === "/admin/clinic/all/clinics") return s.clinics;
   if (m === "GET" && path.match(/^\/admin\/clinic\/[^/]+$/)) {
     const id = path.split("/").pop()!;
-    return success(s.clinics.find((c) => c._id === id) || s.clinics[0]);
+    const clinic = findById(s.clinics, id) || s.clinics[0];
+    return { success: true, clinic, data: clinic };
   }
-  if (m === "POST" && path === "/admin/clinic/create-clinic") return success({ ...s.clinics[0], ...b, _id: `clinic-${Date.now()}` });
-  if (m === "PUT" && path.includes("/admin/clinic/update-clinic")) return success(s.clinics[0]);
+  if (m === "POST" && path === "/admin/clinic/create-clinic") {
+    const created = addClinic({ ...s.clinics[0], ...b, _id: newId("clinic") });
+    return { success: true, clinic: created, data: created };
+  }
+  if (m === "PUT" && path.includes("/admin/clinic/update-clinic")) {
+    const id = path.split("/").pop()!;
+    const updated = updateClinic(id, b) || { ...s.clinics[0], ...b };
+    return { success: true, clinic: updated, data: updated };
+  }
 
-  // ── Doctors (all role prefixes) ──
+  // ── Doctors ──
   if (m === "GET" && /\/(admin|clinic|assistant)\/doctor\/all\/doctors/.test(path))
     return doctorsList(s.doctors, page, limit);
   if (m === "GET" && path.match(/\/(admin|clinic|assistant)\/doctor\/[^/]+$/)) {
     const id = path.split("/").pop()!;
-    const doc = s.doctors.find((d) => d._id === id) || s.doctors[0];
+    const doc = findById(s.doctors, id) || s.doctors[0];
     return { success: true, doctor: doc };
   }
-  if (m === "POST" && path.includes("/create-doctor")) return { success: true, doctor: { ...s.doctors[0], ...b } };
-  if (m === "PUT" && path.includes("/update-doctor")) return { success: true, message: "Updated" };
+  if (m === "POST" && path.includes("/create-doctor")) {
+    const created = addDoctor({ ...s.doctors[0], ...b, _id: newId("doctor") });
+    return { success: true, doctor: created };
+  }
+  if (m === "PUT" && path.includes("/update-doctor")) {
+    const id = path.split("/").pop()!;
+    const updated = updateDoctor(id, b) || { ...s.doctors[0], ...b };
+    return { success: true, doctor: updated, message: "Updated" };
+  }
 
-  // ── Patients (all role prefixes) ──
+  // ── Patients ──
   if (m === "GET" && /\/(admin|clinic|assistant)\/patient\/all\/patients/.test(path))
     return patientsList(s.patients, page, limit);
   if (m === "GET" && path.match(/\/(admin|clinic|assistant)\/patient\/[^/]+$/) && !path.includes("all")) {
@@ -151,14 +223,30 @@ export function resolveStaticMock(
   if (m === "GET" && path === "/doctor/patient/all/patients")
     return { success: true, patients: s.doctorPatients };
   if (m === "GET" && path.startsWith("/doctors/patients"))
-    return { success: true, data: { user: findById(s.doctorPatients, path.split("/").pop()!) || s.doctorPatients[0] } };
-  if (m === "POST" && path.includes("/create-patient")) return { success: true, patient: { ...s.patients[0], ...b } };
-  if (m === "PUT" && path.includes("/update-patient")) return { success: true, patient: s.patients[0] };
+    return {
+      success: true,
+      data: { user: findById(s.doctorPatients, path.split("/").pop()!) || s.doctorPatients[0] },
+    };
+  if (m === "POST" && path.includes("/create-patient")) {
+    const created = addPatient({ ...s.patients[0], ...b, _id: newId("patient") });
+    return { success: true, patient: created };
+  }
+  if (m === "PUT" && path.includes("/update-patient")) {
+    const id = path.split("/").pop()!;
+    const updated = updatePatient(id, b) || { ...s.patients[0], ...b };
+    return { success: true, patient: updated };
+  }
 
   // ── Assistants ──
   if (m === "GET" && /\/(admin|clinic)\/assistant\/all\/assistants/.test(path))
     return { success: true, data: s.assistants, pagination: pagination(s.assistants, page, limit) };
-  if (m === "GET" && path.match(/\/clinic\/assistant\/[^/]+$/) && !path.includes("all") && !path.includes("create") && !path.includes("update")) {
+  if (
+    m === "GET" &&
+    path.match(/\/clinic\/assistant\/[^/]+$/) &&
+    !path.includes("all") &&
+    !path.includes("create") &&
+    !path.includes("update")
+  ) {
     const id = path.split("/").pop()!;
     const a = findById(s.assistants, id) || s.assistants[0];
     return { success: true, data: { assistant: assistantDetail(a) } };
@@ -168,10 +256,44 @@ export function resolveStaticMock(
     const a = findById(s.assistants, id) || s.assistants[0];
     return { success: true, data: assistantDetail(a) };
   }
-  if (m === "POST" && path.includes("/create-assistant")) return { success: true, assistant: s.assistants[0] };
-  if (m === "PUT" && path.includes("/update-assistant")) return { success: true };
+  if (m === "POST" && path.includes("/create-assistant")) {
+    const created = addAssistant({
+      ...s.assistants[0],
+      ...b,
+      _id: newId("assistant"),
+      name: `${b.firstName || s.assistants[0].firstName} ${b.lastName || s.assistants[0].lastName}`,
+    });
+    const detail = assistantDetail(created as (typeof s.assistants)[0]);
+    return { success: true, assistant: detail, data: { assistant: detail } };
+  }
+  if (m === "PUT" && path.includes("/update-assistant")) {
+    const id = path.split("/").pop()!;
+    const updated = updateAssistant(id, b) || { ...s.assistants[0], ...b };
+    const detail = assistantDetail(updated as (typeof s.assistants)[0]);
+    return { success: true, data: { assistant: detail }, assistant: detail };
+  }
 
-  // ── Appointments ──
+  // ── Appointments: date-filtered slots first ──
+  if (m === "GET" && path.match(/^\/doctor\/appointments\/[^/]+$/) && search.has("date")) {
+    const doctorId = path.split("/").pop()!;
+    const date = search.get("date")!;
+    const filtered = s.appointments.filter((a) => {
+      const aDoctor =
+        typeof a.doctor === "string" ? a.doctor : (a.doctorRef as { _id?: string })?._id;
+      const aDate = (a.dateTime || "").slice(0, 10);
+      return aDoctor === doctorId && (aDate === date || (a as { date?: string }).date === date);
+    });
+    return { success: true, data: filtered, appointments: filtered };
+  }
+
+  if (m === "GET" && path === "/doctors/weekly-count") {
+    return {
+      success: true,
+      totalAppointmentsThisWeek: s.appointments.filter((a) => a.status === "scheduled").length,
+      data: { totalAppointmentsThisWeek: s.appointments.length },
+    };
+  }
+
   if (m === "GET" && (path.startsWith("/doctors/appointments") || path === "/appointments"))
     return appointmentsList(s.appointments);
   if (m === "GET" && path.match(/\/doctors\/appointments\/[^/]+\/details$/)) {
@@ -183,8 +305,8 @@ export function resolveStaticMock(
   if (m === "GET" && path.match(/\/doctors\/appointments\/[^/]+$/) && !path.includes("/calendar"))
     return success(findById(s.appointments, path.split("/").pop()!) || s.appointments[0]);
   if (m === "GET" && path.includes("/doctors/appointments/status/")) {
-    const status = path.split("/").pop()!.replace("cancelled", "cancelled");
-    const filtered = s.appointments.filter((a) => a.status === status || (status === "cancelled" && a.status === "cancelled"));
+    const status = path.split("/").pop()!;
+    const filtered = s.appointments.filter((a) => a.status === status);
     return appointmentsList(filtered.length ? filtered : s.appointments);
   }
   if (m === "GET" && /\/(doctor|patient|clinic|assistant)\/appointments/.test(path))
@@ -193,15 +315,46 @@ export function resolveStaticMock(
     return appointmentsList(s.appointments);
   if (m === "GET" && path.includes("/clinic/appointments/list"))
     return appointmentsList(s.appointments);
-  if (m === "GET" && path.includes("/doctor/availability/"))
-    return success(s.availability);
-  if (m === "GET" && path.includes("/clinic/doctor/list/"))
-    return doctorsList(s.doctors);
-  if (m === "GET" && path.includes("/clinic/patient/patient-list/"))
-    return patientsList(s.patients);
-  if (m === "POST" && path.includes("/appointments/create")) return success(s.appointments[0]);
-  if (m === "PUT" && path.includes("/appointments/")) return success(s.appointments[0]);
-  if (m === "PATCH" && path.includes("/appointments/")) return success(s.appointments[0]);
+  if (m === "GET" && path.includes("/doctor/availability/")) return success(s.availability);
+  if (m === "GET" && path.includes("/clinic/doctor/list/")) return doctorsList(s.doctors);
+  if (m === "GET" && path.includes("/clinic/patient/patient-list/")) return patientsList(s.patients);
+
+  if (m === "POST" && path.includes("/appointments/create")) {
+    const created = buildAppointmentFromBody(b);
+    addAppointment(created);
+    return {
+      success: true,
+      data: created,
+      appointment: created,
+      message: "Appointment created",
+    };
+  }
+  if ((m === "PUT" || m === "PATCH") && path.includes("/appointments/")) {
+    const parts = path.split("/").filter(Boolean);
+    const apptId =
+      parts.find((p) => p.startsWith("appt-")) ||
+      parts[parts.length - 1];
+    const realId =
+      findById(s.appointments, apptId)?._id ||
+      findById(s.appointments, parts[parts.length - 1])?._id ||
+      s.appointments[0]?._id;
+    let statusPatch: Record<string, unknown> = { ...b };
+    if (path.includes("/cancel")) statusPatch = { ...statusPatch, status: "cancelled" };
+    if (path.includes("/status") && b.status) statusPatch = { ...statusPatch, status: b.status };
+    if (path.includes("/reschedule") && (b.dateTime || b.date)) {
+      statusPatch = {
+        ...statusPatch,
+        dateTime:
+          b.dateTime ||
+          (b.date && b.time ? `${b.date}T${b.time}:00` : b.date),
+        date: b.date,
+        time: b.time,
+        status: "scheduled",
+      };
+    }
+    const updated = realId ? updateAppointment(realId, statusPatch) : null;
+    return success(updated || s.appointments[0]);
+  }
   if (m === "DELETE" && path.includes("/appointments")) return success(null);
 
   // ── Notes ──
@@ -213,16 +366,20 @@ export function resolveStaticMock(
     !path.includes("all")
   ) {
     const id = path.split("/").pop()!;
-    const note = findById(s.notes, id) || s.notes[0];
-    return success(note);
+    return success(findById(s.notes, id) || s.notes[0]);
   }
-  if (m === "GET" && path.match(/\/doctor\/notes\/[^/]+$/) && !path.includes("appointment"))
-    return success(findById(s.notes, path.split("/").pop()!) || s.notes[0]);
   if (m === "GET" && path.includes("/notes/appointment/")) return notesList(s.notes);
-  if (m === "POST" && path.includes("/notes/create")) return success({ ...s.notes[0], ...b, _id: `note-${Date.now()}` });
-  if (m === "PUT" && path.includes("/notes/update")) return success(s.notes[0]);
+  if (m === "POST" && path.includes("/notes/create")) {
+    const created = addNote({ ...s.notes[0], ...b, _id: newId("note") });
+    return success(created);
+  }
+  if (m === "PUT" && path.includes("/notes/update")) {
+    const id = path.split("/").pop()!;
+    return success(updateNote(id, b) || s.notes[0]);
+  }
   if (m === "DELETE" && path.includes("/notes/delete")) return { success: true };
-  if (m === "POST" && path.includes("/upload-audio")) return { success: true, audioUrl: "/placeholder.svg", fileSize: "1.2MB" };
+  if (m === "POST" && path.includes("/upload-audio"))
+    return { success: true, audioUrl: "/placeholder.svg", fileSize: "1.2MB" };
   if (m === "POST" && path.includes("/transcribe")) return success(s.notes[0]);
 
   // ── Audit logs ──
@@ -233,7 +390,7 @@ export function resolveStaticMock(
   // ── Theme ──
   if (m === "GET" && path.includes("/clinic/settings/theme/"))
     return { success: true, data: s.clinicTheme, clinicId: s.clinicTheme.clinicId };
-  if (m === "PATCH" && path.includes("/clinic/settings/theme/")) return success(s.clinicTheme);
+  if (m === "PATCH" && path.includes("/clinic/settings/theme")) return success(s.clinicTheme);
   if (m === "DELETE" && path.includes("/theme/clinic/")) return { success: true };
 
   // ── Availability ──
@@ -247,11 +404,17 @@ export function resolveStaticMock(
   if (m === "POST" && path.includes("/doctor/connection/google/")) return { success: true };
 
   // ── Onboarding ──
-  if (m === "GET" && (path === "/patients/forms/me" || path.includes("/all-forms/") || path.includes("/patients/forms/")))
-    return success(s.onboardingForms);
-  if (m === "PATCH" && path.includes("/patient/onboarding/")) return success(s.onboardingForms);
+  if (
+    m === "GET" &&
+    (path === "/patients/forms/me" || path.includes("/all-forms/") || path.includes("/patients/forms/"))
+  )
+    return { success: true, data: s.onboardingForms, message: "Success" };
+  if (m === "PATCH" && path.includes("/patient/onboarding/"))
+    return { success: true, data: s.onboardingForms, message: "Saved" };
+  if (m === "PUT" && path.includes("/patient/onboarding/"))
+    return { success: true, data: s.onboardingForms, message: "Saved" };
 
-  // ── Billing (axios paths) ──
+  // ── Billing ──
   if (path.startsWith("/billing/doctor/charges") && m === "GET") {
     const chargeId = path.match(/\/charges\/([^/]+)$/)?.[1];
     if (chargeId) return success(findById(s.billingCharges, chargeId) || s.billingCharges[0]);
@@ -265,40 +428,51 @@ export function resolveStaticMock(
   }
   if (path.includes("/billing/codes/cpt")) return success(s.cptCodes);
   if (path.includes("/billing/codes/icd10")) return success(s.icd10Codes);
-  if (path.startsWith("/billing/") && m === "POST") return success(s.billingCharges[0]);
+  if (path.startsWith("/billing/") && m === "POST") {
+    if (path.includes("/claims")) {
+      const created = addBillingClaim({ ...s.billingClaims[0], ...b, _id: newId("claim") });
+      return success(created);
+    }
+    const created = addBillingCharge({ ...s.billingCharges[0], ...b, _id: newId("charge") });
+    return success(created);
+  }
   if (path.startsWith("/billing/") && (m === "PUT" || m === "PATCH")) return success(s.billingCharges[0]);
 
   // ── Auth ──
   if (m === "POST" && path === "/auth/logout") return { success: true };
   if (m === "POST" && path === "/auth/forgot-password") return { message: "Reset link sent (demo)" };
   if (m === "POST" && path === "/auth/reset-password") return { message: "Password reset (demo)" };
-  if (m === "GET" && path === "/auth/profile") return { success: true, data: { role: "doctor", name: "Demo User" } };
+  if (m === "GET" && path === "/auth/profile")
+    return { success: true, data: { role: "doctor", name: "Demo User" } };
 
   // ── Uploads ──
-  if (m === "POST" && (path.includes("/upload/image") || path.includes("/upload/audio") || path.includes("/upload/video")))
-    return { success: true, url: "/placeholder.svg?height=200&width=200", imageUrl: "/placeholder.svg?height=200&width=200" };
+  if (
+    m === "POST" &&
+    (path.includes("/upload/image") || path.includes("/upload/audio") || path.includes("/upload/video"))
+  )
+    return {
+      success: true,
+      url: "/placeholder.svg?height=200&width=200",
+      imageUrl: "/placeholder.svg?height=200&width=200",
+    };
 
-  // ── Profile, prescriptions, bills, reports ──
+  // ── Profile / misc ──
   if (m === "GET" && path.startsWith("/profile")) return success({ name: "Demo User", role: "doctor" });
   if (m === "GET" && path === "/prescriptions") return success([]);
   if (m === "GET" && path === "/bills") return success([]);
   if (m === "GET" && path === "/reports") return success([]);
   if (m === "GET" && path === "/refills") return success([]);
 
-  // ── Patient full details ──
   if (m === "GET" && (path.includes("/patient-full-details") || path.endsWith("/patient/details")))
     return success({ patient: s.patients[0], lastAppointment: s.appointments[2] });
 
-  // ── Mutations default ──
   if (m === "POST" || m === "PUT" || m === "PATCH" || m === "DELETE")
-    return { success: true, message: "Saved (portfolio demo)" };
+    return { success: true, message: "Saved (portfolio demo)", data: b };
 
-  // ── Safe fallback ──
   if (m === "GET") return { success: true, data: [] };
   return { success: true };
 }
 
-/** For fetch()-based clients (billing.ts, direct component fetches) */
 export function resolveStaticFetch(
   method: string,
   endpoint: string,

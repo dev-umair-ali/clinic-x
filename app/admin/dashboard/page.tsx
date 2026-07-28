@@ -47,24 +47,31 @@ console.log("Admin Dashboard Data:", dashboardData);
 
         {/* 4  Charts Row 1 */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
-          {/* Data available: dashboardData?.clinicPerformance */}
-          {/* <RevenueBreakdown /> */}
+          <ClinicPerformance
+            dashboardData={dashboardData?.clinicPerformance}
+            title="Network Clinic Performance"
+          />
+          <RevenueBreakdown />
         </div>
 
         {/* 5  Charts Row 2 */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
-          <ClinicPerformance dashboardData={dashboardData?.clinicPerformance} />
-          <AppointmentTrends dashboardData={dashboardData?.appointmentsTrend} />
-          <DoctorPerformance dashboardData={dashboardData?.doctorPerformance} />
-          {/* Data available: dashboardData?.doctorPerformance */}
-          <PatientGrowth dashboardData={dashboardData?.patientGrowth} />
-          {/* Data available: dashboardData?.patientGrowth */}
-        </div>
-
-        {/* 6  Charts Row 3 */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
-          <RecentActivity dashboardData={dashboardData?.recentActivity} />
-          {/* Data available: dashboardData?.recentActivity */}
+          <AppointmentTrends
+            dashboardData={dashboardData?.appointmentsTrend}
+            title="Network Appointment Trends"
+          />
+          <DoctorPerformance
+            dashboardData={dashboardData?.doctorPerformance}
+            title="Top Doctor Throughput"
+          />
+          <PatientGrowth
+            dashboardData={dashboardData?.patientGrowth}
+            title="Patient Base Growth"
+          />
+          <RecentActivity
+            dashboardData={dashboardData?.recentActivity}
+            title="Platform Activity"
+          />
         </div>
       </div>
     </div>

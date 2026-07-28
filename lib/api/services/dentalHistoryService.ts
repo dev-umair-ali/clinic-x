@@ -37,15 +37,6 @@ export const dentalHistoryService = {
   },
 };
 
-export function validateDentalHistory(formData: DentalHistoryFormData): string | null {
-  if (!formData.lastDentalVisit || formData.lastDentalVisit.trim() === '') {
-    return 'Last Dental Visit is required';
-  }
-  if (!formData.dentalAnxietyLevel || formData.dentalAnxietyLevel.trim() === '') {
-    return 'Dental Anxiety Level is required';
-  }
-  if (!formData.currentSymptoms || formData.currentSymptoms.length === 0) {
-    return 'Current Symptoms are required';
-  }
-  return null;
+export function validateDentalHistory(_formData: DentalHistoryFormData): string | null {
+  return null; // Portfolio: all onboarding fields optional
 }

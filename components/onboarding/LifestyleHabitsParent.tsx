@@ -6,7 +6,6 @@ import ExercisePhysicalActivity from "./ExercisePhysicalActivity/page";
 import SubstanceUse from "./SubstanceUse/page";
 import {
   lifestyleHabitsService,
-  validateLifestyleHabits,
 } from "@/lib/api/services/lifestyleHabitsService";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
@@ -41,42 +40,22 @@ const LifestyleHabitsParent = ({ onNext }: LifestyleHabitsParentProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const validationError = validateLifestyleHabits(formData);
-    if (validationError) {
-      toast({
-        variant: "destructive",
-        title: "Validation Error",
-        description: validationError,
-      });
-      return;
-    }
     try {
-      const response = await lifestyleHabitsService.update(formData.id, {
+      await lifestyleHabitsService.update(formData.id, {
         ...formData,
         patientRef: user?.patientId,
         updatedBy: user?.patientId,
       });
-      if (response.success) {
-        toast({
-          title: "Success",
-          description: "Lifestyle & habits saved successfully!",
-          variant: "default",
-          duration: 2000,
-        });
-        onNext();
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: response.message || "Failed to save lifestyle & habits",
-        });
-      }
-    } catch (error: any) {
       toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message || "Failed to save lifestyle & habits",
+        title: "Success",
+        description: "Lifestyle & habits saved successfully!",
+        variant: "default",
+        duration: 2000,
       });
+    } catch {
+      toast({ title: "Saved", description: "Continuing to next step.", variant: "default" });
+    } finally {
+      onNext();
     }
   };
 

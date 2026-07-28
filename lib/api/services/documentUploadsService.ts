@@ -39,18 +39,6 @@ export const documentUploadsService = {
   },
 };
 
-export function validateDocumentUploads(formData: DocumentUploadsFormData): string | null {
-  if (!formData.idFront) {
-    return 'ID front image must be uploaded';
-  }
-  if (!formData.idBack) {
-    return 'ID back image must be uploaded';
-  }
-  if (!formData.xrayOrScans) {
-    return 'X-ray or scans document must be uploaded';
-  }
-  if (!formData.medicalReport) {
-    return 'Medical report document must be uploaded';
-  }
-  return null;
+export function validateDocumentUploads(_formData: DocumentUploadsFormData): string | null {
+  return null; // Portfolio: all onboarding fields optional
 }

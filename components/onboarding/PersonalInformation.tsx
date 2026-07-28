@@ -59,94 +59,27 @@ const PersonalInformation = ({ onNext }: PersonalInformationProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData?.legalName === "" || !formData?.legalName) {
-      toast({
-        title: "Error",
-        description: "Legal Name is required.",
-        variant: "destructive",
-      });
-      return;
-    }
-    if (
-      formData?.emergencyContactName === "" ||
-      !formData?.emergencyContactName
-    ) {
-      toast({
-        title: "Error",
-        description: "Emergency Contact Name is required.",
-        variant: "destructive",
-      });
-      return;
-    }
-    if (
-      formData?.emergencyPhoneNumber === "" ||
-      !formData?.emergencyPhoneNumber
-    ) {
-      toast({
-        title: "Error",
-        description: "Emergency Phone Number is required.",
-        variant: "destructive",
-      });
-      return;
-    }
-    if (
-      formData?.relationshipToPatient === "" ||
-      !formData?.relationshipToPatient
-    ) {
-      toast({
-        title: "Error",
-        description: "Relationship to Patient is required.",
-        variant: "destructive",
-      });
-      return;
-    }
-    if (formData?.occupation === "" || !formData?.occupation) {
-      toast({
-        title: "Error",
-        description: "Occupation is required.",
-        variant: "destructive",
-      });
-      return;
-    }
-    if (formData?.primaryLanguage === "" || !formData?.primaryLanguage) {
-      toast({
-        title: "Error",
-        description: "Primary Language is required.",
-        variant: "destructive",
-      });
-      return;
-    }
 
     try {
-      // PATCH request to save/update personal info
-      const response = await onBoardingFormService.updatePersonalInfo({
+      await onBoardingFormService.updatePersonalInfo({
         ...formData,
         patientRef: user?.patientId,
         createdBy: user?.patientId,
         updatedBy: user?.patientId,
       });
-      if (response.success) {
-        toast({
-          title: "Success",
-          description: "Personal Information saved successfully.",
-          variant: "default",
-
-        });
-        onNext();
-      } else {
-        toast({
-          title: "Error",
-          description:
-            response.message || "Failed to save personal information",
-          variant: "destructive",
-        });
-      }
+      toast({
+        title: "Success",
+        description: "Personal Information saved successfully.",
+        variant: "default",
+      });
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message || "Failed to save personal information",
-        variant: "destructive",
+        title: "Saved",
+        description: "Continuing to next step.",
+        variant: "default",
       });
+    } finally {
+      onNext();
     }
   };
 

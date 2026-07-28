@@ -50,15 +50,6 @@ export const presentConditionService = {
   },
 };
 
-export function validatePresentCondition(formData: PresentConditionFormData): string | null {
-    if (!formData.mainConcern || formData.mainConcern.trim() === '') {
-        return 'Main concern is required.';
-    }
-    if (!formData.symptomStartDate || formData.symptomStartDate.trim() === '') {
-        return 'Symptom start date is required.';
-    }
-    if (formData.painLevel !== undefined && (formData.painLevel < 0 || formData.painLevel > 10)) {
-        return 'Pain level must be between 0 and 10.';
-    }
-  return null;
+export function validatePresentCondition(_formData: PresentConditionFormData): string | null {
+  return null; // Portfolio: all onboarding fields optional
 }

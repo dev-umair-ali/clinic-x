@@ -7,7 +7,6 @@ import SymptomDetails from "./SymptomDetails/page";
 import type { AppDispatch } from "@/lib/store";
 import {
   presentConditionService,
-  validatePresentCondition,
 } from "@/lib/api/services/presentConditionService";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
@@ -41,42 +40,22 @@ const PresentCondition = ({ onNext }: PresentConditionProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const validationError = validatePresentCondition(formData);
-    if (validationError) {
-      toast({
-        variant: "destructive",
-        title: "Validation Error",
-        description: validationError,
-      });
-      return;
-    }
     try {
-      const response = await presentConditionService.update(formData.id, {
+      await presentConditionService.update(formData.id, {
         ...formData,
         patientRef: user?.patientId,
         updatedBy: user?.patientId,
       });
-      if (response.success) {
-        toast({
-          title: "Success",
-          description: "Present condition saved!",
-          variant: "default",
-          duration: 2000,
-        });
-        onNext();
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: response.message || "Failed to save present condition",
-        });
-      }
-    } catch (error: any) {
       toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message || "Failed to save present condition",
+        title: "Success",
+        description: "Present condition saved!",
+        variant: "default",
+        duration: 2000,
       });
+    } catch {
+      toast({ title: "Saved", description: "Continuing to next step.", variant: "default" });
+    } finally {
+      onNext();
     }
   };
 

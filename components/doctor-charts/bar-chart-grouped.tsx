@@ -1,15 +1,19 @@
-"use client"
+"use client";
 
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis } from "recharts"
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis } from "recharts";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 
 interface BarChartGroupedProps {
-  data: { name: string; voiceNotes: number; manualNotes: number }[]
-  voiceNotesColor: string
-  manualNotesColor: string
+  data: { name: string; voiceNotes: number; manualNotes: number }[];
+  voiceNotesColor: string;
+  manualNotesColor: string;
 }
 
-export function BarChartGrouped({ data, voiceNotesColor, manualNotesColor }: BarChartGroupedProps) {
+export function BarChartGrouped({
+  data,
+  voiceNotesColor,
+  manualNotesColor,
+}: BarChartGroupedProps) {
   return (
     <ChartContainer
       config={{
@@ -22,28 +26,40 @@ export function BarChartGrouped({ data, voiceNotesColor, manualNotesColor }: Bar
           color: manualNotesColor,
         },
       }}
-      className="min-h-[200px] w-full"
+      className="min-h-[240px] w-full"
     >
-      <BarChart data={data} barCategoryGap={4}>
-        <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--custom-dashboard-gray-200))" />
-        <XAxis
-          dataKey="name"
-          tickLine={false}
-          axisLine={false}
-          tickMargin={8}
-          className="text-xs text-custom-dashboard-gray-500"
-        />
-        <YAxis
-          tickLine={false}
-          axisLine={false}
-          tickMargin={8}
-          className="text-xs text-custom-dashboard-gray-500"
-          domain={[0, 16]} // Hardcode domain to match image
-        />
-        <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-        <Bar dataKey="voiceNotes" fill={voiceNotesColor} radius={[4, 4, 0, 0]} />
-        <Bar dataKey="manualNotes" fill={manualNotesColor} radius={[4, 4, 0, 0]} />
-      </BarChart>
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={data} barCategoryGap="18%" margin={{ top: 8, right: 8, left: -8, bottom: 0 }}>
+          <defs>
+            <linearGradient id="voiceGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={voiceNotesColor} stopOpacity={1} />
+              <stop offset="100%" stopColor={voiceNotesColor} stopOpacity={0.7} />
+            </linearGradient>
+            <linearGradient id="manualGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={manualNotesColor} stopOpacity={1} />
+              <stop offset="100%" stopColor={manualNotesColor} stopOpacity={0.65} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid vertical={false} strokeDasharray="4 6" stroke="hsl(var(--border))" />
+          <XAxis
+            dataKey="name"
+            tickLine={false}
+            axisLine={false}
+            tickMargin={8}
+            tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+          />
+          <YAxis
+            tickLine={false}
+            axisLine={false}
+            tickMargin={8}
+            tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+            width={28}
+          />
+          <ChartTooltip cursor={{ fill: "hsl(var(--muted)/0.4)" }} content={<ChartTooltipContent />} />
+          <Bar dataKey="voiceNotes" fill="url(#voiceGrad)" radius={[8, 8, 4, 4]} maxBarSize={28} />
+          <Bar dataKey="manualNotes" fill="url(#manualGrad)" radius={[8, 8, 4, 4]} maxBarSize={28} />
+        </BarChart>
+      </ResponsiveContainer>
     </ChartContainer>
-  )
+  );
 }

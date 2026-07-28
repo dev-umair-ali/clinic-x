@@ -39,21 +39,6 @@ export const consentLegalService = {
   },
 };
 
-export function validateConsentLegal(formData: ConsentLegalFormData): string | null {
-  if (!formData.digitalSignature) {
-    return 'Consent must be given';
-  }
-  if (!formData.informationComplete) {
-    return 'Information completeness must be confirmed';
-  }
-  if (!formData.consentToTreatment) {
-    return 'Consent to treatment is required';
-  }
-  if (!formData.physicalExamination) {
-    return 'Acknowledgment of physical examination is required';
-  }
-  if (!formData.privacyPoliciesAcknowledged) {
-    return "Acknowledgment of privacy policies is required";
-  }
-  return null;
+export function validateConsentLegal(_formData: ConsentLegalFormData): string | null {
+  return null; // Portfolio: all onboarding fields optional
 }

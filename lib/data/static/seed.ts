@@ -21,21 +21,21 @@ export const recentActivity = [
 ];
 
 export const appointmentTrends = [
-  { month: "Jan", appointments: 42 },
-  { month: "Feb", appointments: 58 },
-  { month: "Mar", appointments: 65 },
-  { month: "Apr", appointments: 72 },
-  { month: "May", appointments: 68 },
-  { month: "Jun", appointments: 81 },
+  { month: "Jan", appointments: 42, completed: 38, cancelled: 4 },
+  { month: "Feb", appointments: 58, completed: 51, cancelled: 7 },
+  { month: "Mar", appointments: 65, completed: 59, cancelled: 6 },
+  { month: "Apr", appointments: 72, completed: 66, cancelled: 6 },
+  { month: "May", appointments: 68, completed: 61, cancelled: 7 },
+  { month: "Jun", appointments: 81, completed: 74, cancelled: 7 },
 ];
 
 export const patientGrowth = [
-  { month: "Jan", patients: 12 },
-  { month: "Feb", patients: 18 },
-  { month: "Mar", patients: 24 },
-  { month: "Apr", patients: 31 },
-  { month: "May", patients: 28 },
-  { month: "Jun", patients: 35 },
+  { month: "Jan", patients: 120, newPatients: 12 },
+  { month: "Feb", patients: 138, newPatients: 18 },
+  { month: "Mar", patients: 162, newPatients: 24 },
+  { month: "Apr", patients: 193, newPatients: 31 },
+  { month: "May", patients: 221, newPatients: 28 },
+  { month: "Jun", patients: 256, newPatients: 35 },
 ];
 
 export const clinics = [
@@ -370,13 +370,17 @@ export const auditLogs = [
 export const adminDashboard = {
   counts: { totalClinics: 2, totalStaff: 12, totalDoctors: 8, totalPatients: 248 },
   clinicPerformance: [
-    { clinic: "City Health Center", appointments: 81 },
-    { clinic: "Westside Wellness", appointments: 54 },
+    { clinic: "City Health", appointments: 81, patients: 148, revenue: 62 },
+    { clinic: "Westside", appointments: 54, patients: 98, revenue: 41 },
+    { clinic: "North Point", appointments: 39, patients: 72, revenue: 28 },
+    { clinic: "East Care", appointments: 47, patients: 85, revenue: 33 },
   ],
   appointmentsTrend: appointmentTrends,
   doctorPerformance: [
-    { clinic: "City Health Center", appointments: 45 },
-    { clinic: "Westside Wellness", appointments: 32 },
+    { clinic: "Dr. Sarah Chen", name: "Dr. Sarah Chen", appointments: 45, completed: 41 },
+    { clinic: "Dr. James Wilson", name: "Dr. James Wilson", appointments: 38, completed: 34 },
+    { clinic: "Dr. Amina Khan", name: "Dr. Amina Khan", appointments: 32, completed: 29 },
+    { clinic: "Dr. Leo Park", name: "Dr. Leo Park", appointments: 28, completed: 25 },
   ],
   patientGrowth,
   recentActivity,
@@ -401,9 +405,19 @@ export const assistantDashboard = {
 export const doctorDashboard = {
   appointmentsOverview: { scheduled: 12, rescheduled: 2, cancelled: 1, completed: 45 },
   patientNotesGraph: [
-    { name: "Emily Johnson", voiceNotes: 3, manualNotes: 5 },
-    { name: "Michael Brown", voiceNotes: 1, manualNotes: 4 },
-    { name: "Lisa Martinez", voiceNotes: 2, manualNotes: 2 },
+    { name: "Emily J.", voiceNotes: 3, manualNotes: 5 },
+    { name: "Michael B.", voiceNotes: 1, manualNotes: 4 },
+    { name: "Lisa M.", voiceNotes: 2, manualNotes: 2 },
+    { name: "Robert K.", voiceNotes: 4, manualNotes: 3 },
+    { name: "Sofia R.", voiceNotes: 2, manualNotes: 6 },
+  ],
+  visitVolume: [
+    { day: "Mon", visits: 8, followUps: 3 },
+    { day: "Tue", visits: 11, followUps: 4 },
+    { day: "Wed", visits: 7, followUps: 2 },
+    { day: "Thu", visits: 12, followUps: 5 },
+    { day: "Fri", visits: 9, followUps: 3 },
+    { day: "Sat", visits: 4, followUps: 1 },
   ],
   recentActivity,
 };
@@ -427,12 +441,18 @@ export const patientDashboard = {
   },
   upcomingAppointmentDetails: null,
   appointmentTrends: [
-    { month: "Jan", appointments: 1 },
-    { month: "Feb", appointments: 2 },
-    { month: "Mar", appointments: 1 },
-    { month: "Apr", appointments: 2 },
-    { month: "May", appointments: 1 },
-    { month: "Jun", appointments: 2 },
+    { month: "Jan", appointments: 1, completed: 1 },
+    { month: "Feb", appointments: 2, completed: 2 },
+    { month: "Mar", appointments: 1, completed: 1 },
+    { month: "Apr", appointments: 3, completed: 2 },
+    { month: "May", appointments: 2, completed: 2 },
+    { month: "Jun", appointments: 2, completed: 1 },
+  ],
+  healthScore: [
+    { label: "Checkups", value: 85 },
+    { label: "Labs", value: 70 },
+    { label: "Meds", value: 92 },
+    { label: "Follow-ups", value: 78 },
   ],
   recentActivity: recentActivity.slice(0, 3),
 };
@@ -459,6 +479,7 @@ export const availability = {
     { day: "Wednesday", from: "09:00", to: "13:00" },
     { day: "Thursday", from: "09:00", to: "17:00" },
     { day: "Friday", from: "09:00", to: "15:00" },
+    { day: "Saturday", from: "09:00", to: "13:00" },
   ],
 };
 
@@ -545,21 +566,68 @@ export const icd10Codes = [
 ];
 
 export const onboardingForms = {
-  personalInfo: { firstName: "Emily", lastName: "Johnson", email: "patient@clinicx.demo", phone: "+1 (555) 400-5001", dateOfBirth: "1991-05-20", gender: "female" },
-  insurance: { provider: "BlueCross BlueShield", policyNumber: "BC-8829100", groupNumber: "GRP-100" },
-  presentCondition: { chiefComplaint: "Annual wellness visit", symptoms: ["None"], duration: "N/A" },
-  healthHistory: { conditions: ["Hypertension"], surgeries: [], familyHistory: "Father — heart disease" },
-  lifestyle: { smoking: "Never", alcohol: "Occasional", exercise: "3x per week" },
-  medicalProfile: { bloodType: "O+", allergies: ["Penicillin"], medications: ["Lisinopril 10mg"] },
-  dentalHistory: { lastVisit: "6 months ago", concerns: "None" },
-  womenForm: null,
-  consentLegal: { hipaaConsent: true, signedAt: daysAgo(45) },
-  documentUploads: { idUploaded: true, insuranceCardUploaded: true },
+  patient: { _id: IDS.PATIENT_1, firstName: "Emily", lastName: "Johnson" },
+  onBoardingInfo: {
+    legalName: "Emily Johnson",
+    firstName: "Emily",
+    lastName: "Johnson",
+    email: "patient@clinicx.demo",
+    phone: "+1 (555) 400-5001",
+    dateOfBirth: "1991-05-20",
+    gender: "female",
+    emergencyContactName: "John Johnson",
+    emergencyPhoneNumber: "+1 (555) 400-5099",
+    relationshipToPatient: "Spouse",
+    occupation: "Teacher",
+    primaryLanguage: "English",
+  },
+  insurance: {
+    hasInsurance: "yes",
+    insuranceProvider: "BlueCross BlueShield",
+    policyNumber: "BC-8829100",
+    groupNumber: "GRP-100",
+  },
+  presentCondition: {
+    mainConcern: "Annual wellness visit",
+    symptomStartDate: daysAgo(30),
+    painLevel: 0,
+  },
+  history: [{ conditions: ["Hypertension"], surgeries: [], familyHistory: "Father — heart disease" }],
+  dentalHistory: { lastDentalVisit: "6 months ago", dentalAnxietyLevel: "Low", currentSymptoms: [] },
+  medicalProfile: {
+    criticalAllergies: ["Penicillin"],
+    primaryCareInformation: "Dr. Sarah Chen",
+    medicalConditions: ["Hypertension"],
+    medicalProfileCurrentMedications: ["Lisinopril 10mg"],
+  },
+  lifeStyle: { tobaccoUse: "Never", exerciseRegularly: "yes", alcohol: "Occasional" },
+  womenForm: { pregnancyStatus: "No", menstrualCycleInfo: "Regular" },
+  constantLegal: {
+    digitalSignature: true,
+    informationComplete: true,
+    consentToTreatment: true,
+    physicalExamination: true,
+    privacyPoliciesAcknowledged: true,
+  },
+  onBoardingUploads: {
+    idFront: "/placeholder.svg",
+    idBack: "/placeholder.svg",
+    xrayOrScans: "/placeholder.svg",
+    medicalReport: "/placeholder.svg",
+  },
   formsCompleted: {
-    onboarding: true, medicalProfile: true, insurance: true, dentalHistory: true,
-    historyHealth: true, lifeStyle: true, women: false, constantLegal: true, presentCondition: true,
+    onboarding: true,
+    medicalProfile: true,
+    insurance: true,
+    dentalHistory: true,
+    historyHealth: true,
+    lifeStyle: true,
+    women: true,
+    constantLegal: true,
+    presentCondition: true,
   },
   formCompletionPercentage: 100,
+  hasCompletedOnboarding: false,
 };
 
 export const pagination = (items: unknown[], page = 1, limit = 10) => ({

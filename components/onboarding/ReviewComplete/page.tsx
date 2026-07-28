@@ -5,14 +5,18 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setOnboardingComplete } from '@/lib/slices/onboardingSlice';
 import { useRouter } from 'next/navigation';
 
-export default function ReviewComplete() {
+export default function ReviewComplete({ onSubmit }: { onSubmit?: () => void }) {
   const dispatch = useDispatch();
   const router = useRouter();
   const onboarding = useSelector((state: any) => state.onboarding);
 
   const handleSubmit = () => {
     dispatch(setOnboardingComplete());
-    router.push('/patient/dashboard');
+    if (onSubmit) {
+      onSubmit();
+    } else {
+      router.push('/patient/dashboard');
+    }
   };
 
   const formData = {

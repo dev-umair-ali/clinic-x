@@ -20,6 +20,12 @@ const nextConfig = {
       { source: "/clinic/notifications", destination: "/Clinic/notifications", permanent: false },
       { source: "/clinic/notifications/:path*", destination: "/Clinic/notifications/:path*", permanent: false },
       { source: "/clinic/notes/view/:path*", destination: "/Clinic/notes/view/:path*", permanent: false },
+      { source: "/doctor/patients-billing/claims/create", destination: "/doctor/patients-billing/claims/submit", permanent: false },
+      { source: "/doctor/patients-billing/claims/edit/:id", destination: "/doctor/patients-billing/claims/submit", permanent: false },
+      { source: "/billing/doctor", destination: "/doctor/patients-billing", permanent: false },
+      { source: "/billing/patient", destination: "/patient/billing", permanent: false },
+      { source: "/billing/clinic", destination: "/clinic/patients-billing", permanent: false },
+      { source: "/billing/assistant", destination: "/assistant/patients-billing", permanent: false },
     ];
   },
 }

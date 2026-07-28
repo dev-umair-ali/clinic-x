@@ -36,12 +36,6 @@ export const womenFormService = {
   },
 };
 
-export function validateWomenForm(formData: WomenFormData): string | null {
-  if (!formData.pregnancyStatus || formData.pregnancyStatus.trim() === '') {
-    return 'Pregnancy Status is required';
-  }
-  if (!formData.menstrualCycleInfo || formData.menstrualCycleInfo.trim() === '') {
-    return 'Last Menstrual Period is required';
-  }
-  return null;
+export function validateWomenForm(_formData: WomenFormData): string | null {
+  return null; // Portfolio: all onboarding fields optional
 }

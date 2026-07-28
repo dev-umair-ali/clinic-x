@@ -105,7 +105,7 @@ export default function ClinicAppointments() {
       if (appointment) {
         const patientId = appointment?.patientRef?._id;
         if (patientId) {
-          router.push(`/doctor/appointments/start-visit?patientId=${patientId}`);
+          router.push(`/doctor/appointments/start-visit?patientId=${patientId}&appointmentId=${id}`);
         }
       }
     }

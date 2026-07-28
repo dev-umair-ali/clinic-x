@@ -167,7 +167,7 @@ export default function ClaimsManagementIntegrated() {
                 Refresh
               </Button>
               <Button
-                onClick={() => router.push("/doctor/patients-billing/claims/create")}
+                onClick={() => router.push("/doctor/patients-billing/claims/submit")}
                 className="bg-[hsl(var(--color-brand-teal))] hover:bg-[hsl(var(--color-brand-teal-dark))] gap-2"
               >
                 <Plus className="w-4 h-4" />
@@ -331,7 +331,7 @@ export default function ClaimsManagementIntegrated() {
                   <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
                   <p>No claims found</p>
                   <Button
-                    onClick={() => router.push("/doctor/patients-billing/claims/create")}
+                    onClick={() => router.push("/doctor/patients-billing/claims/submit")}
                     className="mt-4"
                     variant="outline"
                   >

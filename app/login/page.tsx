@@ -8,6 +8,7 @@ import Image from "next/image";
 import { Eye, EyeOff, UserCircle2 } from "lucide-react";
 import { loginStart, loginSuccess, loginFailure } from "@/lib/slices/authSlice";
 import type { User } from "@/lib/slices/authSlice";
+import { resetOnboardingCompletion } from "@/lib/slices/onboardingSlice";
 import { authService } from "@/lib/api/services/authService";
 import { CognitoAuth } from "@/lib/auth/cognito";
 import { IS_PORTFOLIO_MODE } from "@/lib/config/portfolio";
@@ -29,6 +30,9 @@ export default function LoginPage() {
   const dispatch = useDispatch();
 
   const completeLogin = (user: User, token: string) => {
+    if (user.role === "patient") {
+      dispatch(resetOnboardingCompletion());
+    }
     dispatch(loginSuccess({ user, token }));
     router.push(DASHBOARD_ROUTES[user.role]);
   };

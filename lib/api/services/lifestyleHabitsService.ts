@@ -36,12 +36,6 @@ export const lifestyleHabitsService = {
   },
 };
 
-export function validateLifestyleHabits(formData: LifestyleHabitsFormData): string | null {
-  if (!formData.tobaccoUse) {
-    return 'Tobacco Use is required';
-  }
-  if (!formData.exerciseRegularly) {
-    return 'Exercise Regularly is required';
-  }
-  return null;
+export function validateLifestyleHabits(_formData: LifestyleHabitsFormData): string | null {
+  return null; // Portfolio: all onboarding fields optional
 }

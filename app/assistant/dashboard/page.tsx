@@ -53,13 +53,22 @@ export default function AssistantDashboard() {
 
         {/* 3  Charts Row 1 */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
-          <AppointmentTrends dashboardData={dashboardData?.appointmentsTrend} />
-          <PatientGrowth dashboardData={dashboardData?.patientsTrend} />
+          <AppointmentTrends
+            dashboardData={dashboardData?.appointmentsTrend}
+            title="Today's Booking Pipeline"
+          />
+          <PatientGrowth
+            dashboardData={dashboardData?.patientsTrend}
+            title="Patient Intake Trend"
+          />
         </div>
 
         {/* 4  Charts Row 2 */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
-          <RecentActivity dashboardData={dashboardData?.recentActivity} />
+          <RecentActivity
+            dashboardData={dashboardData?.recentActivity}
+            title="Front Desk Activity"
+          />
         </div>
       </div>
     </div>

@@ -86,6 +86,7 @@ export default function DoctorDashboard() {
 
           <NotesCreditSection
             dashboardData={dashboardData?.patientNotesGraph ?? null}
+            visitVolume={(dashboardData as any)?.visitVolume}
           />
         </div>
       </div>

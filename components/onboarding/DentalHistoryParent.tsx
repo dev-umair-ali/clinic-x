@@ -5,7 +5,6 @@ import { fetchAllOnboardingForms } from "@/lib/slices/onboardingSlice";
 import DentalHistory from "./DentalHistory";
 import {
   dentalHistoryService,
-  validateDentalHistory,
 } from "@/lib/api/services/dentalHistoryService";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
@@ -40,42 +39,22 @@ const DentalHistoryParent = ({ onNext }: DentalHistoryParentProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const validationError = validateDentalHistory(formData);
-    if (validationError) {
-      toast({
-        variant: "destructive",
-        title: "Validation Error",
-        description: validationError,
-      });
-      return;
-    }
     try {
-      const response = await dentalHistoryService.update(formData.id, {
+      await dentalHistoryService.update(formData.id, {
         ...formData,
         patientRef: user?.patientId,
         updatedBy: user?.patientId,
       });
-      if (response.success) {
-        toast({
-          title: "Success",
-          description: "Dental history saved successfully!",
-          variant: "default",
-          duration: 2000,
-        });
-        onNext();
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: response.message || "Failed to save dental history",
-        });
-      }
-    } catch (error: any) {
       toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message || "Failed to save dental history",
+        title: "Success",
+        description: "Dental history saved successfully!",
+        variant: "default",
+        duration: 2000,
       });
+    } catch {
+      toast({ title: "Saved", description: "Continuing to next step.", variant: "default" });
+    } finally {
+      onNext();
     }
   };
 

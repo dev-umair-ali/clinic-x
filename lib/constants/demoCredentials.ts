@@ -72,7 +72,7 @@ export const DEMO_CREDENTIALS: DemoCredential[] = [
       clinicId: IDS.CLINIC_1,
       clinicRef: IDS.CLINIC_1,
       profilePicture: "/placeholder.svg?height=40&width=40",
-      hasCompletedOnboarding: true,
+      hasCompletedOnboarding: false,
     },
   },
   {

@@ -36,12 +36,6 @@ export const medicalProfileService = {
   },
 };
 
-export function validateMedicalProfile(formData: MedicalProfileFormData): string | null {
-  if (!formData.criticalAllergies || formData.criticalAllergies.length === 0) {
-    return 'Critical Allergies are required';
-  }
-  if (!formData.primaryCareInformation) {
-    return 'Primary Care Information is required';
-  }
-  return null;
+export function validateMedicalProfile(_formData: MedicalProfileFormData): string | null {
+  return null; // Portfolio: all onboarding fields optional
 }

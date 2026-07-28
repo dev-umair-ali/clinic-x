@@ -13,11 +13,16 @@ export default function AppointmentsOverviewSection( { dashboardData }: { dashbo
   };
 
   return (
-    <div className="bg-[hsl(var(--card))] rounded-2xl p-6 shadow-sm border border-[hsl(var(--border))]">
+    <div className="bg-[hsl(var(--card))] rounded-2xl p-6 shadow-sm border border-[hsl(var(--border))] overflow-hidden">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold text-[hsl(var(--foreground))]">
-          Appointments Overview
-        </h2>
+        <div>
+          <h2 className="text-xl font-semibold text-[hsl(var(--foreground))]">
+            Appointments Overview
+          </h2>
+          <p className="text-xs text-[hsl(var(--muted-foreground))] mt-1">
+            Your clinical schedule at a glance
+          </p>
+        </div>
         <button
           onClick={() => handleNavigation("/doctor/appointments")}
           className="bg-[hsl(var(--color-brand-teal))] text-[hsl(var(--primary-foreground))] px-4 py-2 rounded-lg text-sm hover:bg-[hsl(var(--color-brand-teal-dark))] transition-colors flex items-center gap-2"

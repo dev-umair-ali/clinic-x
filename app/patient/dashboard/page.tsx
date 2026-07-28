@@ -7,29 +7,22 @@ import type { RootState } from "@/lib/store";
 import { ProtectedRoute } from "@/components/ui/protected-route";
 import {
   Calendar,
-  DollarSign,
-  Pill,
   Stethoscope,
   TrendingUp,
   BarChart3,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
 import { ChatBot } from "./chat-bot";
 import {
-  LineChart,
-  Line,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   ResponsiveContainer,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
+  CartesianGrid,
+  Tooltip,
 } from "recharts";
 import { HiMiniChatBubbleBottomCenterText } from "react-icons/hi2";
 import { PatientOnboardingGuard } from "@/components/ui/patient-onboarding-guard";
@@ -174,23 +167,42 @@ console.log("Patient Dashboard Data:", dashboardData);
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-
-               <Card className="shadow-sm dark:bg-[hsl(var(--card))] dark:border-[hsl(var(--border))]">
-                <CardHeader className="pb-4 px-6 pt-6">
-                  <div className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5 text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]" />
-                    <CardTitle className="text-base font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
-                      Appointment Trends
-                    </CardTitle>
+              <Card className="rounded-2xl shadow-sm border border-[hsl(var(--border))] dark:bg-[hsl(var(--card))] overflow-hidden">
+                <CardHeader className="pb-2 px-6 pt-6">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[hsl(var(--color-brand-teal)/0.12)]">
+                        <TrendingUp className="h-4 w-4 text-[hsl(var(--color-brand-teal))]" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-base font-semibold text-[hsl(var(--foreground))]">
+                          Your Appointment History
+                        </CardTitle>
+                        <p className="text-xs text-[hsl(var(--muted-foreground))] mt-0.5">
+                          Visits booked vs completed
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </CardHeader>
-                <CardContent className="pt-0 px-6 pb-6">
+                <CardContent className="pt-2 px-4 pb-6">
                   <div className="h-56">
                     <ResponsiveContainer width="100%" height="100%">
-                      <LineChart
+                      <AreaChart
                         data={appointmentTrends}
-                        margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
+                        margin={{ top: 8, right: 8, left: -12, bottom: 0 }}
                       >
+                        <defs>
+                          <linearGradient id="patientApptFill" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="hsl(var(--color-brand-teal))" stopOpacity={0.35} />
+                            <stop offset="100%" stopColor="hsl(var(--color-brand-teal))" stopOpacity={0.02} />
+                          </linearGradient>
+                          <linearGradient id="patientCompletedFill" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="hsl(var(--color-chart-blue))" stopOpacity={0.28} />
+                            <stop offset="100%" stopColor="hsl(var(--color-chart-blue))" stopOpacity={0.02} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid vertical={false} strokeDasharray="4 6" stroke="hsl(var(--border))" />
                         <XAxis
                           dataKey="month"
                           axisLine={false}
@@ -203,34 +215,101 @@ console.log("Patient Dashboard Data:", dashboardData);
                         <YAxis
                           axisLine={false}
                           tickLine={false}
+                          width={28}
+                          allowDecimals={false}
                           tick={{
                             fontSize: 11,
                             fill: "hsl(var(--muted-foreground))",
                           }}
-                          domain={[0, 8]}
                         />
-                        <Line
+                        <Tooltip
+                          contentStyle={{
+                            borderRadius: 12,
+                            border: "1px solid hsl(var(--border))",
+                            background: "hsl(var(--card))",
+                            fontSize: 12,
+                          }}
+                        />
+                        <Area
                           type="monotone"
                           dataKey="appointments"
                           stroke="hsl(var(--color-brand-teal))"
-                          strokeWidth={2}
-                          dot={{
-                            fill: "hsl(var(--color-brand-teal))",
-                            strokeWidth: 2,
-                            r: 3,
-                          }}
-                          activeDot={{
-                            r: 4,
-                            fill: "hsl(var(--color-brand-teal))",
-                          }}
+                          strokeWidth={2.5}
+                          fill="url(#patientApptFill)"
+                          activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--card))" }}
                         />
-                      </LineChart>
+                        <Area
+                          type="monotone"
+                          dataKey="completed"
+                          stroke="hsl(var(--color-chart-blue))"
+                          strokeWidth={2}
+                          fill="url(#patientCompletedFill)"
+                        />
+                      </AreaChart>
                     </ResponsiveContainer>
+                  </div>
+                  <div className="mt-3 flex justify-center gap-5 text-xs text-[hsl(var(--muted-foreground))]">
+                    <span className="inline-flex items-center gap-1.5">
+                      <span className="h-2.5 w-2.5 rounded-full bg-[hsl(var(--color-brand-teal))]" />
+                      Booked
+                    </span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <span className="h-2.5 w-2.5 rounded-full bg-[hsl(var(--color-chart-blue))]" />
+                      Completed
+                    </span>
                   </div>
                 </CardContent>
               </Card>
 
-              
+              <Card className="rounded-2xl shadow-sm border border-[hsl(var(--border))] dark:bg-[hsl(var(--card))] overflow-hidden">
+                <CardHeader className="pb-2 px-6 pt-6">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[hsl(var(--color-chart-purple)/0.12)]">
+                      <BarChart3 className="h-4 w-4 text-[hsl(var(--color-chart-purple))]" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base font-semibold text-[hsl(var(--foreground))]">
+                        Care Engagement
+                      </CardTitle>
+                      <p className="text-xs text-[hsl(var(--muted-foreground))] mt-0.5">
+                        How complete your care plan is
+                      </p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="px-6 pb-6 pt-2 space-y-4">
+                  {(dashboardData?.healthScore || [
+                    { label: "Checkups", value: 85 },
+                    { label: "Labs", value: 70 },
+                    { label: "Meds", value: 92 },
+                    { label: "Follow-ups", value: 78 },
+                  ]).map((item: { label: string; value: number }, idx: number) => {
+                    const colors = [
+                      "hsl(var(--color-brand-teal))",
+                      "hsl(var(--color-chart-blue))",
+                      "hsl(var(--color-chart-orange))",
+                      "hsl(var(--color-chart-purple))",
+                    ];
+                    const color = colors[idx % colors.length];
+                    return (
+                      <div key={item.label} className="space-y-1.5">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-[hsl(var(--foreground))]">{item.label}</span>
+                          <span className="font-semibold" style={{ color }}>
+                            {item.value}%
+                          </span>
+                        </div>
+                        <div className="h-2 rounded-full bg-[hsl(var(--muted))] overflow-hidden">
+                          <div
+                            className="h-full rounded-full transition-all duration-700"
+                            style={{ width: `${item.value}%`, background: color }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </CardContent>
+              </Card>
             </div>
           </div>
 

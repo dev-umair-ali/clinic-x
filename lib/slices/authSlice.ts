@@ -1,5 +1,9 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { setAuthToken, clearAuthToken } from "../api/axios";
+import {
+  armOnboardingPromptForLogin,
+  dismissOnboardingLoginPrompt,
+} from "./onboardingSlice";
 
 export interface User {
   id: string;
@@ -50,7 +54,12 @@ const authSlice = createSlice({
       state,
       action: PayloadAction<{ user: User; token: string }>
     ) => {
-      state.user = action.payload.user;
+      const user =
+        action.payload.user.role === "patient"
+          ? { ...action.payload.user, hasCompletedOnboarding: false }
+          : action.payload.user;
+
+      state.user = user;
       state.token = action.payload.token;
       state.isAuthenticated = true;
       state.loading = false;
@@ -61,10 +70,12 @@ const authSlice = createSlice({
       // Save to localStorage
       if (typeof window !== "undefined") {
         localStorage.setItem("clinic-ai-token", action.payload.token);
-        localStorage.setItem(
-          "clinic-ai-user",
-          JSON.stringify(action.payload.user)
-        );
+        localStorage.setItem("clinic-ai-user", JSON.stringify(user));
+
+        if (user.role === "patient") {
+          // Fresh login → show onboarding once; reload will not re-arm this
+          armOnboardingPromptForLogin(user.patientId);
+        }
       }
     },
     loginFailure: (state) => {
@@ -92,9 +103,13 @@ const authSlice = createSlice({
       clearAuthToken();
       localStorage.removeItem("clinic-ai-token");
       localStorage.removeItem("clinic-ai-user");
+      dismissOnboardingLoginPrompt();
     },
     setUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload;
+      if (typeof window !== "undefined") {
+        localStorage.setItem("clinic-ai-user", JSON.stringify(action.payload));
+      }
     },
     initializeAuth: (state) => {
       if (typeof window !== "undefined") {

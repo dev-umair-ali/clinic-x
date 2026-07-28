@@ -288,7 +288,7 @@ export default function ClaimDetailsIntegrated({ claimId }: ClaimDetailsProps) {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => router.push(`/doctor/patients-billing/claims/edit/${claimId}`)}
+                  onClick={() => router.push(`/doctor/patients-billing/claims/submit?claimId=${claimId}`)}
                 >
                   <Edit className="w-4 h-4 mr-2" />
                   Edit

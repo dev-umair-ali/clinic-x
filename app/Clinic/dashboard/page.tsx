@@ -53,17 +53,26 @@ export default function ClinicDashboard() {
 
         {/* 5  Charts Row 2 */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
-          <DoctorPerformance dashboardData={dashboardData?.doctorPerformance} />
-          <PatientGrowth dashboardData={dashboardData?.patientGrowth} />
-          {/* Data available: dashboardData?.patientGrowth */}
+          <DoctorPerformance
+            dashboardData={dashboardData?.doctorPerformance}
+            title="Clinic Doctor Performance"
+          />
+          <PatientGrowth
+            dashboardData={dashboardData?.patientGrowth}
+            title="Clinic Patient Growth"
+          />
         </div>
 
         {/* 6  Charts Row 3 */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
-          <AppointmentTrends dashboardData={dashboardData?.appointmentsTrend} />
-          {/* Data available: dashboardData?.appointmentsTrend */}
-          <RecentActivity dashboardData={dashboardData?.recentActivity} />
-          {/* Data available: dashboardData?.recentActivity */}
+          <AppointmentTrends
+            dashboardData={dashboardData?.appointmentsTrend}
+            title="Clinic Appointment Flow"
+          />
+          <RecentActivity
+            dashboardData={dashboardData?.recentActivity}
+            title="Clinic Operations Feed"
+          />
         </div>
       </div>
     </div>

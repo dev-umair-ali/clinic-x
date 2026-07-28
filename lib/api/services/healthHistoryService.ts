@@ -38,18 +38,6 @@ export const healthHistoryService = {
   },
 };
 
-export function validateHealthHistory(formData: HealthHistoryFormData): string | null {
-  if (!formData.healthConditions || formData.healthConditions.length === 0) {
-    return 'Health Condition is required';
-  }
-  if (!formData.currentMedication || formData.currentMedication.trim() === '') {
-    return 'Current Medication is required';
-  }
-  if (!formData.surgicalHistory || formData.surgicalHistory.trim() === '') {
-    return 'Surgical History is required';
-  }
-  if (!formData.allergies || formData.allergies.trim() === '') {
-    return 'Allergies are required';
-  }
-  return null;
+export function validateHealthHistory(_formData: HealthHistoryFormData): string | null {
+  return null; // Portfolio: all onboarding fields optional
 }
