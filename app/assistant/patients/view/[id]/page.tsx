@@ -30,12 +30,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import moment from "moment";
 import { fetchAssistantPatient } from "@/lib/slices/assistantPatientSlice"
 import { fetchClinicDoctors } from "@/lib/slices/patientSlice"
+import {
+  filterAppointmentsByTab,
+  mapAppointmentForDisplay,
+  resolveDoctorName,
+} from "@/lib/utils/patientDisplay";
 
 export default function ViewPatientPage() {
   const router = useRouter();
   const params = useParams();
   const { loading } = useSelector((state: RootState) => state.assistantPatients);
-  const { clinicDoctors } = useSelector((state: RootState) => state.patients);
    const { assistantPatient } = useSelector((state: RootState) => state.assistantPatients)
    const { user } = useSelector((state: RootState) => state.auth)
   
@@ -43,7 +47,6 @@ export default function ViewPatientPage() {
   const patientId = params.id as string;
   const [activeTab, setActiveTab] = useState<"overview" | "appointments">("overview");
   const [activeAppointmentTab, setActiveAppointmentTab] = useState("upcoming");
-  const [doctorName, setDoctorName] = useState("")
   const patient = assistantPatient;
   useEffect(() => {
     if (patientId) dispatch(fetchAssistantPatient(patientId))
@@ -145,34 +148,14 @@ export default function ViewPatientPage() {
            || hasData(patient.currentMedication);
   };
 
-  // Helper function to check if appointments tab has data
-  const hasAppointmentsData = () => {
-    return true; // For now, always show appointments tab
-  };
+  const appointments = ((patient as { appointments?: Record<string, unknown>[] })?.appointments || [])
+    .map(mapAppointmentForDisplay)
+    .filter((a) => a.status !== "cancelled");
+  const filteredAppointments = filterAppointmentsByTab(appointments, activeAppointmentTab);
+  const primaryDoctorName = resolveDoctorName(patient.doctorRef);
 
-  const appointments = [
-    {
-      date: "15/01/2024",
-      time: "10:00 AM",
-      doctor: "Dr. Sarah Johnson",
-      type: "Follow-up",
-      status: "completed",
-    },
-    {
-      date: "22/01/2024",
-      time: "2:30 PM",
-      doctor: "Dr. Michael Chen",
-      type: "Consultation",
-      status: "upcoming",
-    },
-    {
-      date: "05/02/2024",
-      time: "9:15 AM",
-      doctor: "Dr. Sarah Johnson",
-      type: "Check-up",
-      status: "scheduled",
-    },
-  ];
+  // Helper function to check if appointments tab has data
+  const hasAppointmentsData = () => appointments.length > 0;
 
   return (
     <ProtectedRoute allowedRoles={["assistant"]}>
@@ -283,7 +266,7 @@ export default function ViewPatientPage() {
                 {renderField(
                   <User className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />,
                   "Primary Doctor",
-                  (patient?.doctorRef as any)?.firstName + " " + (patient?.doctorRef as any)?.lastName || "No doctor assigned"
+                  primaryDoctorName
                 )}
                 {renderField(
                   <Shield className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />,
@@ -506,15 +489,18 @@ export default function ViewPatientPage() {
                     </div>
 
                     <div className="space-y-4">
-                      {/* {appointments
-                        .filter((appointment) => appointment.status === activeAppointmentTab)
-                        .map((appointment, index) => (
+                      {filteredAppointments.length === 0 ? (
+                        <p className="text-sm text-[hsl(var(--muted-foreground))] py-8 text-center">
+                          No {activeAppointmentTab} appointments.
+                        </p>
+                      ) : (
+                        filteredAppointments.map((appointment) => (
                           <div
-                            key={index}
+                            key={appointment.id}
                             className="bg-[hsl(var(--accent))] rounded-lg p-4 border border-[hsl(var(--border))]"
                           >
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-4">
+                            <div className="flex items-center justify-between flex-wrap gap-3">
+                              <div className="flex items-center gap-4 flex-wrap">
                                 <div className="flex items-center gap-2">
                                   <Calendar className="h-5 w-5 text-[hsl(var(--color-brand-teal))]" />
                                   <span className="font-medium text-[hsl(var(--foreground))]">{appointment.date}</span>
@@ -530,19 +516,11 @@ export default function ViewPatientPage() {
                               </div>
                               <div className="flex items-center gap-2">
                                 <Badge
-                                  variant={
-                                    appointment.status === "completed"
-                                      ? "default"
-                                      : appointment.status === "upcoming"
-                                      ? "secondary"
-                                      : "outline"
-                                  }
+                                  variant={appointment.status === "completed" ? "default" : "secondary"}
                                   className={
                                     appointment.status === "completed"
                                       ? "bg-[hsl(var(--color-status-success)/0.1)] text-[hsl(var(--color-status-success))]"
-                                      : appointment.status === "upcoming"
-                                      ? "bg-[hsl(var(--color-status-info)/0.1)] text-[hsl(var(--color-status-info))]"
-                                      : ""
+                                      : "bg-[hsl(var(--color-status-info)/0.1)] text-[hsl(var(--color-status-info))]"
                                   }
                                 >
                                   {appointment.status}
@@ -551,16 +529,21 @@ export default function ViewPatientPage() {
                               </div>
                             </div>
                           </div>
-                        ))} */}
+                        ))
+                      )}
                     </div>
 
                     <div className="flex items-center justify-between mt-6">
-                      <p className="text-sm text-[hsl(var(--muted-foreground))]">Showing 1-3 of 3 appointments</p>
+                      <p className="text-sm text-[hsl(var(--muted-foreground))]">
+                        {filteredAppointments.length === 0
+                          ? "No appointments to show"
+                          : `Showing 1-${filteredAppointments.length} of ${filteredAppointments.length} appointments`}
+                      </p>
                       <div className="flex gap-2">
                         <Button variant="outline" size="sm" disabled>
                           Previous
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" disabled>
                           Next
                         </Button>
                       </div>

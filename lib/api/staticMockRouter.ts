@@ -75,6 +75,44 @@ function findById<T extends { _id?: string }>(items: T[], id: string): T | undef
   return items.find((x) => x._id === id);
 }
 
+function enrichPatient(patient: ReturnType<typeof getStaticStore>["patients"][0]) {
+  const s = getStaticStore();
+  const clinicId =
+    typeof patient.clinicRef === "string"
+      ? patient.clinicRef
+      : (patient.clinicRef as { _id?: string } | undefined)?._id;
+  const doctorId =
+    typeof patient.doctorRef === "string"
+      ? patient.doctorRef
+      : (patient.doctorRef as { _id?: string } | undefined)?._id;
+  const clinic = clinicId ? findById(s.clinics, clinicId) : undefined;
+  const doctor = doctorId ? findById(s.doctors, doctorId) : undefined;
+  const appointments = s.appointments.filter((a) => {
+    const pid =
+      a.patientId ||
+      (typeof a.patientRef === "object" && a.patientRef
+        ? (a.patientRef as { _id?: string })._id
+        : a.patientRef);
+    return pid === patient._id;
+  });
+  return {
+    ...patient,
+    fullName: `${patient.firstName || ""} ${patient.lastName || ""}`.trim(),
+    clinicRef: clinic
+      ? { _id: clinic._id, clinicName: clinic.clinicName, name: clinic.clinicName }
+      : patient.clinicRef,
+    doctorRef: doctor
+      ? {
+          _id: doctor._id,
+          firstName: doctor.firstName,
+          lastName: doctor.lastName,
+          name: doctor.name || `Dr. ${doctor.firstName} ${doctor.lastName}`,
+        }
+      : patient.doctorRef,
+    appointments,
+  };
+}
+
 function assistantDetail(a: ReturnType<typeof getStaticStore>["assistants"][0]) {
   return {
     ...a,
@@ -204,21 +242,22 @@ export function resolveStaticMock(
 
   // ── Patients ──
   if (m === "GET" && /\/(admin|clinic|assistant)\/patient\/all\/patients/.test(path))
-    return patientsList(s.patients, page, limit);
+    return patientsList(s.patients.map(enrichPatient), page, limit);
   if (m === "GET" && path.match(/\/(admin|clinic|assistant)\/patient\/[^/]+$/) && !path.includes("all")) {
     const id = path.split("/").pop()!;
     const p = findById(s.patients, id) || s.patients[0];
-    return { success: true, patient: p };
+    return { success: true, patient: enrichPatient(p) };
   }
   if (m === "GET" && path.match(/\/doctor\/patient\/[^/]+$/) && !path.includes("all")) {
     const id = path.split("/").pop()!;
     const p = findById(s.patients, id) || s.doctorPatients[0] || s.patients[0];
-    return { success: true, patient: p };
+    return { success: true, patient: enrichPatient(p as (typeof s.patients)[0]) };
   }
   if (m === "GET" && path.match(/\/doctors\/patients\/[^/]+$/) && !path.includes("/doctor/")) {
     const id = path.split("/").pop()!;
     const p = findById(s.patients, id) || s.patients[0];
-    return { success: true, data: p, patient: p };
+    const enriched = enrichPatient(p);
+    return { success: true, data: enriched, patient: enriched };
   }
   if (m === "GET" && path === "/doctor/patient/all/patients")
     return { success: true, patients: s.doctorPatients };
